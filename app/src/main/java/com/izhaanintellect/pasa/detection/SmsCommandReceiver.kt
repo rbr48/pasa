@@ -64,7 +64,8 @@ class SmsCommandReceiver : BroadcastReceiver() {
         }
 
         val providedPassword = parts[1]
-        val command = parts[2].lowercase()
+        val rawCmd = parts[2].lowercase()
+        val command = if (rawCmd.startsWith("/")) rawCmd else "/$rawCmd"
         val args = parts.drop(3)
 
         // Authenticate against Master Password

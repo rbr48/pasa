@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const EventEmitter = require('events');
+const { renderCommercialLandingPage } = require('./landingPage');
 
 const app = express();
 const PORT = process.env.PORT || 8160;
@@ -30,6 +31,7 @@ const RELEASES_DIR = path.join(__dirname, 'releases');
 if (!fs.existsSync(RELEASES_DIR)) fs.mkdirSync(RELEASES_DIR, { recursive: true });
 const RELEASES_FILE = path.join(DATA_DIR, 'app_releases.json');
 const GPS_FILE = path.join(DATA_DIR, 'gps_history.json');
+const LICENSES_FILE = path.join(DATA_DIR, 'licenses.json');
 
 // Multer storage for photos/audio/video uploaded from device
 const upload = multer({
@@ -100,6 +102,158 @@ function recordDeviceLocation(deviceId, lat, lon, meta = {}) {
     saveJson(DEVICES_FILE, devices);
   }
   return point;
+}
+
+// --- Commercial Licensing & Subscription Engine ---
+
+let licenses = loadJson(LICENSES_FILE, {});
+
+function generateLicenseKey(tier = 'PRO') {
+  const cleanTier = tier.toUpperCase().includes('LIFE') ? 'LIFE' : 'PRO';
+  const seg1 = crypto.randomBytes(2).toString('hex').toUpperCase();
+  const seg2 = crypto.randomBytes(2).toString('hex').toUpperCase();
+  const seg3 = crypto.randomBytes(2).toString('hex').toUpperCase();
+  return `PASA-${cleanTier}-${seg1}-${seg2}-${seg3}`;
+}
+
+function createLicense(email, tier = 'PRO_ANNUAL', maxDevices = 1) {
+  const key = generateLicenseKey(tier);
+  const now = Date.now();
+  let expiresAt = null;
+  if (tier === 'TRIAL') {
+    expiresAt = now + 7 * 24 * 60 * 60 * 1000; // 7 days
+  } else if (tier === 'PRO_ANNUAL') {
+    expiresAt = now + 365 * 24 * 60 * 60 * 1000; // 1 year
+  } else if (tier === 'PRO_LIFETIME') {
+    expiresAt = now + 100 * 365 * 24 * 60 * 60 * 1000; // 100 years
+  }
+
+  licenses[key] = {
+    key,
+    email: (email || '').trim().toLowerCase(),
+    tier,
+    maxDevices: Math.max(parseInt(maxDevices, 10) || 1, 1),
+    activatedDevices: [],
+    createdAt: now,
+    expiresAt,
+    status: 'ACTIVE'
+  };
+  saveJson(LICENSES_FILE, licenses);
+  logSecurityEvent('LICENSE_CREATED', { key, email, tier, maxDevices });
+  return licenses[key];
+}
+
+function activateLicense(key, deviceId) {
+  if (!key || typeof key !== 'string') return { ok: false, message: 'Invalid license key format' };
+  const cleanKey = key.trim().toUpperCase();
+  const lic = licenses[cleanKey];
+  if (!lic) return { ok: false, message: 'License key not found. Please check your key or buy one at https://izhaanintellect.fun/pasa/' };
+  if (lic.status !== 'ACTIVE') return { ok: false, message: `License is ${lic.status}` };
+  if (lic.expiresAt && Date.now() > lic.expiresAt) {
+    lic.status = 'EXPIRED';
+    saveJson(LICENSES_FILE, licenses);
+    return { ok: false, message: 'License key has expired' };
+  }
+
+  if (!lic.activatedDevices.includes(deviceId)) {
+    if (lic.activatedDevices.length >= lic.maxDevices) {
+      return {
+        ok: false,
+        message: `Device limit reached (${lic.maxDevices} device${lic.maxDevices > 1 ? 's' : ''} already bound)`
+      };
+    }
+    lic.activatedDevices.push(deviceId);
+    saveJson(LICENSES_FILE, licenses);
+  }
+
+  if (devices[deviceId]) {
+    devices[deviceId].licenseKey = cleanKey;
+    devices[deviceId].licenseTier = lic.tier;
+    devices[deviceId].licenseExpiresAt = lic.expiresAt;
+    saveJson(DEVICES_FILE, devices);
+  }
+
+  logSecurityEvent('LICENSE_ACTIVATED', { key: cleanKey, deviceId, tier: lic.tier });
+  const daysLeft = lic.expiresAt ? Math.max(0, Math.ceil((lic.expiresAt - Date.now()) / (24 * 60 * 60 * 1000))) : 99999;
+  return {
+    ok: true,
+    message: `License activated successfully (${lic.tier})`,
+    tier: lic.tier,
+    daysLeft,
+    expiresAt: lic.expiresAt
+  };
+}
+
+function getDeviceLicenseStatus(deviceId) {
+  const dev = devices[deviceId];
+  const now = Date.now();
+
+  // 1. Check bound active license
+  if (dev && dev.licenseKey && licenses[dev.licenseKey]) {
+    const lic = licenses[dev.licenseKey];
+    if (lic.status === 'ACTIVE' && (!lic.expiresAt || lic.expiresAt > now)) {
+      const daysLeft = lic.expiresAt ? Math.max(0, Math.ceil((lic.expiresAt - now) / (24 * 60 * 60 * 1000))) : 99999;
+      return {
+        hasPro: true,
+        tier: lic.tier,
+        status: 'ACTIVE',
+        isTrial: false,
+        daysLeft,
+        expiresAt: lic.expiresAt,
+        licenseKey: lic.key
+      };
+    }
+  }
+
+  // 2. Default 7-day trial from registration time
+  const registeredAt = (dev && dev.registeredAt) || now;
+  const trialDuration = 7 * 24 * 60 * 60 * 1000;
+  const trialExpiresAt = registeredAt + trialDuration;
+  const trialDaysLeft = Math.max(0, Math.ceil((trialExpiresAt - now) / (24 * 60 * 60 * 1000)));
+
+  if (now < trialExpiresAt) {
+    return {
+      hasPro: true,
+      tier: 'FREE_TRIAL',
+      status: 'TRIAL',
+      isTrial: true,
+      daysLeft: trialDaysLeft,
+      expiresAt: trialExpiresAt,
+      licenseKey: null
+    };
+  }
+
+  return {
+    hasPro: false,
+    tier: 'EXPIRED_TRIAL',
+    status: 'EXPIRED',
+    isTrial: true,
+    daysLeft: 0,
+    expiresAt: trialExpiresAt,
+    licenseKey: null
+  };
+}
+
+function lookupLicense(query) {
+  if (!query || typeof query !== 'string') return null;
+  const q = query.trim().toLowerCase();
+  for (const lic of Object.values(licenses)) {
+    if (lic.key.toLowerCase() === q || (lic.email && lic.email.toLowerCase() === q)) {
+      const daysLeft = lic.expiresAt ? Math.max(0, Math.ceil((lic.expiresAt - Date.now()) / (24 * 60 * 60 * 1000))) : 99999;
+      return {
+        key: lic.key,
+        email: lic.email,
+        tier: lic.tier,
+        maxDevices: lic.maxDevices,
+        activatedCount: lic.activatedDevices.length,
+        status: lic.status,
+        daysLeft,
+        expiresAt: lic.expiresAt,
+        createdAt: lic.createdAt
+      };
+    }
+  }
+  return null;
 }
 
 // --- Master Admin Secret Management ---
@@ -427,6 +581,7 @@ async function registerTelegramBotCommands(token) {
     { command: "wipe", description: "Remote factory reset (requires master password)" },
     { command: "help", description: "Show full help manual & command list" },
     { command: "check_update", description: "Check for OTA app updates" },
+    { command: "license", description: "Check Pro license status or activate key" },
     { command: "duress_pin", description: "Configure decoy coercion PIN for emergency SOS" },
     { command: "trap", description: "Arm autonomous sensor traps (snatch & grab, charger)" },
     { command: "shred", description: "Cryptographically shred sensitive files with zero-fill" }
@@ -464,7 +619,7 @@ const PERSISTENT_REPLY_KEYBOARD = {
     [{ text: '📊 Status' }, { text: '📍 Locate' }, { text: '🚨 Siren' }],
     [{ text: '📸 Photo' }, { text: '🎥 Video' }, { text: '🎙️ Audio' }],
     [{ text: '🔒 Lock' }, { text: '💬 Message' }, { text: '🛡️ Traps' }],
-    [{ text: '🎛️ Control Panel' }, { text: '🗺️ Tactical Map' }]
+    [{ text: '🎛️ Control Panel' }, { text: '🗺️ Tactical Map' }, { text: '🔑 License' }]
   ],
   resize_keyboard: true,
   is_persistent: true
@@ -521,6 +676,9 @@ const DASHBOARD_KEYBOARD = {
     ],
     [
       { text: '🔄 Check Update', callback_data: 'cmd:check_update' },
+      { text: '🔑 License & Pro', callback_data: 'menu:license' }
+    ],
+    [
       { text: '⚙️ Security Tools', callback_data: 'menu:tools' }
     ]
   ]
@@ -941,6 +1099,64 @@ async function handleTelegramUpdate(token, update) {
       return;
     }
 
+    if (data === 'menu:license') {
+      clearChatState(chatId);
+      const activeDev = getActiveDeviceForChat(token, chatId);
+      let statusDetails = '';
+      if (!activeDev) {
+        statusDetails = '⚠️ <i>No active device linked to this chat yet.</i>';
+      } else {
+        const lic = getDeviceLicenseStatus(activeDev.deviceId);
+        const tierBadge = lic.tier === 'PRO_LIFETIME' ? '💎 Pro Lifetime (Sovereign)' :
+                          lic.tier === 'PRO_ANNUAL' ? '⭐ Pro Annual' :
+                          lic.tier === 'PRO_ENTERPRISE' ? '🏢 Fleet / Enterprise' :
+                          lic.tier === 'FREE_TRIAL' ? '⏳ 7-Day Free Trial (Active)' : '❌ Trial Expired';
+        const remaining = lic.daysLeft > 9000 ? 'Permanent Sovereign Access' : `${lic.daysLeft} day(s) remaining`;
+        statusDetails = `<b>Device:</b> <code>${activeDev.deviceId}</code> (${activeDev.deviceName || 'Android'})\n` +
+                        `<b>License Tier:</b> ${tierBadge}\n` +
+                        `<b>Status:</b> <code>${lic.status}</code>\n` +
+                        `<b>Validity:</b> ${remaining}\n` +
+                        (lic.licenseKey ? `<b>Bound Key:</b> <code>${lic.licenseKey}</code>\n` : '');
+      }
+
+      const licKeyboard = {
+        inline_keyboard: [
+          [
+            { text: '🔑 Activate License Key', callback_data: 'wizard:license:activate' },
+            { text: '🔄 Refresh Status', callback_data: 'menu:license' }
+          ],
+          [
+            { text: '🛒 Buy / Upgrade Pro License', url: 'https://izhaanintellect.fun/pasa/#pricing' }
+          ],
+          [
+            { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+          ]
+        ]
+      };
+
+      await callTelegram(token, 'editMessageText', {
+        chat_id: chatId,
+        message_id: messageId,
+        text: `🔐 <b>PASA Commercial Licensing & Pro Status</b>\n━━━━━━━━━━━━━━━━━━━━\n${statusDetails}\n\n<i>To bind a purchased key, tap <b>Activate License Key</b> below or send:</i>\n<code>/license activate PASA-PRO-XXXX-XXXX</code>`,
+        parse_mode: 'HTML',
+        reply_markup: licKeyboard
+      });
+      return;
+    }
+
+    if (data === 'wizard:license:activate') {
+      setChatState(chatId, 'WAITING_FOR_LICENSE_KEY');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '🔑 <b>Activate PASA Pro License</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with your License Key (e.g. <code>PASA-PRO-XXXX-XXXX-XXXX</code>):',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
     if (SUBMENUS[data]) {
       clearChatState(chatId);
       const sub = SUBMENUS[data];
@@ -1104,6 +1320,43 @@ async function handleTelegramUpdate(token, update) {
       const target = activeState.data?.target || 'downloads';
       clearChatState(chatId);
       await dispatchCommandToDevice(token, chatId, '/shred', [rawText, target]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_LICENSE_KEY') {
+      clearChatState(chatId);
+      const cleanKey = rawText.trim().toUpperCase();
+      const activeDev = getActiveDeviceForChat(token, chatId);
+      if (!activeDev) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>Activation Failed:</b> No active device linked to this chat.',
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      const actRes = activateLicense(cleanKey, activeDev.deviceId);
+      if (actRes.ok) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `✅ <b>License Activated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n<b>Tier:</b> ${actRes.tier}\n<b>Device:</b> <code>${activeDev.deviceId}</code>\n<b>Validity:</b> ${actRes.daysLeft > 9000 ? 'Permanent Lifetime' : actRes.daysLeft + ' days'}\n\nYour sovereign security agent is fully unlocked!`,
+          parse_mode: 'HTML',
+          reply_markup: DASHBOARD_KEYBOARD
+        });
+      } else {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `❌ <b>Activation Failed:</b> ${actRes.message}\n\nPlease verify the key or visit https://izhaanintellect.fun/pasa/#pricing to get a valid license.`,
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '🔑 Try Again', callback_data: 'wizard:license:activate' }],
+              [{ text: '🛒 Buy Pro License', url: 'https://izhaanintellect.fun/pasa/#pricing' }],
+              [{ text: '🔙 Dashboard', callback_data: 'menu:main' }]
+            ]
+          }
+        });
+      }
       return;
     }
   }
@@ -1282,6 +1535,103 @@ async function handleTelegramUpdate(token, update) {
     return;
   }
 
+  if (lowerText === '🔑 license' || lowerText === 'license' || lowerText.startsWith('/license') || lowerText.startsWith('/pro')) {
+    const parts = rawText.split(/\s+/);
+    const subCmd = (parts[1] || '').toLowerCase();
+    const activeDev = getActiveDeviceForChat(token, chatId);
+
+    if (subCmd === 'activate') {
+      const key = parts[2];
+      if (!key) {
+        setChatState(chatId, 'WAITING_FOR_LICENSE_KEY');
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '🔑 <b>Activate PASA Pro License</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with your License Key (e.g. <code>PASA-PRO-XXXX-XXXX-XXXX</code>):',
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+          }
+        });
+        return;
+      }
+      if (!activeDev) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ Cannot activate license: No active device linked to this chat.',
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      const actRes = activateLicense(key, activeDev.deviceId);
+      if (actRes.ok) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `✅ <b>License Activated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n<b>Tier:</b> ${actRes.tier}\n<b>Device:</b> <code>${activeDev.deviceId}</code>\n<b>Validity:</b> ${actRes.daysLeft > 9000 ? 'Permanent Lifetime' : actRes.daysLeft + ' days'}`,
+          parse_mode: 'HTML',
+          reply_markup: DASHBOARD_KEYBOARD
+        });
+      } else {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `❌ <b>Activation Failed:</b> ${actRes.message}`,
+          parse_mode: 'HTML'
+        });
+      }
+      return;
+    }
+
+    if (subCmd === 'buy' || subCmd === 'pricing') {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: `💎 <b>PASA Sovereign Pro Licensing</b>\n━━━━━━━━━━━━━━━━━━━━\n• <b>Pro Annual ($14.99/yr):</b> 1 Device, continuous updates & priority C2\n• <b>Pro Lifetime ($29.99):</b> 3 Devices, Lifetime updates & VIP support\n• <b>Family Fleet ($49.99):</b> Up to 10 Devices\n\n👉 <b>Instant Web Checkout & Key Delivery:</b>\nhttps://izhaanintellect.fun/pasa/#pricing`,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🛒 Open Web Checkout', url: 'https://izhaanintellect.fun/pasa/#pricing' }],
+            [{ text: '🔑 Activate Key', callback_data: 'wizard:license:activate' }]
+          ]
+        }
+      });
+      return;
+    }
+
+    // Default: Show License Status
+    let statusDetails = '';
+    if (!activeDev) {
+      statusDetails = '⚠️ <i>No active device linked to this chat yet.</i>';
+    } else {
+      const lic = getDeviceLicenseStatus(activeDev.deviceId);
+      const tierBadge = lic.tier === 'PRO_LIFETIME' ? '💎 Pro Lifetime (Sovereign)' :
+                        lic.tier === 'PRO_ANNUAL' ? '⭐ Pro Annual' :
+                        lic.tier === 'PRO_ENTERPRISE' ? '🏢 Fleet / Enterprise' :
+                        lic.tier === 'FREE_TRIAL' ? '⏳ 7-Day Free Trial (Active)' : '❌ Trial Expired';
+      const remaining = lic.daysLeft > 9000 ? 'Permanent Sovereign Access' : `${lic.daysLeft} day(s) remaining`;
+      statusDetails = `<b>Device:</b> <code>${activeDev.deviceId}</code> (${activeDev.deviceName || 'Android'})\n` +
+                      `<b>Tier:</b> ${tierBadge}\n` +
+                      `<b>Status:</b> <code>${lic.status}</code>\n` +
+                      `<b>Validity:</b> ${remaining}\n` +
+                      (lic.licenseKey ? `<b>Bound Key:</b> <code>${lic.licenseKey}</code>\n` : '');
+    }
+
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: `🔐 <b>PASA Commercial Licensing & Pro Status</b>\n━━━━━━━━━━━━━━━━━━━━\n${statusDetails}\n\n<i>To bind a purchased key, tap <b>Activate License Key</b> below or send:</i>\n<code>/license activate PASA-PRO-XXXX-XXXX</code>`,
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: '🔑 Activate License Key', callback_data: 'wizard:license:activate' },
+            { text: '🛒 Buy Pro License', url: 'https://izhaanintellect.fun/pasa/#pricing' }
+          ],
+          [
+            { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+          ]
+        ]
+      }
+    });
+    return;
+  }
+
   // Parse slash commands or standard arguments
   const parts = rawText.split(/\s+/);
   const command = parts[0].toLowerCase();
@@ -1330,33 +1680,53 @@ function initPollers() {
 
 // --- REST Endpoints ---
 
-// 0. Root Status
+// 0. Root Status & Commercial Landing Page
 app.get('/', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'pasa-server',
-    message: 'PASA (Private Android Security Agent) Control Plane is Online',
-    version: '2.1.0',
-    cryptoSigningKeyId: SERVER_KEY_ID,
-    uptime: Math.floor(process.uptime()),
-    endpoints: [
-      '/health',
-      '/admin',
-      '/api/admin/verify',
-      '/api/admin/devices',
-      '/api/admin/commands',
-      '/api/admin/logs',
-      '/api/verify-bot',
-      '/api/device/register',
-      '/api/device/poll',
-      '/api/device/response',
-      '/api/device/alert',
-      '/api/app/latest',
-      '/api/app/download/:filename',
-      '/api/app/upload',
-      '/api/app/releases'
-    ]
+  // If API client explicitly requests JSON, return service status manifest
+  if (req.query.format === 'json' || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+    return res.json({
+      status: 'ok',
+      service: 'pasa-server',
+      message: 'PASA (Private Android Security Agent) Control Plane is Online',
+      version: '2.3.0',
+      cryptoSigningKeyId: SERVER_KEY_ID,
+      uptime: Math.floor(process.uptime()),
+      endpoints: [
+        '/health',
+        '/admin',
+        '/api/license/check',
+        '/api/license/purchase',
+        '/api/license/activate',
+        '/api/license/lookup',
+        '/api/webhook/payment',
+        '/api/admin/licenses',
+        '/api/admin/verify',
+        '/api/admin/devices',
+        '/api/admin/commands',
+        '/api/admin/logs',
+        '/api/verify-bot',
+        '/api/device/register',
+        '/api/device/poll',
+        '/api/device/response',
+        '/api/device/alert',
+        '/api/app/latest',
+        '/api/app/download/:filename',
+        '/api/app/upload',
+        '/api/app/releases'
+      ]
+    });
+  }
+
+  // Render high-converting cybersecurity product landing page
+  const releases = loadJson(RELEASES_FILE, []);
+  const latestRelease = (Array.isArray(releases) && releases.length > 0) ? releases[0] : null;
+  const html = renderCommercialLandingPage({
+    latestRelease,
+    totalDevices: Object.keys(devices).length,
+    activePollersCount: activePollers.size
   });
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(html);
 });
 
 // 1. Health Check
@@ -1952,6 +2322,89 @@ app.post('/api/app/upload', authenticateAdmin, apkUpload.single('apk'), (req, re
 app.get('/api/app/releases', authenticateAdmin, (req, res) => {
   const releases = loadJson(RELEASES_FILE, []);
   res.json({ ok: true, count: releases.length, releases });
+});
+
+// --- Phase 7: Commercial Licensing & Checkout Endpoints ---
+
+// 7a. Purchase / Generate License Key
+app.post('/api/license/purchase', (req, res) => {
+  const { email, tier, provider } = req.body || {};
+  if (!email || typeof email !== 'string' || !email.includes('@')) {
+    return res.status(400).json({ ok: false, description: 'A valid email address is required' });
+  }
+
+  const cleanTier = (tier || 'PRO_ANNUAL').toUpperCase();
+  let maxDevices = 1;
+  if (cleanTier === 'PRO_LIFETIME') maxDevices = 3;
+  if (cleanTier === 'PRO_ENTERPRISE' || cleanTier === 'FAMILY') maxDevices = 10;
+
+  const license = createLicense(email, cleanTier, maxDevices);
+  res.json({
+    ok: true,
+    message: 'License key issued successfully',
+    license: {
+      key: license.key,
+      email: license.email,
+      tier: license.tier,
+      maxDevices: license.maxDevices,
+      expiresAt: license.expiresAt,
+      createdAt: license.createdAt
+    },
+    instructions: 'Activate this key in Telegram with: /license activate ' + license.key
+  });
+});
+
+// 7b. Activate License on Device
+app.post('/api/license/activate', (req, res) => {
+  const { key, deviceId } = req.body || {};
+  if (!key || !deviceId) {
+    return res.status(400).json({ ok: false, description: 'Both key and deviceId are required' });
+  }
+  const result = activateLicense(key, deviceId);
+  if (!result.ok) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+// 7c. Check Device License Status
+app.get('/api/license/check', (req, res) => {
+  const deviceId = req.query.deviceId;
+  if (!deviceId) {
+    return res.status(400).json({ ok: false, description: 'deviceId query parameter is required' });
+  }
+  const status = getDeviceLicenseStatus(deviceId);
+  res.json({ ok: true, deviceId, ...status });
+});
+
+// 7d. Lookup License by Key or Email
+app.post('/api/license/lookup', (req, res) => {
+  const { query } = req.body || {};
+  if (!query) {
+    return res.status(400).json({ ok: false, description: 'query (email or key) is required' });
+  }
+  const found = lookupLicense(query);
+  if (!found) {
+    return res.status(404).json({ ok: false, description: 'No active license found matching query' });
+  }
+  res.json({ ok: true, license: found });
+});
+
+// 7e. Payment Webhook Receiver (Stripe / LemonSqueezy / Paddle / bKash / Crypto)
+app.post('/api/webhook/payment', (req, res) => {
+  const payload = req.body || {};
+  console.log('[Payment Webhook] Event received:', JSON.stringify(payload).substring(0, 150));
+  const email = payload.email || payload.customer_email || (payload.data && payload.data.object && payload.data.object.customer_email) || 'customer@pasa.sec';
+  const tier = payload.tier || payload.plan || 'PRO_ANNUAL';
+  const license = createLicense(email, tier);
+  logSecurityEvent('PAYMENT_WEBHOOK_FULFILLED', { email, tier, key: license.key });
+  res.json({ ok: true, received: true, key: license.key });
+});
+
+// 7f. Admin License Management
+app.get('/api/admin/licenses', authenticateAdmin, (req, res) => {
+  const list = Object.values(licenses);
+  res.json({ ok: true, count: list.length, licenses: list });
 });
 
 // Serve Web Console Dashboard

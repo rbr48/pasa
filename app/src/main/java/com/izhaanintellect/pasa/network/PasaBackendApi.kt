@@ -57,6 +57,16 @@ interface PasaBackendApi {
     suspend fun checkForUpdate(
         @Query("current_version_code") currentVersionCode: Int
     ): OtaUpdateResponse
+
+    @GET("api/license/check")
+    suspend fun checkLicense(
+        @Query("deviceId") deviceId: String
+    ): LicenseCheckResponse
+
+    @POST("api/license/activate")
+    suspend fun activateLicense(
+        @Body request: LicenseActivateRequest
+    ): LicenseActivateResponse
 }
 
 // --- Data Models ---
@@ -137,4 +147,29 @@ data class OtaLatestRelease(
     @SerializedName("sha256") val sha256: String,
     @SerializedName("changelog") val changelog: String? = null,
     @SerializedName("publishedAt") val publishedAt: String? = null
+)
+
+data class LicenseCheckResponse(
+    @SerializedName("ok") val ok: Boolean,
+    @SerializedName("deviceId") val deviceId: String? = null,
+    @SerializedName("hasPro") val hasPro: Boolean = false,
+    @SerializedName("tier") val tier: String = "FREE_TRIAL",
+    @SerializedName("status") val status: String = "ACTIVE",
+    @SerializedName("isTrial") val isTrial: Boolean = true,
+    @SerializedName("daysLeft") val daysLeft: Int = 0,
+    @SerializedName("expiresAt") val expiresAt: Long? = null,
+    @SerializedName("licenseKey") val licenseKey: String? = null
+)
+
+data class LicenseActivateRequest(
+    @SerializedName("key") val key: String,
+    @SerializedName("deviceId") val deviceId: String
+)
+
+data class LicenseActivateResponse(
+    @SerializedName("ok") val ok: Boolean,
+    @SerializedName("message") val message: String,
+    @SerializedName("tier") val tier: String? = null,
+    @SerializedName("daysLeft") val daysLeft: Int? = null,
+    @SerializedName("expiresAt") val expiresAt: Long? = null
 )

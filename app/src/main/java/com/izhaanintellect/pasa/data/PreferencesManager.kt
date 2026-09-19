@@ -51,6 +51,8 @@ class PreferencesManager @Inject constructor(
         private const val KEY_SNATCH_TRAP = "snatch_trap_enabled"
         private const val KEY_CHARGER_TRAP = "charger_trap_enabled"
         private const val KEY_POCKET_TRAP = "pocket_trap_enabled"
+        private const val KEY_LICENSE_KEY = "license_key"
+        private const val KEY_LICENSE_TIER = "license_tier"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
 
@@ -264,6 +266,14 @@ class PreferencesManager @Inject constructor(
     var deviceKeySecurityLevel: String
         get() = prefs.getString("device_key_security_level", "UNKNOWN") ?: "UNKNOWN"
         set(value) = prefs.edit().putString("device_key_security_level", value).apply()
+
+    var licenseKey: String
+        get() = prefs.getString(KEY_LICENSE_KEY, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_LICENSE_KEY, value).apply()
+
+    var licenseTier: String
+        get() = prefs.getString(KEY_LICENSE_TIER, "FREE_TRIAL") ?: "FREE_TRIAL"
+        set(value) = prefs.edit().putString(KEY_LICENSE_TIER, value).apply()
 
     /** Returns true if the minimum configuration required to run is present. */
     fun isConfigured(): Boolean {
