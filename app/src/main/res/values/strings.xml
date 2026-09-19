@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">PASA</string>
+    <string name="app_name_full">PASA (Private Android Security Agent)</string>
+    <string name="app_name_stealth">System Android Security</string>
+
+    <!-- Device Admin -->
+    <string name="device_admin_description">PASA requires Device Administrator privileges to protect your device. This enables remote lock, emergency wipe, and security policy management capabilities.</string>
+
+    <!-- Setup Screen -->
+    <string name="setup_title">PASA Sentinel Setup</string>
+    <string name="setup_subtitle">Android 16 Hardened Device Protection</string>
+    <string name="hint_bot_token">Telegram Bot Token (e.g. 123456:ABC...)</string>
+    <string name="hint_chat_id">Owner Telegram Chat ID (e.g. 987654321)</string>
+    <string name="hint_master_password">Master Password (Min 8 chars)</string>
+    <string name="hint_backup_email">Backup Email (for recovery alert)</string>
+    <string name="btn_activate_admin">Activate Device Admin</string>
+    <string name="btn_grant_permissions">Grant All Permissions</string>
+    <string name="btn_activate">Activate PASA Sentinel</string>
+    <string name="switch_stealth">Stealth Mode (Hide App Icon)</string>
+    <string name="status_ready">All systems ready — tap Activate</string>
+    <string name="status_active">PASA is active and protecting your device</string>
+    <string name="status_admin_required">Device Admin authorization required</string>
+    <string name="status_permissions_required">Runtime permissions required</string>
+    <string name="btn_battery_optimization">Disable Battery Optimization</string>
+    <string name="btn_battery_optimization_done">✅ Battery Unrestricted</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_guardian">PASA Guardian Service</string>
+    <string name="notification_channel_guardian_desc">Persistent notification for PASA background monitoring</string>
+    <string name="notification_channel_alerts">PASA Security Alerts</string>
+    <string name="notification_channel_alerts_desc">Urgent notifications for intrusion and security events</string>
+    <string name="notification_guardian_title">PASA Sentinel Running</string>
+    <string name="notification_guardian_text">Device is protected</string>
+
+    <!-- Validation Messages -->
+    <string name="error_empty_token">Please enter your Telegram Bot Token</string>
+    <string name="error_empty_chat_id">Please enter your Telegram Chat ID</string>
+    <string name="error_empty_password">Please set a master password</string>
+    <string name="error_empty_email">Please enter a backup email</string>
+    <string name="error_invalid_token">Invalid bot token format</string>
+    <string name="error_invalid_chat_id">Chat ID must be a valid number</string>
+    <string name="error_short_password">Password must be at least 8 characters</string>
+    <string name="success_activated">PASA Sentinel activated successfully!</string>
+</resources>

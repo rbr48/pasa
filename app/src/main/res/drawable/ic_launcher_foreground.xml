@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer Shield Contour -->
+    <path
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M54,26 L76,34 C76,56 66,72 54,82 C42,72 32,56 32,34 Z" />
+
+    <!-- Inner Shield Infill Gradient / Accent -->
+    <path
+        android:fillColor="#1500E5FF"
+        android:strokeColor="#0284C7"
+        android:strokeWidth="1"
+        android:pathData="M54,30 L72,37 C72,54 63,68 54,76 C45,68 36,54 36,37 Z" />
+
+    <!-- Radar Pulse Arc -->
+    <path
+        android:strokeColor="#38BDF8"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M44,48 A12,12 0 0,1 64,48" />
+
+    <!-- Padlock Shackle -->
+    <path
+        android:strokeColor="#E0F2FE"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M48,53 V48 C48,44.7 50.7,42 54,42 C57.3,42 60,44.7 60,48 V53" />
+
+    <!-- Padlock Body -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M46,53 H62 A2,2 0 0,1 64,55 V64 A2,2 0 0,1 62,66 H46 A2,2 0 0,1 44,64 V55 A2,2 0 0,1 46,53 Z" />
+
+    <!-- Keyhole -->
+    <path
+        android:fillColor="#0A0E17"
+        android:pathData="M54,57 A1.5,1.5 0 0,1 55.5,58.5 C55.5,59.1 55.2,59.6 54.7,59.8 L55.2,63 H52.8 L53.3,59.8 C52.8,59.6 52.5,59.1 52.5,58.5 A1.5,1.5 0 0,1 54,57 Z" />
+
+</vector>

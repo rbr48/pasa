@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Pasa" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="android:statusBarColor">#0A0E17</item>
+        <item name="android:navigationBarColor">#0A0E17</item>
+    </style>
+
+    <style name="Theme.Pasa.Alert" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">#0A0E17</item>
+        <item name="android:statusBarColor">#0A0E17</item>
+        <item name="android:navigationBarColor">#0A0E17</item>
+    </style>
+
+    <style name="Theme.Pasa.StealthCapture" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">#000000</item>
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+</resources>
