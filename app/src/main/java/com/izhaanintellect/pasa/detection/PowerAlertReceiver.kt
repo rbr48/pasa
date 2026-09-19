@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.SendLocationRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
+import com.izhaanintellect.pasa.camera.StealthCaptureBridge
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.location.LocationTracker
 import com.izhaanintellect.pasa.network.PasaBackendApi
@@ -20,7 +21,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import java.util.Locale
 import javax.inject.Inject
 
@@ -75,9 +79,18 @@ class PowerAlertReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Log.w(TAG, "Battery dropped to critical low! Capturing GPS coordinates...")
+                Log.w(TAG, "Battery dropped to critical low! Capturing final GPS + photo beacon...")
                 val batteryPct = getBatteryPercentage(context)
                 val location = locationTracker.getCurrentLocation()
+
+                // Best-effort silent photo so the last frame before the phone dies is captured.
+                // Bounded timeout to stay within the broadcast's async window.
+                val photoFile = try {
+                    StealthCaptureBridge.capturePhoto(context, useFront = true, timeoutMs = 8000L).file
+                } catch (e: Exception) {
+                    Log.w(TAG, "Battery beacon photo capture failed: ${e.message}")
+                    null
+                }
 
                 val locText = if (location != null) {
                     val lat = String.format(Locale.US, "%.5f", location.latitude)
@@ -92,15 +105,17 @@ class PowerAlertReceiver : BroadcastReceiver() {
                     ━━━━━━━━━━━━━━━━━━━━
                     🔋 <b>Remaining Charge:</b> ${batteryPct}%
                     ⚠️ Device may power off soon due to low battery.
-                    
+
                     $locText
+                    ${if (photoFile != null) "\n📸 Final camera snapshot attached." else ""}
                 """.trimIndent()
 
                 dispatchAlert(
                     alertType = "BATTERY_CRITICAL",
                     message = alertMsg,
                     lat = location?.latitude,
-                    lng = location?.longitude
+                    lng = location?.longitude,
+                    photoFile = photoFile
                 )
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to deliver battery alert", e)
@@ -141,7 +156,8 @@ class PowerAlertReceiver : BroadcastReceiver() {
                     alertType = "CHARGER_UNPLUGGED",
                     message = alertMsg,
                     lat = location?.latitude,
-                    lng = location?.longitude
+                    lng = location?.longitude,
+                    photoFile = null
                 )
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to deliver power disconnect alert", e)
@@ -151,7 +167,15 @@ class PowerAlertReceiver : BroadcastReceiver() {
         }
     }
 
-    private suspend fun dispatchAlert(alertType: String, message: String, lat: Double?, lng: Double?) {
+    private suspend fun dispatchAlert(
+        alertType: String,
+        message: String,
+        lat: Double?,
+        lng: Double?,
+        photoFile: File?
+    ) {
+        val photo: File? = photoFile?.takeIf { it.exists() && it.length() > 0 }
+
         // 1. Send to VPS backend if enabled
         if (preferencesManager.useBackendServer) {
             try {
@@ -160,12 +184,17 @@ class PowerAlertReceiver : BroadcastReceiver() {
                 val msgBody = message.toRequestBody("text/plain".toMediaTypeOrNull())
                 val latBody = lat?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
                 val lngBody = lng?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+                val photoPart = photo?.let {
+                    MultipartBody.Part.createFormData(
+                        "photo", it.name, it.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                    )
+                }
 
                 pasaBackendApi.sendDeviceAlert(
                     deviceId = devIdBody,
                     alertType = typeBody,
                     message = msgBody,
-                    photo = null,
+                    photo = photoPart,
                     latitude = latBody,
                     longitude = lngBody
                 )
@@ -192,6 +221,21 @@ class PowerAlertReceiver : BroadcastReceiver() {
                         latitude = lat,
                         longitude = lng
                     )
+                )
+            }
+            photo?.let {
+                val chatIdBody = preferencesManager.ownerChatIdLong.toString()
+                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                val captionBody = "📸 PASA final battery-beacon snapshot"
+                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                val photoPart = MultipartBody.Part.createFormData(
+                    "photo", it.name, it.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                )
+                telegramApi.sendPhoto(
+                    token = preferencesManager.botToken,
+                    chatId = chatIdBody,
+                    photo = photoPart,
+                    caption = captionBody
                 )
             }
         } catch (e: Exception) {

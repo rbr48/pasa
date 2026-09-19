@@ -45,6 +45,7 @@ class PasaService : LifecycleService() {
     @Inject lateinit var commandVerifier: com.izhaanintellect.pasa.crypto.CommandVerifier
     @Inject lateinit var otaUpdateManager: OtaUpdateManager
     @Inject lateinit var trapManager: com.izhaanintellect.pasa.detection.TrapManager
+    @Inject lateinit var geofenceManager: com.izhaanintellect.pasa.detection.GeofenceManager
 
     companion object {
         private const val TAG = "PASA_Service"
@@ -145,6 +146,7 @@ class PasaService : LifecycleService() {
             startPolling()
             motionDetector.startMonitoring()
             trapManager.startMonitoring()
+            geofenceManager.startMonitoring()
 
             // Check for OTA updates on service start (with delay to avoid startup congestion)
             lifecycleScope.launch(Dispatchers.IO) {
@@ -175,6 +177,7 @@ class PasaService : LifecycleService() {
         pollingJob?.cancel()
         motionDetector.stopMonitoring()
         trapManager.stopMonitoring()
+        geofenceManager.stopMonitoring()
         locationTracker.stopTracking()
         releaseWakeLock()
         scheduleRestart()

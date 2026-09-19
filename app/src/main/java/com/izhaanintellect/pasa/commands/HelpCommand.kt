@@ -28,7 +28,9 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/locate</code> — Instant high-accuracy GPS fix + Maps pin
             • <code>/track &lt;minutes&gt;</code> — Continuous periodic tracking
             • <code>/track stop</code> — Deactivate tracking
-            
+            • <code>/geofence here 200</code> — Alert if device leaves a safe zone
+            • <code>/geofence status|on|off</code> — Manage the safe zone
+
             📸 <b>Visual & Audio Forensics</b>
             • <code>/snap front</code> — Front selfie camera photo
             • <code>/snap back</code> — Rear camera photo
