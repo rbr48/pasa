@@ -6,6 +6,9 @@ const path = require('path');
 const crypto = require('crypto');
 const EventEmitter = require('events');
 const { renderCommercialLandingPage } = require('./landingPage');
+const { loadJson, saveJson } = require('./lib/storage');
+const { rateLimit } = require('./lib/rateLimit');
+const { createLicensing } = require('./lib/licensing');
 
 const app = express();
 const PORT = process.env.PORT || 8160;
@@ -57,34 +60,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', 1); // behind nginx; makes req.ip the real client address
 
-// --- Lightweight in-memory rate limiter (no external dependency) ---
-// Suitable for a single-process personal deployment. Keyed by client IP.
-function rateLimit({ windowMs, max, message }) {
-  const hits = new Map(); // ip -> { count, resetAt }
-  // Periodically evict stale buckets so the map cannot grow unbounded.
-  setInterval(() => {
-    const now = Date.now();
-    for (const [ip, rec] of hits) if (now > rec.resetAt) hits.delete(ip);
-  }, windowMs).unref?.();
-
-  return (req, res, next) => {
-    const ip = req.ip || (req.connection && req.connection.remoteAddress) || 'unknown';
-    const now = Date.now();
-    let rec = hits.get(ip);
-    if (!rec || now > rec.resetAt) {
-      rec = { count: 0, resetAt: now + windowMs };
-      hits.set(ip, rec);
-    }
-    rec.count += 1;
-    if (rec.count > max) {
-      const retryAfter = Math.ceil((rec.resetAt - now) / 1000);
-      res.set('Retry-After', String(retryAfter));
-      return res.status(429).json({ ok: false, description: message || 'Too many requests, slow down.' });
-    }
-    next();
-  };
-}
-
+// Rate limiter imported from ./lib/rateLimit.
 // Brute-force protection on the sensitive auth/enrollment endpoints.
 const adminAuthLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Too many admin auth attempts. Try again later.' });
 const deviceRegisterLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 30, message: 'Too many device registrations from this IP.' });
@@ -99,28 +75,7 @@ function licensingGuard(req, res, next) {
   next();
 }
 
-// --- Persistent Storage Helpers ---
-
-function loadJson(file, defaultVal = {}) {
-  try {
-    if (fs.existsSync(file)) {
-      return JSON.parse(fs.readFileSync(file, 'utf8'));
-    }
-  } catch (err) {
-    console.error(`Error reading ${file}:`, err);
-  }
-  return defaultVal;
-}
-
-function saveJson(file, data) {
-  try {
-    const tmpFile = `${file}.${Date.now()}.${Math.random().toString(36).substring(2, 7)}.tmp`;
-    fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), 'utf8');
-    fs.renameSync(tmpFile, file);
-  } catch (err) {
-    console.error(`Error writing ${file}:`, err);
-  }
-}
+// Persistent storage helpers (loadJson/saveJson) imported from ./lib/storage.
 
 let devices = loadJson(DEVICES_FILE, {});
 let commands = loadJson(COMMANDS_FILE, {}); // deviceId -> [ { id, command, args, chatId, createdAt, envelope } ]
@@ -152,157 +107,17 @@ function recordDeviceLocation(deviceId, lat, lon, meta = {}) {
   return point;
 }
 
-// --- Commercial Licensing & Subscription Engine ---
-
-let licenses = loadJson(LICENSES_FILE, {});
-
-function generateLicenseKey(tier = 'PRO') {
-  const cleanTier = tier.toUpperCase().includes('LIFE') ? 'LIFE' : 'PRO';
-  const seg1 = crypto.randomBytes(2).toString('hex').toUpperCase();
-  const seg2 = crypto.randomBytes(2).toString('hex').toUpperCase();
-  const seg3 = crypto.randomBytes(2).toString('hex').toUpperCase();
-  return `PASA-${cleanTier}-${seg1}-${seg2}-${seg3}`;
-}
-
-function createLicense(email, tier = 'PRO_ANNUAL', maxDevices = 1) {
-  const key = generateLicenseKey(tier);
-  const now = Date.now();
-  let expiresAt = null;
-  if (tier === 'TRIAL') {
-    expiresAt = now + 7 * 24 * 60 * 60 * 1000; // 7 days
-  } else if (tier === 'PRO_ANNUAL') {
-    expiresAt = now + 365 * 24 * 60 * 60 * 1000; // 1 year
-  } else if (tier === 'PRO_LIFETIME') {
-    expiresAt = now + 100 * 365 * 24 * 60 * 60 * 1000; // 100 years
-  }
-
-  licenses[key] = {
-    key,
-    email: (email || '').trim().toLowerCase(),
-    tier,
-    maxDevices: Math.max(parseInt(maxDevices, 10) || 1, 1),
-    activatedDevices: [],
-    createdAt: now,
-    expiresAt,
-    status: 'ACTIVE'
-  };
-  saveJson(LICENSES_FILE, licenses);
-  logSecurityEvent('LICENSE_CREATED', { key, email, tier, maxDevices });
-  return licenses[key];
-}
-
-function activateLicense(key, deviceId) {
-  if (!key || typeof key !== 'string') return { ok: false, message: 'Invalid license key format' };
-  const cleanKey = key.trim().toUpperCase();
-  const lic = licenses[cleanKey];
-  if (!lic) return { ok: false, message: 'License key not found. Please check your key or buy one at https://izhaanintellect.fun/pasa/' };
-  if (lic.status !== 'ACTIVE') return { ok: false, message: `License is ${lic.status}` };
-  if (lic.expiresAt && Date.now() > lic.expiresAt) {
-    lic.status = 'EXPIRED';
-    saveJson(LICENSES_FILE, licenses);
-    return { ok: false, message: 'License key has expired' };
-  }
-
-  if (!lic.activatedDevices.includes(deviceId)) {
-    if (lic.activatedDevices.length >= lic.maxDevices) {
-      return {
-        ok: false,
-        message: `Device limit reached (${lic.maxDevices} device${lic.maxDevices > 1 ? 's' : ''} already bound)`
-      };
-    }
-    lic.activatedDevices.push(deviceId);
-    saveJson(LICENSES_FILE, licenses);
-  }
-
-  if (devices[deviceId]) {
-    devices[deviceId].licenseKey = cleanKey;
-    devices[deviceId].licenseTier = lic.tier;
-    devices[deviceId].licenseExpiresAt = lic.expiresAt;
-    saveJson(DEVICES_FILE, devices);
-  }
-
-  logSecurityEvent('LICENSE_ACTIVATED', { key: cleanKey, deviceId, tier: lic.tier });
-  const daysLeft = lic.expiresAt ? Math.max(0, Math.ceil((lic.expiresAt - Date.now()) / (24 * 60 * 60 * 1000))) : 99999;
-  return {
-    ok: true,
-    message: `License activated successfully (${lic.tier})`,
-    tier: lic.tier,
-    daysLeft,
-    expiresAt: lic.expiresAt
-  };
-}
-
-function getDeviceLicenseStatus(deviceId) {
-  const dev = devices[deviceId];
-  const now = Date.now();
-
-  // 1. Check bound active license
-  if (dev && dev.licenseKey && licenses[dev.licenseKey]) {
-    const lic = licenses[dev.licenseKey];
-    if (lic.status === 'ACTIVE' && (!lic.expiresAt || lic.expiresAt > now)) {
-      const daysLeft = lic.expiresAt ? Math.max(0, Math.ceil((lic.expiresAt - now) / (24 * 60 * 60 * 1000))) : 99999;
-      return {
-        hasPro: true,
-        tier: lic.tier,
-        status: 'ACTIVE',
-        isTrial: false,
-        daysLeft,
-        expiresAt: lic.expiresAt,
-        licenseKey: lic.key
-      };
-    }
-  }
-
-  // 2. Default 7-day trial from registration time
-  const registeredAt = (dev && dev.registeredAt) || now;
-  const trialDuration = 7 * 24 * 60 * 60 * 1000;
-  const trialExpiresAt = registeredAt + trialDuration;
-  const trialDaysLeft = Math.max(0, Math.ceil((trialExpiresAt - now) / (24 * 60 * 60 * 1000)));
-
-  if (now < trialExpiresAt) {
-    return {
-      hasPro: true,
-      tier: 'FREE_TRIAL',
-      status: 'TRIAL',
-      isTrial: true,
-      daysLeft: trialDaysLeft,
-      expiresAt: trialExpiresAt,
-      licenseKey: null
-    };
-  }
-
-  return {
-    hasPro: false,
-    tier: 'EXPIRED_TRIAL',
-    status: 'EXPIRED',
-    isTrial: true,
-    daysLeft: 0,
-    expiresAt: trialExpiresAt,
-    licenseKey: null
-  };
-}
-
-function lookupLicense(query) {
-  if (!query || typeof query !== 'string') return null;
-  const q = query.trim().toLowerCase();
-  for (const lic of Object.values(licenses)) {
-    if (lic.key.toLowerCase() === q || (lic.email && lic.email.toLowerCase() === q)) {
-      const daysLeft = lic.expiresAt ? Math.max(0, Math.ceil((lic.expiresAt - Date.now()) / (24 * 60 * 60 * 1000))) : 99999;
-      return {
-        key: lic.key,
-        email: lic.email,
-        tier: lic.tier,
-        maxDevices: lic.maxDevices,
-        activatedCount: lic.activatedDevices.length,
-        status: lic.status,
-        daysLeft,
-        expiresAt: lic.expiresAt,
-        createdAt: lic.createdAt
-      };
-    }
-  }
-  return null;
-}
+// --- Commercial Licensing & Subscription Engine (see ./lib/licensing.js) ---
+// logSecurityEvent is a hoisted function declaration defined below; devices is
+// declared above. Device coupling is injected so the module stays self-contained.
+const licensing = createLicensing({
+  licensesFile: LICENSES_FILE,
+  loadJson,
+  saveJson,
+  logSecurityEvent,
+  getDevice: (id) => devices[id],
+  persistDevices: () => saveJson(DEVICES_FILE, devices)
+});
 
 // --- Master Admin Secret Management ---
 
@@ -1154,7 +969,7 @@ async function handleTelegramUpdate(token, update) {
       if (!activeDev) {
         statusDetails = '⚠️ <i>No active device linked to this chat yet.</i>';
       } else {
-        const lic = getDeviceLicenseStatus(activeDev.deviceId);
+        const lic = licensing.getDeviceLicenseStatus(activeDev.deviceId);
         const tierBadge = lic.tier === 'PRO_LIFETIME' ? '💎 Pro Lifetime (Sovereign)' :
                           lic.tier === 'PRO_ANNUAL' ? '⭐ Pro Annual' :
                           lic.tier === 'PRO_ENTERPRISE' ? '🏢 Fleet / Enterprise' :
@@ -1383,7 +1198,7 @@ async function handleTelegramUpdate(token, update) {
         });
         return;
       }
-      const actRes = activateLicense(cleanKey, activeDev.deviceId);
+      const actRes = licensing.activateLicense(cleanKey, activeDev.deviceId);
       if (actRes.ok) {
         await callTelegram(token, 'sendMessage', {
           chat_id: chatId,
@@ -1610,7 +1425,7 @@ async function handleTelegramUpdate(token, update) {
         });
         return;
       }
-      const actRes = activateLicense(key, activeDev.deviceId);
+      const actRes = licensing.activateLicense(key, activeDev.deviceId);
       if (actRes.ok) {
         await callTelegram(token, 'sendMessage', {
           chat_id: chatId,
@@ -1648,7 +1463,7 @@ async function handleTelegramUpdate(token, update) {
     if (!activeDev) {
       statusDetails = '⚠️ <i>No active device linked to this chat yet.</i>';
     } else {
-      const lic = getDeviceLicenseStatus(activeDev.deviceId);
+      const lic = licensing.getDeviceLicenseStatus(activeDev.deviceId);
       const tierBadge = lic.tier === 'PRO_LIFETIME' ? '💎 Pro Lifetime (Sovereign)' :
                         lic.tier === 'PRO_ANNUAL' ? '⭐ Pro Annual' :
                         lic.tier === 'PRO_ENTERPRISE' ? '🏢 Fleet / Enterprise' :
@@ -2386,7 +2201,7 @@ app.post('/api/license/purchase', licensingGuard, (req, res) => {
   if (cleanTier === 'PRO_LIFETIME') maxDevices = 3;
   if (cleanTier === 'PRO_ENTERPRISE' || cleanTier === 'FAMILY') maxDevices = 10;
 
-  const license = createLicense(email, cleanTier, maxDevices);
+  const license = licensing.createLicense(email, cleanTier, maxDevices);
   res.json({
     ok: true,
     message: 'License key issued successfully',
@@ -2408,7 +2223,7 @@ app.post('/api/license/activate', (req, res) => {
   if (!key || !deviceId) {
     return res.status(400).json({ ok: false, description: 'Both key and deviceId are required' });
   }
-  const result = activateLicense(key, deviceId);
+  const result = licensing.activateLicense(key, deviceId);
   if (!result.ok) {
     return res.status(400).json(result);
   }
@@ -2421,7 +2236,7 @@ app.get('/api/license/check', (req, res) => {
   if (!deviceId) {
     return res.status(400).json({ ok: false, description: 'deviceId query parameter is required' });
   }
-  const status = getDeviceLicenseStatus(deviceId);
+  const status = licensing.getDeviceLicenseStatus(deviceId);
   res.json({ ok: true, deviceId, ...status });
 });
 
@@ -2431,7 +2246,7 @@ app.post('/api/license/lookup', licensingGuard, (req, res) => {
   if (!query) {
     return res.status(400).json({ ok: false, description: 'query (email or key) is required' });
   }
-  const found = lookupLicense(query);
+  const found = licensing.lookupLicense(query);
   if (!found) {
     return res.status(404).json({ ok: false, description: 'No active license found matching query' });
   }
@@ -2444,14 +2259,14 @@ app.post('/api/webhook/payment', licensingGuard, (req, res) => {
   console.log('[Payment Webhook] Event received:', JSON.stringify(payload).substring(0, 150));
   const email = payload.email || payload.customer_email || (payload.data && payload.data.object && payload.data.object.customer_email) || 'customer@pasa.sec';
   const tier = payload.tier || payload.plan || 'PRO_ANNUAL';
-  const license = createLicense(email, tier);
+  const license = licensing.createLicense(email, tier);
   logSecurityEvent('PAYMENT_WEBHOOK_FULFILLED', { email, tier, key: license.key });
   res.json({ ok: true, received: true, key: license.key });
 });
 
 // 7f. Admin License Management
 app.get('/api/admin/licenses', authenticateAdmin, (req, res) => {
-  const list = Object.values(licenses);
+  const list = licensing.listLicenses();
   res.json({ ok: true, count: list.length, licenses: list });
 });
 
