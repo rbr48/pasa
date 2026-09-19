@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PASA Sentinel — Sovereign Mobile Anti-Theft & Stealth Defense System</title>
+  <title>PASA Sentinel — Sovereign Mobile Anti-Theft & Covert Defense System</title>
   <meta name="description" content="Next-generation sovereign Android defense agent. Zero Google Play telemetry. Dual-channel Telegram & SMS C2, autonomous hardware anti-snatch traps, and Knox-grade Device Owner persistence.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2306b6d4%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
 
-  <!-- Typography: Plus Jakarta Sans & JetBrains Mono -->
+  <!-- Architectural Typography: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Local Tailwind Engine -->
   <script src="/tailwind.min.js"></script>
@@ -32,20 +32,18 @@
               emerald: '#10b981',
               violet: '#8b5cf6',
             },
-            dark: {
-              950: '#06070a',
-              900: '#0b0d13',
-              850: '#11141d',
-              800: '#171b26',
-              750: '#1f2433',
-              700: '#282f42',
+            void: {
+              950: '#020306',
+              900: '#06080e',
+              850: '#0b0f19',
+              800: '#111726',
+              750: '#171f33',
+              700: '#202a44',
             }
           },
-          boxShadow: {
-            'glow-cyan': '0 0 50px -10px rgba(6, 182, 212, 0.45)',
-            'glow-emerald': '0 0 50px -10px rgba(16, 185, 129, 0.4)',
-            'glow-rose': '0 0 50px -10px rgba(244, 63, 94, 0.4)',
-            'inner-subtle': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.08)',
+          letterSpacing: {
+            'widest-arch': '0.22em',
+            'extreme': '0.3em',
           }
         }
       }
@@ -56,294 +54,350 @@
   <script src="/lucide.min.js"></script>
 
   <style>
-    /* Custom Luxury Styling & Atmospheric Lighting */
-    .glass-nav {
-      background: rgba(11, 13, 19, 0.78);
-      backdrop-filter: blur(24px) saturate(160%);
-      -webkit-backdrop-filter: blur(24px) saturate(160%);
-      border: 1px solid rgba(255, 255, 255, 0.09);
+    /* ==========================================================
+       ACTIVE THEORY SIGNATURE DESIGN SYSTEM:
+       Deep Void Atmospheric Immersion, Prismatic Caustics & Ethereal Physics
+       ========================================================== */
+    :root {
+      --void-bg: #020306;
+      --cyan-lum: #06b6d4;
+      --violet-lum: #8b5cf6;
+      --emerald-lum: #10b981;
+      --amber-lum: #f59e0b;
     }
-    .glass-card {
-      background: rgba(17, 20, 29, 0.65);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+
+    body {
+      background-color: var(--void-bg);
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Fixed WebGL/Canvas Atmospheric Particle Background */
+    #ambient-stage {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.85;
+    }
+
+    /* Atmospheric Vignette & Deep Caustic Overlay */
+    .void-vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, transparent 20%, #020306 95%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Architectural Monospace Micro-Labeling */
+    .arch-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #38bdf8;
+    }
+
+    /* Prismatic Glass Surfaces */
+    .prismatic-panel {
+      background: rgba(11, 15, 25, 0.65);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    .prismatic-card {
+      background: rgba(11, 15, 25, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.07);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
     }
-    .glass-card:hover {
-      border-color: rgba(6, 182, 212, 0.45);
+    .prismatic-card:hover {
+      border-color: rgba(6, 182, 212, 0.4);
       transform: translateY(-3px);
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 35px -10px rgba(6, 182, 212, 0.2);
+      box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.8), 0 0 35px -8px rgba(6, 182, 212, 0.2);
     }
-    .hero-glow-sphere {
+    .prismatic-card::before {
+      content: '';
       position: absolute;
-      top: -150px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 900px;
-      height: 500px;
-      background: radial-gradient(ellipse 60% 40% at 50% 30%, rgba(6, 182, 212, 0.22), transparent 75%);
-      pointer-events: none;
-      z-index: -1;
-      filter: blur(40px);
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
     }
-    .hero-glow-secondary {
-      position: absolute;
-      top: 400px;
-      right: -100px;
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(139, 92, 246, 0.12), transparent 70%);
-      pointer-events: none;
-      z-index: -1;
-      filter: blur(60px);
-    }
-    .gradient-hero-text {
-      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 65%, #38bdf8 100%);
+
+    /* Holographic Hero Gradient */
+    .holo-text-gradient {
+      background: linear-gradient(135deg, #ffffff 15%, #cbd5e1 50%, #38bdf8 80%, #818cf8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .grid-mesh-bg {
-      background-size: 44px 44px;
-      background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-    }
-    /* Phone Mockup Styling */
-    .phone-outer-chassis {
+
+    /* Titanium Hardware Smartphone Chassis */
+    .titanium-frame {
+      background: linear-gradient(145deg, #182033, #090c14);
       box-shadow: 
         0 0 0 1px rgba(255, 255, 255, 0.12),
-        0 25px 60px -15px rgba(0, 0, 0, 0.9),
-        0 0 50px -10px rgba(6, 182, 212, 0.3);
+        0 30px 70px -15px rgba(0, 0, 0, 0.95),
+        0 0 60px -10px rgba(6, 182, 212, 0.35);
     }
-    /* Audio waveform animation */
+
+    /* Audio Soundwave Simulation */
     @keyframes soundwave {
       0%, 100% { height: 4px; }
       50% { height: 26px; }
     }
     .wave-bar {
-      animation: soundwave 0.9s ease-in-out infinite;
+      animation: soundwave 0.8s ease-in-out infinite;
     }
-    /* Pulse ring */
+
+    /* Tactical Pulsing Ring */
     @keyframes pulsering {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.05); opacity: 0.3; }
-      100% { transform: scale(0.95); opacity: 0.8; }
+      0% { transform: scale(0.96); opacity: 0.8; }
+      50% { transform: scale(1.04); opacity: 0.25; }
+      100% { transform: scale(0.96); opacity: 0.8; }
     }
-    .pulse-ring-anim {
-      animation: pulsering 2.5s ease-in-out infinite;
+    .tactical-pulse-ring {
+      animation: pulsering 2.6s ease-in-out infinite;
+    }
+
+    /* Ambient Cursor Glow Follower */
+    #cursor-light {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, rgba(139, 92, 246, 0.03) 40%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      transition: width 0.3s, height 0.3s;
     }
   </style>
 </head>
 
-<body class="bg-dark-950 text-slate-100 font-sans antialiased relative selection:bg-cyan-500/20 selection:text-cyan-300 min-h-screen overflow-x-hidden">
+<body class="relative min-h-screen">
 
-  <!-- Background Lighting Overlays -->
-  <div class="hero-glow-sphere"></div>
-  <div class="hero-glow-secondary"></div>
-  <div class="fixed inset-0 pointer-events-none grid-mesh-bg opacity-50 z-0"></div>
+  <!-- Interactive Dynamic Background Canvas (Active Theory Living System) -->
+  <canvas id="ambient-stage"></canvas>
+  <div class="void-vignette"></div>
+  <div id="cursor-light" class="hidden md:block"></div>
 
-  <!-- Sticky Navbar -->
+  <!-- Navigation / Control Plane Island -->
   <header class="sticky top-4 z-50 max-w-7xl mx-auto px-4 sm:px-6">
-    <nav class="glass-nav rounded-2xl px-5 py-3.5 flex items-center justify-between shadow-2xl shadow-black/90">
+    <nav class="prismatic-panel rounded-2xl px-5 py-3 flex items-center justify-between shadow-2xl shadow-black">
       
-      <!-- Logo -->
+      <!-- Brand Identity -->
       <a href="#" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-sky-500 to-blue-600 p-[1px] shadow-glow-cyan">
-          <div class="w-full h-full bg-dark-900 rounded-[11px] flex items-center justify-center">
-            <i data-lucide="shield-check" class="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform"></i>
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 via-sky-500 to-indigo-600 p-[1px] shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+          <div class="w-full h-full bg-void-950 rounded-[10px] flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform"></i>
           </div>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <span class="font-extrabold text-base tracking-tight text-white">PASA</span>
-            <span class="text-[10px] font-mono font-bold tracking-widest px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">SENTINEL</span>
+            <span class="font-extrabold text-sm tracking-tight text-white">PASA</span>
+            <span class="text-[9px] font-mono font-bold tracking-widest px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/25">SENTINEL</span>
           </div>
-          <div class="text-[11px] text-slate-400 hidden sm:block">Private Android Security Agent</div>
+          <div class="text-[10px] font-mono text-slate-400 tracking-wider hidden sm:block">MIL-SPEC SOVEREIGN DEFENSE</div>
         </div>
       </a>
 
-      <!-- Navigation Links -->
-      <div class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
-        <a href="#hero-preview" class="hover:text-cyan-400 transition-colors">Tactical HUD</a>
-        <a href="#features" class="hover:text-cyan-400 transition-colors">Capabilities</a>
-        <a href="#install-guide" class="hover:text-cyan-400 transition-colors">Sideload Guide</a>
-        <a href="#comparison" class="hover:text-cyan-400 transition-colors">Matrix</a>
-        <a href="#pricing" class="hover:text-cyan-400 transition-colors">Pricing</a>
-        <a href="#validator" class="hover:text-cyan-400 transition-colors">License Check</a>
+      <!-- Architectural Nav Anchors -->
+      <div class="hidden md:flex items-center gap-7 text-xs font-mono font-medium tracking-wider text-slate-300">
+        <a href="#hero-preview" class="hover:text-cyan-400 transition-colors">// TACTICAL HUD</a>
+        <a href="#features" class="hover:text-cyan-400 transition-colors">// PILLARS</a>
+        <a href="#install-guide" class="hover:text-cyan-400 transition-colors">// PROTOCOL</a>
+        <a href="#comparison" class="hover:text-cyan-400 transition-colors">// MATRIX</a>
+        <a href="#pricing" class="hover:text-cyan-400 transition-colors">// PRICING</a>
+        <a href="#validator" class="hover:text-cyan-400 transition-colors">// LEDGER</a>
       </div>
 
-      <!-- Header CTAs -->
+      <!-- Quick Action CTAs -->
       <div class="flex items-center gap-3">
-        <a href="#validator" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 border border-white/5 transition-all">
+        <a href="#validator" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium text-slate-300 hover:text-white hover:bg-white/5 border border-white/10 transition-all">
           <i data-lucide="key" class="w-3.5 h-3.5 text-cyan-400"></i>
-          <span>Verify License</span>
+          <span>VERIFY KEY</span>
         </a>
-        <a href="/api/app/download/pasa-v2.3.0-4.apk" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-dark-950 bg-gradient-to-r from-cyan-400 via-sky-400 to-teal-300 hover:from-cyan-300 hover:to-teal-200 shadow-glow-cyan transition-all transform hover:-translate-y-0.5">
+        <a href="/api/app/download/pasa-v2.3.0-4.apk" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold font-mono text-void-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-teal-200 hover:from-cyan-300 hover:to-teal-100 shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all transform hover:-translate-y-0.5">
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          <span>Download v2.3.0</span>
+          <span>GET v2.3.0 APK</span>
         </a>
       </div>
     </nav>
   </header>
 
-  <!-- Hero Section -->
+  <!-- Main Hero Stage -->
   <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-20">
 
-    <!-- Top Headline Block -->
-    <section class="text-center max-w-4xl mx-auto mb-14">
+    <!-- Hero Title & Architecture Briefing -->
+    <section class="text-center max-w-4xl mx-auto mb-16">
       
-      <!-- Top Eyebrow Badge -->
-      <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 mb-6 shadow-inner-subtle">
+      <!-- System Telemetry Tag -->
+      <div class="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 mb-6">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="text-xs font-mono font-medium text-cyan-300 tracking-wide uppercase">MIL-SPEC ANDROID DEFENSE &bull; ZERO GOOGLE TELEMETRY</span>
+        <span class="arch-tag">SYSTEM ONLINE // ZERO GOOGLE PLAY TELEMETRY // STOCK ROOTLESS</span>
       </div>
 
       <!-- Main Headline -->
-      <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.12] mb-5">
-        Turn Stock Android Into an <span class="gradient-hero-text">Unsnatchable Sovereign Fortress.</span>
+      <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.12] mb-6">
+        Turn Stock Android Into an <span class="holo-text-gradient">Unsnatchable Sovereign Fortress.</span>
       </h1>
 
-      <!-- Subheadline -->
-      <p class="text-base sm:text-lg text-slate-300/90 leading-relaxed max-w-2xl mx-auto mb-8">
-        When a thief snatches your phone, they instantly cut Wi-Fi, disable mobile data, and pull the SIM. PASA Sentinel strikes back over air-gapped cellular SMS, captures silent forensic mugshots, and executes fake shutdowns—all with Knox-grade Device Owner persistence.
+      <!-- Cinematic Subtitle -->
+      <p class="text-base sm:text-lg text-slate-300/90 leading-relaxed max-w-2xl mx-auto mb-8 font-light">
+        When an adversary snatches your smartphone, they instantly cut Wi-Fi, disable mobile data, and pull the SIM. PASA Sentinel strikes back over air-gapped cellular SMS, captures silent forensic mugshots, and executes fake shutdowns—guaranteed by Knox-grade Device Owner persistence.
       </p>
 
       <!-- Primary Action CTAs -->
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 mb-8">
-        <a href="/api/app/download/pasa-v2.3.0-4.apk" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-bold text-xs sm:text-sm text-dark-950 bg-gradient-to-r from-cyan-400 via-sky-400 to-teal-300 hover:from-cyan-300 hover:to-teal-200 shadow-glow-cyan transition-all transform hover:-translate-y-0.5">
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 mb-10">
+        <a href="/api/app/download/pasa-v2.3.0-4.apk" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl font-bold font-mono text-xs sm:text-sm text-void-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-teal-200 hover:from-cyan-300 hover:to-teal-100 shadow-[0_0_35px_rgba(6,182,212,0.45)] transition-all transform hover:-translate-y-0.5">
           <i data-lucide="download" class="w-4 h-4"></i>
-          <span>Download Free APK (v2.3.0 &bull; 18.9 MB)</span>
+          <span>DOWNLOAD APK (v2.3.0 &bull; 18.9 MB)</span>
         </a>
-        <a href="#pricing" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-bold text-xs sm:text-sm text-white bg-slate-800/90 hover:bg-slate-700 border border-slate-700 transition-all hover:border-slate-600">
+        <a href="#pricing" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl font-bold font-mono text-xs sm:text-sm text-white bg-void-850 hover:bg-void-800 border border-slate-700 transition-all hover:border-cyan-500/50">
           <i data-lucide="sparkles" class="w-4 h-4 text-cyan-400"></i>
-          <span>Get Pro Lifetime Key &bull; $29.99</span>
+          <span>CLAIM PRO LIFETIME KEY &bull; $29.99</span>
         </a>
-        <a href="#install-guide" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-medium text-xs text-slate-400 hover:text-cyan-300 transition-colors">
+        <a href="#install-guide" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-4 rounded-xl font-mono text-xs text-slate-400 hover:text-cyan-300 transition-colors">
           <i data-lucide="terminal" class="w-4 h-4"></i>
-          <span>60s Sideload Protocol &rarr;</span>
+          <span>60S SIDELOAD PROTOCOL &rarr;</span>
         </a>
       </div>
 
-      <!-- Metric Pills -->
-      <div class="pt-5 border-t border-slate-800/80 max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono text-slate-400">
+      <!-- Aerospace Micro-Spec Bar -->
+      <div class="pt-6 border-t border-slate-800/80 max-w-3xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono text-slate-400">
         <div class="flex items-center justify-center gap-2">
           <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-cyan-400"></i>
-          <span>Device Owner Core</span>
+          <span>DEVICE OWNER CORE</span>
         </div>
         <div class="flex items-center justify-center gap-2">
           <i data-lucide="radio" class="w-3.5 h-3.5 text-emerald-400"></i>
-          <span>Air-Gapped GSM SMS</span>
+          <span>AIRGAP GSM SMS</span>
         </div>
         <div class="flex items-center justify-center gap-2">
           <i data-lucide="eye-off" class="w-3.5 h-3.5 text-violet-400"></i>
-          <span>Silent Camera Sensor</span>
+          <span>SILENT SENSOR</span>
         </div>
         <div class="flex items-center justify-center gap-2">
           <i data-lucide="lock" class="w-3.5 h-3.5 text-sky-400"></i>
-          <span>100% Self-Hosted</span>
+          <span>100% SELF-HOSTED</span>
         </div>
       </div>
     </section>
 
-    <!-- THE SHOWSTOPPER: HIGH-FIDELITY LIVE HARDWARE DEFENSE SHOWCASE -->
+    <!-- ACTIVE THEORY-GRADE TACTICAL DEFENSE HUD -->
     <section id="hero-preview" class="mb-28 relative">
       
-      <!-- Interactive Showcase Header -->
+      <!-- Section Briefing -->
       <div class="text-center max-w-2xl mx-auto mb-10">
-        <span class="text-xs font-mono font-bold tracking-widest text-cyan-400 uppercase">Live Hardware Defense Console</span>
+        <span class="arch-tag">// LIVE HARDWARE THREAT PLAYGROUND</span>
         <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1 text-white">Interactive Tactical Invocations</h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-1.5">Click any live scenario below to test how PASA intercepts and neutralizes threats in real time:</p>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1.5 font-light">Trigger live adversary scenarios below to inspect how PASA intercepts and neutralizes threats in real time:</p>
       </div>
 
       <!-- Quick Trigger Action Bar -->
-      <div class="flex flex-wrap items-center justify-center gap-2.5 max-w-3xl mx-auto mb-8">
-        <button onclick="triggerScenario('snatch')" id="btn-snatch" class="px-4 py-2.5 rounded-xl bg-dark-850 hover:bg-rose-500/15 border border-slate-700 hover:border-rose-500/50 text-slate-200 hover:text-rose-300 text-xs font-mono font-semibold transition-all flex items-center gap-2 shadow-sm">
+      <div class="flex flex-wrap items-center justify-center gap-2.5 max-w-4xl mx-auto mb-8">
+        <button onclick="triggerScenario('snatch')" id="btn-snatch" class="px-4 py-2.5 rounded-xl bg-void-850 hover:bg-rose-500/15 border border-slate-700 hover:border-rose-500/50 text-slate-200 hover:text-rose-300 text-xs font-mono font-semibold transition-all flex items-center gap-2 shadow-sm">
           <i data-lucide="zap" class="w-4 h-4 text-rose-400"></i>
-          <span>1. Test Kinetic Snatch Attack</span>
+          <span>1. SIMULATE KINETIC SNATCH ATTACK</span>
         </button>
-        <button onclick="triggerScenario('sms')" id="btn-sms" class="px-4 py-2.5 rounded-xl bg-dark-850 hover:bg-amber-500/15 border border-slate-700 hover:border-amber-500/50 text-slate-200 hover:text-amber-300 text-xs font-mono font-semibold transition-all flex items-center gap-2 shadow-sm">
+        <button onclick="triggerScenario('sms')" id="btn-sms" class="px-4 py-2.5 rounded-xl bg-void-850 hover:bg-amber-500/15 border border-slate-700 hover:border-amber-500/50 text-slate-200 hover:text-amber-300 text-xs font-mono font-semibold transition-all flex items-center gap-2 shadow-sm">
           <i data-lucide="radio" class="w-4 h-4 text-amber-400"></i>
-          <span>2. Test Offline SMS (Data Cut)</span>
+          <span>2. SIMULATE AIRGAP SMS (DATA CUT)</span>
         </button>
-        <button onclick="triggerScenario('fakeshutdown')" id="btn-fake" class="px-4 py-2.5 rounded-xl bg-dark-850 hover:bg-violet-500/15 border border-slate-700 hover:border-violet-500/50 text-slate-200 hover:text-violet-300 text-xs font-mono font-semibold transition-all flex items-center gap-2 shadow-sm">
+        <button onclick="triggerScenario('fakeshutdown')" id="btn-fake" class="px-4 py-2.5 rounded-xl bg-void-850 hover:bg-violet-500/15 border border-slate-700 hover:border-violet-500/50 text-slate-200 hover:text-violet-300 text-xs font-mono font-semibold transition-all flex items-center gap-2 shadow-sm">
           <i data-lucide="power-off" class="w-4 h-4 text-violet-400"></i>
-          <span>3. Test Fake Shutdown Blackout</span>
+          <span>3. SIMULATE FAKE SHUTDOWN</span>
         </button>
-        <button onclick="triggerScenario('camera')" id="btn-cam" class="px-4 py-2.5 rounded-xl bg-dark-850 hover:bg-cyan-500/15 border border-slate-700 hover:border-cyan-500/50 text-slate-200 hover:text-cyan-300 text-xs font-mono font-semibold transition-all flex items-center gap-2 shadow-sm">
+        <button onclick="triggerScenario('camera')" id="btn-cam" class="px-4 py-2.5 rounded-xl bg-void-850 hover:bg-cyan-500/15 border border-slate-700 hover:border-cyan-500/50 text-slate-200 hover:text-cyan-300 text-xs font-mono font-semibold transition-all flex items-center gap-2 shadow-sm">
           <i data-lucide="camera" class="w-4 h-4 text-cyan-400"></i>
-          <span>4. Test Covert Optical Snap</span>
+          <span>4. TRIGGER SILENT OPTICAL SNAP</span>
         </button>
       </div>
 
-      <!-- Master Showcase Container: Sleek Device + Floating Cards -->
-      <div class="glass-card rounded-3xl p-6 sm:p-10 border border-white/10 shadow-2xl relative overflow-hidden max-w-5xl mx-auto">
+      <!-- Master Stage: Titanium Smartphone + Dual Telemetry Stream -->
+      <div class="prismatic-panel rounded-3xl p-6 sm:p-10 border border-white/10 shadow-2xl relative overflow-hidden max-w-5xl mx-auto">
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
-          <!-- Left: Smartphone Hardware Chassis (5 cols) -->
+          <!-- Left: Titanium Smartphone Hardware Chassis (5 cols) -->
           <div class="lg:col-span-5 flex justify-center">
-            <div class="w-[300px] h-[580px] bg-dark-950 rounded-[44px] p-3 phone-outer-chassis relative flex flex-col justify-between border-4 border-slate-800">
+            <div class="w-[305px] h-[590px] rounded-[46px] p-3 titanium-frame relative flex flex-col justify-between border-4 border-slate-700/80">
               
-              <!-- Device Dynamic Island / Speaker -->
-              <div class="w-28 h-5 bg-dark-900 rounded-full mx-auto flex items-center justify-between px-3 z-20 border border-slate-800/80">
-                <div class="w-2.5 h-2.5 rounded-full bg-slate-950 border border-slate-700 flex items-center justify-center">
-                  <div id="phoneCamEye" class="w-1 h-1 rounded-full bg-cyan-400/40"></div>
+              <!-- Hardware Camera Notch & Speaker -->
+              <div class="w-28 h-5 bg-void-950 rounded-full mx-auto flex items-center justify-between px-3 z-20 border border-slate-800">
+                <div class="w-2.5 h-2.5 rounded-full bg-black border border-slate-700 flex items-center justify-center">
+                  <div id="phoneCamEye" class="w-1 h-1 rounded-full bg-cyan-400/50"></div>
                 </div>
                 <div class="w-8 h-1 rounded-full bg-slate-700"></div>
               </div>
 
               <!-- Phone Screen Surface -->
-              <div id="phoneScreen" class="flex-1 bg-dark-900 rounded-[34px] p-4 mt-2 mb-2 flex flex-col justify-between relative overflow-hidden transition-all duration-300 border border-white/5">
+              <div id="phoneScreen" class="flex-1 bg-void-950 rounded-[36px] p-4 mt-2 mb-2 flex flex-col justify-between relative overflow-hidden transition-all duration-300 border border-white/5">
                 
-                <!-- Phone Status Bar -->
+                <!-- Screen Status Bar -->
                 <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 pb-2 border-b border-white/5">
-                  <span id="phoneClock">14:02</span>
+                  <span id="phoneClock">14:02:18</span>
                   <div class="flex items-center gap-1.5">
-                    <span id="phoneNet" class="text-cyan-400 font-bold">5G</span>
+                    <span id="phoneNet" class="text-cyan-400 font-bold">5G &bull; LTE</span>
                     <i data-lucide="shield" class="w-3 h-3 text-emerald-400"></i>
                     <span>94%</span>
                   </div>
                 </div>
 
-                <!-- Phone Main Content Area (Dynamic State) -->
+                <!-- Central Screen Stage -->
                 <div id="phoneContent" class="flex-1 flex flex-col justify-center items-center text-center my-4 space-y-4">
                   
-                  <!-- Central Shield Graphic -->
+                  <!-- Pulsing Hologram Shield -->
                   <div id="phoneShieldBox" class="relative">
-                    <div class="w-28 h-28 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 pulse-ring-anim">
+                    <div class="w-28 h-28 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 tactical-pulse-ring">
                       <i id="phoneCentralIcon" data-lucide="shield-check" class="w-14 h-14"></i>
                     </div>
                   </div>
 
                   <div>
-                    <div id="phoneStateTitle" class="text-sm font-extrabold text-white tracking-tight">SENTINEL ARMED</div>
+                    <div id="phoneStateTitle" class="text-sm font-extrabold font-mono text-white tracking-tight">SENTINEL ARMED</div>
                     <div id="phoneStateSubtitle" class="text-[11px] font-mono text-emerald-400">4 Hardware Traps Active</div>
                   </div>
 
-                  <!-- 4 Mini Status Gauges -->
+                  <!-- 4 Mini Sensor Gauges -->
                   <div id="phoneMiniGauges" class="w-full grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-300 pt-2 border-t border-white/5">
-                    <div class="p-2 rounded-lg bg-dark-850 border border-white/5 text-left">
-                      <div class="text-slate-400 text-[9px]">KINETIC TRAP</div>
-                      <div id="gaugeSnatch" class="text-emerald-400 font-bold">Armed (0.02G)</div>
+                    <div class="p-2 rounded-lg bg-void-900 border border-white/5 text-left">
+                      <div class="text-slate-500 text-[8px]">KINETIC TRAP</div>
+                      <div id="gaugeSnatch" class="text-emerald-400 font-bold">Armed (&plusmn;0.02G)</div>
                     </div>
-                    <div class="p-2 rounded-lg bg-dark-850 border border-white/5 text-left">
-                      <div class="text-slate-400 text-[9px]">CELLULAR C2</div>
+                    <div class="p-2 rounded-lg bg-void-900 border border-white/5 text-left">
+                      <div class="text-slate-500 text-[8px]">CELLULAR C2</div>
                       <div id="gaugeSMS" class="text-cyan-400 font-bold">Dual Standby</div>
                     </div>
-                    <div class="p-2 rounded-lg bg-dark-850 border border-white/5 text-left">
-                      <div class="text-slate-400 text-[9px]">DEVICE OWNER</div>
+                    <div class="p-2 rounded-lg bg-void-900 border border-white/5 text-left">
+                      <div class="text-slate-500 text-[8px]">DEVICE OWNER</div>
                       <div class="text-sky-400 font-bold">Knox Enforced</div>
                     </div>
-                    <div class="p-2 rounded-lg bg-dark-850 border border-white/5 text-left">
-                      <div class="text-slate-400 text-[9px]">OPTICAL CORE</div>
-                      <div class="text-violet-400 font-bold">Covert Silent</div>
+                    <div class="p-2 rounded-lg bg-void-900 border border-white/5 text-left">
+                      <div class="text-slate-500 text-[8px]">OPTICAL CORE</div>
+                      <div class="text-violet-400 font-bold">Covert Camera2</div>
                     </div>
                   </div>
 
                 </div>
 
-                <!-- Phone Bottom Bar Indicator -->
+                <!-- Screen Bottom Footer -->
                 <div class="pt-2 border-t border-white/5 flex items-center justify-between text-[9px] font-mono text-slate-500">
                   <span id="phoneFooterText">PASA Sentinel Daemon v2.3.0</span>
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
@@ -351,17 +405,17 @@
 
               </div>
 
-              <!-- Bottom Home Indicator -->
+              <!-- Bottom Gesture Pill -->
               <div class="w-24 h-1 bg-slate-700 rounded-full mx-auto z-20"></div>
 
             </div>
           </div>
 
-          <!-- Right: Live Operational Stream & Explainer (7 cols) -->
+          <!-- Right: Live Tactical Stream & Explainer (7 cols) -->
           <div class="lg:col-span-7 flex flex-col justify-between space-y-5">
             
-            <!-- Live Incident Card -->
-            <div id="incidentCard" class="glass-card rounded-2xl p-5 border border-cyan-500/30">
+            <!-- Live Event Intercept Card -->
+            <div id="incidentCard" class="prismatic-card rounded-2xl p-5 border border-cyan-500/30">
               <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs font-mono">
                 <div class="flex items-center gap-2">
                   <i data-lucide="terminal" class="w-4 h-4 text-cyan-400"></i>
@@ -371,41 +425,41 @@
               </div>
 
               <div class="mt-4 space-y-3 font-mono text-xs text-slate-300" id="incidentBody">
-                <div class="p-3 rounded-xl bg-dark-900 border border-slate-800">
-                  <div class="text-slate-400 text-[11px] mb-1">Incoming Telegram Bot Telemetry:</div>
+                <div class="p-3.5 rounded-xl bg-void-900 border border-slate-800">
+                  <div class="text-slate-500 text-[10px] mb-1">INCOMING TELEGRAM BOT TELEMETRY:</div>
                   <div class="text-cyan-300 font-semibold" id="botMessageLine">&gt; Sentinel Agent initialized on node #DEV-701A (Pixel 9 Pro).</div>
                   <div class="text-slate-400 text-[11px] mt-1" id="botSubLine">All 4 hardware anti-theft sensors online. Click a scenario button above to simulate an attack.</div>
                 </div>
 
-                <!-- Live Technical Specs Grid -->
+                <!-- Real-Time Hardware Specs -->
                 <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-400">
-                  <div class="p-2.5 rounded-lg bg-dark-850 border border-slate-800">
-                    <span class="text-slate-500">Protection Layer:</span><br>
+                  <div class="p-2.5 rounded-lg bg-void-850 border border-slate-800">
+                    <span class="text-slate-500">PROTECTION LEVEL:</span><br>
                     <b class="text-white">Android Enterprise Kiosk</b>
                   </div>
-                  <div class="p-2.5 rounded-lg bg-dark-850 border border-slate-800">
-                    <span class="text-slate-500">Uninstallation:</span><br>
+                  <div class="p-2.5 rounded-lg bg-void-850 border border-slate-800">
+                    <span class="text-slate-500">UNINSTALLATION:</span><br>
                     <b class="text-emerald-400">Permanently Disabled</b>
                   </div>
-                  <div class="p-2.5 rounded-lg bg-dark-850 border border-slate-800">
-                    <span class="text-slate-500">Cryptography:</span><br>
+                  <div class="p-2.5 rounded-lg bg-void-850 border border-slate-800">
+                    <span class="text-slate-500">CRYPTOGRAPHY:</span><br>
                     <b class="text-sky-300">Ed25519 Local Keypair</b>
                   </div>
-                  <div class="p-2.5 rounded-lg bg-dark-850 border border-slate-800">
-                    <span class="text-slate-500">Google Services:</span><br>
-                    <b class="text-amber-300">Zero Dependency (0 KB)</b>
+                  <div class="p-2.5 rounded-lg bg-void-850 border border-slate-800">
+                    <span class="text-slate-500">GOOGLE TELEMETRY:</span><br>
+                    <b class="text-amber-300">Zero Dependencies (0 KB)</b>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Deep Technical Explainer Box -->
-            <div class="p-5 rounded-2xl bg-dark-900 border border-slate-800 text-xs text-slate-400 leading-relaxed">
-              <div class="font-bold text-slate-200 text-sm mb-1.5 flex items-center gap-2">
-                <i data-lucide="info" class="w-4 h-4 text-cyan-400"></i>
-                <span>Why Conventional Anti-Theft Apps Fail</span>
+            <div class="p-5 rounded-2xl bg-void-900 border border-slate-800 text-xs text-slate-400 leading-relaxed font-light">
+              <div class="font-bold text-slate-200 text-sm mb-1.5 flex items-center gap-2 font-mono">
+                <i data-lucide="shield-alert" class="w-4 h-4 text-cyan-400"></i>
+                <span>WHY CONSUMER ANTI-THEFT APPS SURRENDER</span>
               </div>
-              Google "Find My Device" and consumer antivirus apps rely on active Wi-Fi/data connections and standard user-space permissions. A thief simply toggles Airplane Mode or uninstalls the app in 5 seconds. PASA Sentinel operates at the Device Owner level, intercepts cellular SMS directly from carrier towers without internet, and prevents uninstallation in firmware.
+              Google "Find My Device" and Play Store antivirus apps rely on active internet data and user-space app sandboxes. A thief simply toggles Airplane Mode or uninstalls the app in 5 seconds. PASA Sentinel operates at the Device Owner firmware level, intercepts cellular SMS directly from carrier towers without internet, and locks uninstallation in the kernel.
             </div>
 
           </div>
@@ -415,34 +469,34 @@
       </div>
     </section>
 
-    <!-- 6 CORE DEFENSIVE PILLARS (EXPANDED HIGH-TECH BENTO GRID) -->
+    <!-- 6 CORE DEFENSIVE PILLARS (ACTIVE THEORY EXPANDED BENTO GRID) -->
     <section id="features" class="mb-28">
       <div class="text-center max-w-2xl mx-auto mb-14">
-        <span class="text-xs font-mono font-bold tracking-widest text-cyan-400 uppercase">Enterprise Architectural Pillars</span>
+        <span class="arch-tag">// ARCHITECTURAL PILLARS</span>
         <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1 text-white">Engineered For Adversarial Conditions</h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-2">PASA Sentinel eliminates standard mobile vulnerabilities with hardened, rootless Android primitives.</p>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2 font-light">PASA Sentinel eliminates mobile vulnerabilities with hardened, rootless Android primitives.</p>
       </div>
 
-      <!-- Bento Grid (6 Enterprise Cards with Visual Mini-Previews) -->
+      <!-- Bento Grid (6 Architectural Cards with Live Mini Instruments) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-        <!-- Card 1: Dual-Channel C2 -->
-        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between group">
+        <!-- Pillar 01 -->
+        <div class="prismatic-card rounded-2xl p-6 flex flex-col justify-between group">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-105 transition-transform">
-                <i data-lucide="radio" class="w-6 h-6"></i>
+              <div class="w-11 h-11 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-105 transition-transform">
+                <i data-lucide="radio" class="w-5 h-5"></i>
               </div>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 font-bold">AIRGAP C2</span>
+              <span class="font-mono text-[10px] text-cyan-400 font-bold tracking-wider">// PILLAR 01</span>
             </div>
-            <h3 class="text-lg font-bold text-white mb-2">Dual-Channel Command Plane</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            <h3 class="text-base font-bold text-white mb-2">Dual-Channel Command Plane</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4 font-light">
               Real-time TLS Telegram Bot API commands for lightning-fast telemetry, paired with an autonomous raw cellular SMS parser that triggers when internet connectivity is severed.
             </p>
           </div>
           
-          <!-- Mini Visual Widget -->
-          <div class="p-3 rounded-xl bg-dark-900 border border-slate-800 text-[11px] font-mono space-y-1">
+          <!-- Mini Technical Instrument -->
+          <div class="p-3 rounded-xl bg-void-900 border border-slate-800 text-[11px] font-mono space-y-1">
             <div class="flex justify-between text-slate-400">
               <span>PRIMARY: TLS WEBSOCKET</span>
               <span class="text-emerald-400 font-bold">ONLINE</span>
@@ -454,23 +508,23 @@
           </div>
         </div>
 
-        <!-- Card 2: Autonomous Snatch Traps -->
-        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between group">
+        <!-- Pillar 02 -->
+        <div class="prismatic-card rounded-2xl p-6 flex flex-col justify-between group">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
-                <i data-lucide="zap" class="w-6 h-6"></i>
+              <div class="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
+                <i data-lucide="zap" class="w-5 h-5"></i>
               </div>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold">&lt;10ms TRIGGER</span>
+              <span class="font-mono text-[10px] text-amber-400 font-bold tracking-wider">// PILLAR 02</span>
             </div>
-            <h3 class="text-lg font-bold text-white mb-2">Hardware Anti-Snatch Traps</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            <h3 class="text-base font-bold text-white mb-2">Hardware Anti-Snatch Traps</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4 font-light">
               Direct accelerometer monitoring triggers instant screen lockout, siren blasts, and selfie mugshots upon abrupt motion snatch, charger severance, or pocket extraction.
             </p>
           </div>
 
-          <!-- Mini Visual Widget -->
-          <div class="p-3 rounded-xl bg-dark-900 border border-slate-800 text-[11px] font-mono space-y-1.5">
+          <!-- Mini Technical Instrument -->
+          <div class="p-3 rounded-xl bg-void-900 border border-slate-800 text-[11px] font-mono space-y-1.5">
             <div class="flex justify-between text-slate-400">
               <span>ACCELEROMETER DELTA:</span>
               <span class="text-amber-400 font-bold">2.8G THRESHOLD</span>
@@ -481,51 +535,51 @@
           </div>
         </div>
 
-        <!-- Card 3: Covert Forensic Surveillance -->
-        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between group">
+        <!-- Pillar 03 -->
+        <div class="prismatic-card rounded-2xl p-6 flex flex-col justify-between group">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 group-hover:scale-105 transition-transform">
-                <i data-lucide="camera" class="w-6 h-6"></i>
+              <div class="w-11 h-11 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 group-hover:scale-105 transition-transform">
+                <i data-lucide="camera" class="w-5 h-5"></i>
               </div>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-500/10 text-violet-300 font-bold">SILENT SHUTTER</span>
+              <span class="font-mono text-[10px] text-violet-400 font-bold tracking-wider">// PILLAR 03</span>
             </div>
-            <h3 class="text-lg font-bold text-white mb-2">Silent Forensic Telemetry</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            <h3 class="text-base font-bold text-white mb-2">Silent Forensic Telemetry</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4 font-light">
               Captures front/rear camera photos and records ambient wiretap audio covertly without screen wake, viewfinder preview, or shutter click, streaming payloads straight to your Telegram chat.
             </p>
           </div>
 
-          <!-- Mini Visual Widget -->
-          <div class="p-3 rounded-xl bg-dark-900 border border-slate-800 text-[11px] font-mono space-y-1">
+          <!-- Mini Technical Instrument -->
+          <div class="p-3 rounded-xl bg-void-900 border border-slate-800 text-[11px] font-mono space-y-1">
             <div class="flex justify-between text-slate-400">
-              <span>VIEWFINDER STATE:</span>
-              <span class="text-emerald-400 font-bold">SUPPRESSED (BLACK)</span>
+              <span>VIEWFINDER LEAK:</span>
+              <span class="text-emerald-400 font-bold">0% (BLACK SCREEN)</span>
             </div>
             <div class="flex justify-between text-slate-400">
-              <span>EXIF SEAL:</span>
+              <span>CRYPTO EXIF SEAL:</span>
               <span class="text-violet-300 font-bold">ED25519 SIGNED</span>
             </div>
           </div>
         </div>
 
-        <!-- Card 4: Fake Shutdown Blackout -->
-        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between group">
+        <!-- Pillar 04 -->
+        <div class="prismatic-card rounded-2xl p-6 flex flex-col justify-between group">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 group-hover:scale-105 transition-transform">
-                <i data-lucide="power-off" class="w-6 h-6"></i>
+              <div class="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 group-hover:scale-105 transition-transform">
+                <i data-lucide="power-off" class="w-5 h-5"></i>
               </div>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 font-bold">DECEPTIVE</span>
+              <span class="font-mono text-[10px] text-rose-400 font-bold tracking-wider">// PILLAR 04</span>
             </div>
-            <h3 class="text-lg font-bold text-white mb-2">Simulated Fake Shutdown</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            <h3 class="text-base font-bold text-white mb-2">Simulated Fake Shutdown</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4 font-light">
               Simulates native Android power-down animations and blacks out OLED panels completely. The thief believes the device is dead while GPS tracking and audio wiretaps remain operational.
             </p>
           </div>
 
-          <!-- Mini Visual Widget -->
-          <div class="p-3 rounded-xl bg-dark-900 border border-slate-800 text-[11px] font-mono space-y-1">
+          <!-- Mini Technical Instrument -->
+          <div class="p-3 rounded-xl bg-void-900 border border-slate-800 text-[11px] font-mono space-y-1">
             <div class="flex justify-between text-slate-400">
               <span>THIEF SEES:</span>
               <span class="text-rose-400 font-bold">0 NITS (DEAD OLED)</span>
@@ -537,58 +591,58 @@
           </div>
         </div>
 
-        <!-- Card 5: Device Owner Persistence -->
-        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between group">
+        <!-- Pillar 05 -->
+        <div class="prismatic-card rounded-2xl p-6 flex flex-col justify-between group">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
-                <i data-lucide="shield-alert" class="w-6 h-6"></i>
+              <div class="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
+                <i data-lucide="shield-alert" class="w-5 h-5"></i>
               </div>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 font-bold">KNOX LEVEL</span>
+              <span class="font-mono text-[10px] text-emerald-400 font-bold tracking-wider">// PILLAR 05</span>
             </div>
-            <h3 class="text-lg font-bold text-white mb-2">Device Owner Persistence</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            <h3 class="text-base font-bold text-white mb-2">Device Owner Persistence</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4 font-light">
               Binds through Android Enterprise Device Administration or ADB Device Owner. Disables package uninstallation, blocks Safe Mode bypasses, and prevents malicious factory wipes.
             </p>
           </div>
 
-          <!-- Mini Visual Widget -->
-          <div class="p-3 rounded-xl bg-dark-900 border border-slate-800 text-[11px] font-mono space-y-1">
+          <!-- Mini Technical Instrument -->
+          <div class="p-3 rounded-xl bg-void-900 border border-slate-800 text-[11px] font-mono space-y-1">
             <div class="flex justify-between text-slate-400">
               <span>UNINSTALL MENU:</span>
-              <span class="text-rose-400 font-bold">DISABLED BY OS</span>
+              <span class="text-rose-400 font-bold">DISABLED IN KERNEL</span>
             </div>
             <div class="flex justify-between text-slate-400">
-              <span>FACTORY RESET:</span>
+              <span>FACTORY WIPE:</span>
               <span class="text-emerald-400 font-bold">ADMIN RESTRICTED</span>
             </div>
           </div>
         </div>
 
-        <!-- Card 6: Zero-Knowledge Privacy Ledger -->
-        <div class="glass-card rounded-2xl p-6 flex flex-col justify-between group">
+        <!-- Pillar 06 -->
+        <div class="prismatic-card rounded-2xl p-6 flex flex-col justify-between group">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 group-hover:scale-105 transition-transform">
-                <i data-lucide="lock" class="w-6 h-6"></i>
+              <div class="w-11 h-11 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 group-hover:scale-105 transition-transform">
+                <i data-lucide="lock" class="w-5 h-5"></i>
               </div>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 font-bold">0 TRACKERS</span>
+              <span class="font-mono text-[10px] text-sky-400 font-bold tracking-wider">// PILLAR 06</span>
             </div>
-            <h3 class="text-lg font-bold text-white mb-2">Self-Hosted Sovereign Ledger</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            <h3 class="text-base font-bold text-white mb-2">Self-Hosted Sovereign Ledger</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4 font-light">
               Zero Google Play Services dependency. No third-party ad networks, no analytics backdoors, and no Firebase tracking. You own your telemetry, your keys, and your device.
             </p>
           </div>
 
-          <!-- Mini Visual Widget -->
-          <div class="p-3 rounded-xl bg-dark-900 border border-slate-800 text-[11px] font-mono space-y-1">
+          <!-- Mini Technical Instrument -->
+          <div class="p-3 rounded-xl bg-void-900 border border-slate-800 text-[11px] font-mono space-y-1">
             <div class="flex justify-between text-slate-400">
-              <span>GOOGLE PLAY TELEMETRY:</span>
+              <span>PLAY STORE TRACKERS:</span>
               <span class="text-emerald-400 font-bold">0 BYTES (BLOCKED)</span>
             </div>
             <div class="flex justify-between text-slate-400">
-              <span>DATA LOCATION:</span>
-              <span class="text-sky-300 font-bold">YOUR PRIVATE C2</span>
+              <span>DATA STORAGE:</span>
+              <span class="text-sky-300 font-bold">YOUR PRIVATE BOT</span>
             </div>
           </div>
         </div>
@@ -599,63 +653,63 @@
     <!-- 3-STEP SIDELOADING PROTOCOL -->
     <section id="install-guide" class="mb-28">
       <div class="text-center max-w-2xl mx-auto mb-14">
-        <span class="text-xs font-mono font-bold tracking-widest text-cyan-400 uppercase">Frictionless Deployment Protocol</span>
+        <span class="arch-tag">// DEPLOYMENT SPECIFICATIONS</span>
         <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1 text-white">How to Sideload in 60 Seconds</h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-2">Because PASA is an independent sovereign tool that bypasses Google Play store telemetry, Android displays standard off-market verification prompts. Follow this 3-step walkthrough:</p>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2 font-light">Because PASA is an independent sovereign defense tool that refuses to submit telemetry to Google, Android displays standard off-market verification prompts. Follow this 3-step walkthrough:</p>
       </div>
 
-      <!-- 3-Step Pipeline Cards -->
+      <!-- 3-Step Protocol Pipeline Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <!-- Step 1 -->
-        <div class="glass-card rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between">
-          <div class="absolute top-4 right-4 text-4xl font-mono font-black text-slate-800 pointer-events-none">01</div>
+        <!-- Phase 01 -->
+        <div class="prismatic-card rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-4 right-4 text-4xl font-mono font-black text-slate-800/80 pointer-events-none">01</div>
           <div>
             <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-4">
               <i data-lucide="download-cloud" class="w-5 h-5"></i>
             </div>
             <h3 class="text-base font-bold text-white mb-2">Download &amp; Authorize</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            <p class="text-xs text-slate-400 leading-relaxed mb-4 font-light">
               Tap <b class="text-slate-200">Download APK</b>. When Chrome displays <span class="text-amber-400 font-mono">"File might be harmful"</span> (standard for all direct APKs), tap <b class="text-slate-200">Download anyway</b>.
             </p>
           </div>
-          <div class="p-3 rounded-xl bg-dark-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+          <div class="p-3 rounded-xl bg-void-900 border border-slate-800 text-[11px] font-mono text-slate-300">
             <span class="text-cyan-400 font-bold">Android Setting:</span><br>
-            Settings &rarr; Install Unknown Apps &rarr; Toggle Chrome <span class="text-emerald-400">Allow</span>
+            Settings &rarr; Install Unknown Apps &rarr; Toggle Chrome <span class="text-emerald-400 font-bold">Allow</span>
           </div>
         </div>
 
-        <!-- Step 2 -->
-        <div class="glass-card rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between">
-          <div class="absolute top-4 right-4 text-4xl font-mono font-black text-slate-800 pointer-events-none">02</div>
+        <!-- Phase 02 -->
+        <div class="prismatic-card rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-4 right-4 text-4xl font-mono font-black text-slate-800/80 pointer-events-none">02</div>
           <div>
             <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4">
               <i data-lucide="shield-check" class="w-5 h-5"></i>
             </div>
             <h3 class="text-base font-bold text-white mb-2">Play Protect Clearance</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            <p class="text-xs text-slate-400 leading-relaxed mb-4 font-light">
               Google Play Protect flags unlisted sovereign applications. In the prompt, simply tap <b class="text-cyan-400">"More details"</b> and click <b class="text-white">"Install anyway"</b>.
             </p>
           </div>
-          <div class="p-3 rounded-xl bg-dark-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+          <div class="p-3 rounded-xl bg-void-900 border border-slate-800 text-[11px] font-mono text-slate-300">
             <span class="text-amber-400 font-bold">Security Note:</span><br>
             PASA does not submit customer telemetry to Google's database.
           </div>
         </div>
 
-        <!-- Step 3 -->
-        <div class="glass-card rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between">
-          <div class="absolute top-4 right-4 text-4xl font-mono font-black text-slate-800 pointer-events-none">03</div>
+        <!-- Phase 03 -->
+        <div class="prismatic-card rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute top-4 right-4 text-4xl font-mono font-black text-slate-800/80 pointer-events-none">03</div>
           <div>
             <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
               <i data-lucide="key" class="w-5 h-5"></i>
             </div>
             <h3 class="text-base font-bold text-white mb-2">Arm &amp; Pair Telegram</h3>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            <p class="text-xs text-slate-400 leading-relaxed mb-4 font-light">
               Open PASA, grant Device Administrator or execute ADB Device Owner, set your master PIN, and paste your Telegram Bot Token. Your phone is permanently armed.
             </p>
           </div>
-          <div class="p-3 rounded-xl bg-dark-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+          <div class="p-3 rounded-xl bg-void-900 border border-slate-800 text-[11px] font-mono text-slate-300">
             <span class="text-emerald-400 font-bold">Optional ADB Command:</span><br>
             <code class="text-[10px] text-slate-400">adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin</code>
           </div>
@@ -664,30 +718,30 @@
       </div>
     </section>
 
-    <!-- COMPETITIVE COMPARISON MATRIX -->
+    <!-- ARCHITECTURAL MATRIX (PASA VS COMMERCIAL APPS) -->
     <section id="comparison" class="mb-28">
       <div class="text-center max-w-2xl mx-auto mb-14">
-        <span class="text-xs font-mono font-bold tracking-widest text-cyan-400 uppercase">Competitive Matrix</span>
+        <span class="arch-tag">// HARDWARE CAPABILITY MATRIX</span>
         <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1 text-white">PASA vs Conventional Antivirus</h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-2">Why consumer security apps and Google "Find My Device" fail in real-world theft encounters.</p>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2 font-light">Why consumer security apps and Google "Find My Device" surrender in real-world theft encounters.</p>
       </div>
 
-      <div class="glass-card rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+      <div class="prismatic-card rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs font-mono">
             <thead>
-              <tr class="bg-dark-900 border-b border-slate-800 text-slate-300">
-                <th class="p-4 sm:p-5 font-bold text-sm text-white">Security Capability</th>
-                <th class="p-4 sm:p-5 font-bold text-cyan-400 text-center bg-cyan-500/10 border-x border-cyan-500/20">PASA Sentinel v2.3.0</th>
-                <th class="p-4 sm:p-5 font-medium text-slate-400 text-center">Google "Find My Device"</th>
-                <th class="p-4 sm:p-5 font-medium text-slate-400 text-center">Consumer Play Store Apps</th>
+              <tr class="bg-void-900 border-b border-slate-800 text-slate-300">
+                <th class="p-4 sm:p-5 font-bold text-sm text-white">SECURITY CAPABILITY</th>
+                <th class="p-4 sm:p-5 font-bold text-cyan-400 text-center bg-cyan-500/10 border-x border-cyan-500/20">PASA SENTINEL v2.3.0</th>
+                <th class="p-4 sm:p-5 font-medium text-slate-400 text-center">GOOGLE "FIND MY DEVICE"</th>
+                <th class="p-4 sm:p-5 font-medium text-slate-400 text-center">PLAY STORE ANTIVIRUS</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/60 text-slate-300">
               <tr>
-                <td class="p-4 sm:p-5 font-medium font-sans">
+                <td class="p-4 sm:p-5 font-sans">
                   <div class="text-white font-bold">Offline SMS Cellular Fallback</div>
-                  <div class="text-slate-400 text-[11px]">Commands execute when thief disables Wi-Fi &amp; Mobile Data</div>
+                  <div class="text-slate-400 text-[11px] font-light">Commands execute when thief disables Wi-Fi &amp; Mobile Data</div>
                 </td>
                 <td class="p-4 sm:p-5 text-center bg-cyan-500/5 border-x border-cyan-500/20 text-emerald-400 font-bold">
                   <i data-lucide="check-circle-2" class="w-5 h-5 mx-auto text-emerald-400"></i>
@@ -700,9 +754,9 @@
                 </td>
               </tr>
               <tr>
-                <td class="p-4 sm:p-5 font-medium font-sans">
+                <td class="p-4 sm:p-5 font-sans">
                   <div class="text-white font-bold">Device Owner Anti-Uninstall</div>
-                  <div class="text-slate-400 text-[11px]">Uninstallation disabled in Android Settings and Safe Mode</div>
+                  <div class="text-slate-400 text-[11px] font-light">Uninstallation disabled in Android Settings and Safe Mode</div>
                 </td>
                 <td class="p-4 sm:p-5 text-center bg-cyan-500/5 border-x border-cyan-500/20 text-emerald-400 font-bold">
                   <i data-lucide="check-circle-2" class="w-5 h-5 mx-auto text-emerald-400"></i>
@@ -713,9 +767,9 @@
                 </td>
               </tr>
               <tr>
-                <td class="p-4 sm:p-5 font-medium font-sans">
+                <td class="p-4 sm:p-5 font-sans">
                   <div class="text-white font-bold">Fake Shutdown Blackout</div>
-                  <div class="text-slate-400 text-[11px]">Deceives thief with dark screen while keeping GPS/wiretap active</div>
+                  <div class="text-slate-400 text-[11px] font-light">Deceives thief with dark screen while keeping GPS/wiretap active</div>
                 </td>
                 <td class="p-4 sm:p-5 text-center bg-cyan-500/5 border-x border-cyan-500/20 text-emerald-400 font-bold">
                   <i data-lucide="check-circle-2" class="w-5 h-5 mx-auto text-emerald-400"></i>
@@ -728,9 +782,9 @@
                 </td>
               </tr>
               <tr>
-                <td class="p-4 sm:p-5 font-medium font-sans">
+                <td class="p-4 sm:p-5 font-sans">
                   <div class="text-white font-bold">Silent Forensic Camera &amp; Mic</div>
-                  <div class="text-slate-400 text-[11px]">Covert photo mugshots and audio streaming directly to Telegram</div>
+                  <div class="text-slate-400 text-[11px] font-light">Covert photo mugshots and audio streaming directly to Telegram</div>
                 </td>
                 <td class="p-4 sm:p-5 text-center bg-cyan-500/5 border-x border-cyan-500/20 text-emerald-400 font-bold">
                   <i data-lucide="check-circle-2" class="w-5 h-5 mx-auto text-emerald-400"></i>
@@ -741,9 +795,9 @@
                 <td class="p-4 sm:p-5 text-center text-rose-400">Blocked by Play Store Rules</td>
               </tr>
               <tr>
-                <td class="p-4 sm:p-5 font-medium font-sans">
+                <td class="p-4 sm:p-5 font-sans">
                   <div class="text-white font-bold">Zero Google Telemetry &amp; Self-Hosted</div>
-                  <div class="text-slate-400 text-[11px]">No ad networks, no tracking SDKs, 100% private data ownership</div>
+                  <div class="text-slate-400 text-[11px] font-light">No ad networks, no tracking SDKs, 100% private data ownership</div>
                 </td>
                 <td class="p-4 sm:p-5 text-center bg-cyan-500/5 border-x border-cyan-500/20 text-emerald-400 font-bold">
                   <i data-lucide="check-circle-2" class="w-5 h-5 mx-auto text-emerald-400"></i>
@@ -761,32 +815,32 @@
       </div>
     </section>
 
-    <!-- PRICING MATRIX -->
+    <!-- FAIR & TRANSPARENT PRICING MATRIX -->
     <section id="pricing" class="mb-28">
       <div class="text-center max-w-2xl mx-auto mb-14">
-        <span class="text-xs font-mono font-bold tracking-widest text-cyan-400 uppercase">Fair &amp; Transparent Licensing</span>
+        <span class="arch-tag">// SOVEREIGN TIERS</span>
         <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1 text-white">Invest in Sovereign Defense</h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-2">No recurrent monthly bleed. Instant automated key generation and cryptographic validation.</p>
+        <p class="text-xs sm:text-sm text-slate-400 mt-2 font-light">No recurrent monthly bleed. Instant automated key generation and cryptographic validation.</p>
       </div>
 
       <!-- Pricing Cards Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
         
         <!-- Tier 1: 7-Day Sentinel Trial -->
-        <div class="glass-card rounded-3xl p-8 flex flex-col justify-between">
+        <div class="prismatic-card rounded-3xl p-8 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">COMMUNITY TRIAL</span>
+              <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-void-800 text-slate-300 border border-slate-700">COMMUNITY TRIAL</span>
               <span class="text-xs font-mono text-slate-400">1 Device</span>
             </div>
             <div class="flex items-baseline gap-1 mb-4">
-              <span class="text-4xl font-extrabold text-white">$0</span>
-              <span class="text-sm text-slate-400">/ 7 days full access</span>
+              <span class="text-4xl font-extrabold text-white font-mono">$0</span>
+              <span class="text-xs font-mono text-slate-400">/ 7 days full access</span>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed mb-6">
+            <p class="text-xs text-slate-400 leading-relaxed mb-6 font-light">
               Complete evaluation license. Experience all defensive commands, Telegram C2, and silent camera triggers.
             </p>
-            <ul class="space-y-3 text-xs text-slate-300 mb-8">
+            <ul class="space-y-3 text-xs text-slate-300 mb-8 font-mono">
               <li class="flex items-center gap-2.5">
                 <i data-lucide="check" class="w-4 h-4 text-cyan-400"></i>
                 <span>1 Active Smartphone node</span>
@@ -805,16 +859,16 @@
               </li>
             </ul>
           </div>
-          <a href="/api/app/download/pasa-v2.3.0-4.apk" class="w-full py-3.5 px-4 rounded-xl text-center text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-all">
-            Download Free APK &rarr;
+          <a href="/api/app/download/pasa-v2.3.0-4.apk" class="w-full py-3.5 px-4 rounded-xl text-center text-xs font-bold font-mono text-slate-200 bg-void-800 hover:bg-void-750 border border-slate-700 transition-all">
+            DOWNLOAD FREE APK &rarr;
           </a>
         </div>
 
         <!-- Tier 2: Pro Lifetime (FEATURED) -->
-        <div class="glass-card rounded-3xl p-8 flex flex-col justify-between border-cyan-500/50 shadow-glow-cyan relative bg-dark-900/90">
-          <div class="absolute -top-3.5 left-1/2 transform -translate-x-1/2">
-            <span class="px-4 py-1 rounded-full text-[11px] font-mono font-extrabold uppercase tracking-wider text-dark-950 bg-gradient-to-r from-cyan-400 to-sky-300 shadow-md">
-              Most Popular &bull; Lifetime Value
+        <div class="prismatic-card rounded-3xl p-8 flex flex-col justify-between border-cyan-500/50 shadow-[0_0_50px_rgba(6,182,212,0.25)] relative bg-void-900/90">
+          <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+            <span class="px-4 py-1 rounded-full text-[10px] font-mono font-extrabold uppercase tracking-wider text-void-950 bg-gradient-to-r from-cyan-400 to-sky-300 shadow-md">
+              MOST POPULAR &bull; LIFETIME VALUE
             </span>
           </div>
           <div>
@@ -823,13 +877,13 @@
               <span class="text-xs font-mono text-cyan-400 font-semibold">3 Devices</span>
             </div>
             <div class="flex items-baseline gap-1 mb-4">
-              <span class="text-5xl font-extrabold text-white">$29.99</span>
-              <span class="text-sm text-slate-400">/ one-time payment</span>
+              <span class="text-5xl font-extrabold text-white font-mono">$29.99</span>
+              <span class="text-xs font-mono text-slate-400">/ one-time payment</span>
             </div>
-            <p class="text-xs text-slate-300 leading-relaxed mb-6">
+            <p class="text-xs text-slate-300 leading-relaxed mb-6 font-light">
               Perpetual sovereign defense. Protect your primary phone and family devices forever with all future updates.
             </p>
-            <ul class="space-y-3 text-xs text-slate-200 mb-8">
+            <ul class="space-y-3 text-xs text-slate-200 mb-8 font-mono">
               <li class="flex items-center gap-2.5">
                 <i data-lucide="check-circle" class="w-4 h-4 text-cyan-400"></i>
                 <span><b>3 Device Nodes</b> simultaneously armed</span>
@@ -852,26 +906,26 @@
               </li>
             </ul>
           </div>
-          <button onclick="openCheckout('PRO_LIFETIME', 29.99)" class="w-full py-4 px-4 rounded-xl text-center text-xs font-extrabold text-dark-950 bg-gradient-to-r from-cyan-400 via-sky-400 to-teal-300 hover:from-cyan-300 hover:to-teal-200 shadow-glow-cyan transition-all transform hover:-translate-y-0.5">
-            Claim Pro Lifetime License &rarr;
+          <button onclick="openCheckout('PRO_LIFETIME', 29.99)" class="w-full py-4 px-4 rounded-xl text-center text-xs font-extrabold font-mono text-void-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-teal-200 hover:from-cyan-300 hover:to-teal-100 shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all transform hover:-translate-y-0.5">
+            CLAIM PRO LIFETIME LICENSE &rarr;
           </button>
         </div>
 
         <!-- Tier 3: Fleet / Enterprise -->
-        <div class="glass-card rounded-3xl p-8 flex flex-col justify-between">
+        <div class="prismatic-card rounded-3xl p-8 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-4">
               <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">FLEET / ORG</span>
               <span class="text-xs font-mono text-slate-400">10 Devices</span>
             </div>
             <div class="flex items-baseline gap-1 mb-4">
-              <span class="text-4xl font-extrabold text-white">$79.99</span>
-              <span class="text-sm text-slate-400">/ one-time payment</span>
+              <span class="text-4xl font-extrabold text-white font-mono">$79.99</span>
+              <span class="text-xs font-mono text-slate-400">/ one-time payment</span>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed mb-6">
+            <p class="text-xs text-slate-400 leading-relaxed mb-6 font-light">
               For executive teams, secure facilities, and multi-device fleet deployments requiring Knox-grade ADB provisioning.
             </p>
-            <ul class="space-y-3 text-xs text-slate-300 mb-8">
+            <ul class="space-y-3 text-xs text-slate-300 mb-8 font-mono">
               <li class="flex items-center gap-2.5">
                 <i data-lucide="check" class="w-4 h-4 text-violet-400"></i>
                 <span><b>10 Hardware Device Nodes</b></span>
@@ -890,8 +944,8 @@
               </li>
             </ul>
           </div>
-          <button onclick="openCheckout('PRO_ENTERPRISE', 79.99)" class="w-full py-3.5 px-4 rounded-xl text-center text-xs font-bold text-white bg-violet-600/80 hover:bg-violet-600 border border-violet-500/40 transition-all">
-            Deploy Fleet License &rarr;
+          <button onclick="openCheckout('PRO_ENTERPRISE', 79.99)" class="w-full py-3.5 px-4 rounded-xl text-center text-xs font-bold font-mono text-white bg-violet-600/80 hover:bg-violet-600 border border-violet-500/40 transition-all">
+            DEPLOY FLEET LICENSE &rarr;
           </button>
         </div>
 
@@ -900,20 +954,20 @@
 
     <!-- CRYPTOGRAPHIC LICENSE VALIDATOR -->
     <section id="validator" class="mb-28 max-w-3xl mx-auto">
-      <div class="glass-card rounded-3xl p-8 border border-white/10 shadow-2xl text-center">
+      <div class="prismatic-card rounded-3xl p-8 border border-white/10 shadow-2xl text-center">
         <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mx-auto mb-4">
           <i data-lucide="search" class="w-5 h-5"></i>
         </div>
-        <h3 class="text-2xl font-bold text-white mb-2">Cryptographic License Ledger</h3>
-        <p class="text-xs text-slate-400 max-w-md mx-auto mb-6">
+        <h3 class="text-2xl font-bold text-white mb-2 font-mono">CRYPTOGRAPHIC LICENSE LEDGER</h3>
+        <p class="text-xs text-slate-400 max-w-md mx-auto mb-6 font-light">
           Query the live control plane to inspect remaining validity, node allocations, or recover an issued license key.
         </p>
 
         <div class="flex flex-col sm:flex-row gap-2.5 max-w-lg mx-auto">
-          <input type="text" id="lookupQuery" placeholder="Enter license key (PASA-...) or purchase email" class="flex-1 bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors">
-          <button onclick="lookupLicense()" class="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-dark-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+          <input type="text" id="lookupQuery" placeholder="Enter license key (PASA-...) or email" class="flex-1 bg-void-900 border border-slate-700 rounded-xl px-4 py-3 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors">
+          <button onclick="lookupLicense()" class="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-void-950 font-bold font-mono text-xs flex items-center justify-center gap-1.5 transition-all">
             <i data-lucide="key" class="w-3.5 h-3.5"></i>
-            <span>Validate</span>
+            <span>VALIDATE</span>
           </button>
         </div>
 
@@ -924,20 +978,20 @@
 
     <!-- VERIFIED PRODUCTION BINARY SPECIFICATIONS -->
     <section id="download" class="mb-28 max-w-4xl mx-auto">
-      <div class="glass-card rounded-3xl p-8 border border-white/10 shadow-2xl">
+      <div class="prismatic-card rounded-3xl p-8 border border-white/10 shadow-2xl">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <div class="flex items-center gap-2 text-[11px] font-mono text-cyan-400 font-bold uppercase mb-2">
+            <div class="flex items-center gap-2 text-[10px] font-mono text-cyan-400 font-bold uppercase mb-2">
               <i data-lucide="check-check" class="w-4 h-4"></i>
-              <span>Official Release Binary</span>
+              <span>OFFICIAL PRODUCTION RELEASE</span>
             </div>
-            <h3 class="text-2xl font-bold text-white mb-2">PASA Sentinel for Android v2.3.0</h3>
+            <h3 class="text-2xl font-bold text-white mb-2 font-mono">PASA Sentinel for Android v2.3.0</h3>
             <div class="text-xs font-mono text-slate-400 space-y-1 mb-4">
               <div>Build Version: <b class="text-slate-200">#4 (v2.3.0)</b> &bull; Binary Size: <b class="text-slate-200">18.91 MB</b></div>
               <div>Min SDK: <b class="text-slate-200">Android 8.0 (API 26)</b> &bull; Target SDK: <b class="text-slate-200">Android 15 (API 35)</b></div>
             </div>
-            <div class="text-xs text-slate-400 mb-2">Cryptographic SHA-256 Checksum:</div>
-            <div class="inline-flex items-center gap-2 bg-dark-900 border border-slate-800 rounded-lg p-2 max-w-full overflow-hidden">
+            <div class="text-xs text-slate-400 mb-2 font-mono">Cryptographic SHA-256 Checksum:</div>
+            <div class="inline-flex items-center gap-2 bg-void-900 border border-slate-800 rounded-lg p-2 max-w-full overflow-hidden">
               <code id="sha256Hash" class="text-[11px] font-mono text-cyan-300 truncate max-w-[280px] sm:max-w-md">e8668348501a90aeba497fd4dbf6cf3b154c18ee478b6df58e0c42c6cd080dee</code>
               <button onclick="copySha256()" class="flex-shrink-0 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-mono text-slate-200 flex items-center gap-1">
                 <i data-lucide="copy" class="w-3 h-3"></i>
@@ -946,13 +1000,12 @@
             </div>
           </div>
           <div class="flex-shrink-0 flex flex-col items-center">
-            <a href="/api/app/download/pasa-v2.3.0-4.apk" class="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-bold text-sm text-dark-950 bg-gradient-to-r from-cyan-400 to-sky-300 hover:from-cyan-300 hover:to-sky-200 shadow-glow-cyan transition-all transform hover:-translate-y-0.5">
+            <a href="/api/app/download/pasa-v2.3.0-4.apk" class="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-bold font-mono text-xs sm:text-sm text-void-950 bg-gradient-to-r from-cyan-400 to-sky-300 hover:from-cyan-300 hover:to-sky-200 shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all transform hover:-translate-y-0.5">
               <i data-lucide="download" class="w-4 h-4"></i>
-              <span>Download APK File</span>
+              <span>DOWNLOAD APK FILE</span>
             </a>
-            <a href="#install-guide" class="text-xs text-slate-400 hover:text-cyan-300 underline mt-3 flex items-center gap-1">
-              <span>View Sideloading Instructions</span>
-              <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            <a href="#install-guide" class="text-xs text-slate-400 hover:text-cyan-300 underline mt-3 flex items-center gap-1 font-mono">
+              <span>View Sideloading Instructions &rarr;</span>
             </a>
           </div>
         </div>
@@ -962,48 +1015,48 @@
     <!-- FREQUENTLY ASKED QUESTIONS -->
     <section id="faq" class="mb-24 max-w-3xl mx-auto">
       <div class="text-center mb-12">
-        <span class="text-xs font-mono font-bold tracking-widest text-cyan-400 uppercase">Architecture &amp; Usage</span>
-        <h2 class="text-3xl font-extrabold tracking-tight mt-1 text-white">Frequently Asked Questions</h2>
+        <span class="arch-tag">// ARCHITECTURAL INQUIRIES</span>
+        <h2 class="text-3xl font-extrabold tracking-tight mt-1 text-white font-mono">FREQUENTLY ASKED QUESTIONS</h2>
       </div>
 
       <div class="space-y-4">
         
-        <div class="glass-card rounded-2xl p-6 border border-white/10">
-          <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+        <div class="prismatic-card rounded-2xl p-6 border border-white/10">
+          <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2 font-mono">
             <i data-lucide="help-circle" class="w-4 h-4 text-cyan-400"></i>
             <span>Does PASA Sentinel require root access?</span>
           </h4>
-          <p class="text-xs text-slate-400 leading-relaxed">
+          <p class="text-xs text-slate-400 leading-relaxed font-light">
             No. PASA is engineered purely using standard Android Enterprise Device Administrator and Camera2/Location APIs. All capabilities—including silent snapshots, ambient audio, fake shutdown, and offline cellular SMS—function on 100% stock, unrooted Android.
           </p>
         </div>
 
-        <div class="glass-card rounded-2xl p-6 border border-white/10">
-          <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+        <div class="prismatic-card rounded-2xl p-6 border border-white/10">
+          <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2 font-mono">
             <i data-lucide="help-circle" class="w-4 h-4 text-cyan-400"></i>
             <span>How does the Offline Cellular SMS fallback operate?</span>
           </h4>
-          <p class="text-xs text-slate-400 leading-relaxed">
+          <p class="text-xs text-slate-400 leading-relaxed font-light">
             If an adversary turns off Wi-Fi and Cellular Mobile Data, or enters an underground area without data connectivity, you can text <code class="text-cyan-300 font-mono">PASA &lt;masterPassword&gt; /locate</code> from any phone. PASA's background broadcast receiver intercepts this incoming PDU, triangulates GPS, and returns an encrypted reverse SMS with exact Google Maps coordinates.
           </p>
         </div>
 
-        <div class="glass-card rounded-2xl p-6 border border-white/10">
-          <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+        <div class="prismatic-card rounded-2xl p-6 border border-white/10">
+          <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2 font-mono">
             <i data-lucide="help-circle" class="w-4 h-4 text-cyan-400"></i>
             <span>Can a thief simply uninstall the app from the settings menu?</span>
           </h4>
-          <p class="text-xs text-slate-400 leading-relaxed">
+          <p class="text-xs text-slate-400 leading-relaxed font-light">
             When armed as an Android Device Administrator, the standard Android OS "Uninstall" button is disabled by the operating system kernel. When provisioned via ADB Device Owner (<code class="text-cyan-300 font-mono">dpm set-device-owner</code>), uninstallation is strictly forbidden even in Safe Mode.
           </p>
         </div>
 
-        <div class="glass-card rounded-2xl p-6 border border-white/10">
-          <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+        <div class="prismatic-card rounded-2xl p-6 border border-white/10">
+          <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2 font-mono">
             <i data-lucide="help-circle" class="w-4 h-4 text-cyan-400"></i>
             <span>Why does Google Play Protect display a warning during sideloading?</span>
           </h4>
-          <p class="text-xs text-slate-400 leading-relaxed">
+          <p class="text-xs text-slate-400 leading-relaxed font-light">
             Google Play Protect alerts users for off-market APKs that are not indexed in Google's commercial database. Because PASA is an intentional sovereign defense tool that refuses to submit customer telemetry to Google, it is distributed independently. Clicking "More details" &rarr; "Install anyway" resolves this instantly.
           </p>
         </div>
@@ -1014,8 +1067,8 @@
   </main>
 
   <!-- CHECKOUT MODAL -->
-  <div id="checkoutModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
-    <div class="glass-card rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-white/10 shadow-2xl relative">
+  <div id="checkoutModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 hidden">
+    <div class="prismatic-card rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-white/15 shadow-2xl relative">
       
       <!-- Close Button -->
       <button onclick="closeCheckout()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors">
@@ -1024,21 +1077,21 @@
 
       <!-- Step 1: Purchase Form -->
       <div id="checkoutStepForm">
-        <div class="text-[11px] font-mono text-cyan-400 font-bold uppercase mb-1">SOVEREIGN CHECKOUT ENGINE</div>
-        <h3 id="checkoutPlanTitle" class="text-xl font-bold text-white mb-2">Pro Lifetime License</h3>
-        <p class="text-xs text-slate-400 mb-6">Enter your recipient email to receive instant cryptographically signed license credentials.</p>
+        <div class="text-[10px] font-mono text-cyan-400 font-bold uppercase mb-1">// SOVEREIGN CHECKOUT ENGINE</div>
+        <h3 id="checkoutPlanTitle" class="text-xl font-bold text-white mb-2 font-mono">Pro Lifetime License</h3>
+        <p class="text-xs text-slate-400 mb-6 font-light">Enter your recipient email to receive instant cryptographically signed license credentials.</p>
 
-        <form id="purchaseForm" onsubmit="handlePurchaseSubmit(event)" class="space-y-4">
+        <form id="purchaseForm" onsubmit="handlePurchaseSubmit(event)" class="space-y-4 font-mono">
           <input type="hidden" id="selectedTier" value="PRO_LIFETIME" />
 
           <div>
-            <label class="block text-xs font-mono text-slate-300 mb-1.5">Recipient Email Address</label>
-            <input type="email" id="customerEmail" required placeholder="operator@domain.com" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors">
+            <label class="block text-xs text-slate-300 mb-1.5">RECIPIENT EMAIL ADDRESS</label>
+            <input type="email" id="customerEmail" required placeholder="operator@domain.com" class="w-full bg-void-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors">
           </div>
 
           <div>
-            <label class="block text-xs font-mono text-slate-300 mb-1.5">Payment Gateway</label>
-            <select id="paymentProvider" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-4 py-3 text-xs font-mono text-white focus:outline-none focus:border-cyan-400 transition-colors">
+            <label class="block text-xs text-slate-300 mb-1.5">PAYMENT GATEWAY</label>
+            <select id="paymentProvider" class="w-full bg-void-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-400 transition-colors">
               <option value="card">Credit / Debit Card (Stripe Instant)</option>
               <option value="crypto">USDT / BTC / Crypto (Coinbase Commerce)</option>
               <option value="bkash">bKash / Nagad Instant (Bangladesh)</option>
@@ -1047,41 +1100,41 @@
           </div>
 
           <div class="flex items-center justify-between py-3 border-t border-b border-slate-800">
-            <span class="text-xs text-slate-400">Total Due (One-Time):</span>
-            <span id="checkoutPriceTag" class="text-2xl font-extrabold text-white font-mono">$29.99</span>
+            <span class="text-xs text-slate-400">TOTAL DUE (ONE-TIME):</span>
+            <span id="checkoutPriceTag" class="text-2xl font-extrabold text-white">$29.99</span>
           </div>
 
-          <button type="submit" id="submitOrderBtn" class="w-full py-4 rounded-xl text-center text-xs font-bold text-dark-950 bg-gradient-to-r from-cyan-400 to-sky-300 hover:from-cyan-300 hover:to-sky-200 shadow-glow-cyan transition-all flex items-center justify-center gap-2">
-            <span>Authorize &amp; Issue License Key</span>
+          <button type="submit" id="submitOrderBtn" class="w-full py-4 rounded-xl text-center text-xs font-bold text-void-950 bg-gradient-to-r from-cyan-400 to-sky-300 hover:from-cyan-300 hover:to-sky-200 shadow-[0_0_25px_rgba(6,182,212,0.4)] transition-all flex items-center justify-center gap-2">
+            <span>AUTHORIZE &amp; ISSUE LICENSE KEY</span>
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </button>
         </form>
       </div>
 
       <!-- Step 2: Success Key Display -->
-      <div id="checkoutStepSuccess" class="hidden text-center py-4">
+      <div id="checkoutStepSuccess" class="hidden text-center py-4 font-mono">
         <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto mb-4">
           <i data-lucide="check" class="w-6 h-6"></i>
         </div>
-        <h3 class="text-xl font-bold text-emerald-400 mb-1">License Issued Successfully</h3>
-        <p class="text-xs text-slate-400 mb-5">Your cryptographic license token is ready. Activate it directly on your device:</p>
+        <h3 class="text-xl font-bold text-emerald-400 mb-1">LICENSE ISSUED SUCCESSFULLY</h3>
+        <p class="text-xs text-slate-400 mb-5 font-light">Your cryptographic license token is ready. Activate it directly on your device:</p>
 
-        <div id="generatedKeyDisplay" class="p-4 rounded-xl bg-dark-900 border border-cyan-500/40 text-sm font-mono text-cyan-300 font-bold break-all mb-4 select-all shadow-inner">
+        <div id="generatedKeyDisplay" class="p-4 rounded-xl bg-void-900 border border-cyan-500/40 text-sm font-mono text-cyan-300 font-bold break-all mb-4 select-all shadow-inner">
           PASA-PRO-XXXX-XXXX
         </div>
 
         <div class="flex gap-2 justify-center mb-6">
           <button onclick="copyLicenseKey()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white border border-slate-700 flex items-center gap-1.5 transition-colors">
             <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-            <span>Copy Key</span>
+            <span>COPY KEY</span>
           </button>
-          <a id="telegramActivateLink" href="https://t.me/pasa_agent_bot" target="_blank" class="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-xs font-bold text-dark-950 flex items-center gap-1.5 transition-colors">
+          <a id="telegramActivateLink" href="https://t.me/pasa_agent_bot" target="_blank" class="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-xs font-bold text-void-950 flex items-center gap-1.5 transition-colors">
             <i data-lucide="send" class="w-3.5 h-3.5"></i>
-            <span>Activate in Telegram</span>
+            <span>ACTIVATE IN TELEGRAM</span>
           </a>
         </div>
 
-        <div class="bg-dark-850 p-3 rounded-xl text-left border border-slate-800 text-[11px] font-mono text-slate-400">
+        <div class="bg-void-850 p-3 rounded-xl text-left border border-slate-800 text-[11px] text-slate-400">
           <span class="text-slate-300 font-bold">Quick Bot Command:</span><br>
           <code id="activateCommandSample" class="text-cyan-300">/license activate PASA-PRO-...</code>
         </div>
@@ -1091,50 +1144,148 @@
   </div>
 
   <!-- FOOTER -->
-  <footer class="border-t border-slate-800/80 bg-dark-950 relative z-10 py-12 text-xs font-mono text-slate-500">
+  <footer class="border-t border-slate-800/80 bg-void-950 relative z-10 py-12 text-xs font-mono text-slate-500">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
       
       <div class="flex items-center gap-3">
         <div class="w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
           <i data-lucide="shield" class="w-3.5 h-3.5"></i>
         </div>
-        <span class="text-slate-300 font-bold font-sans">PASA Sentinel Architecture</span>
+        <span class="text-slate-300 font-bold">PASA SENTINEL ARCHITECTURE</span>
         <span>&bull;</span>
         <span class="text-emerald-400 font-semibold flex items-center gap-1">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          Control Plane Operational
+          CONTROL PLANE OPERATIONAL
         </span>
       </div>
 
       <div class="flex flex-wrap items-center justify-center gap-6 text-slate-400">
-        <a href="/api/app/download/pasa-v2.3.0-4.apk" class="hover:text-cyan-400 transition-colors">Direct APK</a>
-        <a href="#install-guide" class="hover:text-cyan-400 transition-colors">Sideload Guide</a>
-        <a href="#validator" class="hover:text-cyan-400 transition-colors">Validator</a>
-        <a href="https://github.com/rbr48/pasa" target="_blank" class="hover:text-cyan-400 transition-colors">GitHub</a>
-        <a href="/health" target="_blank" class="hover:text-cyan-400 transition-colors">Health Status</a>
+        <a href="/api/app/download/pasa-v2.3.0-4.apk" class="hover:text-cyan-400 transition-colors">DIRECT APK</a>
+        <a href="#install-guide" class="hover:text-cyan-400 transition-colors">SIDELOAD GUIDE</a>
+        <a href="#validator" class="hover:text-cyan-400 transition-colors">VALIDATOR</a>
+        <a href="https://github.com/rbr48/pasa" target="_blank" class="hover:text-cyan-400 transition-colors">GITHUB</a>
+        <a href="/health" target="_blank" class="hover:text-cyan-400 transition-colors">HEALTH STATUS</a>
       </div>
 
       <p class="text-center md:text-right">&copy; 2026 PASA Sentinel. Sovereign defense without compromise.</p>
     </div>
   </footer>
 
-  <!-- CLIENT SCRIPTS & DYNAMIC INTERACTION ENGINE -->
+  <!-- DYNAMIC LIVING SYSTEM & INTERACTION ENGINE -->
   <script>
-    // Initialize Lucide vector icons
+    // 1. Initialize Lucide Vector Icons
     document.addEventListener('DOMContentLoaded', () => {
       if (window.lucide) {
         lucide.createIcons();
       }
     });
 
-    // --- Interactive Tactical Scenario Switcher ---
+    // 2. Active Theory Living Background Particle Simulation
+    (function() {
+      const canvas = document.getElementById('ambient-stage');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let w, h, particles = [];
+      let mouse = { x: -1000, y: -1000, targetX: -1000, targetY: -1000 };
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+
+      class BioluminescentMote {
+        constructor() {
+          this.reset(true);
+        }
+        reset(randomY) {
+          this.x = Math.random() * w;
+          this.y = randomY ? Math.random() * h : h + 10;
+          this.radius = Math.random() * 2.2 + 0.6;
+          this.speedY = -(Math.random() * 0.45 + 0.15);
+          this.speedX = (Math.random() - 0.5) * 0.3;
+          this.alpha = Math.random() * 0.5 + 0.15;
+          this.pulse = Math.random() * Math.PI * 2;
+          this.pulseSpeed = Math.random() * 0.02 + 0.01;
+          this.isCyan = Math.random() > 0.35;
+        }
+        update() {
+          this.y += this.speedY;
+          this.x += this.speedX + Math.sin(this.pulse) * 0.2;
+          this.pulse += this.pulseSpeed;
+
+          // Gentle mouse interaction
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 180) {
+            const force = (180 - dist) / 180;
+            this.x -= (dx / dist) * force * 1.5;
+            this.y -= (dy / dist) * force * 1.5;
+          }
+
+          if (this.y < -20 || this.x < -20 || this.x > w + 20) {
+            this.reset(false);
+          }
+        }
+        draw() {
+          const currentAlpha = this.alpha * (0.7 + 0.3 * Math.sin(this.pulse));
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.isCyan 
+            ? `rgba(6, 182, 212, ${currentAlpha})` 
+            : `rgba(139, 92, 246, ${currentAlpha * 0.8})`;
+          ctx.shadowBlur = this.radius * 6;
+          ctx.shadowColor = this.isCyan ? '#06b6d4' : '#8b5cf6';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
+
+      function init() {
+        resize();
+        particles = [];
+        const count = Math.min(Math.floor(w / 22), 65);
+        for (let i = 0; i < count; i++) {
+          particles.push(new BioluminescentMote());
+        }
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+
+        // Smooth mouse easing (lerp)
+        mouse.x += (mouse.targetX - mouse.x) * 0.08;
+        mouse.y += (mouse.targetY - mouse.y) * 0.08;
+
+        for (let i = 0; i < particles.length; i++) {
+          particles[i].update();
+          particles[i].draw();
+        }
+        requestAnimationFrame(render);
+      }
+
+      window.addEventListener('resize', resize);
+      window.addEventListener('mousemove', (e) => {
+        mouse.targetX = e.clientX;
+        mouse.targetY = e.clientY;
+        const light = document.getElementById('cursor-light');
+        if (light) {
+          light.style.left = e.clientX + 'px';
+          light.style.top = e.clientY + 'px';
+        }
+      });
+
+      init();
+      render();
+    })();
+
+    // 3. Interactive Tactical Threat Scenario Switcher
     function triggerScenario(type) {
       const screen = document.getElementById('phoneScreen');
       const icon = document.getElementById('phoneCentralIcon');
       const shieldBox = document.getElementById('phoneShieldBox');
       const title = document.getElementById('phoneStateTitle');
       const subtitle = document.getElementById('phoneStateSubtitle');
-      const gauges = document.getElementById('phoneMiniGauges');
       const phoneNet = document.getElementById('phoneNet');
       const phoneCamEye = document.getElementById('phoneCamEye');
 
@@ -1143,16 +1294,16 @@
       const botMessageLine = document.getElementById('botMessageLine');
       const botSubLine = document.getElementById('botSubLine');
 
-      // Reset base effects
-      screen.style.background = '#0e1017';
+      // Reset base properties
+      screen.style.background = '#020306';
       phoneCamEye.style.boxShadow = 'none';
 
       if (type === 'snatch') {
-        screen.style.background = 'radial-gradient(circle, #450a0a 0%, #06070a 100%)';
+        screen.style.background = 'radial-gradient(circle at 50% 40%, #450a0a 0%, #020306 90%)';
         icon.setAttribute('data-lucide', 'alert-triangle');
-        shieldBox.firstElementChild.className = 'w-28 h-28 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 pulse-ring-anim';
+        shieldBox.firstElementChild.className = 'w-28 h-28 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 tactical-pulse-ring';
         title.textContent = 'KINETIC SNATCH LOCK';
-        title.className = 'text-sm font-extrabold text-rose-400 tracking-tight';
+        title.className = 'text-sm font-extrabold font-mono text-rose-400 tracking-tight';
         subtitle.textContent = 'Hardware Siren Max Volume (100%)';
         subtitle.className = 'text-[11px] font-mono text-rose-300';
         
@@ -1165,9 +1316,9 @@
         phoneNet.textContent = 'GSM ONLY (OFFLINE)';
         phoneNet.className = 'text-amber-400 font-bold';
         icon.setAttribute('data-lucide', 'radio');
-        shieldBox.firstElementChild.className = 'w-28 h-28 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 pulse-ring-anim';
+        shieldBox.firstElementChild.className = 'w-28 h-28 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 tactical-pulse-ring';
         title.textContent = 'OFFLINE SMS RELAY';
-        title.className = 'text-sm font-extrabold text-amber-300 tracking-tight';
+        title.className = 'text-sm font-extrabold font-mono text-amber-300 tracking-tight';
         subtitle.textContent = 'Data / Wi-Fi Cut &bull; Carrier SMS Active';
         subtitle.className = 'text-[11px] font-mono text-amber-400';
 
@@ -1179,9 +1330,9 @@
       } else if (type === 'fakeshutdown') {
         screen.style.background = '#000000';
         icon.setAttribute('data-lucide', 'moon');
-        shieldBox.firstElementChild.className = 'w-28 h-28 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-600';
+        shieldBox.firstElementChild.className = 'w-28 h-28 rounded-full bg-void-900 border border-slate-800 flex items-center justify-center text-slate-600';
         title.textContent = 'DISPLAY BLACKOUT';
-        title.className = 'text-sm font-extrabold text-slate-400 tracking-tight';
+        title.className = 'text-sm font-extrabold font-mono text-slate-400 tracking-tight';
         subtitle.textContent = 'OLED 0 Nits &bull; Background Wiretap LIVE';
         subtitle.className = 'text-[11px] font-mono text-emerald-400';
 
@@ -1191,11 +1342,11 @@
         botMessageLine.innerHTML = '&gt; <b>FAKESHUTDOWN:</b> Native Android shutdown animation rendered. Panel powered down completely.';
         botSubLine.innerHTML = '&gt; Thief believes device is off. Background partial wake lock held. Audio streaming live to Telegram.';
       } else if (type === 'camera') {
-        phoneCamEye.style.boxShadow = '0 0 12px #06b6d4';
+        phoneCamEye.style.boxShadow = '0 0 14px #06b6d4';
         icon.setAttribute('data-lucide', 'camera');
-        shieldBox.firstElementChild.className = 'w-28 h-28 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 pulse-ring-anim';
+        shieldBox.firstElementChild.className = 'w-28 h-28 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 tactical-pulse-ring';
         title.textContent = 'OPTICAL CAPTURE';
-        title.className = 'text-sm font-extrabold text-cyan-300 tracking-tight';
+        title.className = 'text-sm font-extrabold font-mono text-cyan-300 tracking-tight';
         subtitle.textContent = 'Covert Camera2 Sensor Triggered';
         subtitle.className = 'text-[11px] font-mono text-cyan-400';
 
@@ -1208,7 +1359,7 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // --- Checkout Engine ---
+    // 4. Checkout Engine
     function openCheckout(tier, price) {
       document.getElementById('selectedTier').value = tier;
       document.getElementById('checkoutPriceTag').textContent = '$' + price.toFixed(2);
@@ -1234,7 +1385,7 @@
       const btn = document.getElementById('submitOrderBtn');
 
       btn.disabled = true;
-      btn.innerHTML = '<span>Issuing Cryptographic Key...</span>';
+      btn.innerHTML = '<span>ISSUING CRYPTOGRAPHIC KEY...</span>';
 
       try {
         const res = await fetch('/api/license/purchase', {
@@ -1257,7 +1408,7 @@
         alert('Network connection error: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span>Authorize &amp; Issue License Key &rarr;</span>';
+        btn.innerHTML = '<span>AUTHORIZE &amp; ISSUE LICENSE KEY &rarr;</span>';
       }
     }
 
@@ -1283,7 +1434,7 @@
         return;
       }
       resDiv.classList.remove('hidden');
-      resDiv.className = 'mt-5 p-4 rounded-xl text-xs font-mono text-left max-w-lg mx-auto bg-dark-850 border border-cyan-500/30 text-cyan-300';
+      resDiv.className = 'mt-5 p-4 rounded-xl text-xs font-mono text-left max-w-lg mx-auto bg-void-900 border border-cyan-500/30 text-cyan-300';
       resDiv.innerHTML = '<span>Querying cryptographic ledger...</span>';
 
       try {
