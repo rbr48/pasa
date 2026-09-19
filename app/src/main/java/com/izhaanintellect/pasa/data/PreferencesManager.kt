@@ -36,6 +36,12 @@ class PreferencesManager @Inject constructor(
         private const val KEY_PENDING_OTP = "pending_otp"
         private const val KEY_OTP_TIMESTAMP = "otp_timestamp"
         private const val KEY_FAILED_UNLOCK_COUNT = "failed_unlock_count"
+        private const val KEY_GEOFENCE_ENABLED = "geofence_enabled"
+        private const val KEY_GEOFENCE_CONFIGURED = "geofence_configured"
+        private const val KEY_GEOFENCE_LAT = "geofence_lat"
+        private const val KEY_GEOFENCE_LNG = "geofence_lng"
+        private const val KEY_GEOFENCE_RADIUS = "geofence_radius"
+        private const val KEY_GEOFENCE_INSIDE = "geofence_inside"
         private const val KEY_LAST_LATITUDE = "last_latitude"
         private const val KEY_LAST_LONGITUDE = "last_longitude"
         private const val KEY_UPDATE_OFFSET = "update_offset"
@@ -145,6 +151,33 @@ class PreferencesManager @Inject constructor(
     var lastKnownLongitude: Double
         get() = java.lang.Double.longBitsToDouble(prefs.getLong(KEY_LAST_LONGITUDE, 0L))
         set(value) = prefs.edit().putLong(KEY_LAST_LONGITUDE, java.lang.Double.doubleToRawLongBits(value)).apply()
+
+    // --- Geofencing (safe-zone breach alerts) ---
+
+    var geofenceEnabled: Boolean
+        get() = prefs.getBoolean(KEY_GEOFENCE_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_GEOFENCE_ENABLED, value).apply()
+
+    var geofenceConfigured: Boolean
+        get() = prefs.getBoolean(KEY_GEOFENCE_CONFIGURED, false)
+        set(value) = prefs.edit().putBoolean(KEY_GEOFENCE_CONFIGURED, value).apply()
+
+    var geofenceCenterLat: Double
+        get() = java.lang.Double.longBitsToDouble(prefs.getLong(KEY_GEOFENCE_LAT, 0L))
+        set(value) = prefs.edit().putLong(KEY_GEOFENCE_LAT, java.lang.Double.doubleToRawLongBits(value)).apply()
+
+    var geofenceCenterLng: Double
+        get() = java.lang.Double.longBitsToDouble(prefs.getLong(KEY_GEOFENCE_LNG, 0L))
+        set(value) = prefs.edit().putLong(KEY_GEOFENCE_LNG, java.lang.Double.doubleToRawLongBits(value)).apply()
+
+    var geofenceRadiusMeters: Int
+        get() = prefs.getInt(KEY_GEOFENCE_RADIUS, 200)
+        set(value) = prefs.edit().putInt(KEY_GEOFENCE_RADIUS, value).apply()
+
+    // -1 = unknown, 0 = outside, 1 = inside. Used to detect inside->outside transitions.
+    var geofenceInsideState: Int
+        get() = prefs.getInt(KEY_GEOFENCE_INSIDE, -1)
+        set(value) = prefs.edit().putInt(KEY_GEOFENCE_INSIDE, value).apply()
 
     // --- OTP for destructive operations ---
 
