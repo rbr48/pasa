@@ -102,7 +102,16 @@ data class TelegramResponse<T>(
 /** Represents an incoming update from Telegram. */
 data class Update(
     @SerializedName("update_id") val updateId: Long,
-    @SerializedName("message") val message: TelegramMessage? = null
+    @SerializedName("message") val message: TelegramMessage? = null,
+    @SerializedName("callback_query") val callbackQuery: TelegramCallbackQuery? = null
+)
+
+/** Represents an inline callback query. */
+data class TelegramCallbackQuery(
+    @SerializedName("id") val id: String,
+    @SerializedName("from") val from: From,
+    @SerializedName("message") val message: TelegramMessage? = null,
+    @SerializedName("data") val data: String? = null
 )
 
 /** Represents a Telegram message. */
@@ -145,7 +154,8 @@ data class SendMessageRequest(
     @SerializedName("chat_id") val chatId: Long,
     @SerializedName("text") val text: String,
     @SerializedName("parse_mode") val parseMode: String = "HTML",
-    @SerializedName("disable_web_page_preview") val disableWebPagePreview: Boolean = false
+    @SerializedName("disable_web_page_preview") val disableWebPagePreview: Boolean = false,
+    @SerializedName("reply_markup") val replyMarkup: Any? = null
 )
 
 /** Request body for sendLocation. */

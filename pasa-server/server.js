@@ -458,44 +458,96 @@ async function registerTelegramBotCommands(token) {
   }
 }
 
+// Persistent Bottom Reply Keyboard (Always pinned under chat input)
+const PERSISTENT_REPLY_KEYBOARD = {
+  keyboard: [
+    [{ text: '📊 Status' }, { text: '📍 Locate' }, { text: '🚨 Siren' }],
+    [{ text: '📸 Photo' }, { text: '🎥 Video' }, { text: '🎙️ Audio' }],
+    [{ text: '🔒 Lock' }, { text: '💬 Message' }, { text: '🛡️ Traps' }],
+    [{ text: '🎛️ Control Panel' }, { text: '🗺️ Tactical Map' }]
+  ],
+  resize_keyboard: true,
+  is_persistent: true
+};
+
+// Conversational Interactive State Machine (5-minute session lifetime)
+const userChatStates = new Map(); // chatId -> { state, data, timestamp }
+function setChatState(chatId, state, data = {}) {
+  userChatStates.set(String(chatId), { state, data, timestamp: Date.now() });
+}
+function getChatState(chatId) {
+  const s = userChatStates.get(String(chatId));
+  if (!s) return null;
+  if (Date.now() - s.timestamp > 5 * 60 * 1000) {
+    userChatStates.delete(String(chatId));
+    return null;
+  }
+  return s;
+}
+function clearChatState(chatId) {
+  userChatStates.delete(String(chatId));
+}
+
 // Interactive Dashboard & Submenu Keyboards
 const DASHBOARD_KEYBOARD = {
   inline_keyboard: [
     [
-      { text: '📊 Live Status', callback_data: 'cmd:status' },
-      { text: '📍 Instant GPS', callback_data: 'cmd:locate' }
+      { text: '📍 Instant GPS', callback_data: 'cmd:locate' },
+      { text: '📊 Live Status', callback_data: 'cmd:status' }
     ],
     [
       { text: '📸 Snap Photo', callback_data: 'menu:snap' },
       { text: '🎥 Record Video', callback_data: 'menu:video' }
     ],
     [
-      { text: '🎙️ Record Audio', callback_data: 'menu:record' },
-      { text: '🔊 Alarm Siren', callback_data: 'menu:ring' }
+      { text: '🎙️ Audio Forensics', callback_data: 'menu:record' },
+      { text: '🚨 Alarm Siren', callback_data: 'menu:ring' }
     ],
     [
       { text: '🔒 Lock Device', callback_data: 'menu:lock' },
       { text: '💬 Screen Message', callback_data: 'menu:message' }
     ],
     [
-      { text: '🌐 Network Info', callback_data: 'cmd:network' },
-      { text: '📋 Clipboard', callback_data: 'cmd:clipboard' }
-    ],
-    [
-      { text: '📦 Installed Apps', callback_data: 'cmd:apps' },
+      { text: '🛡️ Sensor Traps', callback_data: 'menu:traps' },
       { text: '📍 Live Tracking', callback_data: 'menu:track' }
     ],
     [
-      { text: '🛡️ Sensor Traps', callback_data: 'menu:traps' },
-      { text: '🔄 Check Update', callback_data: 'cmd:check_update' }
+      { text: '🗺️ Tactical Map', url: 'https://izhaanintellect.fun/pasa/admin' },
+      { text: '🌐 Network Info', callback_data: 'cmd:network' }
     ],
     [
-      { text: '⚠️ Wipe Device', callback_data: 'menu:wipe' }
+      { text: '📋 Clipboard', callback_data: 'cmd:clipboard' },
+      { text: '📦 Installed Apps', callback_data: 'cmd:apps' }
+    ],
+    [
+      { text: '🔄 Check Update', callback_data: 'cmd:check_update' },
+      { text: '⚙️ Security Tools', callback_data: 'menu:tools' }
     ]
   ]
 };
 
 const SUBMENUS = {
+  'menu:tools': {
+    text: '⚙️ <b>Advanced Security & Defense Tools</b>\n━━━━━━━━━━━━━━━━━━━━\nSpecialized counter-measures, stealth options, and emergency utilities:\n\n• <b>Duress Mode</b>: Set an emergency decoy PIN that unlocks to safe screen while triggering silent SOS.\n• <b>File Shredder</b>: Multi-pass cryptographic sanitization with PRNG + zero-fill.\n• <b>Device Owner</b>: Enterprise hardware lock task mode & kiosk protection.\n• <b>Stealth Mode</b>: Hide or reveal PASA app icon in launcher.\n• <b>Remote Wipe</b>: Irreversible factory reset.',
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '🔑 Duress Mode', callback_data: 'menu:duress' },
+          { text: '🗑️ File Shredder', callback_data: 'menu:shred' }
+        ],
+        [
+          { text: '🛡️ Device Owner Check', callback_data: 'cmd:device_owner' },
+          { text: '👁️ Toggle Stealth Icon', callback_data: 'cmd:stealth' }
+        ],
+        [
+          { text: '⚠️ Remote Factory Wipe', callback_data: 'menu:wipe' }
+        ],
+        [
+          { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
   'menu:traps': {
     text: '🛡️ <b>Autonomous Edge Defense Traps</b>\n━━━━━━━━━━━━━━━━━━━━\nAutonomous sensors react instantly without waiting for remote signals:\n\n• <b>Snatch-and-Run</b>: Senses violent acceleration spikes (>2.6G) and locks immediately.\n• <b>Charger Disconnect</b>: Triggers if phone is unplugged while locked.\n\n<b>Commands:</b>\n• <code>/trap on</code> — Arm all traps\n• <code>/trap off</code> — Disarm all traps\n• <code>/trap snatch on|off</code>\n• <code>/trap charger on|off</code>',
     keyboard: {
@@ -516,9 +568,21 @@ const SUBMENUS = {
     }
   },
   'menu:message': {
-    text: '💬 <b>Display Screen Alert Message</b>\n━━━━━━━━━━━━━━━━━━━━\nBroadcast an urgent lost-mode alert or emergency contact message over the phone\'s lockscreen:\n\n<b>Command Format:</b>\n<code>/message &lt;your message text&gt;</code>\n\n<b>Examples:</b>\n• <code>/message Please return this lost phone! Call +123456789. Reward offered.</code>\n• <code>/message Contact owner at 01700000000 immediately.</code>\n\n<i>The device screen will turn ON, play an alert chime, and display your message with a direct 1-tap call button.</i>',
+    text: '💬 <b>Display Screen Alert Message</b>\n━━━━━━━━━━━━━━━━━━━━\nBroadcast an urgent lost-mode alert or emergency contact banner directly over the phone\'s lockscreen with a 1-tap call button.\n\nTap a quick template below or choose <b>✍️ Type Custom Message</b>:',
     keyboard: {
       inline_keyboard: [
+        [
+          { text: '📱 "Lost phone! Please call owner."', callback_data: 'msg_preset:lost' }
+        ],
+        [
+          { text: '⚠️ "Stolen device! Police GPS tracking active."', callback_data: 'msg_preset:stolen' }
+        ],
+        [
+          { text: '💰 "Reward offered if returned! Call owner."', callback_data: 'msg_preset:reward' }
+        ],
+        [
+          { text: '✍️ Type Custom Message', callback_data: 'wizard:msg:custom' }
+        ],
         [
           { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
         ]
@@ -576,11 +640,14 @@ const SUBMENUS = {
     }
   },
   'menu:ring': {
-    text: '🔊 <b>Emergency Alarm Siren</b>\nTrigger max volume siren (overrides silent/vibrate mode):',
+    text: '🔊 <b>Emergency Alarm Siren</b>\nTrigger maximum volume siren (overrides silent/vibrate):',
     keyboard: {
       inline_keyboard: [
         [
-          { text: '🚨 Sound Siren (60s)', callback_data: 'cmd:ring:60' },
+          { text: '🚨 Sound Siren (30s)', callback_data: 'cmd:ring:30' },
+          { text: '🚨 Sound Siren (60s)', callback_data: 'cmd:ring:60' }
+        ],
+        [
           { text: '🔕 Silence Siren', callback_data: 'cmd:ring_stop' }
         ],
         [
@@ -607,12 +674,16 @@ const SUBMENUS = {
     }
   },
   'menu:lock': {
-    text: '🔒 <b>Device Defense & Lockout Modes</b>\n━━━━━━━━━━━━━━━━━━━━\n<b>Strategy A: Custom PIN Lost Mode Guard</b>\n• <code>/lock &lt;pin&gt; &lt;message&gt;</code> — Immediate lock with custom emergency PIN keypad. 3 failed attempts take tamper selfie & send GPS.\n• <code>/unlock</code> — Dismisses Lost Mode & restores normal device.\n\n<b>Strategy B: Enterprise Device Owner Kiosk</b>\n• <code>/device_owner</code> — Check if app has Device Owner privileges (hardware kiosk lock task mode, freezes navigation buttons, blocks uninstall).\n\n<b>Strategy C: Fake Shutdown / Blackout Deception</b>\n• <code>/fakeshutdown</code> — Simulates Android power-off, turns screen black, mutes audio, streams GPS & covert front photos on touch.\n• <code>/wake</code> — Restores normal screen & sound.\n\n<i>Choose an action below:</i>',
+    text: '🔒 <b>Device Defense & Lockout Modes</b>\n━━━━━━━━━━━━━━━━━━━━\nChoose an instant defense action:',
     keyboard: {
       inline_keyboard: [
         [
-          { text: '🔒 Lock Device Now', callback_data: 'cmd:lock' },
+          { text: '🔒 Instant Screen Lock', callback_data: 'cmd:lock' },
           { text: '🔓 Remote Unlock', callback_data: 'cmd:unlock' }
+        ],
+        [
+          { text: '🔑 Lock with PIN 1234', callback_data: 'lock_preset:1234' },
+          { text: '🛡️ Set Custom PIN Lock', callback_data: 'wizard:lock:custom' }
         ],
         [
           { text: '🕶️ Fake Shutdown', callback_data: 'cmd:fakeshutdown' },
@@ -623,6 +694,38 @@ const SUBMENUS = {
         ],
         [
           { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
+  'menu:duress': {
+    text: '🔑 <b>Emergency Duress Mode</b>\n━━━━━━━━━━━━━━━━━━━━\nIf forced by an intruder to unlock your phone, entering your decoy Duress PIN:\n\n1. Closes the lock overlay as if unlocked (prevents physical danger)\n2. Silently captures front & rear stealth selfies\n3. Obtains high-accuracy GPS coordinates\n4. Transmits an urgent 🚨 SOS Beacon to Telegram!',
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '✍️ Set New Duress PIN', callback_data: 'wizard:duress:set' },
+          { text: '📊 Check Duress Status', callback_data: 'cmd:duress_pin:status' }
+        ],
+        [
+          { text: '❌ Clear Duress PIN', callback_data: 'cmd:duress_pin:clear' },
+          { text: '🔙 Back to Tools', callback_data: 'menu:tools' }
+        ]
+      ]
+    }
+  },
+  'menu:shred': {
+    text: '🗑️ <b>Cryptographic File Shredder</b>\n━━━━━━━━━━━━━━━━━━━━\nPermanently overwrite confidential files with 3-pass PRNG noise and zero-fill before deletion.\n\nSelect target directory to sanitize:',
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '📥 Shred Downloads', callback_data: 'wizard:shred:downloads' },
+          { text: '📄 Shred Documents', callback_data: 'wizard:shred:documents' }
+        ],
+        [
+          { text: '📸 Shred Camera Photos', callback_data: 'wizard:shred:camera' }
+        ],
+        [
+          { text: '🔙 Back to Tools', callback_data: 'menu:tools' }
         ]
       ]
     }
@@ -818,10 +921,14 @@ async function handleTelegramUpdate(token, update) {
 
     console.log(`[Telegram Callback] Received: ${data} from chatId: ${chatId}`);
 
-    // Immediately acknowledge callback query so button stops loading
-    await callTelegram(token, 'answerCallbackQuery', { callback_query_id: query.id });
+    // Immediately acknowledge callback query with brief tactile toast
+    await callTelegram(token, 'answerCallbackQuery', {
+      callback_query_id: query.id,
+      text: '⏳ Action processing...'
+    });
 
     if (data === 'menu:main') {
+      clearChatState(chatId);
       const activeDev = getActiveDeviceForChat(token, chatId);
       const text = buildDashboardText(chatId, activeDev);
       await callTelegram(token, 'editMessageText', {
@@ -835,6 +942,7 @@ async function handleTelegramUpdate(token, update) {
     }
 
     if (SUBMENUS[data]) {
+      clearChatState(chatId);
       const sub = SUBMENUS[data];
       await callTelegram(token, 'editMessageText', {
         chat_id: chatId,
@@ -842,6 +950,90 @@ async function handleTelegramUpdate(token, update) {
         text: sub.text,
         parse_mode: 'HTML',
         reply_markup: sub.keyboard
+      });
+      return;
+    }
+
+    // Quick Message Presets
+    if (data.startsWith('msg_preset:')) {
+      const preset = data.split(':')[1];
+      let msg = "Lost phone! Please call owner immediately.";
+      if (preset === 'stolen') msg = "Stolen device! Police GPS tracking is active on this phone.";
+      if (preset === 'reward') msg = "Reward offered if returned! Please contact the owner.";
+      await dispatchCommandToDevice(token, chatId, '/message', [msg]);
+      return;
+    }
+
+    // Interactive Screen Message Wizard
+    if (data === 'wizard:msg:custom') {
+      setChatState(chatId, 'WAITING_FOR_SCREEN_MESSAGE');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '✍️ <b>Custom Screen Message</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease type your message below to broadcast it directly onto the phone screen:',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
+    // Lock Presets & Wizard
+    if (data === 'lock_preset:1234') {
+      await dispatchCommandToDevice(token, chatId, '/lock', ['1234', 'Lost Mode Active']);
+      return;
+    }
+
+    if (data === 'wizard:lock:custom') {
+      setChatState(chatId, 'WAITING_FOR_LOCK_PIN');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '🔒 <b>Set Custom Lock PIN</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with a 4 to 8 digit PIN (e.g. <code>5892</code>) to lock the screen with:',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
+    // Duress Wizard
+    if (data === 'wizard:duress:set') {
+      setChatState(chatId, 'WAITING_FOR_DURESS_PIN');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '🔑 <b>Configure Emergency Duress PIN</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with a 4 to 8 digit decoy PIN (e.g. <code>9999</code>).\n\n<i>Entering this PIN on the locked phone closes the screen while secretly snapping photos and broadcasting an SOS beacon.</i>',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
+    // File Shredder Wizard
+    if (data.startsWith('wizard:shred:')) {
+      const target = data.split(':')[2] || 'downloads';
+      setChatState(chatId, 'WAITING_FOR_SHRED_PASSWORD', { target });
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: `⚠️ <b>CONFIRM CRYPTOGRAPHIC SHRED: ${target.toUpperCase()}</b>\n━━━━━━━━━━━━━━━━━━━━\nThis will permanently overwrite and destroy all files in <code>${target}</code> with 3-pass PRNG noise.\n\nPlease reply with your <b>Master Password</b> to authorize:`,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
+    // Cancel Active Wizard
+    if (data === 'cancel:wizard') {
+      clearChatState(chatId);
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '❌ Action cancelled.',
+        parse_mode: 'HTML',
+        reply_markup: DASHBOARD_KEYBOARD
       });
       return;
     }
@@ -860,18 +1052,83 @@ async function handleTelegramUpdate(token, update) {
   if (!update.message || !update.message.text) return;
 
   const chatId = update.message.chat.id;
-  const text = update.message.text.trim();
-  const parts = text.split(/\s+/);
-  const command = parts[0].toLowerCase();
-  const args = parts.slice(1);
+  const rawText = update.message.text.trim();
+  const lowerText = rawText.toLowerCase();
 
-  console.log(`[Telegram Command] Received: ${command} from chatId: ${chatId}`);
+  console.log(`[Telegram Message] Received from chatId ${chatId}: "${rawText}"`);
 
-  // Handle /start, /help, /menu — Display Interactive Control Dashboard
-  if (command === '/start' || command === '/help' || command === '/menu') {
+  // Check Active Conversational State (Wizard inputs)
+  const activeState = getChatState(chatId);
+  if (activeState) {
+    if (activeState.state === 'WAITING_FOR_SCREEN_MESSAGE') {
+      clearChatState(chatId);
+      await dispatchCommandToDevice(token, chatId, '/message', [rawText]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_LOCK_PIN') {
+      if (!/^\d{4,8}$/.test(rawText)) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>Invalid PIN:</b> Must be 4 to 8 digits (e.g. <code>5892</code>). Please try again or tap Cancel.',
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+          }
+        });
+        return;
+      }
+      clearChatState(chatId);
+      await dispatchCommandToDevice(token, chatId, '/lock', [rawText, 'Lost Mode Active']);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_DURESS_PIN') {
+      if (!/^\d{4,8}$/.test(rawText)) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>Invalid PIN:</b> Must be 4 to 8 digits. Please try again or tap Cancel.',
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+          }
+        });
+        return;
+      }
+      clearChatState(chatId);
+      await dispatchCommandToDevice(token, chatId, '/duress_pin', [rawText]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_SHRED_PASSWORD') {
+      const target = activeState.data?.target || 'downloads';
+      clearChatState(chatId);
+      await dispatchCommandToDevice(token, chatId, '/shred', [rawText, target]);
+      return;
+    }
+  }
+
+  // Handle /start, /help, /menu or Persistent Keyboard Control Panel button
+  if (
+    lowerText === '/start' ||
+    lowerText === '/help' ||
+    lowerText === '/menu' ||
+    lowerText === 'menu' ||
+    lowerText === 'help' ||
+    lowerText.includes('control panel')
+  ) {
     const activeDev = getActiveDeviceForChat(token, chatId);
     const helpText = buildDashboardText(chatId, activeDev);
 
+    // Pin persistent keyboard first
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: '🛡️ <b>PASA Guardian Console Ready</b>\nQuick action buttons are pinned at the bottom of your screen.',
+      parse_mode: 'HTML',
+      reply_markup: PERSISTENT_REPLY_KEYBOARD
+    });
+
+    // Send interactive inline dashboard
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
       text: helpText,
@@ -881,24 +1138,186 @@ async function handleTelegramUpdate(token, update) {
     return;
   }
 
-  // Handle empty /message command with immediate helpful guidance
-  if ((command === '/message' || command === '/msg' || command === '/alert_screen') && args.length === 0) {
+  // Handle Tactical Map link request
+  if (lowerText.includes('tactical map') || lowerText === 'map') {
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
-      text: `⚠️ <b>Please specify the message to display on the phone screen.</b>\n` +
-            `━━━━━━━━━━━━━━━━━━━━\n` +
-            `<b>Usage:</b> <code>/message &lt;your message text&gt;</code>\n\n` +
-            `<b>Examples:</b>\n` +
-            `• <code>/message Please return this lost phone! Call +123456789. Reward offered.</code>\n` +
-            `• <code>/message Contact owner at 01700000000 immediately.</code>\n\n` +
-            `<i>The phone screen will turn ON, play an alert chime, and display your message over the lockscreen with a direct 1-tap call button.</i>`,
-      parse_mode: 'HTML'
+      text: '🗺️ <b>PASA Tactical Mission Control Map</b>\n━━━━━━━━━━━━━━━━━━━━\nReal-time high-resolution GPS tracking, movement breadcrumb trail, and radar telemetry.',
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: '🗺️ Open Tactical Map', url: 'https://izhaanintellect.fun/pasa/admin' },
+            { text: '📍 Instant GPS Ping', callback_data: 'cmd:locate' }
+          ]
+        ]
+      }
     });
     return;
   }
 
-  // Dispatch standard text command
-  await dispatchCommandToDevice(token, chatId, command, args);
+  // Natural Language & Persistent Keyboard Mapping
+  if (lowerText.includes('status') || lowerText.includes('battery')) {
+    await dispatchCommandToDevice(token, chatId, '/status', []);
+    return;
+  }
+
+  if (lowerText.includes('locate') || lowerText.includes('gps') || lowerText === 'where') {
+    await dispatchCommandToDevice(token, chatId, '/locate', []);
+    return;
+  }
+
+  if (lowerText === '🚨 siren' || lowerText === 'siren' || lowerText === 'alarm' || lowerText === 'ring') {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:ring'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:ring'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText === 'stop siren' || lowerText === 'silence' || lowerText === 'stop alarm') {
+    await dispatchCommandToDevice(token, chatId, '/ring_stop', []);
+    return;
+  }
+
+  if (lowerText.includes('photo') || lowerText.includes('snap') || lowerText.includes('selfie')) {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:snap'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:snap'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText === '🎥 video' || lowerText === 'video') {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:video'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:video'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText === '🎙️ audio' || lowerText === 'audio' || lowerText === 'mic') {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:record'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:record'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText === '🔒 lock') {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:lock'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:lock'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText === 'lock') {
+    await dispatchCommandToDevice(token, chatId, '/lock', []);
+    return;
+  }
+
+  if (lowerText === 'unlock') {
+    await dispatchCommandToDevice(token, chatId, '/unlock', []);
+    return;
+  }
+
+  if (lowerText === 'fakeshutdown' || lowerText === 'blackout') {
+    await dispatchCommandToDevice(token, chatId, '/fakeshutdown', []);
+    return;
+  }
+
+  if (lowerText === 'wake') {
+    await dispatchCommandToDevice(token, chatId, '/wake', []);
+    return;
+  }
+
+  if (lowerText === '💬 message' || lowerText === 'message') {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:message'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:message'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText.includes('trap')) {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:traps'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:traps'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText.includes('shred')) {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:shred'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:shred'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText.includes('duress')) {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:duress'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:duress'].keyboard
+    });
+    return;
+  }
+
+  // Parse slash commands or standard arguments
+  const parts = rawText.split(/\s+/);
+  const command = parts[0].toLowerCase();
+  const args = parts.slice(1);
+
+  if (command.startsWith('/')) {
+    // Handle empty /message command with immediate interactive picker
+    if ((command === '/message' || command === '/msg' || command === '/alert_screen') && args.length === 0) {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: SUBMENUS['menu:message'].text,
+        parse_mode: 'HTML',
+        reply_markup: SUBMENUS['menu:message'].keyboard
+      });
+      return;
+    }
+
+    // Dispatch standard slash command
+    await dispatchCommandToDevice(token, chatId, command, args);
+    return;
+  }
+
+  // If command was written without leading slash (e.g. "locate", "info", "network")
+  const directCmds = ['status', 'locate', 'info', 'network', 'clipboard', 'apps', 'device_owner', 'check_update', 'wipe'];
+  if (directCmds.includes(command)) {
+    await dispatchCommandToDevice(token, chatId, '/' + command, args);
+    return;
+  }
+
+  // Friendly Fallback
+  await callTelegram(token, 'sendMessage', {
+    chat_id: chatId,
+    text: `💡 <b>PASA Command Helper</b>\nI didn't recognize "<i>${rawText.substring(0, 50)}</i>".\n\nTap a button below or select from the quick menu at the bottom of your screen:`,
+    parse_mode: 'HTML',
+    reply_markup: DASHBOARD_KEYBOARD
+  });
 }
 
 function initPollers() {
@@ -1137,7 +1556,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       });
     }
 
-    // 2. Deliver photo if captured
+    // 2. Deliver photo if captured (with quick action buttons)
     if (files.photo && files.photo.length > 0 && chatId) {
       const photoFile = files.photo[0];
       const formData = new FormData();
@@ -1147,10 +1566,24 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       formData.append('photo', blob, 'photo.jpg');
       formData.append('caption', '📸 Captured photo');
 
+      const photoActionKeyboard = {
+        inline_keyboard: [
+          [
+            { text: '🤳 Snap Front', callback_data: 'cmd:snap:front' },
+            { text: '📷 Snap Back', callback_data: 'cmd:snap:back' }
+          ],
+          [
+            { text: '🎥 Video (15s)', callback_data: 'cmd:video:front:15' },
+            { text: '🔒 Lock Device', callback_data: 'cmd:lock' }
+          ]
+        ]
+      };
+      formData.append('reply_markup', JSON.stringify(photoActionKeyboard));
+
       await callTelegram(token, 'sendPhoto', null, true, formData);
     }
 
-    // 3. Deliver audio if recorded
+    // 3. Deliver audio if recorded (with quick action buttons)
     if (files.audio && files.audio.length > 0 && chatId) {
       const audioFile = files.audio[0];
       const formData = new FormData();
@@ -1160,10 +1593,23 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       formData.append('audio', blob, 'recording.m4a');
       formData.append('caption', '🎙️ Audio recording');
 
+      const audioActionKeyboard = {
+        inline_keyboard: [
+          [
+            { text: '🎙️ Record 30s', callback_data: 'cmd:record:30' },
+            { text: '🎙️ Record 60s', callback_data: 'cmd:record:60' }
+          ],
+          [
+            { text: '📍 Instant GPS', callback_data: 'cmd:locate' }
+          ]
+        ]
+      };
+      formData.append('reply_markup', JSON.stringify(audioActionKeyboard));
+
       await callTelegram(token, 'sendAudio', null, true, formData);
     }
 
-    // 4. Deliver video if recorded
+    // 4. Deliver video if recorded (with quick action buttons)
     if (files.video && files.video.length > 0 && chatId) {
       const videoFile = files.video[0];
       const formData = new FormData();
@@ -1173,17 +1619,45 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       formData.append('video', blob, 'video.mp4');
       formData.append('caption', '🎥 Captured video');
 
+      const videoActionKeyboard = {
+        inline_keyboard: [
+          [
+            { text: '🎥 Record Again', callback_data: 'cmd:video:front:15' },
+            { text: '🔒 Lock Device', callback_data: 'cmd:lock' }
+          ],
+          [
+            { text: '📍 Instant GPS', callback_data: 'cmd:locate' },
+            { text: '🚨 Siren', callback_data: 'cmd:ring:60' }
+          ]
+        ]
+      };
+      formData.append('reply_markup', JSON.stringify(videoActionKeyboard));
+
       await callTelegram(token, 'sendVideo', null, true, formData);
     }
 
-    // 5. Deliver GPS location pin & record history
+    // 5. Deliver GPS location pin & record history (with tactical action buttons)
     if (latitude && longitude) {
       recordDeviceLocation(deviceId, latitude, longitude, { source: 'response' });
       if (chatId) {
+        const locationActionKeyboard = {
+          inline_keyboard: [
+            [
+              { text: '🔄 Refresh GPS', callback_data: 'cmd:locate' },
+              { text: '🗺️ Tactical Map', url: 'https://izhaanintellect.fun/pasa/admin' }
+            ],
+            [
+              { text: '🚨 Sound Siren', callback_data: 'cmd:ring:60' },
+              { text: '🔒 Lock Device', callback_data: 'cmd:lock' }
+            ]
+          ]
+        };
+
         await callTelegram(token, 'sendLocation', {
           chat_id: chatId,
           latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude)
+          longitude: parseFloat(longitude),
+          reply_markup: locationActionKeyboard
         });
       }
     }
@@ -1241,11 +1715,29 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
     const alertHeader = `🚨 <b>SECURITY ALERT: ${alertType || 'INTRUSION DETECTED'}</b>\n━━━━━━━━━━━━━━━━━━━━\n`;
     const fullText = alertHeader + (message || '');
 
+    const alertEmergencyKeyboard = {
+      inline_keyboard: [
+        [
+          { text: '🚨 Sound Siren (60s)', callback_data: 'cmd:ring:60' },
+          { text: '🔒 Instant Lock', callback_data: 'cmd:lock' }
+        ],
+        [
+          { text: '🤳 Snap Intruder', callback_data: 'cmd:snap:front' },
+          { text: '📍 Track Live', callback_data: 'cmd:track:2' }
+        ],
+        [
+          { text: '🕶️ Fake Shutdown', callback_data: 'cmd:fakeshutdown' },
+          { text: '🗺️ Tactical Map', url: 'https://izhaanintellect.fun/pasa/admin' }
+        ]
+      ]
+    };
+
     // Send Alert Message
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
       text: fullText,
-      parse_mode: 'HTML'
+      parse_mode: 'HTML',
+      reply_markup: alertEmergencyKeyboard
     });
 
     // Send Intruder Photo
@@ -1257,6 +1749,7 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
       const blob = new Blob([fileBuffer], { type: 'image/jpeg' });
       formData.append('photo', blob, 'intruder.jpg');
       formData.append('caption', '🚨 Intruder Capture');
+      formData.append('reply_markup', JSON.stringify(alertEmergencyKeyboard));
 
       await callTelegram(token, 'sendPhoto', null, true, formData);
     }
@@ -1267,7 +1760,8 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
       await callTelegram(token, 'sendLocation', {
         chat_id: chatId,
         latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude)
+        longitude: parseFloat(longitude),
+        reply_markup: alertEmergencyKeyboard
       });
     }
 
