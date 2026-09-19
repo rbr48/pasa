@@ -26,6 +26,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_OWNER_CHAT_ID = "owner_chat_id"
         private const val KEY_MASTER_PASSWORD_HASH = "master_password_hash"
         private const val KEY_PASSWORD_SALT = "password_salt"
+        private const val KEY_PASSWORD_ITERATIONS = "password_iterations"
         private const val KEY_BACKUP_EMAIL = "backup_email"
         private const val KEY_STEALTH_MODE = "stealth_mode"
         private const val KEY_SETUP_COMPLETE = "setup_complete"
@@ -101,6 +102,13 @@ class PreferencesManager @Inject constructor(
     var passwordSalt: String
         get() = prefs.getString(KEY_PASSWORD_SALT, "") ?: ""
         set(value) = prefs.edit().putString(KEY_PASSWORD_SALT, value).apply()
+
+    // PBKDF2 iteration count used for the currently stored password hash.
+    // Defaults to the legacy value so pre-existing hashes remain verifiable,
+    // then is upgraded transparently on the next successful login.
+    var passwordIterations: Int
+        get() = prefs.getInt(KEY_PASSWORD_ITERATIONS, 10000)
+        set(value) = prefs.edit().putInt(KEY_PASSWORD_ITERATIONS, value).apply()
 
     var dbPassphrase: String
         get() = prefs.getString(KEY_DB_PASSPHRASE, "") ?: ""

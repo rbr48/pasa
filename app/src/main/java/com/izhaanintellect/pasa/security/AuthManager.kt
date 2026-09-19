@@ -19,7 +19,11 @@ class AuthManager @Inject constructor(
 ) {
     companion object {
         private const val TAG = "PASA_Auth"
-        private const val ITERATIONS = 10000
+        // OWASP-recommended work factor for PBKDF2-HMAC-SHA256 (>= 600,000).
+        // Hashes created before this used 10,000 iterations; the stored count is
+        // read from PreferencesManager so old hashes still verify and are then
+        // transparently re-hashed at the current work factor on next login.
+        private const val ITERATIONS = 600000
         private const val KEY_LENGTH = 256
         private val DESTRUCTIVE_COMMANDS = setOf(
             "/wipe", "/wipe_external", "/format", "/wipe_confirm"
@@ -44,13 +48,16 @@ class AuthManager @Inject constructor(
         val salt = ByteArray(16)
         SecureRandom().nextBytes(salt)
         val saltBase64 = Base64.encodeToString(salt, Base64.NO_WRAP)
-        val hash = hashPassword(password, salt)
+        val hash = hashPassword(password, salt, ITERATIONS)
         preferencesManager.passwordSalt = saltBase64
         preferencesManager.masterPasswordHash = hash
+        preferencesManager.passwordIterations = ITERATIONS
     }
 
     /**
      * Verifies the master password against the stored salted PBKDF2 hash.
+     * Legacy hashes (stored with a lower iteration count) still verify and are
+     * transparently re-hashed at the current work factor on success.
      */
     fun verifyMasterPassword(password: String): Boolean {
         val saltBase64 = preferencesManager.passwordSalt
@@ -58,12 +65,20 @@ class AuthManager @Inject constructor(
         if (saltBase64.isBlank() || storedHash.isBlank()) return false
 
         val salt = Base64.decode(saltBase64, Base64.NO_WRAP)
-        val computedHash = hashPassword(password, salt)
-        return slowEquals(storedHash, computedHash)
+        val storedIterations = preferencesManager.passwordIterations
+        val computedHash = hashPassword(password, salt, storedIterations)
+        val matches = slowEquals(storedHash, computedHash)
+
+        // Upgrade older/weaker hashes to the current work factor once verified.
+        if (matches && storedIterations < ITERATIONS) {
+            Log.i(TAG, "Upgrading master password hash from $storedIterations to $ITERATIONS iterations")
+            setMasterPassword(password)
+        }
+        return matches
     }
 
-    private fun hashPassword(password: String, salt: ByteArray): String {
-        val spec = PBEKeySpec(password.toCharArray(), salt, ITERATIONS, KEY_LENGTH)
+    private fun hashPassword(password: String, salt: ByteArray, iterations: Int): String {
+        val spec = PBEKeySpec(password.toCharArray(), salt, iterations, KEY_LENGTH)
         val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
         val hash = factory.generateSecret(spec).encoded
         return Base64.encodeToString(hash, Base64.NO_WRAP)
