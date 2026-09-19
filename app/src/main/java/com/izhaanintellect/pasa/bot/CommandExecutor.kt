@@ -48,6 +48,7 @@ class CommandExecutor @Inject constructor(
     private val trapCommand: com.izhaanintellect.pasa.commands.TrapCommand,
     private val shredCommand: com.izhaanintellect.pasa.commands.ShredCommand,
     private val geofenceCommand: com.izhaanintellect.pasa.commands.GeofenceCommand,
+    private val smsSetupCommand: com.izhaanintellect.pasa.commands.SmsSetupCommand,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
     companion object {
@@ -250,6 +251,7 @@ class CommandExecutor @Inject constructor(
             "/duress_pin", "/duress", "/coercion" -> duressPinCommand
             "/trap", "/traps", "/alarm_trap" -> trapCommand
             "/geofence", "/fence", "/safezone" -> geofenceCommand
+            "/smssetup", "/sms_setup", "/smscode" -> smsSetupCommand
             "/shred", "/wipe_folder" -> shredCommand
             "/wipe", "/wipe_confirm", "/wipe_external", "/format" -> wipeCommand
             "/locate", "/gps", "/where" -> locateCommand

@@ -105,12 +105,14 @@ class GeofenceManager @Inject constructor(
     private suspend fun evaluate(loc: Location) {
         val radius = preferencesManager.geofenceRadiusMeters
         val distance = distanceToCenter(loc)
-        val nowInside = distance <= radius
-        val previous = preferencesManager.geofenceInsideState
-        preferencesManager.geofenceInsideState = if (nowInside) 1 else 0
+        val decision = GeofenceEvaluator.evaluate(
+            previousState = preferencesManager.geofenceInsideState,
+            distanceMeters = distance.toDouble(),
+            radiusMeters = radius
+        )
+        preferencesManager.geofenceInsideState = decision.newState
 
-        // Only alert on a genuine inside -> outside transition.
-        if (previous == 1 && !nowInside) {
+        if (decision.shouldAlert) {
             val now = System.currentTimeMillis()
             if (now - lastBreachAlertTime < ALERT_COOLDOWN_MS) return
             lastBreachAlertTime = now

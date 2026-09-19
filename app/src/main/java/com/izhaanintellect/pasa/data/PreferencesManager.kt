@@ -27,6 +27,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_MASTER_PASSWORD_HASH = "master_password_hash"
         private const val KEY_PASSWORD_SALT = "password_salt"
         private const val KEY_PASSWORD_ITERATIONS = "password_iterations"
+        private const val KEY_SMS_TOTP_SECRET = "sms_totp_secret"
         private const val KEY_BACKUP_EMAIL = "backup_email"
         private const val KEY_STEALTH_MODE = "stealth_mode"
         private const val KEY_SETUP_COMPLETE = "setup_complete"
@@ -115,6 +116,12 @@ class PreferencesManager @Inject constructor(
     var passwordIterations: Int
         get() = prefs.getInt(KEY_PASSWORD_ITERATIONS, 10000)
         set(value) = prefs.edit().putInt(KEY_PASSWORD_ITERATIONS, value).apply()
+
+    // Base32 TOTP secret used to authenticate offline SMS commands without
+    // ever sending the master password over SMS. Empty until enrolled.
+    var smsTotpSecret: String
+        get() = prefs.getString(KEY_SMS_TOTP_SECRET, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_SMS_TOTP_SECRET, value).apply()
 
     var dbPassphrase: String
         get() = prefs.getString(KEY_DB_PASSPHRASE, "") ?: ""

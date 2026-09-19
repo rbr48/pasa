@@ -10,6 +10,7 @@ import com.izhaanintellect.pasa.bot.CommandExecutor
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.location.LocationTracker
 import com.izhaanintellect.pasa.security.AuthManager
+import com.izhaanintellect.pasa.security.Totp
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,10 +19,12 @@ import javax.inject.Inject
 
 /**
  * Out-of-band offline command receiver via GSM SMS messages.
- * Format: PASA password command args...
- * Example: PASA mypassword123 /locate
- * Example: PASA mypassword123 /lock 5892 Lost phone
- * Example: PASA mypassword123 /ring
+ * Format: PASA <credential> <command> [args...]
+ * where <credential> is the current 6-digit TOTP code (preferred; enroll via
+ * /smssetup) or, until TOTP is enrolled, the master password (deprecated).
+ * Example: PASA 493021 /locate
+ * Example: PASA 493021 /lock 5892 Lost phone
+ * Example: PASA 493021 /ring
  */
 @AndroidEntryPoint
 class SmsCommandReceiver : BroadcastReceiver() {
@@ -63,16 +66,29 @@ class SmsCommandReceiver : BroadcastReceiver() {
             return
         }
 
-        val providedPassword = parts[1]
+        val providedCredential = parts[1]
         val rawCmd = parts[2].lowercase()
         val command = if (rawCmd.startsWith("/")) rawCmd else "/$rawCmd"
         val args = parts.drop(3)
 
-        // Authenticate against Master Password
-        if (!authManager.verifyMasterPassword(providedPassword)) {
-            Log.w(TAG, "SMS Command Rejected: Invalid master password authentication")
-            return
+        // Authenticate: prefer a TOTP code (never exposes the master password over
+        // SMS). Fall back to the master password only if TOTP is not yet enrolled,
+        // so existing setups keep working until the owner runs /smssetup.
+        val totpSecret = preferencesManager.smsTotpSecret
+        val authorized = when {
+            totpSecret.isNotBlank() -> Totp.verify(totpSecret, providedCredential).also {
+                if (!it) Log.w(TAG, "SMS Command Rejected: invalid TOTP code")
+            }
+            authManager.verifyMasterPassword(providedCredential) -> {
+                Log.w(TAG, "SMS authenticated with master password (deprecated). Run /smssetup to switch to TOTP.")
+                true
+            }
+            else -> {
+                Log.w(TAG, "SMS Command Rejected: invalid credential")
+                false
+            }
         }
+        if (!authorized) return
 
         Log.i(TAG, "SMS Command Verified: $command ${args.joinToString(" ")}")
 
