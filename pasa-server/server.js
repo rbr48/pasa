@@ -11,9 +11,8 @@ const PORT = process.env.PORT || 8160;
 const commandEmitter = new EventEmitter();
 commandEmitter.setMaxListeners(100);
 
-
-// Default bot token - starts polling immediately on boot even without device registration
-const DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || '8815969412:AAEN_BqiCldZVza93qApCbGn5hTrcAW9HxA';
+// Default bot token (optional fallback via environment variable only - never hardcoded in source)
+const DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || '';
 
 // Setup directories
 const DATA_DIR = path.join(__dirname, 'data');
@@ -24,6 +23,8 @@ if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 const DEVICES_FILE = path.join(DATA_DIR, 'devices.json');
 const COMMANDS_FILE = path.join(DATA_DIR, 'commands.json');
 const SIGNING_KEY_FILE = path.join(DATA_DIR, 'server_signing_key.json');
+const ADMIN_SECRET_FILE = path.join(DATA_DIR, 'admin_secret.json');
+const LOGS_FILE = path.join(DATA_DIR, 'security_logs.json');
 const SERVER_KEY_ID = 'pasa-server-1';
 
 // Multer storage for photos/audio/video uploaded from device
@@ -61,6 +62,97 @@ function saveJson(file, data) {
 
 let devices = loadJson(DEVICES_FILE, {});
 let commands = loadJson(COMMANDS_FILE, {}); // deviceId -> [ { id, command, args, chatId, createdAt, envelope } ]
+
+// --- Master Admin Secret Management ---
+
+let ADMIN_SECRET = process.env.ADMIN_SECRET;
+if (!ADMIN_SECRET) {
+  if (fs.existsSync(ADMIN_SECRET_FILE)) {
+    try {
+      const saved = JSON.parse(fs.readFileSync(ADMIN_SECRET_FILE, 'utf8'));
+      ADMIN_SECRET = saved.adminSecret;
+    } catch (err) {
+      console.error('[Admin Auth] Error reading admin_secret.json:', err.message);
+    }
+  }
+  if (!ADMIN_SECRET) {
+    ADMIN_SECRET = crypto.randomBytes(24).toString('hex');
+    saveJson(ADMIN_SECRET_FILE, {
+      adminSecret: ADMIN_SECRET,
+      generatedAt: new Date().toISOString()
+    });
+    console.log(`\n=============================================================`);
+    console.log(`[Admin Auth] Generated Initial Master Admin Access Key:`);
+    console.log(`👉 ${ADMIN_SECRET}`);
+    console.log(`Use this key to authenticate at https://<domain>/pasa/admin`);
+    console.log(`=============================================================\n`);
+  }
+}
+
+// --- Security Audit Event Logs (Circular Buffer capped at 200 events) ---
+
+let securityLogs = loadJson(LOGS_FILE, []);
+if (!Array.isArray(securityLogs)) securityLogs = [];
+
+function logSecurityEvent(type, details = {}) {
+  const event = {
+    id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+    timestamp: Date.now(),
+    iso: new Date().toISOString(),
+    type,
+    ...details
+  };
+  securityLogs.unshift(event);
+  if (securityLogs.length > 200) {
+    securityLogs = securityLogs.slice(0, 200);
+  }
+  saveJson(LOGS_FILE, securityLogs);
+  return event;
+}
+
+// --- Command Queue Maintenance (Purge stale commands >24h) ---
+
+function cleanupStaleCommands() {
+  const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+  let cleaned = 0;
+  for (const devId of Object.keys(commands)) {
+    const origLen = (commands[devId] || []).length;
+    commands[devId] = (commands[devId] || []).filter(c => (c.createdAt || 0) > cutoff);
+    cleaned += (origLen - commands[devId].length);
+  }
+  if (cleaned > 0) {
+    saveJson(COMMANDS_FILE, commands);
+    console.log(`[Maintenance] Purged ${cleaned} stale command(s) older than 24h.`);
+  }
+}
+cleanupStaleCommands();
+setInterval(cleanupStaleCommands, 6 * 60 * 60 * 1000);
+
+// --- Admin Authentication Middleware ---
+
+function authenticateAdmin(req, res, next) {
+  const token = req.headers['x-pasa-admin-key']
+    || (req.headers['authorization'] && req.headers['authorization'].startsWith('Bearer ') ? req.headers['authorization'].split(' ')[1].trim() : null)
+    || (req.query && req.query.key);
+
+  if (!token || typeof token !== 'string') {
+    return res.status(401).json({ ok: false, description: 'Unauthorized: Admin access key required' });
+  }
+
+  const expectedBuf = Buffer.from(ADMIN_SECRET);
+  const actualBuf = Buffer.from(token);
+
+  if (expectedBuf.length === actualBuf.length && crypto.timingSafeEqual(expectedBuf, actualBuf)) {
+    return next();
+  }
+
+  logSecurityEvent('ADMIN_LOGIN_FAILURE', {
+    ip: req.ip || (req.connection && req.connection.remoteAddress) || 'unknown',
+    userAgent: req.headers['user-agent'] || 'unknown'
+  });
+
+  return res.status(401).json({ ok: false, description: 'Unauthorized: Invalid admin access key' });
+}
 
 // --- Ed25519 Server Command Signing Key (ASTRA Layer) ---
 
@@ -245,17 +337,29 @@ const activePollers = new Map();
 
 async function callTelegram(token, method, body = null, isMultipart = false, formData = null) {
   const url = `https://api.telegram.org/bot${token}/${method}`;
-  if (isMultipart && formData) {
-    const res = await fetch(url, { method: 'POST', body: formData });
-    return await res.json();
+  try {
+    let res;
+    if (isMultipart && formData) {
+      res = await fetch(url, { method: 'POST', body: formData });
+    } else {
+      const headers = body ? { 'Content-Type': 'application/json' } : {};
+      res = await fetch(url, {
+        method: body ? 'POST' : 'GET',
+        headers,
+        body: body ? JSON.stringify(body) : null
+      });
+    }
+
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      return await res.json();
+    }
+    const text = await res.text();
+    return { ok: false, description: `HTTP ${res.status}: ${text.substring(0, 200)}` };
+  } catch (err) {
+    console.error(`[Telegram API] Error calling ${method}:`, err.message);
+    return { ok: false, description: err.message };
   }
-  const headers = body ? { 'Content-Type': 'application/json' } : {};
-  const res = await fetch(url, {
-    method: body ? 'POST' : 'GET',
-    headers,
-    body: body ? JSON.stringify(body) : null
-  });
-  return await res.json();
 }
 
 // Register all commands in Telegram menu autocomplete
@@ -292,7 +396,7 @@ async function registerTelegramBotCommands(token) {
     console.error(`[Telegram] Error setting bot commands:`, e.message);
   }
 
-  // Set bottom Chat Menu Button to standard bot commands menu (removes Mini App)
+  // Set bottom Chat Menu Button to standard bot commands menu
   try {
     const res = await callTelegram(token, 'setChatMenuButton', {
       menu_button: {
@@ -528,6 +632,12 @@ async function dispatchCommandToDevice(token, chatId, command, args = []) {
   }
   saveJson(COMMANDS_FILE, commands);
 
+  logSecurityEvent('COMMAND_DISPATCHED', {
+    command: formattedCmd,
+    deviceId: targetDeviceId,
+    chatId: chatId ? String(chatId) : 'unknown'
+  });
+
   const activeDevice = devices[targetDeviceId];
   const lastSeenSec = Math.floor((Date.now() - (activeDevice.lastSeen || 0)) / 1000);
   const statusNote = lastSeenSec < 60 ? `Online (${lastSeenSec}s ago)` : `Last active ${lastSeenSec}s ago`;
@@ -569,9 +679,11 @@ async function dispatchCommandToDevice(token, chatId, command, args = []) {
   }, 90000);
 }
 
-
 // Telegram Bot long-poller loop
 function startBotPoller(token) {
+  if (!token || typeof token !== 'string' || token.trim().length === 0) return;
+  token = token.trim();
+
   if (activePollers.has(token) && activePollers.get(token).isRunning) {
     return;
   }
@@ -587,6 +699,13 @@ function startBotPoller(token) {
       try {
         const url = `https://api.telegram.org/bot${token}/getUpdates?timeout=25${pollerState.offset ? `&offset=${pollerState.offset}` : ''}`;
         const res = await fetch(url);
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          console.warn(`[Telegram Poller] Unexpected content-type (${res.status}): ${contentType}`);
+          await new Promise(r => setTimeout(r, 5000));
+          continue;
+        }
+
         const data = await res.json();
 
         if (data && data.ok && Array.isArray(data.result)) {
@@ -720,18 +839,21 @@ app.get('/', (req, res) => {
     status: 'ok',
     service: 'pasa-server',
     message: 'PASA (Private Android Security Agent) Control Plane is Online',
-    version: '2.0.0',
+    version: '2.1.0',
     cryptoSigningKeyId: SERVER_KEY_ID,
     uptime: Math.floor(process.uptime()),
     endpoints: [
       '/health',
+      '/admin',
+      '/api/admin/verify',
+      '/api/admin/devices',
+      '/api/admin/commands',
+      '/api/admin/logs',
       '/api/verify-bot',
       '/api/device/register',
       '/api/device/poll',
       '/api/device/response',
-      '/api/device/alert',
-      '/api/admin/devices',
-      '/api/admin/logs'
+      '/api/device/alert'
     ]
   });
 });
@@ -741,7 +863,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'pasa-server',
-    version: '2.0.0',
+    version: '2.1.0',
     cryptoSigningKeyId: SERVER_KEY_ID,
     uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
@@ -770,12 +892,12 @@ app.post('/api/verify-bot', async (req, res) => {
           firstName: tgRes.result.first_name
         }
       });
-    } else {
-      return res.status(400).json({
-        ok: false,
-        description: tgRes.description || 'Invalid Telegram Bot token'
-      });
     }
+
+    res.status(400).json({
+      ok: false,
+      description: tgRes.description || 'Invalid Telegram Bot token'
+    });
   } catch (err) {
     console.error('Error verifying bot:', err);
     res.status(500).json({ ok: false, description: err.message });
@@ -809,6 +931,13 @@ app.post('/api/device/register', (req, res) => {
 
     // Launch Telegram poller for this bot token on VPS
     startBotPoller(botToken.trim());
+
+    logSecurityEvent('DEVICE_REGISTERED', {
+      deviceId,
+      deviceName: deviceName || 'Android Device',
+      ownerChatId: ownerChatId || '',
+      hasHardwareKey: !!publicKeyJwk
+    });
 
     res.json({
       ok: true,
@@ -875,13 +1004,21 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
   });
 });
 
-
 // 5. Device Response (Forwarding photos, audio, video, GPS to Telegram)
 app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
   { name: 'photo', maxCount: 1 },
   { name: 'audio', maxCount: 1 },
   { name: 'video', maxCount: 1 }
 ]), async (req, res) => {
+  const allUploadedFiles = [];
+  if (req.files) {
+    for (const field of Object.values(req.files)) {
+      for (const f of field) {
+        if (f && f.path) allUploadedFiles.push(f.path);
+      }
+    }
+  }
+
   try {
     const { deviceId, commandId, message, latitude, longitude } = req.body;
     const files = req.files || {};
@@ -899,6 +1036,15 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       commands[deviceId] = commands[deviceId].filter(c => c.id !== commandId);
       saveJson(COMMANDS_FILE, commands);
     }
+
+    logSecurityEvent('DEVICE_RESPONSE', {
+      deviceId,
+      commandId: commandId || null,
+      hasPhoto: !!(files.photo && files.photo.length > 0),
+      hasAudio: !!(files.audio && files.audio.length > 0),
+      hasVideo: !!(files.video && files.video.length > 0),
+      hasLocation: !!(latitude && longitude)
+    });
 
     // 1. Deliver text message
     if (message && chatId) {
@@ -920,7 +1066,6 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       formData.append('caption', '📸 Captured photo');
 
       await callTelegram(token, 'sendPhoto', null, true, formData);
-      try { fs.unlinkSync(photoFile.path); } catch (_) {}
     }
 
     // 3. Deliver audio if recorded
@@ -934,7 +1079,6 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       formData.append('caption', '🎙️ Audio recording');
 
       await callTelegram(token, 'sendAudio', null, true, formData);
-      try { fs.unlinkSync(audioFile.path); } catch (_) {}
     }
 
     // 4. Deliver video if recorded
@@ -948,7 +1092,6 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       formData.append('caption', '🎥 Captured video');
 
       await callTelegram(token, 'sendVideo', null, true, formData);
-      try { fs.unlinkSync(videoFile.path); } catch (_) {}
     }
 
     // 5. Deliver GPS location pin
@@ -964,6 +1107,12 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
   } catch (err) {
     console.error('Error handling device response:', err);
     res.status(500).json({ ok: false, description: err.message });
+  } finally {
+    for (const fPath of allUploadedFiles) {
+      try {
+        if (fs.existsSync(fPath)) fs.unlinkSync(fPath);
+      } catch (_) {}
+    }
   }
 });
 
@@ -971,6 +1120,15 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
 app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
   { name: 'photo', maxCount: 1 }
 ]), async (req, res) => {
+  const allUploadedFiles = [];
+  if (req.files) {
+    for (const field of Object.values(req.files)) {
+      for (const f of field) {
+        if (f && f.path) allUploadedFiles.push(f.path);
+      }
+    }
+  }
+
   try {
     const { deviceId, alertType, message, latitude, longitude } = req.body;
     const files = req.files || {};
@@ -986,6 +1144,14 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
     if (!chatId) {
       return res.status(400).json({ ok: false, description: 'No ownerChatId configured' });
     }
+
+    logSecurityEvent('SECURITY_ALERT', {
+      deviceId,
+      alertType: alertType || 'INTRUSION_DETECTED',
+      message: (message || '').substring(0, 150),
+      latitude: latitude || null,
+      longitude: longitude || null
+    });
 
     const alertHeader = `🚨 <b>SECURITY ALERT: ${alertType || 'INTRUSION DETECTED'}</b>\n━━━━━━━━━━━━━━━━━━━━\n`;
     const fullText = alertHeader + (message || '');
@@ -1008,7 +1174,6 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
       formData.append('caption', '🚨 Intruder Capture');
 
       await callTelegram(token, 'sendPhoto', null, true, formData);
-      try { fs.unlinkSync(photoFile.path); } catch (_) {}
     }
 
     // Send Location Pin
@@ -1024,12 +1189,37 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
   } catch (err) {
     console.error('Error handling alert:', err);
     res.status(500).json({ ok: false, description: err.message });
+  } finally {
+    for (const fPath of allUploadedFiles) {
+      try {
+        if (fs.existsSync(fPath)) fs.unlinkSync(fPath);
+      } catch (_) {}
+    }
   }
 });
 
 // --- Phase 5: Web Console Admin Endpoints ---
 
-app.get('/api/admin/devices', (req, res) => {
+app.post('/api/admin/verify', (req, res) => {
+  const { key } = req.body || {};
+  if (!key || typeof key !== 'string') {
+    return res.status(400).json({ ok: false, description: 'Access key is required' });
+  }
+  const expectedBuf = Buffer.from(ADMIN_SECRET);
+  const actualBuf = Buffer.from(key);
+  if (expectedBuf.length === actualBuf.length && crypto.timingSafeEqual(expectedBuf, actualBuf)) {
+    logSecurityEvent('ADMIN_LOGIN_SUCCESS', {
+      ip: req.ip || (req.connection && req.connection.remoteAddress) || 'unknown'
+    });
+    return res.json({ ok: true, message: 'Admin authentication verified' });
+  }
+  logSecurityEvent('ADMIN_LOGIN_FAILURE', {
+    ip: req.ip || (req.connection && req.connection.remoteAddress) || 'unknown'
+  });
+  return res.status(401).json({ ok: false, description: 'Invalid admin access key' });
+});
+
+app.get('/api/admin/devices', authenticateAdmin, (req, res) => {
   const list = Object.values(devices).map(d => ({
     deviceId: d.deviceId,
     deviceName: d.deviceName,
@@ -1044,8 +1234,12 @@ app.get('/api/admin/devices', (req, res) => {
   res.json({ ok: true, count: list.length, devices: list });
 });
 
-app.get('/api/admin/commands', (req, res) => {
+app.get('/api/admin/commands', authenticateAdmin, (req, res) => {
   res.json({ ok: true, commands });
+});
+
+app.get('/api/admin/logs', authenticateAdmin, (req, res) => {
+  res.json({ ok: true, count: securityLogs.length, logs: securityLogs });
 });
 
 // Serve Web Console Dashboard
@@ -1104,13 +1298,28 @@ app.get('/admin', (req, res) => {
     }
     .brand-text h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
     .brand-text p { font-size: 12px; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
-    .header-status { display: flex; align-items: center; gap: 12px; }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
     .badge {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 12px; border-radius: 9999px;
       font-size: 12px; font-weight: 600; font-family: 'JetBrains Mono', monospace;
     }
     .badge-live { background: rgba(16, 185, 129, 0.15); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .btn-lock {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--rose);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-lock:hover {
+      background: rgba(244, 63, 94, 0.25);
+    }
     .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); animation: pulse 2s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
     
@@ -1160,11 +1369,84 @@ app.get('/admin', (req, res) => {
     .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
     .status-online { background: var(--emerald); }
     .status-idle { background: var(--text-muted); }
-    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .empty-state { text-align: center; padding: 36px 20px; color: var(--text-muted); }
+
+    /* Event log styles */
+    .evt-badge {
+      display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
+    }
+    .evt-alert { background: rgba(244, 63, 94, 0.2); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.4); }
+    .evt-cmd { background: rgba(0, 212, 255, 0.2); color: var(--primary); border: 1px solid rgba(0, 212, 255, 0.4); }
+    .evt-reg { background: rgba(16, 185, 129, 0.2); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.4); }
+    .evt-auth { background: rgba(245, 158, 11, 0.2); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.4); }
+
+    /* Auth Gate Modal */
+    #auth-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(7, 10, 18, 0.95);
+      backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .auth-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 36px;
+      max-width: 440px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 50px rgba(0, 212, 255, 0.15);
+    }
+    .auth-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      margin: 18px 0 12px 0;
+      outline: none;
+    }
+    .auth-input:focus { border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #00d4ff, #0066cc);
+      color: #070a12;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .auth-btn:hover { opacity: 0.95; transform: translateY(-1px); }
+    .auth-error {
+      color: var(--rose);
+      font-size: 13px;
+      margin-top: 10px;
+      min-height: 20px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+
+  <!-- Auth Gate Modal -->
+  <div id="auth-overlay" style="display: none;">
+    <div class="auth-box">
+      <div class="brand-logo" style="margin: 0 auto 16px auto;">🛡️</div>
+      <h2 style="font-size: 20px; margin-bottom: 8px;">PASA Fleet Control Plane</h2>
+      <p style="font-size: 13px; color: var(--text-muted);">Enter Master Admin Access Key to authenticate</p>
+      <input type="password" id="admin-key-input" class="auth-input" placeholder="Enter Admin Key..." autocomplete="off" />
+      <button class="auth-btn" id="btn-login">Unlock Control Plane</button>
+      <div id="login-error" class="auth-error"></div>
+    </div>
+  </div>
+
+  <div class="container" id="main-dashboard" style="display: none;">
     <header>
       <div class="brand">
         <div class="brand-logo">🛡️</div>
@@ -1173,11 +1455,12 @@ app.get('/admin', (req, res) => {
           <p>ED25519 HARDENED FLEET MANAGEMENT</p>
         </div>
       </div>
-      <div class="header-status">
+      <div class="header-actions">
         <div class="badge badge-live">
           <div class="pulse-dot"></div>
-          <span>CONTROL PLANE v2.0 ACTIVE</span>
+          <span>CONTROL PLANE v2.1 ACTIVE</span>
         </div>
+        <button class="btn-lock" id="btn-logout" title="Lock Console">🔒 Lock Console</button>
       </div>
     </header>
 
@@ -1199,11 +1482,12 @@ app.get('/admin', (req, res) => {
       </div>
       <div class="stat-card">
         <div class="stat-label">Telegram Poller</div>
-        <div class="stat-value" id="poller-count">1 Active</div>
+        <div class="stat-value" id="poller-count">Active</div>
         <div class="stat-sub">Webhook Gateway</div>
       </div>
     </div>
 
+    <!-- Device Fleet Status -->
     <div class="card">
       <div class="section-title">
         <span>Device Fleet Status</span>
@@ -1228,6 +1512,7 @@ app.get('/admin', (req, res) => {
       </div>
     </div>
 
+    <!-- Cryptographic Command Queue -->
     <div class="card">
       <div class="section-title">
         <span>Cryptographic Command Queue</span>
@@ -1236,9 +1521,53 @@ app.get('/admin', (req, res) => {
         <div class="empty-state">No pending queued commands</div>
       </div>
     </div>
+
+    <!-- Security Audit Event Log -->
+    <div class="card">
+      <div class="section-title">
+        <span>Security Audit Event Log</span>
+        <span style="font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="logs-count">0 Events</span>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Event Type</th>
+              <th>Details / Message</th>
+              <th>Device ID</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="logs-table-body">
+            <tr><td colspan="4" class="empty-state">Loading security events...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <script>
+    const STORAGE_KEY = 'pasa_admin_access_key';
+    const authOverlay = document.getElementById('auth-overlay');
+    const mainDashboard = document.getElementById('main-dashboard');
+    const adminKeyInput = document.getElementById('admin-key-input');
+    const loginError = document.getElementById('login-error');
+    const btnLogin = document.getElementById('btn-login');
+    const btnLogout = document.getElementById('btn-logout');
+
+    function getAdminKey() {
+      // Check query parameter ?key=... or sessionStorage
+      const params = new URLSearchParams(window.location.search);
+      const urlKey = params.get('key');
+      if (urlKey) {
+        sessionStorage.setItem(STORAGE_KEY, urlKey);
+        // Clean key from visible URL address bar
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return urlKey;
+      }
+      return sessionStorage.getItem(STORAGE_KEY) || '';
+    }
+
     function timeAgo(epochMs) {
       if (!epochMs) return 'Never';
       const sec = Math.floor((Date.now() - epochMs) / 1000);
@@ -1247,17 +1576,83 @@ app.get('/admin', (req, res) => {
       return Math.floor(sec / 3600) + 'h ago';
     }
 
-    async function loadData() {
+    function showLoginModal(msg = '') {
+      authOverlay.style.display = 'flex';
+      mainDashboard.style.display = 'none';
+      if (msg) loginError.textContent = msg;
+      adminKeyInput.value = '';
+      adminKeyInput.focus();
+    }
+
+    function showDashboard() {
+      authOverlay.style.display = 'none';
+      mainDashboard.style.display = 'block';
+    }
+
+    async function verifyAndLogin(key) {
+      if (!key) {
+        loginError.textContent = 'Please enter your Admin Access Key';
+        return;
+      }
+      loginError.textContent = 'Verifying key...';
       try {
-        const res = await fetch('./api/admin/devices');
+        const res = await fetch('./api/admin/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key })
+        });
         const data = await res.json();
         if (data.ok) {
-          document.getElementById('device-count').textContent = data.count || 0;
+          sessionStorage.setItem(STORAGE_KEY, key);
+          showDashboard();
+          loadData();
+        } else {
+          loginError.textContent = data.description || 'Invalid admin key';
+        }
+      } catch (e) {
+        loginError.textContent = 'Network error connecting to server';
+      }
+    }
+
+    btnLogin.addEventListener('click', () => {
+      verifyAndLogin(adminKeyInput.value.trim());
+    });
+
+    adminKeyInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') verifyAndLogin(adminKeyInput.value.trim());
+    });
+
+    btnLogout.addEventListener('click', () => {
+      sessionStorage.removeItem(STORAGE_KEY);
+      showLoginModal('Console locked.');
+    });
+
+    async function loadData() {
+      const key = getAdminKey();
+      if (!key) {
+        showLoginModal();
+        return;
+      }
+
+      try {
+        const headers = { 'x-pasa-admin-key': key };
+
+        // 1. Fetch Devices
+        const resDev = await fetch('./api/admin/devices', { headers });
+        if (resDev.status === 401) {
+          sessionStorage.removeItem(STORAGE_KEY);
+          showLoginModal('Session expired or unauthorized');
+          return;
+        }
+        const dataDev = await resDev.json();
+
+        if (dataDev.ok) {
+          document.getElementById('device-count').textContent = dataDev.count || 0;
           const tbody = document.getElementById('devices-table-body');
-          if (data.devices.length === 0) {
+          if (dataDev.devices.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No devices registered yet</td></tr>';
           } else {
-            tbody.innerHTML = data.devices.map(d => {
+            tbody.innerHTML = dataDev.devices.map(d => {
               const isRecent = d.lastSeen && (Date.now() - d.lastSeen < 180000);
               const keyHtml = d.hasHardwareKey 
                 ? '<span class="key-badge key-strongbox">🔒 StrongBox / TEE (' + d.attestationCertCount + ' certs)</span>'
@@ -1274,14 +1669,76 @@ app.get('/admin', (req, res) => {
             }).join('');
           }
         }
+
+        // 2. Fetch Commands
+        const resCmd = await fetch('./api/admin/commands', { headers });
+        const dataCmd = await resCmd.json();
+        if (dataCmd.ok) {
+          const cmdContainer = document.getElementById('commands-container');
+          let allCmds = [];
+          for (const [devId, cmds] of Object.entries(dataCmd.commands || {})) {
+            if (Array.isArray(cmds) && cmds.length > 0) {
+              allCmds.push(...cmds.map(c => ({ ...c, devId })));
+            }
+          }
+          if (allCmds.length === 0) {
+            cmdContainer.innerHTML = '<div class="empty-state">No pending queued commands across fleet</div>';
+          } else {
+            cmdContainer.innerHTML = '<table><thead><tr><th>Command ID</th><th>Target Device</th><th>Command</th><th>Queued Time</th></tr></thead><tbody>' +
+              allCmds.map(c => (
+                '<tr>' +
+                  '<td><code style="font-family: monospace; color: var(--primary);">' + c.id + '</code></td>' +
+                  '<td><code style="font-family: monospace;">' + c.devId + '</code></td>' +
+                  '<td><b>' + c.command + '</b> ' + (c.args || []).join(' ') + '</td>' +
+                  '<td>' + timeAgo(c.createdAt) + '</td>' +
+                '</tr>'
+              )).join('') + '</tbody></table>';
+          }
+        }
+
+        // 3. Fetch Audit Logs
+        const resLogs = await fetch('./api/admin/logs', { headers });
+        const dataLogs = await resLogs.json();
+        if (dataLogs.ok && Array.isArray(dataLogs.logs)) {
+          document.getElementById('logs-count').textContent = dataLogs.logs.length + ' Events';
+          const tbodyLogs = document.getElementById('logs-table-body');
+          if (dataLogs.logs.length === 0) {
+            tbodyLogs.innerHTML = '<tr><td colspan="4" class="empty-state">No audit logs recorded yet</td></tr>';
+          } else {
+            tbodyLogs.innerHTML = dataLogs.logs.slice(0, 30).map(l => {
+              let badgeClass = 'evt-cmd';
+              if (l.type.includes('ALERT')) badgeClass = 'evt-alert';
+              else if (l.type.includes('REGISTER')) badgeClass = 'evt-reg';
+              else if (l.type.includes('AUTH') || l.type.includes('ADMIN')) badgeClass = 'evt-auth';
+
+              let detail = l.command || l.message || l.alertType || l.deviceName || JSON.stringify(l);
+              if (typeof detail === 'object') detail = JSON.stringify(detail);
+
+              return '<tr>' +
+                '<td><span class="evt-badge ' + badgeClass + '">' + l.type + '</span></td>' +
+                '<td>' + detail + '</td>' +
+                '<td><code style="font-family: monospace; font-size: 12px;">' + (l.deviceId || '—') + '</code></td>' +
+                '<td style="font-size: 12px; color: var(--text-muted);">' + timeAgo(l.timestamp) + '</td>' +
+              '</tr>';
+            }).join('');
+          }
+        }
+
         document.getElementById('refresh-time').textContent = 'Last synced: ' + new Date().toLocaleTimeString();
       } catch (e) {
         console.error('Error fetching admin telemetry:', e);
       }
     }
 
-    loadData();
-    setInterval(loadData, 4000);
+    // Init check
+    const currentKey = getAdminKey();
+    if (!currentKey) {
+      showLoginModal();
+    } else {
+      showDashboard();
+      loadData();
+      setInterval(loadData, 4000);
+    }
   </script>
 </body>
 </html>`);
@@ -1289,7 +1746,7 @@ app.get('/admin', (req, res) => {
 
 // Start Server
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[PASA Control Plane] Server v2.0 listening on port ${PORT}`);
+  console.log(`[PASA Control Plane] Server v2.1 listening on port ${PORT}`);
   initPollers();
   if (DEFAULT_BOT_TOKEN) {
     console.log(`[PASA Control Plane] Auto-starting poller for default bot token...`);
