@@ -29,6 +29,7 @@ const SERVER_KEY_ID = 'pasa-server-1';
 const RELEASES_DIR = path.join(__dirname, 'releases');
 if (!fs.existsSync(RELEASES_DIR)) fs.mkdirSync(RELEASES_DIR, { recursive: true });
 const RELEASES_FILE = path.join(DATA_DIR, 'app_releases.json');
+const GPS_FILE = path.join(DATA_DIR, 'gps_history.json');
 
 // Multer storage for photos/audio/video uploaded from device
 const upload = multer({
@@ -73,6 +74,33 @@ function saveJson(file, data) {
 
 let devices = loadJson(DEVICES_FILE, {});
 let commands = loadJson(COMMANDS_FILE, {}); // deviceId -> [ { id, command, args, chatId, createdAt, envelope } ]
+let gpsHistory = loadJson(GPS_FILE, {}); // deviceId -> [ { lat, lon, timestamp, iso, ...meta } ]
+
+function recordDeviceLocation(deviceId, lat, lon, meta = {}) {
+  const latitude = parseFloat(lat);
+  const longitude = parseFloat(lon);
+  if (isNaN(latitude) || isNaN(longitude)) return null;
+
+  if (!gpsHistory[deviceId]) gpsHistory[deviceId] = [];
+  const point = {
+    lat: latitude,
+    lon: longitude,
+    timestamp: Date.now(),
+    iso: new Date().toISOString(),
+    ...meta
+  };
+  gpsHistory[deviceId].unshift(point);
+  if (gpsHistory[deviceId].length > 500) {
+    gpsHistory[deviceId] = gpsHistory[deviceId].slice(0, 500);
+  }
+  saveJson(GPS_FILE, gpsHistory);
+
+  if (devices[deviceId]) {
+    devices[deviceId].lastLocation = point;
+    saveJson(DEVICES_FILE, devices);
+  }
+  return point;
+}
 
 // --- Master Admin Secret Management ---
 
@@ -398,7 +426,10 @@ async function registerTelegramBotCommands(token) {
     { command: "stealth", description: "Toggle app icon in launcher" },
     { command: "wipe", description: "Remote factory reset (requires master password)" },
     { command: "help", description: "Show full help manual & command list" },
-    { command: "check_update", description: "Check for OTA app updates" }
+    { command: "check_update", description: "Check for OTA app updates" },
+    { command: "duress_pin", description: "Configure decoy coercion PIN for emergency SOS" },
+    { command: "trap", description: "Arm autonomous sensor traps (snatch & grab, charger)" },
+    { command: "shred", description: "Cryptographically shred sensitive files with zero-fill" }
   ];
 
   try {
@@ -455,13 +486,35 @@ const DASHBOARD_KEYBOARD = {
       { text: '📍 Live Tracking', callback_data: 'menu:track' }
     ],
     [
-      { text: '🔄 Check Update', callback_data: 'cmd:check_update' },
+      { text: '🛡️ Sensor Traps', callback_data: 'menu:traps' },
+      { text: '🔄 Check Update', callback_data: 'cmd:check_update' }
+    ],
+    [
       { text: '⚠️ Wipe Device', callback_data: 'menu:wipe' }
     ]
   ]
 };
 
 const SUBMENUS = {
+  'menu:traps': {
+    text: '🛡️ <b>Autonomous Edge Defense Traps</b>\n━━━━━━━━━━━━━━━━━━━━\nAutonomous sensors react instantly without waiting for remote signals:\n\n• <b>Snatch-and-Run</b>: Senses violent acceleration spikes (>2.6G) and locks immediately.\n• <b>Charger Disconnect</b>: Triggers if phone is unplugged while locked.\n\n<b>Commands:</b>\n• <code>/trap on</code> — Arm all traps\n• <code>/trap off</code> — Disarm all traps\n• <code>/trap snatch on|off</code>\n• <code>/trap charger on|off</code>',
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '🟢 Arm All Traps', callback_data: 'cmd:trap:on' },
+          { text: '🔴 Disarm Traps', callback_data: 'cmd:trap:off' }
+        ],
+        [
+          { text: '🏃 Toggle Snatch Trap', callback_data: 'cmd:trap:snatch' },
+          { text: '🔌 Toggle Charger Trap', callback_data: 'cmd:trap:charger' }
+        ],
+        [
+          { text: '📊 Check Traps Status', callback_data: 'cmd:trap:status' },
+          { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
   'menu:message': {
     text: '💬 <b>Display Screen Alert Message</b>\n━━━━━━━━━━━━━━━━━━━━\nBroadcast an urgent lost-mode alert or emergency contact message over the phone\'s lockscreen:\n\n<b>Command Format:</b>\n<code>/message &lt;your message text&gt;</code>\n\n<b>Examples:</b>\n• <code>/message Please return this lost phone! Call +123456789. Reward offered.</code>\n• <code>/message Contact owner at 01700000000 immediately.</code>\n\n<i>The device screen will turn ON, play an alert chime, and display your message with a direct 1-tap call button.</i>',
     keyboard: {
@@ -1123,13 +1176,16 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       await callTelegram(token, 'sendVideo', null, true, formData);
     }
 
-    // 5. Deliver GPS location pin
-    if (latitude && longitude && chatId) {
-      await callTelegram(token, 'sendLocation', {
-        chat_id: chatId,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude)
-      });
+    // 5. Deliver GPS location pin & record history
+    if (latitude && longitude) {
+      recordDeviceLocation(deviceId, latitude, longitude, { source: 'response' });
+      if (chatId) {
+        await callTelegram(token, 'sendLocation', {
+          chat_id: chatId,
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude)
+        });
+      }
     }
 
     res.json({ ok: true, message: 'Response relayed to Telegram' });
@@ -1205,8 +1261,9 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
       await callTelegram(token, 'sendPhoto', null, true, formData);
     }
 
-    // Send Location Pin
+    // Send Location Pin & record history
     if (latitude && longitude) {
+      recordDeviceLocation(deviceId, latitude, longitude, { alertType, source: 'alert' });
       await callTelegram(token, 'sendLocation', {
         chat_id: chatId,
         latitude: parseFloat(latitude),
@@ -1269,6 +1326,12 @@ app.get('/api/admin/commands', authenticateAdmin, (req, res) => {
 
 app.get('/api/admin/logs', authenticateAdmin, (req, res) => {
   res.json({ ok: true, count: securityLogs.length, logs: securityLogs });
+});
+
+app.get('/api/admin/devices/:deviceId/location-history', authenticateAdmin, (req, res) => {
+  const { deviceId } = req.params;
+  const history = gpsHistory[deviceId] || [];
+  res.json({ ok: true, deviceId, count: history.length, history });
 });
 
 // --- Phase 6: OTA App Update Endpoints ---
@@ -1408,6 +1471,8 @@ app.get('/admin', (req, res) => {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root {
       --bg: #070a12;
@@ -1642,6 +1707,25 @@ app.get('/admin', (req, res) => {
       </div>
     </div>
 
+    <!-- Tactical Mission Control & Real-time GPS Map -->
+    <div class="card" style="padding: 0; overflow: hidden; position: relative; margin-bottom: 32px;">
+      <div style="padding: 16px 20px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+          <span>🛰️ Tactical Mission Control & GPS Fleet Map</span>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <span class="badge badge-live" id="map-status-text">Live Radar</span>
+        </div>
+      </div>
+      <div id="mission-map" style="height: 420px; width: 100%; background: #070a12;"></div>
+      <div style="padding: 12px 20px; background: rgba(10, 16, 30, 0.85); border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-family: 'JetBrains Mono', monospace; flex-wrap: wrap; gap: 8px;">
+        <span id="map-info-text" style="color: var(--text-muted);">Tracking real-time coordinates, GPS drift circles, and historical breadcrumb trails.</span>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-fit-map" style="background: rgba(0,212,255,0.15); color: var(--primary); border: 1px solid rgba(0,212,255,0.3); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 600;">🎯 Center Fleet</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Device Fleet Status -->
     <div class="card">
       <div class="section-title">
@@ -1739,9 +1823,41 @@ app.get('/admin', (req, res) => {
       adminKeyInput.focus();
     }
 
+    let missionMap = null;
+    let deviceMarkers = {};
+    let breadcrumbLayers = {};
+    let allCoordinates = [];
+
+    function initMissionMap() {
+      if (missionMap) return;
+      const mapEl = document.getElementById('mission-map');
+      if (!mapEl || typeof L === 'undefined') return;
+
+      try {
+        missionMap = L.map('mission-map').setView([23.8103, 90.4125], 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; CARTO &copy; OpenStreetMap',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(missionMap);
+
+        const btnFit = document.getElementById('btn-fit-map');
+        if (btnFit) {
+          btnFit.addEventListener('click', () => {
+            if (allCoordinates.length > 0 && missionMap) {
+              missionMap.fitBounds(allCoordinates, { padding: [50, 50] });
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('Leaflet initialization deferred:', e);
+      }
+    }
+
     function showDashboard() {
       authOverlay.style.display = 'none';
       mainDashboard.style.display = 'block';
+      setTimeout(initMissionMap, 150);
     }
 
     async function verifyAndLogin(key) {
@@ -1822,6 +1938,50 @@ app.get('/admin', (req, res) => {
                 '<td>' + (isRecent ? '<span style="color: var(--emerald);"><span class="status-dot status-online"></span>Online</span>' : '<span style="color: var(--text-muted);"><span class="status-dot status-idle"></span>Idle</span>') + '</td>' +
               '</tr>';
             }).join('');
+          }
+
+          // Plot location history on mission map
+          if (missionMap && Array.isArray(dataDev.devices)) {
+            allCoordinates = [];
+            for (const d of dataDev.devices) {
+              try {
+                const locRes = await fetch('./api/admin/devices/' + encodeURIComponent(d.deviceId) + '/location-history', { headers });
+                const locData = await locRes.json();
+                if (locData.ok && Array.isArray(locData.history) && locData.history.length > 0) {
+                  const latest = locData.history[0];
+                  const latLng = [latest.lat, latest.lon];
+                  allCoordinates.push(latLng);
+
+                  if (deviceMarkers[d.deviceId]) {
+                    deviceMarkers[d.deviceId].setLatLng(latLng);
+                  } else {
+                    deviceMarkers[d.deviceId] = L.circleMarker(latLng, {
+                      radius: 9,
+                      color: '#00d4ff',
+                      fillColor: '#00d4ff',
+                      fillOpacity: 0.9,
+                      weight: 2
+                    }).addTo(missionMap);
+                  }
+                  deviceMarkers[d.deviceId].bindPopup('<b>' + (d.deviceName || 'PASA Device') + '</b><br>Lat: ' + latest.lat.toFixed(5) + ', Lon: ' + latest.lon.toFixed(5) + '<br>Fix: ' + timeAgo(latest.timestamp));
+
+                  const pathCoords = locData.history.map(pt => [pt.lat, pt.lon]);
+                  if (breadcrumbLayers[d.deviceId]) {
+                    breadcrumbLayers[d.deviceId].setLatLngs(pathCoords);
+                  } else {
+                    breadcrumbLayers[d.deviceId] = L.polyline(pathCoords, {
+                      color: '#00d4ff',
+                      weight: 3,
+                      opacity: 0.55,
+                      dashArray: '5, 8'
+                    }).addTo(missionMap);
+                  }
+                }
+              } catch (_) {}
+            }
+            if (allCoordinates.length > 0) {
+              document.getElementById('map-status-text').textContent = allCoordinates.length + ' Device Fix(es) Plotted';
+            }
           }
         }
 

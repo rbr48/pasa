@@ -5,7 +5,9 @@ import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.UserHandle
+import android.os.UserManager
 import android.util.Log
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
@@ -65,6 +67,43 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                     true
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to setLockTaskPackages: ${e.message}")
+                    false
+                }
+            } else false
+        }
+
+        fun setComprehensiveLockdown(context: Context, enabled: Boolean): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            return if (dpm.isDeviceOwnerApp(context.packageName)) {
+                try {
+                    val restrictions = listOf(
+                        UserManager.DISALLOW_AIRPLANE_MODE,
+                        UserManager.DISALLOW_CONFIG_MOBILE_NETWORKS,
+                        UserManager.DISALLOW_CONFIG_TETHERING,
+                        UserManager.DISALLOW_DEBUGGING_FEATURES,
+                        UserManager.DISALLOW_USB_FILE_TRANSFER
+                    )
+                    for (restriction in restrictions) {
+                        if (enabled) {
+                            dpm.addUserRestriction(component, restriction)
+                        } else {
+                            dpm.clearUserRestriction(component, restriction)
+                        }
+                    }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        try {
+                            dpm.setStatusBarDisabled(component, enabled)
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to setStatusBarDisabled: ${e.message}")
+                        }
+                    }
+
+                    Log.i(TAG, "Comprehensive Hardware Lockdown state set to: $enabled")
+                    true
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to setComprehensiveLockdown: ${e.message}")
                     false
                 }
             } else false

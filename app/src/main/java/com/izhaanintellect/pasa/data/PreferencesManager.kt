@@ -45,6 +45,12 @@ class PreferencesManager @Inject constructor(
         private const val KEY_LOST_MODE_ACTIVE = "lost_mode_active"
         private const val KEY_LOST_MODE_MESSAGE = "lost_mode_message"
         private const val KEY_FAKE_SHUTDOWN_ACTIVE = "fake_shutdown_active"
+        private const val KEY_DURESS_PIN = "duress_pin"
+        private const val KEY_DURESS_ACTIVE = "duress_active"
+        private const val KEY_TRAP_ENABLED = "trap_enabled"
+        private const val KEY_SNATCH_TRAP = "snatch_trap_enabled"
+        private const val KEY_CHARGER_TRAP = "charger_trap_enabled"
+        private const val KEY_POCKET_TRAP = "pocket_trap_enabled"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
 
@@ -157,6 +163,30 @@ class PreferencesManager @Inject constructor(
     var isFakeShutdownActive: Boolean
         get() = prefs.getBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, false)
         set(value) = prefs.edit().putBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, value).apply()
+
+    var duressPin: String?
+        get() = prefs.getString(KEY_DURESS_PIN, null)
+        set(value) = prefs.edit().putString(KEY_DURESS_PIN, value).apply()
+
+    var isDuressActive: Boolean
+        get() = prefs.getBoolean(KEY_DURESS_ACTIVE, false)
+        set(value) = prefs.edit().putBoolean(KEY_DURESS_ACTIVE, value).apply()
+
+    var isTrapEnabled: Boolean
+        get() = prefs.getBoolean(KEY_TRAP_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_TRAP_ENABLED, value).apply()
+
+    var isSnatchTrapEnabled: Boolean
+        get() = prefs.getBoolean(KEY_SNATCH_TRAP, true)
+        set(value) = prefs.edit().putBoolean(KEY_SNATCH_TRAP, value).apply()
+
+    var isChargerTrapEnabled: Boolean
+        get() = prefs.getBoolean(KEY_CHARGER_TRAP, true)
+        set(value) = prefs.edit().putBoolean(KEY_CHARGER_TRAP, value).apply()
+
+    var isPocketTrapEnabled: Boolean
+        get() = prefs.getBoolean(KEY_POCKET_TRAP, false)
+        set(value) = prefs.edit().putBoolean(KEY_POCKET_TRAP, value).apply()
 
     // --- Detection Counters ---
 

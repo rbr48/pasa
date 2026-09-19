@@ -44,6 +44,7 @@ class PasaService : LifecycleService() {
     @Inject lateinit var motionDetector: MotionDetector
     @Inject lateinit var commandVerifier: com.izhaanintellect.pasa.crypto.CommandVerifier
     @Inject lateinit var otaUpdateManager: OtaUpdateManager
+    @Inject lateinit var trapManager: com.izhaanintellect.pasa.detection.TrapManager
 
     companion object {
         private const val TAG = "PASA_Service"
@@ -143,6 +144,7 @@ class PasaService : LifecycleService() {
             isRunning = true
             startPolling()
             motionDetector.startMonitoring()
+            trapManager.startMonitoring()
 
             // Check for OTA updates on service start (with delay to avoid startup congestion)
             lifecycleScope.launch(Dispatchers.IO) {
@@ -172,6 +174,7 @@ class PasaService : LifecycleService() {
         isRunning = false
         pollingJob?.cancel()
         motionDetector.stopMonitoring()
+        trapManager.stopMonitoring()
         locationTracker.stopTracking()
         releaseWakeLock()
         scheduleRestart()

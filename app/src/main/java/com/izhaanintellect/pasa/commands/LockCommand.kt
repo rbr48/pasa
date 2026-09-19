@@ -88,10 +88,11 @@ class LockCommand @Inject constructor(
             if (isDeviceOwner) {
                 PasaDeviceAdmin.configureLockTask(context)
                 PasaDeviceAdmin.setUninstallBlocked(context, true)
+                PasaDeviceAdmin.setComprehensiveLockdown(context, true)
                 try {
                     dpm.setDeviceOwnerLockScreenInfo(adminComponent, messageText)
                 } catch (_: Exception) {}
-                ownerHardeningMsg = "\n👑 <b>Device Owner:</b> Kiosk Lock Task enabled & app uninstallation blocked."
+                ownerHardeningMsg = "\n👑 <b>Device Owner:</b> Kiosk Lock Task, Airplane Mode/USB lockout & uninstall blocked."
             }
 
             // Launch full-screen Lost Mode Guard over lockscreen

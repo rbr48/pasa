@@ -220,13 +220,26 @@ class AlertMessageActivity : AppCompatActivity() {
     private fun verifyEnteredPin() {
         val pin = enteredPin.toString()
         val activePin = preferencesManager.activeLockPin
+        val duressPin = preferencesManager.duressPin
 
+        // 1. Check Duress / Coercion PIN
+        if (!duressPin.isNullOrBlank() && pin == duressPin) {
+            Log.w(TAG, "DURESS PIN ENTERED! Simulating normal unlock and launching silent SOS beacon.")
+            Toast.makeText(this, "✅ Device Unlocked", Toast.LENGTH_SHORT).show()
+            preferencesManager.isDuressActive = true
+            triggerDuressSos()
+            exitLostMode()
+            return
+        }
+
+        // 2. Standard Lock PIN or Master Password
         val isPinCorrect = (!activePin.isNullOrBlank() && pin == activePin) ||
                 authManager.verifyMasterPassword(pin)
 
         if (isPinCorrect) {
             Log.i(TAG, "PIN verified successfully. Unlocking Lost Mode.")
             Toast.makeText(this, "✅ Device Unlocked", Toast.LENGTH_SHORT).show()
+            preferencesManager.isDuressActive = false
             exitLostMode()
         } else {
             failedPinAttempts++
@@ -290,12 +303,58 @@ class AlertMessageActivity : AppCompatActivity() {
         }
     }
 
+    private fun triggerDuressSos() {
+        Log.w(TAG, "Triggering Duress SOS beacon")
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val loc = locationTracker.getCurrentLocation()
+                val locMsg = if (loc != null) {
+                    "\n📍 <b>Location:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
+                } else ""
+
+                val alertText = "🆘 <b>DURESS SOS BEACON ACTIVATED!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                        "⚠️ <b>Coercion PIN was entered on the device.</b>\n" +
+                        "The user may be under duress or forced to unlock.$locMsg"
+
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        text = alertText
+                    )
+                )
+
+                // Silent front camera capture of perpetrator
+                val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true)
+                captureResult.file?.let { photoFile ->
+                    if (photoFile.exists() && photoFile.length() > 0) {
+                        val chatIdBody = preferencesManager.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
+                        val captionBody = "🆘 Duress Intruder Capture".toRequestBody("text/plain".toMediaTypeOrNull())
+                        val fileBody = photoFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                        val part = MultipartBody.Part.createFormData("photo", photoFile.name, fileBody)
+
+                        telegramApi.sendPhoto(
+                            token = preferencesManager.botToken,
+                            chatId = chatIdBody,
+                            photo = part,
+                            caption = captionBody
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in triggerDuressSos", e)
+            }
+        }
+    }
+
     private fun exitLostMode() {
         try {
             if (isKioskActive) {
                 stopLockTask()
                 isKioskActive = false
             }
+            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setComprehensiveLockdown(this, false)
+            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setUninstallBlocked(this, false)
         } catch (_: Exception) {}
 
         preferencesManager.isLostModeActive = false

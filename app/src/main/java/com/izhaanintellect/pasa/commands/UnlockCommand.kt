@@ -34,7 +34,15 @@ class UnlockCommand @Inject constructor(
         preferencesManager.activeLockPin = null
         preferencesManager.lostModeMessage = ""
 
-        // 2. Broadcast dismissal to AlertMessageActivity
+        // 2. Clear Device Owner lockdown restrictions
+        try {
+            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setComprehensiveLockdown(context, false)
+            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setUninstallBlocked(context, false)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to clear lockdown restrictions: ${e.message}")
+        }
+
+        // 3. Broadcast dismissal to AlertMessageActivity
         try {
             val dismissIntent = Intent(AlertMessageActivity.ACTION_DISMISS_LOST_MODE).apply {
                 setPackage(context.packageName)

@@ -44,6 +44,9 @@ class CommandExecutor @Inject constructor(
     private val deviceOwnerCommand: DeviceOwnerCommand,
     private val fakeShutdownCommand: FakeShutdownCommand,
     private val checkUpdateCommand: CheckUpdateCommand,
+    private val duressPinCommand: com.izhaanintellect.pasa.commands.DuressPinCommand,
+    private val trapCommand: com.izhaanintellect.pasa.commands.TrapCommand,
+    private val shredCommand: com.izhaanintellect.pasa.commands.ShredCommand,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
     companion object {
@@ -113,6 +116,11 @@ class CommandExecutor @Inject constructor(
             logExecution(parsed, "FAILED", errorMsg)
             errorMsg
         }
+    }
+
+    suspend fun executeDirect(command: String, args: List<String>, chatId: Long): com.izhaanintellect.pasa.commands.CommandResult {
+        val handler = resolveHandler(command) ?: return com.izhaanintellect.pasa.commands.CommandResult(false, "Unknown command: $command")
+        return handler.execute(args, chatId)
     }
 
     suspend fun executeRemoteCommand(parsed: CommandParser.ParsedCommand, commandId: String): String {
@@ -238,6 +246,9 @@ class CommandExecutor @Inject constructor(
                 override suspend fun execute(args: List<String>, chatId: Long) = fakeShutdownCommand.wakeDevice()
             }
             "/check_update", "/update" -> checkUpdateCommand
+            "/duress_pin", "/duress", "/coercion" -> duressPinCommand
+            "/trap", "/traps", "/alarm_trap" -> trapCommand
+            "/shred", "/wipe_folder" -> shredCommand
             "/wipe", "/wipe_confirm", "/wipe_external", "/format" -> wipeCommand
             "/locate", "/gps", "/where" -> locateCommand
             "/track", "/track_stop" -> trackCommand
