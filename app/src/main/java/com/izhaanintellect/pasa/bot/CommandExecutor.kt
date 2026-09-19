@@ -43,6 +43,7 @@ class CommandExecutor @Inject constructor(
     private val unlockCommand: UnlockCommand,
     private val deviceOwnerCommand: DeviceOwnerCommand,
     private val fakeShutdownCommand: FakeShutdownCommand,
+    private val checkUpdateCommand: CheckUpdateCommand,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
     companion object {
@@ -236,6 +237,7 @@ class CommandExecutor @Inject constructor(
                 override val usage = "/wake"
                 override suspend fun execute(args: List<String>, chatId: Long) = fakeShutdownCommand.wakeDevice()
             }
+            "/check_update", "/update" -> checkUpdateCommand
             "/wipe", "/wipe_confirm", "/wipe_external", "/format" -> wipeCommand
             "/locate", "/gps", "/where" -> locateCommand
             "/track", "/track_stop" -> trackCommand

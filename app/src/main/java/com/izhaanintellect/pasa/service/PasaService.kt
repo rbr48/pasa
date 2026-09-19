@@ -21,6 +21,7 @@ import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.detection.MotionDetector
 import com.izhaanintellect.pasa.detection.PasaWatchdogReceiver
+import com.izhaanintellect.pasa.update.OtaUpdateManager
 import com.izhaanintellect.pasa.location.LocationTracker
 import com.izhaanintellect.pasa.ui.SetupActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,6 +43,7 @@ class PasaService : LifecycleService() {
     @Inject lateinit var locationTracker: LocationTracker
     @Inject lateinit var motionDetector: MotionDetector
     @Inject lateinit var commandVerifier: com.izhaanintellect.pasa.crypto.CommandVerifier
+    @Inject lateinit var otaUpdateManager: OtaUpdateManager
 
     companion object {
         private const val TAG = "PASA_Service"
@@ -141,6 +143,20 @@ class PasaService : LifecycleService() {
             isRunning = true
             startPolling()
             motionDetector.startMonitoring()
+
+            // Check for OTA updates on service start (with delay to avoid startup congestion)
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    kotlinx.coroutines.delay(15000) // Wait 15s after startup
+                    val result = otaUpdateManager.checkForUpdate()
+                    if (result.updateAvailable && result.downloadUrl != null && result.sha256 != null) {
+                        Log.i(TAG, "OTA update found on startup: v${result.versionName}")
+                        otaUpdateManager.downloadAndInstall(result.downloadUrl, result.sha256)
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Startup OTA check failed: ${e.message}")
+                }
+            }
         }
 
         return START_STICKY

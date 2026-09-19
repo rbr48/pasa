@@ -26,11 +26,22 @@ const SIGNING_KEY_FILE = path.join(DATA_DIR, 'server_signing_key.json');
 const ADMIN_SECRET_FILE = path.join(DATA_DIR, 'admin_secret.json');
 const LOGS_FILE = path.join(DATA_DIR, 'security_logs.json');
 const SERVER_KEY_ID = 'pasa-server-1';
+const RELEASES_DIR = path.join(__dirname, 'releases');
+if (!fs.existsSync(RELEASES_DIR)) fs.mkdirSync(RELEASES_DIR, { recursive: true });
+const RELEASES_FILE = path.join(DATA_DIR, 'app_releases.json');
 
 // Multer storage for photos/audio/video uploaded from device
 const upload = multer({
   dest: UPLOADS_DIR,
   limits: { fileSize: 100 * 1024 * 1024 } // 100MB max (for videos)
+});
+
+const apkUpload = multer({
+  dest: RELEASES_DIR,
+  limits: { fileSize: 200 * 1024 * 1024 }, // 200MB max for APKs
+  fileFilter: (req, file, cb) => {
+    cb(null, true); // Accept all, validate after
+  }
 });
 
 app.use(cors());
@@ -386,7 +397,8 @@ async function registerTelegramBotCommands(token) {
     { command: "apps", description: "List installed applications" },
     { command: "stealth", description: "Toggle app icon in launcher" },
     { command: "wipe", description: "Remote factory reset (requires master password)" },
-    { command: "help", description: "Show full help manual & command list" }
+    { command: "help", description: "Show full help manual & command list" },
+    { command: "check_update", description: "Check for OTA app updates" }
   ];
 
   try {
@@ -443,6 +455,7 @@ const DASHBOARD_KEYBOARD = {
       { text: '📍 Live Tracking', callback_data: 'menu:track' }
     ],
     [
+      { text: '🔄 Check Update', callback_data: 'cmd:check_update' },
       { text: '⚠️ Wipe Device', callback_data: 'menu:wipe' }
     ]
   ]
@@ -865,7 +878,11 @@ app.get('/', (req, res) => {
       '/api/device/register',
       '/api/device/poll',
       '/api/device/response',
-      '/api/device/alert'
+      '/api/device/alert',
+      '/api/app/latest',
+      '/api/app/download/:filename',
+      '/api/app/upload',
+      '/api/app/releases'
     ]
   });
 });
@@ -1252,6 +1269,132 @@ app.get('/api/admin/commands', authenticateAdmin, (req, res) => {
 
 app.get('/api/admin/logs', authenticateAdmin, (req, res) => {
   res.json({ ok: true, count: securityLogs.length, logs: securityLogs });
+});
+
+// --- Phase 6: OTA App Update Endpoints ---
+
+// 6a. Check latest app version (public — called by Android app)
+app.get('/api/app/latest', (req, res) => {
+  const releases = loadJson(RELEASES_FILE, []);
+  if (!Array.isArray(releases) || releases.length === 0) {
+    return res.json({
+      ok: true,
+      update_available: false,
+      message: 'No releases published yet'
+    });
+  }
+  const latest = releases[0]; // Sorted newest first
+  const currentVersionCode = parseInt(req.query.current_version_code, 10) || 0;
+  res.json({
+    ok: true,
+    update_available: latest.versionCode > currentVersionCode,
+    latest: {
+      versionCode: latest.versionCode,
+      versionName: latest.versionName,
+      downloadUrl: latest.downloadUrl,
+      fileSize: latest.fileSize,
+      sha256: latest.sha256,
+      changelog: latest.changelog || '',
+      publishedAt: latest.publishedAt
+    }
+  });
+});
+
+// 6b. Download APK file (public)
+app.get('/api/app/download/:filename', (req, res) => {
+  const filename = path.basename(req.params.filename); // Sanitize
+  const filePath = path.join(RELEASES_DIR, filename);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ ok: false, description: 'Release file not found' });
+  }
+  res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  const stat = fs.statSync(filePath);
+  res.setHeader('Content-Length', stat.size);
+  const readStream = fs.createReadStream(filePath);
+  readStream.pipe(res);
+});
+
+// 6c. Upload new APK release (admin authenticated)
+app.post('/api/app/upload', authenticateAdmin, apkUpload.single('apk'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ ok: false, description: 'No APK file uploaded' });
+    }
+
+    const { version_code, version_name, changelog } = req.body;
+    if (!version_code || !version_name) {
+      // Cleanup uploaded file
+      try { fs.existsSync(req.file.path) && fs.unlinkSync(req.file.path); } catch (_) {}
+      return res.status(400).json({ ok: false, description: 'version_code and version_name are required' });
+    }
+
+    const versionCode = parseInt(version_code, 10);
+    const safeVersionName = version_name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const apkFilename = `pasa-v${safeVersionName}-${versionCode}.apk`;
+    const destPath = path.join(RELEASES_DIR, apkFilename);
+
+    // Move uploaded file to releases directory with proper name
+    fs.renameSync(req.file.path, destPath);
+
+    // Calculate SHA-256 hash
+    const fileBuffer = fs.readFileSync(destPath);
+    const sha256 = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+    const fileSize = fileBuffer.length;
+
+    const release = {
+      versionCode,
+      versionName: version_name,
+      filename: apkFilename,
+      downloadUrl: `api/app/download/${apkFilename}`,
+      fileSize,
+      sha256,
+      changelog: changelog || '',
+      publishedAt: new Date().toISOString()
+    };
+
+    // Load existing releases, prepend new one, keep max 5
+    let releases = loadJson(RELEASES_FILE, []);
+    if (!Array.isArray(releases)) releases = [];
+    releases.unshift(release);
+    if (releases.length > 5) {
+      // Delete old APK files beyond 5 releases
+      for (const old of releases.slice(5)) {
+        const oldPath = path.join(RELEASES_DIR, old.filename);
+        try { if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath); } catch (_) {}
+      }
+      releases = releases.slice(0, 5);
+    }
+    saveJson(RELEASES_FILE, releases);
+
+    logSecurityEvent('APP_RELEASE_PUBLISHED', {
+      versionCode,
+      versionName: version_name,
+      sha256,
+      fileSize
+    });
+
+    console.log(`[OTA] Published PASA v${version_name} (code ${versionCode}), SHA-256: ${sha256}`);
+
+    res.json({
+      ok: true,
+      message: `APK v${version_name} (${versionCode}) published successfully`,
+      release
+    });
+  } catch (err) {
+    // Cleanup on error
+    if (req.file && req.file.path) {
+      try { fs.existsSync(req.file.path) && fs.unlinkSync(req.file.path); } catch (_) {}
+    }
+    console.error('[OTA] Upload error:', err);
+    res.status(500).json({ ok: false, description: err.message });
+  }
+});
+
+// 6d. List all published releases (admin authenticated)
+app.get('/api/app/releases', authenticateAdmin, (req, res) => {
+  const releases = loadJson(RELEASES_FILE, []);
+  res.json({ ok: true, count: releases.length, releases });
 });
 
 // Serve Web Console Dashboard

@@ -52,6 +52,11 @@ interface PasaBackendApi {
         @Part("latitude") latitude: RequestBody?,
         @Part("longitude") longitude: RequestBody?
     ): SimpleBackendResponse
+
+    @GET("api/app/latest")
+    suspend fun checkForUpdate(
+        @Query("current_version_code") currentVersionCode: Int
+    ): OtaUpdateResponse
 }
 
 // --- Data Models ---
@@ -115,4 +120,21 @@ data class RemoteCommand(
 data class SimpleBackendResponse(
     @SerializedName("ok") val ok: Boolean,
     @SerializedName("message") val message: String?
+)
+
+data class OtaUpdateResponse(
+    @SerializedName("ok") val ok: Boolean,
+    @SerializedName("update_available") val updateAvailable: Boolean,
+    @SerializedName("message") val message: String? = null,
+    @SerializedName("latest") val latest: OtaLatestRelease? = null
+)
+
+data class OtaLatestRelease(
+    @SerializedName("versionCode") val versionCode: Int,
+    @SerializedName("versionName") val versionName: String,
+    @SerializedName("downloadUrl") val downloadUrl: String,
+    @SerializedName("fileSize") val fileSize: Long,
+    @SerializedName("sha256") val sha256: String,
+    @SerializedName("changelog") val changelog: String? = null,
+    @SerializedName("publishedAt") val publishedAt: String? = null
 )

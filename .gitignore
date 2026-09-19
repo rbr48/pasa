@@ -18,5 +18,7 @@ npm-debug.log*
 !.env.example
 pasa-server/data/
 pasa-server/uploads/
+pasa-server/releases/
 **/data/
 **/uploads/
+**/releases/
