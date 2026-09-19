@@ -47,9 +47,57 @@ const apkUpload = multer({
   }
 });
 
-app.use(cors());
+// CORS: restrict to a configured browser origin (the admin console / landing page).
+// Device API calls come from the Android app (no Origin header) and are unaffected
+// by CORS, so locking this down does not break the agent. Set ALLOWED_ORIGIN in .env;
+// defaults to same-origin only (no cross-origin browser access).
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '';
+app.use(cors({ origin: ALLOWED_ORIGIN ? ALLOWED_ORIGIN.split(',').map(s => s.trim()) : false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.set('trust proxy', 1); // behind nginx; makes req.ip the real client address
+
+// --- Lightweight in-memory rate limiter (no external dependency) ---
+// Suitable for a single-process personal deployment. Keyed by client IP.
+function rateLimit({ windowMs, max, message }) {
+  const hits = new Map(); // ip -> { count, resetAt }
+  // Periodically evict stale buckets so the map cannot grow unbounded.
+  setInterval(() => {
+    const now = Date.now();
+    for (const [ip, rec] of hits) if (now > rec.resetAt) hits.delete(ip);
+  }, windowMs).unref?.();
+
+  return (req, res, next) => {
+    const ip = req.ip || (req.connection && req.connection.remoteAddress) || 'unknown';
+    const now = Date.now();
+    let rec = hits.get(ip);
+    if (!rec || now > rec.resetAt) {
+      rec = { count: 0, resetAt: now + windowMs };
+      hits.set(ip, rec);
+    }
+    rec.count += 1;
+    if (rec.count > max) {
+      const retryAfter = Math.ceil((rec.resetAt - now) / 1000);
+      res.set('Retry-After', String(retryAfter));
+      return res.status(429).json({ ok: false, description: message || 'Too many requests, slow down.' });
+    }
+    next();
+  };
+}
+
+// Brute-force protection on the sensitive auth/enrollment endpoints.
+const adminAuthLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Too many admin auth attempts. Try again later.' });
+const deviceRegisterLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 30, message: 'Too many device registrations from this IP.' });
+
+// Commercial licensing endpoints are disabled by default for personal deployments.
+// Set ENABLE_LICENSING=true in .env to expose the purchase/webhook/lookup routes.
+const LICENSING_ENABLED = String(process.env.ENABLE_LICENSING || '').toLowerCase() === 'true';
+function licensingGuard(req, res, next) {
+  if (!LICENSING_ENABLED) {
+    return res.status(410).json({ ok: false, description: 'Licensing is disabled on this deployment.' });
+  }
+  next();
+}
 
 // --- Persistent Storage Helpers ---
 
@@ -1776,7 +1824,7 @@ app.post('/api/verify-bot', async (req, res) => {
 });
 
 // 3. Register Device with Hardware Key Exchange
-app.post('/api/device/register', (req, res) => {
+app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
   try {
     const { deviceId, deviceName, botToken, ownerChatId, masterPasswordHash, email, publicKeyJwk, attestationChain } = req.body;
     if (!deviceId || !botToken) {
@@ -2150,7 +2198,7 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
 
 // --- Phase 5: Web Console Admin Endpoints ---
 
-app.post('/api/admin/verify', (req, res) => {
+app.post('/api/admin/verify', adminAuthLimiter, (req, res) => {
   const { key } = req.body || {};
   if (!key || typeof key !== 'string') {
     return res.status(400).json({ ok: false, description: 'Access key is required' });
@@ -2327,7 +2375,7 @@ app.get('/api/app/releases', authenticateAdmin, (req, res) => {
 // --- Phase 7: Commercial Licensing & Checkout Endpoints ---
 
 // 7a. Purchase / Generate License Key
-app.post('/api/license/purchase', (req, res) => {
+app.post('/api/license/purchase', licensingGuard, (req, res) => {
   const { email, tier, provider } = req.body || {};
   if (!email || typeof email !== 'string' || !email.includes('@')) {
     return res.status(400).json({ ok: false, description: 'A valid email address is required' });
@@ -2378,7 +2426,7 @@ app.get('/api/license/check', (req, res) => {
 });
 
 // 7d. Lookup License by Key or Email
-app.post('/api/license/lookup', (req, res) => {
+app.post('/api/license/lookup', licensingGuard, (req, res) => {
   const { query } = req.body || {};
   if (!query) {
     return res.status(400).json({ ok: false, description: 'query (email or key) is required' });
@@ -2391,7 +2439,7 @@ app.post('/api/license/lookup', (req, res) => {
 });
 
 // 7e. Payment Webhook Receiver (Stripe / LemonSqueezy / Paddle / bKash / Crypto)
-app.post('/api/webhook/payment', (req, res) => {
+app.post('/api/webhook/payment', licensingGuard, (req, res) => {
   const payload = req.body || {};
   console.log('[Payment Webhook] Event received:', JSON.stringify(payload).substring(0, 150));
   const email = payload.email || payload.customer_email || (payload.data && payload.data.object && payload.data.object.customer_email) || 'customer@pasa.sec';

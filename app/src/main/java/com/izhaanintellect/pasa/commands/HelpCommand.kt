@@ -30,6 +30,7 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/track stop</code> — Deactivate tracking
             • <code>/geofence here 200</code> — Alert if device leaves a safe zone
             • <code>/geofence status|on|off</code> — Manage the safe zone
+            • <code>/smssetup</code> — Enroll TOTP for secure offline SMS commands
 
             📸 <b>Visual & Audio Forensics</b>
             • <code>/snap front</code> — Front selfie camera photo
