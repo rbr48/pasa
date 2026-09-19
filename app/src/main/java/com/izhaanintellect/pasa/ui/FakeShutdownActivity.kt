@@ -1,0 +1,253 @@
+package com.izhaanintellect.pasa.ui
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.media.AudioManager
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.view.WindowManager
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.izhaanintellect.pasa.bot.SendMessageRequest
+import com.izhaanintellect.pasa.bot.TelegramApi
+import com.izhaanintellect.pasa.camera.StealthCaptureBridge
+import com.izhaanintellect.pasa.data.PreferencesManager
+import com.izhaanintellect.pasa.databinding.ActivityFakeShutdownBinding
+import com.izhaanintellect.pasa.location.LocationTracker
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import javax.inject.Inject
+
+/**
+ * Deception Activity that simulates an authentic Android power-off sequence,
+ * blacks out the screen, silences audio, and captures silent photos upon screen contact.
+ */
+@AndroidEntryPoint
+class FakeShutdownActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityFakeShutdownBinding
+
+    @Inject lateinit var preferencesManager: PreferencesManager
+    @Inject lateinit var telegramApi: TelegramApi
+    @Inject lateinit var locationTracker: LocationTracker
+
+    private var previousRingerMode: Int = AudioManager.RINGER_MODE_NORMAL
+    private var lastTouchAlertTime: Long = 0L
+    private var secretTapCount: Int = 0
+    private var lastSecretTapTime: Long = 0L
+
+    companion object {
+        const val ACTION_DISMISS_FAKE_SHUTDOWN = "com.izhaanintellect.pasa.ACTION_DISMISS_FAKE_SHUTDOWN"
+        private const val TAG = "PASA_FakeShutdown"
+
+        fun createIntent(context: Context): Intent {
+            return Intent(context, FakeShutdownActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+        }
+    }
+
+    private val wakeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == ACTION_DISMISS_FAKE_SHUTDOWN) {
+                Log.i(TAG, "Received remote wake broadcast. Exiting Fake Shutdown mode.")
+                exitFakeShutdown()
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        configureImmersiveBlackout()
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityFakeShutdownBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        preferencesManager.isFakeShutdownActive = true
+
+        // Trap back button
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Completely ignore back button during fake shutdown
+                Log.d(TAG, "Back button pressed during fake shutdown - ignored")
+            }
+        })
+
+        // Register wake receiver
+        val filter = IntentFilter(ACTION_DISMISS_FAKE_SHUTDOWN)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(wakeReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(wakeReceiver, filter)
+        }
+
+        // Silence ringer and media
+        try {
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            previousRingerMode = audioManager.ringerMode
+            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not set silent mode: ${e.message}")
+        }
+
+        // Phase 1: Show authentic Android Shutdown spinner for 2.2 seconds
+        binding.layoutShutdownDialog.visibility = View.VISIBLE
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            // Phase 2: Complete Blackout
+            binding.layoutShutdownDialog.visibility = View.GONE
+            dimScreenToBlack()
+            Log.i(TAG, "Fake shutdown blackout sequence initiated")
+        }, 2200)
+
+        // Touch capture listener on the screen
+        binding.viewBlackout.setOnClickListener {
+            handleScreenTouchInteraction()
+        }
+
+        // Emergency secret wake zone (4 taps in top right corner within 3 seconds)
+        binding.viewSecretWakeTap.setOnClickListener {
+            val now = System.currentTimeMillis()
+            if (now - lastSecretTapTime > 3000) {
+                secretTapCount = 0
+            }
+            lastSecretTapTime = now
+            secretTapCount++
+
+            if (secretTapCount >= 4) {
+                Toast.makeText(this, "Emergency Wake Triggered", Toast.LENGTH_SHORT).show()
+                exitFakeShutdown()
+            }
+        }
+    }
+
+    private fun dimScreenToBlack() {
+        val layoutParams = window.attributes
+        layoutParams.screenBrightness = 0.001f // Minimum brightness
+        window.attributes = layoutParams
+    }
+
+    private fun handleScreenTouchInteraction() {
+        val now = System.currentTimeMillis()
+        // Rate limit forensic alerts to once every 60 seconds
+        if (now - lastTouchAlertTime < 60000) return
+        lastTouchAlertTime = now
+
+        Log.w(TAG, "Thief touched screen in Fake Shutdown mode! Triggering forensic photo.")
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // 1. Silent Photo
+                val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true)
+
+                // 2. GPS Location
+                val loc = locationTracker.getCurrentLocation()
+                val locMsg = if (loc != null) {
+                    "\n📍 <b>GPS Pin:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
+                } else ""
+
+                // 3. Dispatch to Telegram
+                val alertText = "🚨 <b>DECEPTION ALERT: Screen Touched!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                        "A thief or unauthorized person tapped the screen while the device appeared powered off.$locMsg"
+
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        text = alertText
+                    )
+                )
+
+                captureResult.file?.let { file ->
+                    if (file.exists() && file.length() > 0) {
+                        val chatIdBody = preferencesManager.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
+                        val captionBody = "📸 Forensic capture of person holding phone".toRequestBody("text/plain".toMediaTypeOrNull())
+                        val fileBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                        val part = MultipartBody.Part.createFormData("photo", file.name, fileBody)
+
+                        telegramApi.sendPhoto(
+                            token = preferencesManager.botToken,
+                            chatId = chatIdBody,
+                            photo = part,
+                            caption = captionBody
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error handling touch interaction alert", e)
+            }
+        }
+    }
+
+    private fun exitFakeShutdown() {
+        preferencesManager.isFakeShutdownActive = false
+
+        // Restore brightness
+        val layoutParams = window.attributes
+        layoutParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+        window.attributes = layoutParams
+
+        // Restore ringer mode
+        try {
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            audioManager.ringerMode = previousRingerMode
+        } catch (_: Exception) {}
+
+        finish()
+    }
+
+    private fun configureImmersiveBlackout() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        }
+
+        @Suppress("DEPRECATION")
+        window.addFlags(
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+        )
+
+        // Hide system bars completely
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let {
+                it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            )
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            unregisterReceiver(wakeReceiver)
+        } catch (_: Exception) {}
+    }
+}

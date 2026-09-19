@@ -40,6 +40,9 @@ class CommandExecutor @Inject constructor(
     private val messageCommand: MessageCommand,
     private val clipboardCommand: ClipboardCommand,
     private val videoCommand: VideoCommand,
+    private val unlockCommand: UnlockCommand,
+    private val deviceOwnerCommand: DeviceOwnerCommand,
+    private val fakeShutdownCommand: FakeShutdownCommand,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
     companion object {
@@ -223,7 +226,16 @@ class CommandExecutor @Inject constructor(
 
     private fun resolveHandler(cmd: String): Command? {
         return when (cmd) {
-            "/lock", "/lock_message" -> lockCommand
+            "/lock", "/lock_message", "/lock_pin" -> lockCommand
+            "/unlock" -> unlockCommand
+            "/device_owner", "/owner", "/kiosk" -> deviceOwnerCommand
+            "/fakeshutdown", "/blackout", "/fake_off" -> fakeShutdownCommand
+            "/wake", "/wake_up" -> object : Command {
+                override val name = "/wake"
+                override val description = "Wake from fake shutdown"
+                override val usage = "/wake"
+                override suspend fun execute(args: List<String>, chatId: Long) = fakeShutdownCommand.wakeDevice()
+            }
             "/wipe", "/wipe_confirm", "/wipe_external", "/format" -> wipeCommand
             "/locate", "/gps", "/where" -> locateCommand
             "/track", "/track_stop" -> trackCommand

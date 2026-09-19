@@ -36,6 +36,39 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
             return dpm.isAdminActive(getComponentName(context))
         }
+
+        fun isDeviceOwner(context: Context): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            return dpm.isDeviceOwnerApp(context.packageName)
+        }
+
+        fun setUninstallBlocked(context: Context, blocked: Boolean): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            return if (dpm.isDeviceOwnerApp(context.packageName)) {
+                try {
+                    dpm.setUninstallBlocked(component, context.packageName, blocked)
+                    true
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to setUninstallBlocked: ${e.message}")
+                    false
+                }
+            } else false
+        }
+
+        fun configureLockTask(context: Context): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            return if (dpm.isDeviceOwnerApp(context.packageName)) {
+                try {
+                    dpm.setLockTaskPackages(component, arrayOf(context.packageName))
+                    true
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to setLockTaskPackages: ${e.message}")
+                    false
+                }
+            } else false
+        }
     }
 
     @EntryPoint

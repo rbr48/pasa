@@ -372,7 +372,11 @@ async function registerTelegramBotCommands(token) {
     { command: "record", description: "Record ambient audio clip" },
     { command: "track", description: "Start continuous live GPS tracking" },
     { command: "track_stop", description: "Stop continuous GPS tracking" },
-    { command: "lock", description: "Lock screen immediately with message" },
+    { command: "lock", description: "Lock screen with custom PIN & emergency message" },
+    { command: "unlock", description: "Dismiss Lost Mode & unlock device screen" },
+    { command: "device_owner", description: "Check Enterprise Device Owner & Kiosk status" },
+    { command: "fakeshutdown", description: "Fake shutdown: blackout screen & silent surveillance" },
+    { command: "wake", description: "Restore device from Fake Shutdown blackout" },
     { command: "ring", description: "Trigger max volume emergency siren" },
     { command: "ring_stop", description: "Silence active emergency siren" },
     { command: "message", description: "Display urgent alert banner on device screen" },
@@ -537,11 +541,19 @@ const SUBMENUS = {
     }
   },
   'menu:lock': {
-    text: '🔒 <b>Remote Device Lockout</b>\nImmediately lock screen using Device Admin privileges:',
+    text: '🔒 <b>Device Defense & Lockout Modes</b>\n━━━━━━━━━━━━━━━━━━━━\n<b>Strategy A: Custom PIN Lost Mode Guard</b>\n• <code>/lock &lt;pin&gt; &lt;message&gt;</code> — Immediate lock with custom emergency PIN keypad. 3 failed attempts take tamper selfie & send GPS.\n• <code>/unlock</code> — Dismisses Lost Mode & restores normal device.\n\n<b>Strategy B: Enterprise Device Owner Kiosk</b>\n• <code>/device_owner</code> — Check if app has Device Owner privileges (hardware kiosk lock task mode, freezes navigation buttons, blocks uninstall).\n\n<b>Strategy C: Fake Shutdown / Blackout Deception</b>\n• <code>/fakeshutdown</code> — Simulates Android power-off, turns screen black, mutes audio, streams GPS & covert front photos on touch.\n• <code>/wake</code> — Restores normal screen & sound.\n\n<i>Choose an action below:</i>',
     keyboard: {
       inline_keyboard: [
         [
-          { text: '🔒 Lock Screen Now', callback_data: 'cmd:lock' }
+          { text: '🔒 Lock Device Now', callback_data: 'cmd:lock' },
+          { text: '🔓 Remote Unlock', callback_data: 'cmd:unlock' }
+        ],
+        [
+          { text: '🕶️ Fake Shutdown', callback_data: 'cmd:fakeshutdown' },
+          { text: '☀️ Wake from Blackout', callback_data: 'cmd:wake' }
+        ],
+        [
+          { text: '🛡️ Device Owner Check', callback_data: 'cmd:device_owner' }
         ],
         [
           { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }

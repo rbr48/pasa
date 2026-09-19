@@ -41,6 +41,10 @@ class PreferencesManager @Inject constructor(
         private const val KEY_SERVER_URL = "server_url"
         private const val KEY_DEVICE_ID = "device_id"
         private const val KEY_USE_BACKEND = "use_backend"
+        private const val KEY_ACTIVE_LOCK_PIN = "active_lock_pin"
+        private const val KEY_LOST_MODE_ACTIVE = "lost_mode_active"
+        private const val KEY_LOST_MODE_MESSAGE = "lost_mode_message"
+        private const val KEY_FAKE_SHUTDOWN_ACTIVE = "fake_shutdown_active"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
 
@@ -135,6 +139,24 @@ class PreferencesManager @Inject constructor(
     var otpTimestamp: Long
         get() = prefs.getLong(KEY_OTP_TIMESTAMP, 0L)
         set(value) = prefs.edit().putLong(KEY_OTP_TIMESTAMP, value).apply()
+
+    // --- Lost Mode & Deception ---
+
+    var activeLockPin: String?
+        get() = prefs.getString(KEY_ACTIVE_LOCK_PIN, null)
+        set(value) = prefs.edit().putString(KEY_ACTIVE_LOCK_PIN, value).apply()
+
+    var isLostModeActive: Boolean
+        get() = prefs.getBoolean(KEY_LOST_MODE_ACTIVE, false)
+        set(value) = prefs.edit().putBoolean(KEY_LOST_MODE_ACTIVE, value).apply()
+
+    var lostModeMessage: String
+        get() = prefs.getString(KEY_LOST_MODE_MESSAGE, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_LOST_MODE_MESSAGE, value).apply()
+
+    var isFakeShutdownActive: Boolean
+        get() = prefs.getBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, false)
+        set(value) = prefs.edit().putBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, value).apply()
 
     // --- Detection Counters ---
 

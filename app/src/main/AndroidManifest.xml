@@ -100,6 +100,17 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.Pasa.StealthCapture" />
 
+        <!-- Fake Shutdown & Blackout Deception Activity -->
+        <activity
+            android:name=".ui.FakeShutdownActivity"
+            android:exported="false"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:showForAllUsers="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Pasa.Alert" />
+
         <!-- PASA Foreground Guardian Service -->
         <service
             android:name=".service.PasaService"

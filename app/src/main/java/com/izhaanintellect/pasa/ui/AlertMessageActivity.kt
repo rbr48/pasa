@@ -2,39 +2,83 @@ package com.izhaanintellect.pasa.ui
 
 import android.app.KeyguardManager
 import android.app.NotificationManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
+import com.izhaanintellect.pasa.bot.SendMessageRequest
+import com.izhaanintellect.pasa.bot.TelegramApi
+import com.izhaanintellect.pasa.camera.StealthCaptureBridge
+import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.databinding.ActivityAlertMessageBinding
+import com.izhaanintellect.pasa.location.LocationTracker
+import com.izhaanintellect.pasa.security.AuthManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.regex.Pattern
+import javax.inject.Inject
 
 /**
  * Full-screen lockscreen activity for displaying urgent owner messages and lost-device alerts.
- * Configured with showWhenLocked and turnScreenOn to pop up prominently over keyguard.
+ * Features custom PIN entry, tamper photo capture on failed PIN attempts, and Device Owner Kiosk Mode.
  */
+@AndroidEntryPoint
 class AlertMessageActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAlertMessageBinding
 
+    @Inject lateinit var preferencesManager: PreferencesManager
+    @Inject lateinit var authManager: AuthManager
+    @Inject lateinit var telegramApi: TelegramApi
+    @Inject lateinit var locationTracker: LocationTracker
+
+    private var enteredPin: StringBuilder = StringBuilder()
+    private var failedPinAttempts = 0
+    private var isKioskActive = false
+
     companion object {
         const val EXTRA_MESSAGE = "extra_message"
         const val EXTRA_PHONE = "extra_phone"
+        const val EXTRA_ENFORCE_PIN = "extra_enforce_pin"
+        const val ACTION_DISMISS_LOST_MODE = "com.izhaanintellect.pasa.ACTION_DISMISS_LOST_MODE"
         private const val NOTIFICATION_ID = 2001
+        private const val TAG = "PASA_AlertActivity"
 
-        fun createIntent(context: Context, message: String, phone: String? = null): Intent {
+        fun createIntent(context: Context, message: String, phone: String? = null, enforcePin: Boolean = false): Intent {
             return Intent(context, AlertMessageActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 putExtra(EXTRA_MESSAGE, message)
+                putExtra(EXTRA_ENFORCE_PIN, enforcePin)
                 phone?.let { putExtra(EXTRA_PHONE, it) }
+            }
+        }
+    }
+
+    private val unlockReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == ACTION_DISMISS_LOST_MODE) {
+                Log.i(TAG, "Received remote unlock broadcast, dismissing Lost Mode Guard")
+                exitLostMode()
             }
         }
     }
@@ -46,8 +90,43 @@ class AlertMessageActivity : AppCompatActivity() {
         binding = ActivityAlertMessageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val messageText = intent.getStringExtra(EXTRA_MESSAGE) ?: "Please return this device to its owner."
+        // Prevent back button from dismissing Lost Mode
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // If lost mode is active, prevent back button
+                if (preferencesManager.isLostModeActive) {
+                    Toast.makeText(this@AlertMessageActivity, "Enter PIN to unlock", Toast.LENGTH_SHORT).show()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
+
+        // Register remote unlock listener
+        val filter = IntentFilter(ACTION_DISMISS_LOST_MODE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(unlockReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(unlockReceiver, filter)
+        }
+
+        // Check if Device Owner Kiosk mode is available
+        if (PasaDeviceAdmin.isDeviceOwner(this)) {
+            try {
+                PasaDeviceAdmin.configureLockTask(this)
+                startLockTask()
+                isKioskActive = true
+                Log.i(TAG, "Device Owner Kiosk Mode (Lock Task) started successfully")
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not start lock task: ${e.message}")
+            }
+        }
+
+        val messageText = intent.getStringExtra(EXTRA_MESSAGE)
+            ?: preferencesManager.lostModeMessage.ifBlank { "Please return this device to its owner." }
         val explicitPhone = intent.getStringExtra(EXTRA_PHONE)
+        val enforcePin = intent.getBooleanExtra(EXTRA_ENFORCE_PIN, false) || preferencesManager.isLostModeActive
 
         binding.tvMessageContent.text = messageText
 
@@ -67,21 +146,172 @@ class AlertMessageActivity : AppCompatActivity() {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     }
                     startActivity(dialIntent)
-                } catch (e: Exception) {
-                    // Fallback if dialer fails
-                }
+                } catch (_: Exception) {}
             }
         } else {
             binding.btnCallOwner.visibility = View.GONE
         }
 
-        binding.btnDismiss.setOnClickListener {
-            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
-            nm?.cancel(NOTIFICATION_ID)
-            finish()
+        if (enforcePin || !preferencesManager.activeLockPin.isNullOrBlank()) {
+            binding.llPinSection.visibility = View.VISIBLE
+            binding.btnDismiss.visibility = View.GONE
+            setupKeypad()
+        } else {
+            binding.llPinSection.visibility = View.GONE
+            binding.btnDismiss.visibility = View.VISIBLE
+            binding.btnDismiss.setOnClickListener {
+                exitLostMode()
+            }
         }
 
         playAlertChime()
+    }
+
+    private fun setupKeypad() {
+        updatePinDisplay()
+
+        val numButtons = listOf(
+            binding.btnKey0 to "0",
+            binding.btnKey1 to "1",
+            binding.btnKey2 to "2",
+            binding.btnKey3 to "3",
+            binding.btnKey4 to "4",
+            binding.btnKey5 to "5",
+            binding.btnKey6 to "6",
+            binding.btnKey7 to "7",
+            binding.btnKey8 to "8",
+            binding.btnKey9 to "9"
+        )
+
+        for ((btn, digit) in numButtons) {
+            btn.setOnClickListener {
+                if (enteredPin.length < 8) {
+                    enteredPin.append(digit)
+                    updatePinDisplay()
+                    binding.tvPinError.visibility = View.INVISIBLE
+                }
+            }
+        }
+
+        binding.btnKeyDelete.setOnClickListener {
+            if (enteredPin.isNotEmpty()) {
+                enteredPin.deleteCharAt(enteredPin.length - 1)
+                updatePinDisplay()
+                binding.tvPinError.visibility = View.INVISIBLE
+            }
+        }
+
+        binding.btnKeyUnlock.setOnClickListener {
+            verifyEnteredPin()
+        }
+    }
+
+    private fun updatePinDisplay() {
+        if (enteredPin.isEmpty()) {
+            binding.tvPinDisplay.text = "• • • •"
+            binding.tvPinDisplay.setTextColor(android.graphics.Color.parseColor("#475569"))
+        } else {
+            val dots = "• ".repeat(enteredPin.length).trim()
+            binding.tvPinDisplay.text = dots
+            binding.tvPinDisplay.setTextColor(android.graphics.Color.parseColor("#38BDF8"))
+        }
+    }
+
+    private fun verifyEnteredPin() {
+        val pin = enteredPin.toString()
+        val activePin = preferencesManager.activeLockPin
+
+        val isPinCorrect = (!activePin.isNullOrBlank() && pin == activePin) ||
+                authManager.verifyMasterPassword(pin)
+
+        if (isPinCorrect) {
+            Log.i(TAG, "PIN verified successfully. Unlocking Lost Mode.")
+            Toast.makeText(this, "✅ Device Unlocked", Toast.LENGTH_SHORT).show()
+            exitLostMode()
+        } else {
+            failedPinAttempts++
+            binding.tvPinError.visibility = View.VISIBLE
+            binding.tvPinError.text = "❌ Incorrect PIN ($failedPinAttempts/3 attempts)"
+            enteredPin.clear()
+            updatePinDisplay()
+            playAlertChime()
+
+            if (failedPinAttempts >= 3) {
+                triggerFailedPinDeterrent()
+                failedPinAttempts = 0
+            }
+        }
+    }
+
+    private fun triggerFailedPinDeterrent() {
+        Log.w(TAG, "3 failed PIN attempts entered! Triggering stealth front-camera capture.")
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // 1. Silent Photo Capture
+                val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true)
+
+                // 2. Location
+                val loc = locationTracker.getCurrentLocation()
+
+                val locMsg = if (loc != null) {
+                    "\n📍 <b>Location:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
+                } else ""
+
+                // 3. Telegram Alert
+                val alertText = "🚨 <b>TAMPER ALERT: Failed PIN Attempts!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                        "An unauthorized user attempted 3 incorrect PINs on the Lost Mode screen.$locMsg"
+
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        text = alertText
+                    )
+                )
+
+                captureResult.file?.let { photoFile ->
+                    if (photoFile.exists() && photoFile.length() > 0) {
+                        val chatIdBody = preferencesManager.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
+                        val captionBody = "🚨 Intruder selfie (Incorrect PIN entered)".toRequestBody("text/plain".toMediaTypeOrNull())
+                        val fileBody = photoFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                        val part = MultipartBody.Part.createFormData("photo", photoFile.name, fileBody)
+
+                        telegramApi.sendPhoto(
+                            token = preferencesManager.botToken,
+                            chatId = chatIdBody,
+                            photo = part,
+                            caption = captionBody
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error handling failed PIN deterrent alert", e)
+            }
+        }
+    }
+
+    private fun exitLostMode() {
+        try {
+            if (isKioskActive) {
+                stopLockTask()
+                isKioskActive = false
+            }
+        } catch (_: Exception) {}
+
+        preferencesManager.isLostModeActive = false
+        preferencesManager.activeLockPin = null
+        preferencesManager.lostModeMessage = ""
+
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        nm?.cancel(NOTIFICATION_ID)
+        finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            unregisterReceiver(unlockReceiver)
+        } catch (_: Exception) {}
     }
 
     private fun configureLockScreenFlags() {
