@@ -1,5 +1,15 @@
 [
   {
+    "versionCode": 9,
+    "versionName": "3.0.3",
+    "filename": "pasa-v3.0.3.apk",
+    "downloadUrl": "api/app/download/pasa-v3.0.3.apk",
+    "fileSize": 18967424,
+    "sha256": "b74f77b867ca498e1de5ac6e0f8fd9d528548111ddaf85202bc8217ebe519d39",
+    "changelog": "v3.0.3: Covert Accessibility screen capture engine (/screenshot, /screen_burst, /screenrecord in Device Owner), 7-day money-back guarantee, and full zero-telemetry sovereign privacy policy.",
+    "publishedAt": "2026-09-20T04:28:24.036490+00:00"
+  },
+  {
     "versionCode": 6,
     "versionName": "3.0.0",
     "filename": "pasa-v3.0.0.apk",
