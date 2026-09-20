@@ -27,7 +27,7 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
     return `PASA-${cleanTier}-${seg1}-${seg2}-${seg3}`;
   }
 
-  function createLicense(email, tier = 'PRO_ANNUAL', maxDevices = 1) {
+  function createLicense(email, tier = 'PRO_ANNUAL', maxDevices = 1, meta = {}) {
     const key = generateLicenseKey(tier);
     const now = Date.now();
     let expiresAt = null;
@@ -35,7 +35,7 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
       expiresAt = now + 7 * 24 * 60 * 60 * 1000; // 7 days
     } else if (tier === 'PRO_ANNUAL') {
       expiresAt = now + 365 * 24 * 60 * 60 * 1000; // 1 year
-    } else if (tier === 'PRO_LIFETIME') {
+    } else if (tier === 'PRO_LIFETIME' || tier === 'PRO_ENTERPRISE') {
       expiresAt = now + 100 * 365 * 24 * 60 * 60 * 1000; // 100 years
     }
 
@@ -47,10 +47,14 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
       activatedDevices: [],
       createdAt: now,
       expiresAt,
-      status: 'ACTIVE'
+      status: 'ACTIVE',
+      paymentMethod: meta.paymentMethod || 'BINANCE_PAY',
+      binancePayId: meta.binancePayId || '756303714',
+      binanceTxId: meta.binanceTxId || '',
+      nickname: 'RBR48'
     };
     saveJson(licensesFile, licenses);
-    logSecurityEvent('LICENSE_CREATED', { key, email, tier, maxDevices });
+    logSecurityEvent('LICENSE_CREATED', { key, email, tier, maxDevices, paymentMethod: 'BINANCE_PAY', binanceTxId: meta.binanceTxId });
     return licenses[key];
   }
 
@@ -157,11 +161,15 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
           email: lic.email,
           tier: lic.tier,
           maxDevices: lic.maxDevices,
-          activatedCount: lic.activatedDevices.length,
+          activatedCount: lic.activatedDevices ? lic.activatedDevices.length : 0,
           status: lic.status,
           daysLeft,
           expiresAt: lic.expiresAt,
-          createdAt: lic.createdAt
+          createdAt: lic.createdAt,
+          paymentMethod: lic.paymentMethod || 'BINANCE_PAY',
+          binancePayId: lic.binancePayId || '756303714',
+          binanceTxId: lic.binanceTxId || '',
+          nickname: lic.nickname || 'RBR48'
         };
       }
     }

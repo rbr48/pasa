@@ -47,7 +47,6 @@ class EvidenceUploadWorker @AssistedInject constructor(
             val workRequest = OneTimeWorkRequestBuilder<EvidenceUploadWorker>()
                 .setConstraints(constraints)
                 .setInputData(workDataOf(KEY_UPLOAD_ID to uploadId))
-                .setInitialDelay(15, TimeUnit.SECONDS)
                 .setBackoffCriteria(
                     BackoffPolicy.EXPONENTIAL,
                     15,

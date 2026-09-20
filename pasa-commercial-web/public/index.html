@@ -344,7 +344,7 @@
         <button onclick="scrollToLedger()" class="text-[12px] text-apple-grayText hover:text-white transition-colors hidden sm:inline-block">
           Verify Key
         </button>
-        <a href="/api/app/download/pasa-v3.0.0.apk" class="apple-btn-pill text-xs px-3.5 py-1.5 flex items-center gap-1.5">
+        <a href="/api/app/download/pasa-latest.apk" class="apple-btn-pill text-xs px-3.5 py-1.5 flex items-center gap-1.5 apk-download-link">
           <span>Download</span>
         </a>
       </div>
@@ -375,7 +375,7 @@
         <div class="hero-reveal hero-reveal-1 mb-6">
           <span class="hero-badge">
             <span class="hero-badge-dot"></span>
-            v3.0.0 — All Systems Operational
+            <span id="heroVersionBadge">v3.0.2 — All Systems Operational</span>
           </span>
         </div>
 
@@ -391,12 +391,13 @@
 
         <!-- Action buttons -->
         <div class="hero-reveal hero-reveal-4 flex flex-col sm:flex-row items-center lg:items-start gap-3.5 mb-10">
-          <a href="/api/app/download/pasa-v3.0.0.apk" class="apple-btn-pill px-7 py-3.5 text-sm flex items-center justify-center gap-2.5 shadow-[0_0_30px_rgba(0,113,227,0.3)] w-full sm:w-auto">
+          <a href="/api/app/download/pasa-latest.apk" class="apple-btn-pill px-7 py-3.5 text-sm flex items-center justify-center gap-2.5 shadow-[0_0_30px_rgba(0,113,227,0.3)] w-full sm:w-auto apk-download-link">
             <i data-lucide="download" class="w-4 h-4"></i>
             <span>Download APK — Free</span>
           </a>
-          <button onclick="openCheckout('PRO_LIFETIME', 29.99)" class="apple-btn-secondary px-6 py-3.5 text-sm flex items-center justify-center gap-2 w-full sm:w-auto">
-            <span>Unlock Pro &bull; $29.99</span>
+          <button onclick="openCheckout('PRO_LIFETIME', 29.99)" class="apple-btn-secondary px-6 py-3.5 text-sm flex items-center justify-center gap-2 w-full sm:w-auto hover:border-[#F0B90B]/50 transition-colors">
+            <svg class="w-4 h-4 fill-[#F0B90B]" viewBox="0 0 24 24"><path d="M12 1.5l3.2 3.2-5.7 5.7-3.2-3.2L12 1.5zm6.8 6.8l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm-13.6 0l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm6.8 6.8l5.7 5.7-3.2 3.2-5.7-5.7 3.2-3.2zm0-5.4l2.7 2.7-2.7 2.7-2.7-2.7 2.7-2.7z"/></svg>
+            <span>Unlock Pro &bull; $29.99 USDT</span>
           </button>
         </div>
 
@@ -848,12 +849,15 @@
   <section id="pricing" class="py-24 px-4 sm:px-6 max-w-6xl mx-auto">
     
     <div class="text-center mb-16">
-      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blueLight mb-2">Sovereign Licenses</p>
+      <p class="text-xs font-semibold uppercase tracking-widest text-[#F0B90B] mb-2 flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5 fill-[#F0B90B]" viewBox="0 0 24 24"><path d="M12 1.5l3.2 3.2-5.7 5.7-3.2-3.2L12 1.5zm6.8 6.8l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm-13.6 0l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm6.8 6.8l5.7 5.7-3.2 3.2-5.7-5.7 3.2-3.2zm0-5.4l2.7 2.7-2.7 2.7-2.7-2.7 2.7-2.7z"/></svg>
+        <span>Binance Pay Exclusive</span>
+      </p>
       <h2 class="text-4xl sm:text-6xl font-semibold tracking-tight text-white">
         Simple, transparent pricing.
       </h2>
       <p class="text-base text-apple-grayText mt-4 max-w-xl mx-auto">
-        No recurrent monthly subscriptions. Immediate automated license generation.
+        No recurrent monthly subscriptions. Immediate automated license key generation via Binance Pay.
       </p>
     </div>
 
@@ -880,38 +884,40 @@
             <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> Community GitHub docs</li>
           </ul>
         </div>
-        <a href="/api/app/download/pasa-v3.0.0.apk" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium block">
+        <a href="/api/app/download/pasa-latest.apk" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium block apk-download-link">
           Download Free APK
         </a>
       </div>
 
       <!-- Tier 2: Pro Lifetime (Hero Card) -->
-      <div class="apple-card p-8 flex flex-col justify-between border-2 border-apple-blue relative shadow-[0_0_50px_rgba(0,113,227,0.25)] bg-gradient-to-b from-[#1a2336] to-[#161617]">
-        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-apple-blue text-white text-[11px] font-medium tracking-wide shadow-md">
-          Most Popular
+      <div class="apple-card p-8 flex flex-col justify-between border-2 border-[#F0B90B]/60 relative shadow-[0_0_50px_rgba(240,185,11,0.2)] bg-gradient-to-b from-[#1a1c24] to-[#161617]">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[#F0B90B] text-black text-[11px] font-semibold tracking-wide shadow-md flex items-center gap-1">
+          <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 1.5l3.2 3.2-5.7 5.7-3.2-3.2L12 1.5zm6.8 6.8l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm-13.6 0l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm6.8 6.8l5.7 5.7-3.2 3.2-5.7-5.7 3.2-3.2zm0-5.4l2.7 2.7-2.7 2.7-2.7-2.7 2.7-2.7z"/></svg>
+          <span>Most Popular &bull; Binance Pay</span>
         </div>
         <div>
           <div class="flex items-center justify-between mb-4 mt-2">
-            <span class="text-xs font-semibold uppercase text-apple-blueLight">Pro Lifetime</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-apple-blue/20 text-apple-blueLight font-medium">3 Devices</span>
+            <span class="text-xs font-semibold uppercase text-[#F0B90B]">Pro Lifetime</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-[#F0B90B]/15 text-[#F0B90B] font-medium">3 Devices</span>
           </div>
           <div class="flex items-baseline gap-1 mb-3">
             <span class="text-5xl font-bold text-white">$29.99</span>
-            <span class="text-xs text-apple-grayText">/ one-time payment</span>
+            <span class="text-xs text-apple-grayText">USDT / one-time</span>
           </div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
             Perpetual sovereign defense. Protect your primary phone and family devices forever with all future updates.
           </p>
           <ul class="space-y-3 text-xs text-white mb-8">
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> <b>3 Device Nodes</b> simultaneously armed</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> <b>Offline Cellular SMS</b> emergency fallback</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> <b>Fake Shutdown Blackout</b> trap mode</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> <b>Autonomous Anti-Snatch</b> kinetic sensor</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> <b>Lifetime OTA updates</b> &amp; priority routing</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-[#F0B90B]"></i> <b>3 Device Nodes</b> simultaneously armed</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-[#F0B90B]"></i> <b>Offline Cellular SMS</b> emergency fallback</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-[#F0B90B]"></i> <b>Fake Shutdown Blackout</b> trap mode</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-[#F0B90B]"></i> <b>Autonomous Anti-Snatch</b> kinetic sensor</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-[#F0B90B]"></i> <b>Lifetime OTA updates</b> &amp; priority routing</li>
           </ul>
         </div>
-        <button onclick="openCheckout('PRO_LIFETIME', 29.99)" class="apple-btn-pill w-full py-3.5 text-xs text-center font-medium shadow-[0_0_20px_rgba(0,113,227,0.4)]">
-          Buy Pro Lifetime
+        <button onclick="openCheckout('PRO_LIFETIME', 29.99)" class="w-full py-3.5 text-xs text-center font-semibold rounded-full bg-[#F0B90B] hover:bg-[#dfaa05] text-black shadow-[0_0_25px_rgba(240,185,11,0.35)] transition-all flex items-center justify-center gap-1.5">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 1.5l3.2 3.2-5.7 5.7-3.2-3.2L12 1.5zm6.8 6.8l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm-13.6 0l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm6.8 6.8l5.7 5.7-3.2 3.2-5.7-5.7 3.2-3.2zm0-5.4l2.7 2.7-2.7 2.7-2.7-2.7 2.7-2.7z"/></svg>
+          <span>Pay with Binance Pay ($29.99 USDT)</span>
         </button>
       </div>
 
@@ -924,7 +930,7 @@
           </div>
           <div class="flex items-baseline gap-1 mb-3">
             <span class="text-4xl font-bold text-white">$79.99</span>
-            <span class="text-xs text-apple-grayText">/ one-time payment</span>
+            <span class="text-xs text-apple-grayText">USDT / one-time</span>
           </div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
             For executive teams, secure facilities, and multi-device fleet deployments requiring Knox-grade ADB provisioning.
@@ -936,8 +942,9 @@
             <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-white"></i> Dedicated deployment engineering</li>
           </ul>
         </div>
-        <button onclick="openCheckout('PRO_ENTERPRISE', 79.99)" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium">
-          Deploy Fleet License
+        <button onclick="openCheckout('PRO_ENTERPRISE', 79.99)" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium hover:border-[#F0B90B]/50 transition-colors flex items-center justify-center gap-1.5">
+          <svg class="w-3.5 h-3.5 fill-[#F0B90B]" viewBox="0 0 24 24"><path d="M12 1.5l3.2 3.2-5.7 5.7-3.2-3.2L12 1.5zm6.8 6.8l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm-13.6 0l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm6.8 6.8l5.7 5.7-3.2 3.2-5.7-5.7 3.2-3.2zm0-5.4l2.7 2.7-2.7 2.7-2.7-2.7 2.7-2.7z"/></svg>
+          <span>Pay with Binance Pay ($79.99 USDT)</span>
         </button>
       </div>
 
@@ -971,24 +978,24 @@
     <div class="apple-card p-8 flex flex-col md:flex-row items-center justify-between gap-6 border-white/[0.12]">
       <div>
         <span class="text-xs font-semibold uppercase text-apple-blueLight tracking-wider mb-1 block">Official Production Release</span>
-        <h3 class="text-xl font-semibold text-white tracking-tight mb-2">PASA Sentinel for Android v3.0.0</h3>
+        <h3 id="releaseCardTitle" class="text-xl font-semibold text-white tracking-tight mb-2">PASA Sentinel for Android v3.0.2</h3>
         <div class="flex flex-wrap items-center gap-3 text-xs text-apple-grayText font-mono">
-          <span>Build: <b class="text-white">#6 (v3.0.0)</b></span>
+          <span>Build: <b id="releaseBuildNum" class="text-white">#8 (v3.0.2)</b></span>
           <span>&bull;</span>
-          <span>Size: <b class="text-white">18.08 MB</b></span>
+          <span>Size: <b id="releaseFileSize" class="text-white">18.09 MB</b></span>
           <span>&bull;</span>
           <span>Min SDK: <b class="text-white">Android 8.0</b></span>
           <span>&bull;</span>
-          <span>Target: <b class="text-white">Android 15</b></span>
+          <span>Target: <b class="text-white">Android 16 (API 36)</b></span>
         </div>
         <div class="mt-3 flex items-center gap-2">
           <span class="text-xs text-apple-grayText">SHA-256:</span>
-          <code id="sha256Hash" class="text-[11px] font-mono text-apple-grayText bg-black/50 px-2 py-0.5 rounded border border-white/5 break-all">e6683918812380d5df5e391300fe2ecb8edd92455e0094df061032ebbfa0641e</code>
+          <code id="sha256Hash" class="text-[11px] font-mono text-apple-grayText bg-black/50 px-2 py-0.5 rounded border border-white/5 break-all">d1de9a5ad1dcea2e500166e119f9b9cba6dddd9029bccec8d66ca5158b10dfc6</code>
           <button onclick="copySha256()" class="text-xs text-apple-blueLight hover:underline font-medium">Copy</button>
         </div>
       </div>
       <div class="flex flex-col sm:flex-row md:flex-col gap-3 w-full md:w-auto">
-        <a href="/api/app/download/pasa-v3.0.0.apk" class="apple-btn-pill px-6 py-3 text-xs text-center font-medium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,113,227,0.35)]">
+        <a id="releaseDownloadBtn" href="/api/app/download/pasa-latest.apk" class="apple-btn-pill px-6 py-3 text-xs text-center font-medium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,113,227,0.35)] apk-download-link">
           <i data-lucide="download" class="w-4 h-4"></i>
           <span>Download APK</span>
         </a>
@@ -1016,7 +1023,7 @@
         <div>
           <h5 class="text-white font-medium mb-3 text-xs">Product</h5>
           <ul class="space-y-2">
-            <li><a href="/api/app/download/pasa-v3.0.0.apk" class="hover:text-white transition-colors">Download APK (v3.0.0)</a></li>
+            <li><a href="/api/app/download/pasa-latest.apk" class="hover:text-white transition-colors apk-download-link">Download APK (v3.0.2)</a></li>
             <li><a href="#overview" class="hover:text-white transition-colors">Overview</a></li>
             <li><a href="#features" class="hover:text-white transition-colors">Security Features</a></li>
             <li><a href="#compare" class="hover:text-white transition-colors">Compare Defense Systems</a></li>
@@ -1065,45 +1072,113 @@
     </div>
   </footer>
 
-  <!-- ================= APPLE STORE-STYLE CHECKOUT MODAL ================= -->
-  <div id="checkoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-2xl bg-black/75">
-    <div class="apple-card max-w-md w-full p-8 border-white/[0.15] shadow-2xl relative">
+  <!-- ================= APPLE STORE-STYLE CHECKOUT MODAL (BINANCE PAY EXCLUSIVE) ================= -->
+  <div id="checkoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-2xl bg-black/80 overflow-y-auto">
+    <div class="apple-card max-w-lg w-full p-6 sm:p-8 border-white/[0.15] shadow-2xl relative my-8">
       
       <!-- Close Button -->
-      <button onclick="closeCheckout()" class="absolute top-5 right-5 text-apple-grayText hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+      <button onclick="closeCheckout()" class="absolute top-5 right-5 text-apple-grayText hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors z-10">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
       <!-- Step 1: Purchase Form -->
       <div id="checkoutStepForm">
-        <div class="text-xs font-semibold uppercase tracking-wider text-apple-blueLight mb-1">Instant Activation</div>
-        <h3 id="checkoutPlanTitle" class="text-2xl font-semibold text-white tracking-tight mb-2">Pro Lifetime License</h3>
-        <p class="text-xs text-apple-grayText mb-6">Enter your email to receive your cryptographically signed license key:</p>
+        <!-- Binance Pay Header Badge -->
+        <div class="flex items-center gap-2 mb-3">
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0B90B]/15 border border-[#F0B90B]/30 text-[#F0B90B] text-xs font-semibold tracking-wide">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 1.5l3.2 3.2-5.7 5.7-3.2-3.2L12 1.5zm6.8 6.8l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm-13.6 0l3.2 3.2-3.2 3.2-3.2-3.2 3.2-3.2zm6.8 6.8l5.7 5.7-3.2 3.2-5.7-5.7 3.2-3.2zm0-5.4l2.7 2.7-2.7 2.7-2.7-2.7 2.7-2.7z"/></svg>
+            <span>BINANCE PAY</span>
+          </div>
+          <span class="text-xs text-apple-grayText">Official Merchant Gate</span>
+        </div>
 
+        <h3 id="checkoutPlanTitle" class="text-2xl font-semibold text-white tracking-tight mb-1">Pro Lifetime License</h3>
+        <p class="text-xs text-apple-grayText mb-5">Pay securely via Binance App to receive your instant cryptographic license key:</p>
+
+        <!-- Binance Pay Interactive Card -->
+        <div class="bg-[#121316] rounded-2xl p-4 sm:p-5 border border-white/[0.1] mb-5">
+          <div class="flex flex-col sm:flex-row items-center gap-5">
+            <!-- QR Code Container -->
+            <div class="relative bg-black rounded-xl p-2 border border-white/10 flex-shrink-0 shadow-lg group text-center">
+              <img src="/binance-pay-qr.jpg" alt="Binance Pay QR Code" class="w-36 h-36 rounded-lg object-contain mx-auto">
+              <div class="text-[10px] text-center text-apple-grayText mt-1.5 flex items-center justify-center gap-1">
+                <i data-lucide="scan" class="w-3 h-3 text-[#F0B90B]"></i>
+                <span>Scan via Binance App</span>
+              </div>
+            </div>
+
+            <!-- Credentials & Amount Details -->
+            <div class="space-y-3 flex-1 w-full">
+              <!-- Binance Pay ID -->
+              <div class="bg-black/60 rounded-xl p-3 border border-white/5">
+                <div class="text-[11px] text-apple-grayText uppercase tracking-wider mb-1 flex items-center justify-between">
+                  <span>Binance Pay ID / UID</span>
+                  <span class="text-[10px] text-apple-green font-medium flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> Verified</span>
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-lg sm:text-xl font-mono font-bold text-[#F0B90B] tracking-wider select-all" id="binanceIdDisplay">756303714</span>
+                  <button type="button" onclick="copyBinanceId()" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-colors flex items-center gap-1.5">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span id="copyIdBtnText">Copy</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Nickname & Currency -->
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-black/40 rounded-lg p-2.5 border border-white/5">
+                  <div class="text-[10px] text-apple-grayText mb-0.5">Payee Nickname</div>
+                  <div class="text-white font-medium font-mono">RBR48</div>
+                </div>
+                <div class="bg-black/40 rounded-lg p-2.5 border border-white/5">
+                  <div class="text-[10px] text-apple-grayText mb-0.5">Accepted Currency</div>
+                  <div class="text-[#F0B90B] font-medium font-mono">USDT / BUSD</div>
+                </div>
+              </div>
+
+              <!-- Price Due -->
+              <div class="flex items-center justify-between pt-1 text-xs">
+                <span class="text-apple-grayText">Total Due:</span>
+                <span id="checkoutPriceTag" class="text-2xl font-bold text-white font-mono">$29.99 USDT</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini Guide Steps -->
+          <div class="mt-4 pt-3 border-t border-white/5 text-[11px] text-apple-grayText space-y-1">
+            <div class="flex items-start gap-1.5">
+              <span class="text-[#F0B90B] font-bold">1.</span>
+              <span>Open <b>Binance App</b> &gt; Tap <b>Pay</b> (or scan QR icon top-right).</span>
+            </div>
+            <div class="flex items-start gap-1.5">
+              <span class="text-[#F0B90B] font-bold">2.</span>
+              <span>Scan QR above OR enter Pay ID <b>756303714</b> (Nickname: <b>RBR48</b>).</span>
+            </div>
+            <div class="flex items-start gap-1.5">
+              <span class="text-[#F0B90B] font-bold">3.</span>
+              <span>Send exact amount, then enter your email and optional Order ID below.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form: Email & Order ID -->
         <form id="purchaseForm" onsubmit="handlePurchaseSubmit(event)" class="space-y-4">
           <input type="hidden" id="selectedTier" value="PRO_LIFETIME">
 
           <div>
-            <label class="block text-xs font-medium text-neutral-300 mb-1.5">Recipient Email Address</label>
-            <input type="email" id="customerEmail" required placeholder="operator@domain.com" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-apple-blue transition-colors">
+            <label class="block text-xs font-medium text-neutral-300 mb-1.5">Your Recipient Email Address <span class="text-apple-red">*</span></label>
+            <input type="email" id="customerEmail" required placeholder="operator@domain.com" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#F0B90B] transition-colors">
+            <span class="text-[10px] text-apple-grayText mt-1 block">Your cryptographically signed license key will be bound to this email.</span>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-neutral-300 mb-1.5">Payment Method</label>
-            <select id="paymentProvider" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-apple-blue transition-colors">
-              <option value="stripe">Credit / Debit Card (Stripe Instant)</option>
-              <option value="crypto">Cryptocurrency (BTC / XMR / USDT)</option>
-              <option value="bkash">Local MFS (bKash / Nagad / Rocket)</option>
-            </select>
+            <label class="block text-xs font-medium text-neutral-300 mb-1.5">Binance Order ID / Transaction ID <span class="text-neutral-500">(Optional for instant check)</span></label>
+            <input type="text" id="binanceTxInput" placeholder="e.g. 29481948104810481" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-xs font-mono text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#F0B90B] transition-colors">
           </div>
 
-          <div class="pt-3 flex items-center justify-between text-xs border-t border-white/[0.08]">
-            <span class="text-apple-grayText">Total Due (One-Time):</span>
-            <span id="checkoutPriceTag" class="text-2xl font-bold text-white font-mono">$29.99</span>
-          </div>
-
-          <button type="submit" id="submitOrderBtn" class="apple-btn-pill w-full py-3.5 text-xs font-medium shadow-[0_0_20px_rgba(0,113,227,0.35)]">
-            Authorize &amp; Issue License Key
+          <button type="submit" id="submitOrderBtn" class="w-full py-3.5 px-4 rounded-full bg-[#F0B90B] hover:bg-[#dfaa05] text-black font-semibold text-xs transition-all shadow-[0_0_25px_rgba(240,185,11,0.35)] flex items-center justify-center gap-2">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>I Have Paid — Verify &amp; Issue License Key</span>
           </button>
         </form>
       </div>
@@ -1113,12 +1188,12 @@
         <div class="w-12 h-12 rounded-full bg-apple-green/15 border border-apple-green/40 flex items-center justify-center text-apple-green mx-auto mb-4">
           <i data-lucide="check" class="w-6 h-6"></i>
         </div>
-        <div class="text-xs font-semibold uppercase tracking-wider text-apple-green mb-1">License Provisioned</div>
-        <h3 class="text-xl font-semibold text-white tracking-tight mb-2">Key Issued Successfully</h3>
-        <p class="text-xs text-apple-grayText mb-6">Activate this key directly in Telegram or paste it inside the Android app:</p>
+        <div class="text-xs font-semibold uppercase tracking-wider text-apple-green mb-1">Binance Payment Verified</div>
+        <h3 class="text-xl font-semibold text-white tracking-tight mb-2">License Provisioned Successfully</h3>
+        <p class="text-xs text-apple-grayText mb-6">Activate this key directly in Telegram or paste it inside the PASA Android app:</p>
 
         <div class="p-4 rounded-xl bg-black/80 border border-white/10 mb-6">
-          <div class="text-[11px] text-apple-grayText uppercase mb-1">Sovereign Key</div>
+          <div class="text-[11px] text-apple-grayText uppercase mb-1">Your Cryptographic License Key</div>
           <code id="generatedKeyDisplay" class="text-base font-mono font-bold text-apple-blueLight select-all">PASA-LIFE-XXXX-XXXX-XXXX</code>
         </div>
 
@@ -1141,7 +1216,37 @@
   <script>
     if (window.lucide) lucide.createIcons();
 
-    // 1. Scenario Tab & Hardware Display Switcher
+    // 1. Live Release Metadata Auto-Loader
+    async function loadLatestReleaseMetadata() {
+      try {
+        const res = await fetch('/api/app/latest');
+        const data = await res.json();
+        if (data.ok && data.latest) {
+          const l = data.latest;
+          // Update all download buttons
+          document.querySelectorAll('.apk-download-link').forEach(a => {
+            a.href = l.downloadUrl || '/api/app/download/pasa-latest.apk';
+          });
+          // Update hero badge
+          const heroBadge = document.getElementById('heroVersionBadge');
+          if (heroBadge) heroBadge.textContent = `v${l.versionName} — All Systems Operational`;
+          // Update binary card
+          const cardTitle = document.getElementById('releaseCardTitle');
+          if (cardTitle) cardTitle.textContent = `PASA Sentinel for Android v${l.versionName}`;
+          const buildNum = document.getElementById('releaseBuildNum');
+          if (buildNum) buildNum.textContent = `#${l.versionCode} (v${l.versionName})`;
+          const fileSize = document.getElementById('releaseFileSize');
+          if (fileSize) fileSize.textContent = `${(l.fileSize / (1024 * 1024)).toFixed(2)} MB`;
+          const sha = document.getElementById('sha256Hash');
+          if (sha) sha.textContent = l.sha256;
+        }
+      } catch (e) {
+        console.warn('Could not load latest release metadata dynamically:', e.message);
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadLatestReleaseMetadata);
+
+    // 2. Scenario Tab & Hardware Display Switcher
     function triggerScenario(type) {
       const screen = document.getElementById('phoneScreen');
       const shieldContainer = document.getElementById('shieldContainer');
@@ -1172,7 +1277,7 @@
         incidentBadge.textContent = 'Defense Active';
         incidentBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-apple-red/10 text-apple-red font-medium';
         botMessageLine.innerHTML = '&gt; <b>ALARM:</b> Abrupt 2.85G delta detected at 14:02:44. Screen locked via Device Owner.';
-        botSubLine.innerHTML = '&gt; Siren dispatched at 100% SPL. Covert selfie captured. GPS pin (23.7771, 90.3994) pushed to Telegram.';
+        botSubLine.innerHTML = '&gt; Siren dispatched at 100% SPL. Covert selfie captured. GPS pin pushed to Telegram.';
       } else if (type === 'sms') {
         document.getElementById('tabSms').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-apple-blue/20 text-white border border-apple-blue';
         screen.className = 'w-full h-full rounded-[44px] bg-black overflow-hidden relative border-2 border-apple-blue flex flex-col justify-between p-6 transition-all duration-300';
@@ -1222,10 +1327,10 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // 2. Checkout Modal Engine
+    // 3. Binance Pay Checkout Engine
     function openCheckout(tier, price) {
       document.getElementById('selectedTier').value = tier;
-      document.getElementById('checkoutPriceTag').textContent = '$' + price.toFixed(2);
+      document.getElementById('checkoutPriceTag').textContent = '$' + price.toFixed(2) + ' USDT';
       let title = 'Pro Lifetime License (3 Devices)';
       if (tier === 'PRO_ENTERPRISE') title = 'Fleet / Enterprise License (10 Devices)';
       if (tier === 'COMMUNITY_TRIAL') title = 'Community Trial License (1 Device)';
@@ -1240,21 +1345,33 @@
       document.getElementById('checkoutModal').classList.add('hidden');
     }
 
+    function copyBinanceId() {
+      const id = document.getElementById('binanceIdDisplay').textContent.trim();
+      navigator.clipboard.writeText(id).then(() => {
+        const btn = document.getElementById('copyIdBtnText');
+        if (btn) {
+          const original = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = original; }, 2000);
+        }
+      });
+    }
+
     async function handlePurchaseSubmit(e) {
       e.preventDefault();
-      const email = document.getElementById('customerEmail').value;
+      const email = document.getElementById('customerEmail').value.trim();
       const tier = document.getElementById('selectedTier').value;
-      const provider = document.getElementById('paymentProvider').value;
+      const binanceTxId = document.getElementById('binanceTxInput').value.trim();
       const btn = document.getElementById('submitOrderBtn');
 
       btn.disabled = true;
-      btn.innerHTML = '<span>Issuing cryptographic key...</span>';
+      btn.innerHTML = '<span>Verifying payment &amp; issuing key...</span>';
 
       try {
         const res = await fetch('/api/license/purchase', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, tier, provider })
+          body: JSON.stringify({ email, tier, binanceTxId })
         });
         const data = await res.json();
         if (data.ok && data.license) {
@@ -1270,7 +1387,8 @@
         alert('Network connection error: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span>Authorize &amp; Issue License Key</span>';
+        btn.innerHTML = '<i data-lucide="shield-check" class="w-4 h-4"></i><span>I Have Paid — Verify &amp; Issue License Key</span>';
+        if (window.lucide) lucide.createIcons();
       }
     }
 
@@ -1293,7 +1411,7 @@
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // 3. Cryptographic Ledger Checker
+    // 4. Cryptographic Ledger Checker
     async function lookupLicense() {
       const query = document.getElementById('lookupQuery').value.trim();
       const resDiv = document.getElementById('checkerResult');
@@ -1315,6 +1433,7 @@
         if (data.ok && data.license) {
           const lic = data.license;
           const daysText = lic.daysLeft > 9000 ? 'Perpetual Lifetime' : (lic.daysLeft + ' days remaining');
+          const txLine = lic.binanceTxId ? `<div><b>Binance TX/Order:</b> <code class="text-white">${lic.binanceTxId}</code></div>` : '';
           resDiv.className = 'mt-6 p-5 rounded-2xl text-xs font-mono text-left bg-apple-green/10 border border-apple-green/30 text-neutral-200';
           resDiv.innerHTML = `
             <div class="font-semibold text-apple-green mb-2 flex items-center gap-1.5">
@@ -1322,8 +1441,10 @@
               <span>Active Sovereign License Verified</span>
             </div>
             <div class="space-y-1.5">
-              <div><b>Key:</b> <code class="text-apple-blueLight font-semibold">${lic.key}</code></div>
+              <div><b>Key:</b> <code class="text-apple-blueLight font-semibold select-all">${lic.key}</code></div>
               <div><b>Tier:</b> ${lic.tier} (${daysText})</div>
+              <div><b>Payment Gate:</b> <span class="text-[#F0B90B] font-semibold">${lic.paymentMethod || 'BINANCE_PAY'}</span> (ID: ${lic.binancePayId || '756303714'}, Nickname: ${lic.nickname || 'RBR48'})</div>
+              ${txLine}
               <div><b>Node Allocations:</b> ${lic.activatedCount} of ${lic.maxDevices} devices linked</div>
               <div><b>Status:</b> <span class="text-apple-green font-medium">${lic.status}</span></div>
             </div>

