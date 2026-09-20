@@ -1068,6 +1068,30 @@
             <p class="text-apple-grayText font-sans text-xs">Generates TOTP secret key for offline airgapped SMS commands: <span class="text-white">PASA &lt;totp&gt; /locate</span></p>
           </div>
 
+          <div onclick="copyTextCmd('/screenshot')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/screenshot</span>
+              <span class="text-[10px] text-apple-blueLight font-sans uppercase tracking-wider">Silent Screenshot</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Silently captures full device screen via native Accessibility engine with <b>zero popups or system notifications</b>. Delivered directly to chat.</p>
+          </div>
+
+          <div onclick="copyTextCmd('/screen_burst 5')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/screen_burst <span class="text-white font-normal text-xs">[frames=5]</span></span>
+              <span class="text-[10px] text-apple-orange font-sans uppercase tracking-wider">Screen Burst</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Samples 3–10 rapid screen frames over a 10s window and generates a composited multi-frame grid image revealing thief screen actions.</p>
+          </div>
+
+          <div onclick="copyTextCmd('/screenrecord 15')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/screenrecord <span class="text-white font-normal text-xs">[seconds=15]</span></span>
+              <span class="text-[10px] text-apple-red font-sans uppercase tracking-wider">Device Owner Video</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Silently records device screen as an HD MP4 video via Device Owner shell (5–60s) and streams recording straight to Telegram.</p>
+          </div>
+
         </div>
       </div>
     </div>

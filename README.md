@@ -163,6 +163,9 @@ Send these commands directly to your Telegram bot:
 |---|---|---|
 | **Live Location** | `/locate` or `/gps` | Wakes GNSS hardware, acquires direct satellite lock, returns precision Google Maps pin, altitude, speed, and accuracy. |
 | **Forensic Camera** | `/snap` or `/photo [front\|rear]` | Captures high-res photo with **zero screen wake, zero preview, and zero shutter sound**. Delivered directly to Telegram. |
+| **Silent Screenshot** | `/screenshot` or `/screen` | Silently captures full device screen via AccessibilityService with zero popups or system notifications. |
+| **Screen Burst** | `/screen_burst [frames=5]` | Samples 3–10 rapid screen frames over 10s and delivers a composited multi-frame grid image showing thief activity. |
+| **Screen Recording** | `/screenrecord [seconds=15]` | Silently records screen as HD MP4 video via Device Owner shell (5–60s) and uploads to chat. |
 | **Ambient Wiretap** | `/record [seconds]` | Covertly activates microphone and streams audio file to Telegram (default 30s, up to 300s). |
 | **Stealth Video** | `/video [front\|rear] [sec]` | Records stealth video without viewfinder preview and streams MP4 to chat. |
 | **Emergency Siren** | `/ring` or `/siren [on\|off]` | Blasts maximum volume 100% SPL alarm, overriding silent switch and Do Not Disturb (DND). |
