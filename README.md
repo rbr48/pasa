@@ -1,4 +1,4 @@
-# 🛡️ PASA Sentinel (Physical Anti-Theft Security Agent)
+# 🛡️ PASA Sentinel (Private Android Security Agent)
 
 > **Next-Generation Sovereign Mobile Defense & Covert Anti-Theft Agent for Android (8.0 – 16).**  
 > *Zero Google Play dependencies. Air-gapped cellular SMS fallback. Knox-grade Device Owner permanence. Dual-channel Telegram C2.*

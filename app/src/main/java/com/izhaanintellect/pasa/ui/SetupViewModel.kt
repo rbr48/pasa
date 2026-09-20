@@ -213,7 +213,7 @@ class SetupViewModel @Inject constructor(
                     request = SendMessageRequest(
                         chatId = preferencesManager.ownerChatIdLong,
                         text = """
-                            🛡️ <b>PASA (Private Android Security Agent) ONLINE</b>
+                            🛡️ <b>PASA Sentinel (Private Android Security Agent) ONLINE</b>
                             ━━━━━━━━━━━━━━━━━━━━
                             ✅ Device linked: <code>${preferencesManager.deviceId}</code>
                             🌐 Backend Control Plane: Connected

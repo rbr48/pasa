@@ -2,7 +2,7 @@
 
 **Effective Date:** September 20, 2026  
 **Last Updated:** September 20, 2026  
-**Application:** PASA Sentinel (Physical Anti-Theft Security Agent)  
+**Application:** PASA Sentinel (Private Android Security Agent)  
 **Provider:** Izhaan Intellect & The PASA Sentinel Security Team ("Provider", "Developer", "We", "Us")  
 
 ---

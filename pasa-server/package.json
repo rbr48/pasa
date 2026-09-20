@@ -1,7 +1,7 @@
 {
   "name": "pasa-server",
   "version": "1.0.0",
-  "description": "PASA (Private Android Security Agent) VPS Control Plane & Telegram Gateway",
+  "description": "PASA Sentinel (Private Android Security Agent) VPS Control Plane & Telegram Gateway",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

@@ -1,6 +1,6 @@
 # 📦 PASA Sentinel APK Releases
 
-This directory hosts verified release binaries of **PASA Sentinel (Physical Anti-Theft Security Agent)**.
+This directory hosts verified release binaries of **PASA Sentinel (Private Android Security Agent)**.
 
 ---
 

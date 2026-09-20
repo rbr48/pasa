@@ -955,7 +955,7 @@ function buildDashboardText(chatId, activeDev) {
     : '⚠️ No device registered yet. Complete setup on your Android phone.';
 
   return `
-🛡️ <b>PASA (Private Android Security Agent)</b>
+🛡️ <b>PASA Sentinel (Private Android Security Agent)</b>
 <i>Control Plane: Ed25519 Hardened Gateway v2.0</i>
 ━━━━━━━━━━━━━━━━━━━━
 <b>Your Chat ID:</b> <code>${chatId}</code>
@@ -2011,7 +2011,7 @@ app.get('/', (req, res) => {
     return res.json({
       status: 'ok',
       service: 'pasa-server',
-      message: 'PASA (Private Android Security Agent) Control Plane is Online',
+      message: 'PASA Sentinel (Private Android Security Agent) Control Plane is Online',
       version: '2.3.0',
       cryptoSigningKeyId: SERVER_KEY_ID,
       uptime: Math.floor(process.uptime()),

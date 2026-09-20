@@ -33,7 +33,7 @@ class PasaApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        Log.i(TAG, "PASA (Private Android Security Agent) starting up...")
+        Log.i(TAG, "PASA Sentinel (Private Android Security Agent) starting up...")
         createNotificationChannels()
 
         if (preferencesManager.isSetupComplete) {

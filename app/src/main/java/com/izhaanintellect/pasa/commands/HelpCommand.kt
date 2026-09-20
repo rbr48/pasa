@@ -15,7 +15,7 @@ class HelpCommand @Inject constructor() : Command {
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
         val helpText = """
-            🛡️ <b>PASA (Private Android Security Agent)</b>
+            🛡️ <b>PASA Sentinel (Private Android Security Agent)</b>
             ━━━━━━━━━━━━━━━━━━━━
             
             🔐 <b>Emergency Containment</b>
