@@ -1,5 +1,15 @@
 [
   {
+    "versionCode": 14,
+    "versionName": "3.0.8",
+    "releaseDate": "2026-09-20",
+    "fileName": "pasa-v3.0.8.apk",
+    "sha256": "8c610378c2fd9d0aa3acd098bbd6457e62e8c44f6e95b422144c82ec81ba8296",
+    "size": 18983921,
+    "mandatory": false,
+    "releaseNotes": "v3.0.8: Dual-Engine screen recording: Engine 1 (Device Owner 60fps hardware) + Engine 2 (Accessibility Service MediaCodec/MediaMuxer MP4 video encoder — NO PC/ADB required)."
+  },
+  {
     "versionCode": 13,
     "versionName": "3.0.7",
     "releaseDate": "2026-09-20",
