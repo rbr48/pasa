@@ -95,34 +95,35 @@ class SmsCommandReceiver : BroadcastReceiver() {
             return
         }
 
-        val parts = rawText.split("\\s+".toRegex())
-        if (parts.size < 3) {
-            Log.w(TAG, "Malformed SMS command: Insufficient arguments")
+        val bodyWithoutPrefix = rawText.replaceFirst("^(?i)PASA[:\\s]+".toRegex(), "").trim()
+        val parts = bodyWithoutPrefix.split("\\s+".toRegex())
+        if (parts.size < 2) {
+            Log.w(TAG, "Malformed SMS command: Insufficient arguments after prefix. Raw: $rawText")
             return
         }
 
-        val providedCredential = parts[1]
-        val rawCmd = parts[2].lowercase()
+        val providedCredential = parts[0].trim()
+        val rawCmd = parts[1].lowercase().trim()
         val command = if (rawCmd.startsWith("/")) rawCmd else "/$rawCmd"
-        val args = parts.drop(3)
+        val args = parts.drop(2)
 
-        // Authenticate: prefer a TOTP code (never exposes the master password over
-        // SMS). Fall back to the master password only if TOTP is not yet enrolled,
-        // so existing setups keep working until the owner runs /smssetup.
+        // Authenticate: Support BOTH TOTP (with expanded 3-step +/- 90s latency tolerance)
+        // AND Master Password fallback at all times so owners are never locked out.
         val totpSecret = preferencesManager.smsTotpSecret
         var usedMasterPassword = false
 
+        val isTotpValid = totpSecret.isNotBlank() && Totp.verify(totpSecret, providedCredential, window = 3)
+        val isMasterPassValid = authManager.verifyMasterPassword(providedCredential)
+
         val authorized = when {
-            totpSecret.isNotBlank() -> Totp.verify(totpSecret, providedCredential).also {
-                if (!it) Log.w(TAG, "SMS Command Rejected: invalid TOTP code")
-            }
-            authManager.verifyMasterPassword(providedCredential) -> {
-                Log.w(TAG, "SMS authenticated with master password (deprecated). Run /smssetup to switch to TOTP.")
+            isTotpValid -> true
+            isMasterPassValid -> {
+                Log.i(TAG, "SMS Command authenticated via Master Password")
                 usedMasterPassword = true
                 true
             }
             else -> {
-                Log.w(TAG, "SMS Command Rejected: invalid credential")
+                Log.w(TAG, "SMS Command Rejected: invalid credential from $senderPhone")
                 false
             }
         }
@@ -135,7 +136,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
         recordSuccess(senderPhone)
         Log.i(TAG, "SMS Command Verified: $command ${args.joinToString(" ")}")
 
-        val warningSuffix = if (usedMasterPassword) "\n[Notice: SMS pwd auth is deprecated. Use /smssetup for TOTP]" else ""
+        val warningSuffix = if (usedMasterPassword && totpSecret.isBlank()) "\n[Tip: Run /smssetup in Telegram to enroll in 6-digit TOTP]" else ""
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {

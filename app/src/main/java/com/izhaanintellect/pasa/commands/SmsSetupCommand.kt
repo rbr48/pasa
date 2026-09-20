@@ -37,23 +37,37 @@ class SmsSetupCommand @Inject constructor(
 
         val account = preferencesManager.ownerChatId.ifBlank { "owner" }
         val uri = Totp.otpauthUri(secret, account = account, issuer = "PASA")
+        val qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+                java.net.URLEncoder.encode(uri, "UTF-8")
+        val chunkedSecret = secret.chunked(4).joinToString(" ")
 
-        val header = if (generated) "🔐 <b>SMS TOTP enrolled</b>" else "🔐 <b>SMS TOTP (existing)</b>"
+        val header = if (generated) "🔐 <b>SMS TOTP Enrolled</b>" else "🔐 <b>SMS TOTP Active</b>"
         return CommandResult(
             success = true,
             message = """
                 $header
                 ━━━━━━━━━━━━━━━━━━━━
-                Add this secret to an authenticator app (Google Authenticator, Aegis, etc.):
+                <b>Offline GSM SMS Command Backdoor</b>
 
-                🔑 <b>Secret:</b> <code>$secret</code>
-                🔗 <b>otpauth URI:</b>
-                <code>$uri</code>
+                🔑 <b>Secret Key (for Authenticator):</b>
+                <code>$secret</code>
+                <i>Formatted:</i> <code>$chunkedSecret</code>
 
-                Then send offline SMS commands as:
-                <code>PASA &lt;6-digit-code&gt; /locate</code>
+                📷 <b>Authenticator QR Code:</b>
+                <a href="$qrUrl">👉 Tap here to open / scan QR Code</a>
 
-                ⚠️ This replaces sending your master password over SMS. Keep the secret private; run <code>/smssetup reset</code> to rotate it.
+                ━━━━━━━━━━━━━━━━━━━━
+                📲 <b>How to Send an SMS Command:</b>
+                Send an SMS from any phone to this device's SIM number:
+                <code>PASA &lt;6-digit-code-or-MasterPassword&gt; /unlock</code>
+
+                <b>Supported Commands:</b>
+                • <code>PASA 839201 /unlock</code> (or your Master Password)
+                • <code>PASA 839201 /locate</code> (returns Google Maps link)
+                • <code>PASA 839201 /ring</code> (sounds emergency siren)
+                • <code>PASA 839201 /lock</code> (engages lost mode kiosk)
+
+                <i>Run <code>/smssetup reset</code> if you ever wish to rotate your TOTP secret.</i>
             """.trimIndent()
         )
     }
