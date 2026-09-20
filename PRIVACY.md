@@ -56,15 +56,15 @@ We stand 100% behind our software. Every commercial license purchase (**Pro Life
 * **Refund Method:** **100% full refund in USDT** transferred directly back to your Binance Pay ID / Binance UID within 24 hours. No hidden deductions, no network fees withheld.
 
 ### How to Claim:
-1. Message the official Telegram support bot: **[@Pas_agent_bot](https://t.me/Pas_agent_bot)** or email **support@izhaanintellect.fun**.
-2. Provide your **Binance Pay ID / UID** and your **Order ID or License Key**.
-3. Your refund will be processed back to your Binance account within 24 hours.
+1. Message our Customer Support on WhatsApp: **[+880 1762-033445](https://wa.me/8801762033445)** or email **support@izhaanintellect.fun**.
+2. Provide your **Binance Pay ID / UID** or bKash number and your **Order ID or License Key**.
+3. Your refund will be processed back to your account within 24 hours.
 
 ---
 
 ## 💳 5. Commercial Data Handling
 
-* **Data Collected at Checkout:** Email address, chosen license tier, and Binance Transaction ID / Order ID.
+* **Data Collected at Checkout:** Email address, chosen license tier, and Transaction ID / Order ID.
 * **Purpose:** Cryptographically generating your signed license key (`PASA-LIFE-XXXX-XXXX`) and processing warranty/guarantee claims.
 * **Data Isolation:** Licensing records are maintained in an isolated, encrypted ledger. They are never sold, rented, or linked to device hardware serials (IMEI/IMSI).
 
@@ -77,5 +77,5 @@ In accordance with sovereign computing standards and global privacy principles (
 * De-provisioning Device Owner privilege and uninstalling the application immediately wipes all cryptographic tokens, local database caches, and TOTP secrets from your device hardware.
 
 **Operator Inquiries:**  
-* Official Telegram: [@Pas_agent_bot](https://t.me/Pas_agent_bot)  
+* WhatsApp Business: [+880 1762-033445](https://wa.me/8801762033445)  
 * Email: [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun)

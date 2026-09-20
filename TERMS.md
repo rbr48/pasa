@@ -107,5 +107,5 @@ You agree to defend, indemnify, and hold harmless Izhaan Intellect, its director
 
 For legal inquiries, licensing compliance, or law enforcement coordination:
 * **Email:** [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun)
-* **Official Telegram Support:** [@Pas_agent_bot](https://t.me/Pas_agent_bot)
+* **WhatsApp Business Support:** [+880 1762-033445](https://wa.me/8801762033445)
 * **Website:** [https://pasa.izhaanintellect.fun/terms](https://pasa.izhaanintellect.fun/terms)

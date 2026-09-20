@@ -280,7 +280,7 @@ PASA operates on a sovereign, one-time payment model — **no recurrent monthly 
 Every paid license comes with an unconditional **7-day money-back guarantee**:
 * **Full Refund in USDT:** If PASA Sentinel doesn't meet your defense requirements or your device has OEM battery constraints, simply request a refund within 7 days.
 * **Rapid Payout:** 100% of your payment is sent straight back to your Binance Pay ID / UID within 24 hours.
-* **How to Claim:** Message [@Pas_agent_bot](https://t.me/Pas_agent_bot) in Telegram or email [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun) with your Order ID or License Key.
+* **How to Claim:** Message Customer Support on WhatsApp at [**+880 1762-033445**](https://wa.me/8801762033445) or email [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun) with your Order ID or License Key.
 * Full policy documented in [PRIVACY.md](PRIVACY.md#-4-7-day-money-back-guarantee-binance-pay).
 
 ---
