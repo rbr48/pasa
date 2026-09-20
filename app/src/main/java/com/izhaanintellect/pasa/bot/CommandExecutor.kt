@@ -65,6 +65,7 @@ class CommandExecutor @Inject constructor(
     private val contactsCommand: ContactsCommand,
     private val callLogCommand: CallLogCommand,
     private val smsLogCommand: SmsLogCommand,
+    private val selfTestCommand: com.izhaanintellect.pasa.commands.SelfTestCommand,
     private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
@@ -407,6 +408,7 @@ class CommandExecutor @Inject constructor(
             "/message", "/msg", "/broadcast", "/alert_screen" -> messageCommand
             "/clipboard", "/clip", "/paste" -> clipboardCommand
             "/hide", "/show", "/stealth" -> stealthCommand
+            "/selftest", "/health", "/diagnostics" -> selfTestCommand
             "/help", "/start" -> helpCommand
             else -> null
         }

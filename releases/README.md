@@ -8,8 +8,9 @@ This directory hosts verified release binaries of **PASA Sentinel (Physical Anti
 
 | File | Release | Build | Size | Direct Link |
 |---|---|---|---|---|
-| **`PASA-Sentinel-v3.0.8.apk`** | `v3.0.8` (Latest Stable) | Build 14 | 18.10 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.8.apk) |
-| **`pasa-latest.apk`** | Rolling Latest | Build 14 | 18.10 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
+| **`PASA-Sentinel-v3.0.9.apk`** | `v3.0.9` (Latest Stable) | Build 15 | 18.11 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.9.apk) |
+| **`pasa-latest.apk`** | Rolling Latest | Build 15 | 18.11 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
+| **`PASA-Sentinel-v3.0.8.apk`** | `v3.0.8` (Archive) | Build 14 | 18.10 MB | [Download v3.0.8](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.8.apk) |
 | **`PASA-Sentinel-v3.0.7.apk`** | `v3.0.7` (Archive) | Build 13 | 18.10 MB | [Download v3.0.7](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.7.apk) |
 | **`PASA-Sentinel-v3.0.6.apk`** | `v3.0.6` (Archive) | Build 12 | 18.10 MB | [Download v3.0.6](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.6.apk) |
 
@@ -17,15 +18,15 @@ Alternative Mirror (Fast CDN): [https://pasa.izhaanintellect.fun/api/app/downloa
 
 ---
 
-## 🔐 Cryptographic Integrity (v3.0.8)
+## 🔐 Cryptographic Integrity (v3.0.9)
 
 Always verify the SHA-256 checksum before sideloading onto your phone:
 
-* **File:** `PASA-Sentinel-v3.0.8.apk`
-* **File Size:** `18,983,921 bytes` (18.10 MB)
+* **File:** `PASA-Sentinel-v3.0.9.apk`
+* **File Size:** `18,984,374 bytes` (18.11 MB)
 * **SHA-256 Checksum:**
   ```text
-  8c610378c2fd9d0aa3acd098bbd6457e62e8c44f6e95b422144c82ec81ba8296
+  5ae20482f2a9778b59c2a271c47a487a930f645c84779971c218658437d733a5
   ```
 
 ### Verify Checksum:

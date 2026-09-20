@@ -1,5 +1,15 @@
 [
   {
+    "versionCode": 15,
+    "versionName": "3.0.9",
+    "releaseDate": "2026-09-20",
+    "fileName": "pasa-v3.0.9.apk",
+    "sha256": "5ae20482f2a9778b59c2a271c47a487a930f645c84779971c218658437d733a5",
+    "size": 18984374,
+    "mandatory": false,
+    "releaseNotes": "v3.0.9: 9.8 Rating Elevation Suite: Automated 9-subsystem Telegram health audit (/selftest, /health), OEM autostart survival wizard (MIUI/HyperOS, Samsung, Huawei, Oppo, Vivo, OnePlus), in-app Accessibility onboarding badge, and instant covert front-camera mugshot on physical SIM ejection."
+  },
+  {
     "versionCode": 14,
     "versionName": "3.0.8",
     "releaseDate": "2026-09-20",

@@ -68,6 +68,7 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/network</code> — WiFi SSID, IP, cellular signal
             • <code>/apps</code> — List installed applications
             • <code>/app_uninstall &lt;package&gt;</code> — Uninstall application
+            • <code>/selftest</code> — Comprehensive 9-point security &amp; sensor audit
             • <code>/check_update</code> — Check for OTA app updates
             • <code>/update_confirm</code> — Install pending OTA update
             • <code>/hide</code> / <code>/show</code> — Toggle app icon in launcher

@@ -325,6 +325,24 @@
                     android:text="Allow Display Over Other Apps"
                     android:textColor="#00E5FF" />
 
+                <Button
+                    android:id="@+id/btnAccessibilityPermission"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Enable Accessibility Service (Screenshots/Video)"
+                    android:textColor="#00E5FF" />
+
+                <Button
+                    android:id="@+id/btnOemAutostart"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="OEM Autostart &amp; Anti-Kill Whitelist"
+                    android:textColor="#00E5FF" />
+
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/switchStealth"
                     android:layout_width="match_parent"
@@ -504,7 +522,35 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Disable Battery Optimization (OEM Whitelist)"
+                        android:text="Disable Battery Optimization (Standard)"
+                        android:textColor="#00E5FF" />
+
+                    <!-- Accessibility Screen Engine Status -->
+                    <TextView
+                        android:id="@+id/tvDashAccessibility"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="👁️ Screen Capture: Checking..."
+                        android:textColor="#E2E8F0"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btnDashAccessibility"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Enable Accessibility Service"
+                        android:textColor="#00E5FF" />
+
+                    <Button
+                        android:id="@+id/btnDashOemAutostart"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="OEM Autostart &amp; Anti-Kill Whitelist"
                         android:textColor="#00E5FF" />
 
                     <!-- Hardware Keystore Status -->

@@ -38,6 +38,7 @@ class SetupActivity : AppCompatActivity() {
 
     @Inject lateinit var preferencesManager: PreferencesManager
     @Inject lateinit var ringCommand: com.izhaanintellect.pasa.commands.RingCommand
+    @Inject lateinit var screenshotManager: com.izhaanintellect.pasa.camera.ScreenshotManager
 
     private lateinit var binding: ActivitySetupBinding
     private val viewModel: SetupViewModel by viewModels()
@@ -238,6 +239,22 @@ class SetupActivity : AppCompatActivity() {
             }
         }
 
+        // Enable Accessibility Service (Screenshots / Silent Video)
+        binding.btnAccessibilityPermission.setOnClickListener {
+            try {
+                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                startActivity(intent)
+                Toast.makeText(this, "Enable 'PASA Sentinel' in Downloaded / Installed apps", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, "Open Settings > Accessibility > PASA Sentinel", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        // Enable OEM Autostart & Anti-Kill Whitelist
+        binding.btnOemAutostart.setOnClickListener {
+            com.izhaanintellect.pasa.util.OemProtectionHelper.openOemAutostartSettings(this)
+        }
+
         // Activate Button
         binding.btnActivate.setOnClickListener {
             activatePasa()
@@ -404,6 +421,19 @@ class SetupActivity : AppCompatActivity() {
         binding.btnDashReconfigure.setOnClickListener {
             promptReconfigure()
         }
+
+        binding.btnDashAccessibility.setOnClickListener {
+            try {
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                Toast.makeText(this, "Toggle ON 'PASA Sentinel'", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, "Open Settings > Accessibility > PASA Sentinel", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        binding.btnDashOemAutostart.setOnClickListener {
+            com.izhaanintellect.pasa.util.OemProtectionHelper.openOemAutostartSettings(this)
+        }
     }
 
     private fun updateDashboardUI() {
@@ -438,6 +468,15 @@ class SetupActivity : AppCompatActivity() {
         }
 
         binding.tvDashKeystore.text = "🔐 Hardware Keystore: ${viewModel.getSecurityLevel()} hardware key"
+
+        val hasA11y = screenshotManager.isAccessibilityServiceEnabled()
+        if (hasA11y) {
+            binding.tvDashAccessibility.text = "👁️ Screen Capture: ✅ Accessibility Active (Screenshots & Video Ready)"
+            binding.btnDashAccessibility.visibility = android.view.View.GONE
+        } else {
+            binding.tvDashAccessibility.text = "👁️ Screen Capture: ❌ Disabled (Enable to record screen without ADB)"
+            binding.btnDashAccessibility.visibility = android.view.View.VISIBLE
+        }
     }
 
     private fun promptReconfigure() {
@@ -482,12 +521,17 @@ class SetupActivity : AppCompatActivity() {
         binding.btnOverlayPermission.isEnabled = !hasOverlay
         binding.btnOverlayPermission.text = if (hasOverlay) "✅ Overlay & Stealth Capture Allowed" else "Allow Display Over Other Apps"
 
+        val hasA11y = screenshotManager.isAccessibilityServiceEnabled()
+        binding.btnAccessibilityPermission.isEnabled = !hasA11y
+        binding.btnAccessibilityPermission.text = if (hasA11y) "✅ Accessibility Service Active" else "Enable Accessibility Service (Screenshots/Video)"
+
         binding.btnActivate.isEnabled = isAdminActive && hasPermissions
 
         binding.tvStatus.text = when {
             !isAdminActive -> getString(R.string.status_admin_required)
             !hasPermissions -> getString(R.string.status_permissions_required)
             !isBatteryIgnored -> "Recommended: Disable battery optimization for continuous protection"
+            !hasA11y -> "Recommended: Enable Accessibility Service for silent screenshots & video"
             else -> getString(R.string.status_ready)
         }
     }
