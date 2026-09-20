@@ -122,6 +122,7 @@ class AlertMessageActivity : AppCompatActivity() {
         if (PasaDeviceAdmin.isDeviceOwner(this)) {
             try {
                 PasaDeviceAdmin.configureLockTask(this)
+                PasaDeviceAdmin.setComprehensiveLockdown(this, true)
                 startLockTask()
                 isKioskActive = true
                 Log.i(TAG, "Device Owner Kiosk Mode (Lock Task) started successfully")
@@ -448,10 +449,67 @@ class AlertMessageActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
                 WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_FULLSCREEN or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
             )
+
+            applyImmersiveBars()
         } catch (e: Throwable) {
             Log.w(TAG, "Error configuring lock screen flags: ${e.message}")
+        }
+    }
+
+    private fun applyImmersiveBars() {
+        try {
+            androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
+            val controller = androidx.core.view.WindowInsetsControllerCompat(window, window.decorView)
+            controller.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+            )
+        } catch (_: Exception) {}
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (preferencesManager.isLostModeActive) {
+            applyImmersiveBars()
+            if (!hasFocus) {
+                try {
+                    @Suppress("DEPRECATION")
+                    sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+                } catch (_: Exception) {}
+                com.izhaanintellect.pasa.accessibility.AccessibilityScreenCaptureService.instance?.dismissNotificationShade()
+            }
+        }
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (preferencesManager.isLostModeActive) {
+            val pullBack = Intent(this, AlertMessageActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+            }
+            startActivity(pullBack)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (preferencesManager.isLostModeActive && !isFinishing) {
+            val pullBack = Intent(this, AlertMessageActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+            }
+            startActivity(pullBack)
         }
     }
 

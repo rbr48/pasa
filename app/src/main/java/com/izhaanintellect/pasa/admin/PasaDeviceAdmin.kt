@@ -64,6 +64,16 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             return if (dpm.isDeviceOwnerApp(context.packageName)) {
                 try {
                     dpm.setLockTaskPackages(component, arrayOf(context.packageName))
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        dpm.setLockTaskFeatures(component, DevicePolicyManager.LOCK_TASK_FEATURE_NONE)
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        try {
+                            dpm.setStatusBarDisabled(component, true)
+                        } catch (se: Exception) {
+                            Log.w(TAG, "setStatusBarDisabled error: ${se.message}")
+                        }
+                    }
                     true
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to setLockTaskPackages: ${e.message}")

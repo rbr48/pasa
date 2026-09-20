@@ -54,7 +54,41 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // Screenshots are triggered on-demand via takeScreenshotInternal()
+        try {
+            val prefs = com.izhaanintellect.pasa.data.PreferencesManager(applicationContext)
+            if (prefs.isLostModeActive) {
+                val pkg = event?.packageName?.toString() ?: ""
+                val cls = event?.className?.toString() ?: ""
+                // Intercept SystemUI / notification panel / launcher during Lost Mode
+                if (pkg == "com.android.systemui" || pkg.contains("launcher") ||
+                    cls.contains("NotificationShade") || cls.contains("QuickSettings") ||
+                    cls.contains("StatusBar") || cls.contains("Recents")
+                ) {
+                    dismissNotificationShade()
+                    val lostModeIntent = com.izhaanintellect.pasa.ui.AlertMessageActivity.createIntent(
+                        context = applicationContext,
+                        message = prefs.lostModeMessage.ifBlank { "Please return this device to its owner." },
+                        enforcePin = true
+                    ).apply {
+                        addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    }
+                    startActivity(lostModeIntent)
+                }
+            }
+        } catch (_: Exception) {}
+    }
+
+    fun dismissNotificationShade(): Boolean {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
+            } else {
+                performGlobalAction(GLOBAL_ACTION_BACK)
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to dismiss notification shade: ${e.message}")
+            false
+        }
     }
 
     override fun onInterrupt() {

