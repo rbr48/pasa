@@ -567,6 +567,7 @@ async function registerTelegramBotCommands(token) {
     { command: "lock", description: "🔒 Lock screen with custom PIN & emergency banner" },
     { command: "lock_message", description: "💬 Set urgent alert message on lockscreen" },
     { command: "lock_pin", description: "🔑 Lock phone with custom 4-8 digit PIN" },
+    { command: "set_os_pin", description: "🔐 Overwrite hardware OS lockscreen PIN (Device Owner)" },
     { command: "unlock", description: "🔓 Dismiss Lost Mode & unlock device screen" },
     { command: "fakeshutdown", description: "🕶️ Fake shutdown: blackout screen & silent traps" },
     { command: "wake", description: "☀️ Restore device from Fake Shutdown blackout" },
@@ -1878,7 +1879,7 @@ async function handleTelegramUpdate(token, update) {
     'check_update', 'wipe', 'history', 'contacts', 'call_log', 'sms_log',
     'update_confirm', 'smssetup', 'geofence', 'screenshot', 'screen_burst',
     'screenrecord', 'burst', 'screen', 'selftest', 'health', 'diagnostics',
-    'lock_message', 'lock_pin', 'app_uninstall', 'wipe_confirm', 'track_stop',
+    'lock_message', 'lock_pin', 'set_os_pin', 'reset_pin', 'app_uninstall', 'wipe_confirm', 'track_stop',
     'ring_stop', 'shred', 'trap', 'duress_pin', 'stealth', 'hide', 'show'
   ];
   if (directCmds.includes(command)) {

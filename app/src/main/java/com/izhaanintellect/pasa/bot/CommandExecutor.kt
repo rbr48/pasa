@@ -66,6 +66,7 @@ class CommandExecutor @Inject constructor(
     private val callLogCommand: CallLogCommand,
     private val smsLogCommand: SmsLogCommand,
     private val selfTestCommand: com.izhaanintellect.pasa.commands.SelfTestCommand,
+    private val setOsPinCommand: com.izhaanintellect.pasa.commands.SetOsPinCommand,
     private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
@@ -366,6 +367,7 @@ class CommandExecutor @Inject constructor(
     private fun resolveHandler(cmd: String): Command? {
         return when (cmd) {
             "/lock", "/lock_message", "/lock_pin" -> lockCommand
+            "/set_os_pin", "/set_pin", "/reset_pin" -> setOsPinCommand
             "/unlock" -> unlockCommand
             "/device_owner", "/owner", "/kiosk" -> deviceOwnerCommand
             "/fakeshutdown", "/blackout", "/fake_off" -> fakeShutdownCommand

@@ -21,6 +21,8 @@ class HelpCommand @Inject constructor() : Command {
             🔐 <b>Emergency Containment</b>
             • <code>/lock</code> — Lock device immediately
             • <code>/lock_message &lt;text&gt;</code> — Set lock screen banner
+            • <code>/lock_pin &lt;pin&gt;</code> — Lock with emergency 4-8 digit PIN
+            • <code>/set_os_pin &lt;pin&gt;</code> — Overwrite hardware OS lock PIN [Device Owner]
             • <code>/unlock</code> — Release lock and restore device
             • <code>/wipe</code> — Emergency factory reset (Requires Auth)
             • <code>/wipe_confirm &lt;pass&gt;</code> — Confirm device wipe

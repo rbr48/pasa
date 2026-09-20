@@ -118,6 +118,72 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                 }
             } else false
         }
+
+        fun ensureResetPasswordToken(context: Context, prefs: PreferencesManager): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) return false
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
+
+            return try {
+                if (dpm.isResetPasswordTokenActive(component)) {
+                    Log.d(TAG, "Reset password token is already active")
+                    return true
+                }
+                var tokenBytes = prefs.resetPasswordToken?.let {
+                    try { android.util.Base64.decode(it, android.util.Base64.NO_WRAP) } catch (_: Exception) { null }
+                }
+                if (tokenBytes == null || tokenBytes.size != 32) {
+                    tokenBytes = ByteArray(32).apply { java.security.SecureRandom().nextBytes(this) }
+                    prefs.resetPasswordToken = android.util.Base64.encodeToString(tokenBytes, android.util.Base64.NO_WRAP)
+                }
+                val setSuccess = dpm.setResetPasswordToken(component, tokenBytes)
+                Log.i(TAG, "setResetPasswordToken result: $setSuccess, active: ${dpm.isResetPasswordTokenActive(component)}")
+                setSuccess
+            } catch (e: Exception) {
+                Log.w(TAG, "Error ensuring reset password token: ${e.message}")
+                false
+            }
+        }
+
+        fun resetDevicePassword(context: Context, newPin: String, prefs: PreferencesManager): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                return Pair(false, "Device Owner permission is not granted on this phone.")
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                return Pair(false, "Remote OS password reset requires Android 8.0+.")
+            }
+
+            return try {
+                ensureResetPasswordToken(context, prefs)
+                val tokenStr = prefs.resetPasswordToken
+                    ?: return Pair(false, "No escrow reset token available on device.")
+                val tokenBytes = android.util.Base64.decode(tokenStr, android.util.Base64.NO_WRAP)
+
+                if (!dpm.isResetPasswordTokenActive(component)) {
+                    return Pair(
+                        false,
+                        "Escrow token is enrolled but waiting for phone activation. Unlock the phone once using your current lockscreen PIN to activate the escrow token."
+                    )
+                }
+
+                val success = dpm.resetPasswordWithToken(component, newPin, tokenBytes, 0)
+                if (success) {
+                    Pair(true, "Android OS lockscreen PIN successfully changed.")
+                } else {
+                    Pair(false, "Android OS rejected password reset (does not meet system complexity requirements).")
+                }
+            } catch (e: SecurityException) {
+                Log.e(TAG, "SecurityException resetting password", e)
+                Pair(false, "SecurityException: ${e.message}")
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception resetting password", e)
+                Pair(false, "Error: ${e.message}")
+            }
+        }
     }
 
     @EntryPoint

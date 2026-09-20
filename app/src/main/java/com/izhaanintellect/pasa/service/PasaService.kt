@@ -156,6 +156,11 @@ class PasaService : LifecycleService() {
         Log.i(TAG, "PasaService started")
         acquireWakeLock(30_000L)
 
+        // If Device Owner is active, ensure password reset escrow token is enrolled
+        if (com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(this)) {
+            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.ensureResetPasswordToken(this, preferencesManager)
+        }
+
         // Start as foreground with Android 14+ safe background foreground service types
         val notification = createNotification()
         try {

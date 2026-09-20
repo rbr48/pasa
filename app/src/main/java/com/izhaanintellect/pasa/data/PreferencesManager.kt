@@ -61,6 +61,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_POCKET_TRAP = "pocket_trap_enabled"
         private const val KEY_LICENSE_KEY = "license_key"
         private const val KEY_LICENSE_TIER = "license_tier"
+        private const val KEY_RESET_PASSWORD_TOKEN = "reset_password_token"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
 
@@ -217,6 +218,10 @@ class PreferencesManager @Inject constructor(
     var duressPin: String?
         get() = prefs.getString(KEY_DURESS_PIN, null)
         set(value) = prefs.edit().putString(KEY_DURESS_PIN, value).apply()
+
+    var resetPasswordToken: String?
+        get() = prefs.getString(KEY_RESET_PASSWORD_TOKEN, null)
+        set(value) = prefs.edit().putString(KEY_RESET_PASSWORD_TOKEN, value).apply()
 
     var isDuressActive: Boolean
         get() = prefs.getBoolean(KEY_DURESS_ACTIVE, false)
