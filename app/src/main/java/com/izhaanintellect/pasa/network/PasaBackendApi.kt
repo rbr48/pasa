@@ -35,11 +35,12 @@ interface PasaBackendApi {
         @Part("deviceId") deviceId: RequestBody,
         @Part("commandId") commandId: RequestBody?,
         @Part("message") message: RequestBody?,
-        @Part photo: MultipartBody.Part?,
-        @Part audio: MultipartBody.Part?,
-        @Part video: MultipartBody.Part?,
-        @Part("latitude") latitude: RequestBody?,
-        @Part("longitude") longitude: RequestBody?
+        @Part photo: MultipartBody.Part? = null,
+        @Part audio: MultipartBody.Part? = null,
+        @Part video: MultipartBody.Part? = null,
+        @Part evidence: MultipartBody.Part? = null,
+        @Part("latitude") latitude: RequestBody? = null,
+        @Part("longitude") longitude: RequestBody? = null
     ): SimpleBackendResponse
 
     @Multipart

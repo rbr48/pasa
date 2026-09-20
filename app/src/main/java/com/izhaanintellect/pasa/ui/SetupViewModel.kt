@@ -25,15 +25,42 @@ class SetupViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val authManager: AuthManager,
     private val telegramApi: TelegramApi,
-    private val pasaBackendApi: PasaBackendApi
+    private val pasaBackendApi: PasaBackendApi,
+    private val commandLogDao: com.izhaanintellect.pasa.data.CommandLogDao,
+    private val pendingUploadDao: com.izhaanintellect.pasa.data.PendingUploadDao
 ) : ViewModel() {
 
     companion object {
         private const val TAG = "SetupViewModel"
     }
 
+    val commandLogsFlow = commandLogDao.getAllLogsFlow()
+    val pendingUploadsFlow = pendingUploadDao.getAllFlow()
+
+    fun isSetupComplete(): Boolean = preferencesManager.isSetupComplete
     fun getSavedServerUrl(): String = preferencesManager.serverUrl
     fun getSavedDeviceId(): String = preferencesManager.deviceId
+    fun isDeviceAdmin(): Boolean = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isAdminActive(context)
+    fun isDeviceOwner(): Boolean = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)
+    fun isBatteryWhitelisted(): Boolean = com.izhaanintellect.pasa.util.BatteryOptimizationHelper.isIgnoringBatteryOptimizations(context)
+    fun getManufacturer(): String = com.izhaanintellect.pasa.util.BatteryOptimizationHelper.getManufacturer()
+    fun getSecurityLevel(): String = preferencesManager.deviceKeySecurityLevel
+    fun getBackendMode(): String = if (preferencesManager.useBackendServer) "VPS Gateway" else "Direct Telegram"
+
+    fun flushUploadQueue() {
+        com.izhaanintellect.pasa.worker.EvidenceUploadWorker.schedulePendingBatch(context)
+    }
+
+    fun restartGuardianService() {
+        com.izhaanintellect.pasa.service.PasaService.stop(context)
+        com.izhaanintellect.pasa.service.PasaService.start(context)
+    }
+
+    fun verifyMasterPassword(password: String): Boolean = authManager.verifyMasterPassword(password)
+
+    fun unlockSetup() {
+        preferencesManager.isSetupComplete = false
+    }
 
     fun saveServerUrl(url: String) {
         preferencesManager.serverUrl = url

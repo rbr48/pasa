@@ -192,4 +192,10 @@ object AppModule {
     fun provideCommandLogDao(database: AppDatabase): CommandLogDao {
         return database.commandLogDao()
     }
+
+    @Provides
+    @Singleton
+    fun providePendingUploadDao(database: AppDatabase): com.izhaanintellect.pasa.data.PendingUploadDao {
+        return database.pendingUploadDao()
+    }
 }

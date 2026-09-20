@@ -37,6 +37,7 @@ import javax.inject.Inject
 class SetupActivity : AppCompatActivity() {
 
     @Inject lateinit var preferencesManager: PreferencesManager
+    @Inject lateinit var ringCommand: com.izhaanintellect.pasa.commands.RingCommand
 
     private lateinit var binding: ActivitySetupBinding
     private val viewModel: SetupViewModel by viewModels()
@@ -45,6 +46,9 @@ class SetupActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) {
         updateUI()
+        if (binding.layoutDashboard.visibility == android.view.View.VISIBLE) {
+            updateDashboardUI()
+        }
     }
 
     private val permissionsLauncher = registerForActivityResult(
@@ -56,24 +60,23 @@ class SetupActivity : AppCompatActivity() {
             backgroundLocationLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
         updateUI()
+        if (binding.layoutDashboard.visibility == android.view.View.VISIBLE) {
+            updateDashboardUI()
+        }
     }
 
     private val backgroundLocationLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) {
         updateUI()
+        if (binding.layoutDashboard.visibility == android.view.View.VISIBLE) {
+            updateDashboardUI()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
-        // If already initialized and running, directly ensure service is active and finish
-        if (preferencesManager.isSetupComplete) {
-            PasaService.start(this)
-            finish()
-            return
-        }
 
         binding = ActivitySetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -85,13 +88,21 @@ class SetupActivity : AppCompatActivity() {
         }
 
         setupClickListeners()
+        setupDashboardObservers()
+
         binding.etServerUrl.setText(viewModel.getSavedServerUrl())
         if (preferencesManager.botToken.isNotBlank()) {
             binding.etBotToken.setText(preferencesManager.botToken)
         } else {
             binding.etBotToken.hint = "Enter your Telegram Bot Token"
         }
-        updateUI()
+
+        if (preferencesManager.isSetupComplete) {
+            PasaService.start(this)
+            showDashboard()
+        } else {
+            showSetupWizard()
+        }
     }
 
     private fun setupClickListeners() {
@@ -286,13 +297,155 @@ class SetupActivity : AppCompatActivity() {
                 Toast.LENGTH_LONG
             ).show()
 
-            finish()
+            binding.btnActivate.isEnabled = true
+            binding.btnActivate.text = getString(R.string.btn_activate)
+            showDashboard()
         }
     }
 
     override fun onResume() {
         super.onResume()
+        if (binding.layoutDashboard.visibility == android.view.View.VISIBLE) {
+            updateDashboardUI()
+        } else {
+            updateUI()
+        }
+    }
+
+    private fun showDashboard() {
+        binding.layoutSetupWizard.visibility = android.view.View.GONE
+        binding.layoutDashboard.visibility = android.view.View.VISIBLE
+        updateDashboardUI()
+    }
+
+    private fun showSetupWizard() {
+        binding.layoutDashboard.visibility = android.view.View.GONE
+        binding.layoutSetupWizard.visibility = android.view.View.VISIBLE
         updateUI()
+    }
+
+    private fun setupDashboardObservers() {
+        // Observe WorkManager pending uploads
+        lifecycleScope.launch {
+            viewModel.pendingUploadsFlow.collect { uploads ->
+                val pendingCount = uploads.count { it.status != "COMPLETED" }
+                binding.tvDashVaultQueue.text = "📦 WorkManager Queue: $pendingCount pending uploads (${uploads.size} total in log)"
+            }
+        }
+
+        // Observe command execution audit trail
+        lifecycleScope.launch {
+            viewModel.commandLogsFlow.collect { logs ->
+                if (logs.isEmpty()) {
+                    binding.tvDashAuditLogs.text = "No commands executed yet."
+                } else {
+                    val sdf = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+                    binding.tvDashAuditLogs.text = logs.take(8).joinToString("\n") { log ->
+                        val timeStr = sdf.format(java.util.Date(log.timestamp))
+                        val statusEmoji = if (log.status == "SUCCESS") "✅" else "❌"
+                        "[$timeStr] $statusEmoji ${log.command} (${log.status})"
+                    }
+                }
+            }
+        }
+
+        // Dashboard buttons
+        binding.btnDashActivateAdmin.setOnClickListener {
+            val componentName = PasaDeviceAdmin.getComponentName(this)
+            val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName)
+                putExtra(
+                    DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                    getString(R.string.device_admin_description)
+                )
+            }
+            deviceAdminLauncher.launch(intent)
+        }
+
+        binding.btnDashBatteryWhitelist.setOnClickListener {
+            com.izhaanintellect.pasa.util.BatteryOptimizationHelper.openOemBackgroundSettings(this)
+            updateDashboardUI()
+        }
+
+        binding.btnDashFlushVault.setOnClickListener {
+            viewModel.flushUploadQueue()
+            Toast.makeText(this, "⚡ WorkManager upload queue flushed", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnDashEmergencyBeacon.setOnClickListener {
+            lifecycleScope.launch {
+                val res = ringCommand.execute(listOf("15"), 0L)
+                Toast.makeText(this@SetupActivity, res.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.btnDashRestartService.setOnClickListener {
+            viewModel.restartGuardianService()
+            Toast.makeText(this, "🔄 Guardian service restarted", Toast.LENGTH_SHORT).show()
+            updateDashboardUI()
+        }
+
+        binding.btnDashReconfigure.setOnClickListener {
+            promptReconfigure()
+        }
+    }
+
+    private fun updateDashboardUI() {
+        val deviceId = viewModel.getSavedDeviceId()
+        binding.tvDashDeviceId.text = "Device ID: $deviceId"
+        binding.tvDashBackend.text = "Gateway: ${viewModel.getBackendMode()} (${viewModel.getSavedServerUrl()})"
+        binding.tvDashFgs.text = "Service: Persistent FGS (DataSync/Location) | WakeLock: Active"
+
+        val isAdmin = viewModel.isDeviceAdmin()
+        if (isAdmin) {
+            binding.tvDashAdminStatus.text = "🛡️ Device Admin: Active (Remote Lock/Wipe Ready)"
+            binding.btnDashActivateAdmin.visibility = android.view.View.GONE
+        } else {
+            binding.tvDashAdminStatus.text = "⚠️ Device Admin: Inactive (Remote Lock Disabled)"
+            binding.btnDashActivateAdmin.visibility = android.view.View.VISIBLE
+        }
+
+        val isOwner = viewModel.isDeviceOwner()
+        if (isOwner) {
+            binding.tvDashOwnerStatus.text = "👑 Device Owner: Active (Hardware Lockdown / Anti-Uninstall Active)"
+        } else {
+            binding.tvDashOwnerStatus.text = "ℹ️ Device Owner: Standard Admin (Elevate via ADB: dpm set-device-owner ...)"
+        }
+
+        val isBatteryWhitelisted = viewModel.isBatteryWhitelisted()
+        if (isBatteryWhitelisted) {
+            binding.tvDashBatteryStatus.text = "⚡ Battery: Unrestricted (Whitelisted against OEM kill)"
+            binding.btnDashBatteryWhitelist.text = "✅ Battery Whitelisted (${viewModel.getManufacturer()})"
+        } else {
+            binding.tvDashBatteryStatus.text = "⚠️ Battery: Optimized (Risk of OEM background termination: ${viewModel.getManufacturer()})"
+            binding.btnDashBatteryWhitelist.text = "Whitelist Battery & Auto-Start (${viewModel.getManufacturer()})"
+        }
+
+        binding.tvDashKeystore.text = "🔐 Hardware Keystore: ${viewModel.getSecurityLevel()} hardware key"
+    }
+
+    private fun promptReconfigure() {
+        val input = android.widget.EditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+            hint = "Enter Master Password"
+            setPadding(40, 30, 40, 30)
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Administrator Authentication")
+            .setMessage("Please enter your Master Password to unlock Sentinel settings:")
+            .setView(input)
+            .setPositiveButton("Unlock") { _, _ ->
+                val entered = input.text.toString()
+                if (viewModel.verifyMasterPassword(entered)) {
+                    Toast.makeText(this, "✅ Administrator Authenticated", Toast.LENGTH_SHORT).show()
+                    showSetupWizard()
+                } else {
+                    Toast.makeText(this, "❌ Invalid Master Password", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun updateUI() {
@@ -343,4 +496,5 @@ class SetupActivity : AppCompatActivity() {
         }
     }
 }
+
 

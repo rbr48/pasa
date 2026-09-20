@@ -53,6 +53,12 @@
             android:textColor="#94A3B8"
             android:textSize="13sp" />
 
+        <LinearLayout
+            android:id="@+id/layoutSetupWizard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
         <!-- Card: VPS Backend Setup -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -317,7 +323,6 @@
                     android:text="Allow Display Over Other Apps"
                     android:textColor="#00E5FF" />
 
-
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/switchStealth"
                     android:layout_width="match_parent"
@@ -350,6 +355,324 @@
             android:textColor="#0A0E17"
             android:textSize="16sp"
             android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <!-- ============================================== -->
+        <!-- PASA 3.0 ENTERPRISE DASHBOARD                  -->
+        <!-- ============================================== -->
+        <LinearLayout
+            android:id="@+id/layoutDashboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Card: Live Telemetry & Identity -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="#131B2E"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#00E5FF"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SENTINEL STATUS"
+                        android:textColor="#38BDF8"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDashStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="🟢 ACTIVE &amp; PROTECTING"
+                        android:textColor="#22C55E"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDashDeviceId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Device ID: PASA-..."
+                        android:textColor="#E2E8F0"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvDashBackend"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Gateway: VPS Control Plane"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvDashFgs"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Service: Persistent FGS (WakeLock Held)"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card: Capabilities & Health -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="#131B2E"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#1E293B"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CAPABILITY &amp; PRIVILEGES"
+                        android:textColor="#38BDF8"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <!-- Admin & Owner Status -->
+                    <TextView
+                        android:id="@+id/tvDashAdminStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="🛡️ Device Admin: Checking..."
+                        android:textColor="#E2E8F0"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvDashOwnerStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="👑 Device Owner: Checking..."
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btnDashActivateAdmin"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:visibility="gone"
+                        android:text="Activate Device Admin"
+                        android:textColor="#00E5FF" />
+
+                    <!-- Battery Status -->
+                    <TextView
+                        android:id="@+id/tvDashBatteryStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="⚡ Battery: Checking..."
+                        android:textColor="#E2E8F0"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btnDashBatteryWhitelist"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Disable Battery Optimization (OEM Whitelist)"
+                        android:textColor="#00E5FF" />
+
+                    <!-- Hardware Keystore Status -->
+                    <TextView
+                        android:id="@+id/tvDashKeystore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="🔐 Keystore: StrongBox / TEE Hardware Key"
+                        android:textColor="#E2E8F0"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card: Evidence Vault (WorkManager) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="#131B2E"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#1E293B"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="EVIDENCE VAULT &amp; DISPATCH"
+                        android:textColor="#38BDF8"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="🔒 E2EE Envelope: AES-256-GCM (PASA_ENC_V1)"
+                        android:textColor="#E2E8F0"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvDashVaultQueue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="📦 WorkManager Queue: 0 pending uploads"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btnDashFlushVault"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="⚡ Flush Upload Queue Now"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card: Live Audit Trail -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="#131B2E"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#1E293B"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="COMMAND AUDIT TRAIL"
+                        android:textColor="#38BDF8"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Recent privileged commands executed on this device:"
+                        android:textColor="#94A3B8"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvDashAuditLogs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="#0A0E17"
+                        android:padding="10dp"
+                        android:fontFamily="monospace"
+                        android:text="No commands executed yet."
+                        android:textColor="#E2E8F0"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card: Emergency & Configuration -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="#131B2E"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#1E293B"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MANAGEMENT ACTIONS"
+                        android:textColor="#38BDF8"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btnDashEmergencyBeacon"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="🚨 Test Siren / Alert Beacon"
+                        android:textColor="#EF4444" />
+
+                    <Button
+                        android:id="@+id/btnDashRestartService"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="🔄 Restart Guardian Service"
+                        android:textColor="#00E5FF" />
+
+                    <Button
+                        android:id="@+id/btnDashReconfigure"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="⚙️ Reconfigure Sentinel (Enter Master Password)"
+                        android:textColor="#94A3B8" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

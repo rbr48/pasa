@@ -1,5 +1,15 @@
 [
   {
+    "versionCode": 6,
+    "versionName": "3.0.0",
+    "filename": "pasa-v3.0.0.apk",
+    "downloadUrl": "api/app/download/pasa-v3.0.0.apk",
+    "fileSize": 18966148,
+    "sha256": "e6683918812380d5df5e391300fe2ecb8edd92455e0094df061032ebbfa0641e",
+    "changelog": "PASA 3.0 Enterprise Upgrade: SQLite WAL control plane with 7-day TTL auto-purge; WorkManager resilient offline evidence pipeline with exponential backoff; E2EE Evidence Vault (PASA_ENC_V1 hardware envelope encryption); OEM battery optimization whitelisting; In-App Transparency & Diagnostics Dashboard with real-time capability matrix and live command audit trail.",
+    "publishedAt": "2026-09-20T07:35:00.000Z"
+  },
+  {
     "versionCode": 5,
     "versionName": "2.4.0",
     "filename": "pasa-v2.4.0.apk",

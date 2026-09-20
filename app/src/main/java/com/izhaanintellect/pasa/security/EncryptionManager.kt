@@ -33,6 +33,7 @@ class EncryptionManager @Inject constructor(
         private const val AES_GCM_NO_PADDING = "AES/GCM/NoPadding"
         private const val GCM_TAG_LENGTH = 128
         private const val GCM_IV_LENGTH = 12
+        private val VAULT_HEADER = "PASA_ENC_V1\n".toByteArray(Charsets.UTF_8)
     }
 
     /**
@@ -95,6 +96,61 @@ class EncryptionManager @Inject constructor(
         val spec = GCMParameterSpec(GCM_TAG_LENGTH, iv)
         cipher.init(Cipher.DECRYPT_MODE, key, spec)
         return cipher.doFinal(ciphertext)
+    }
+
+    /**
+     * Encrypts a file using the PASA 3.0 Vault authenticated envelope format:
+     * [12 bytes header: "PASA_ENC_V1\n"] + [12 bytes GCM IV] + [AES-256-GCM Ciphertext + 16 bytes auth tag]
+     */
+    fun encryptEvidenceVaultFile(inputFile: File, outputFile: File, alias: String = DEFAULT_ALIAS) {
+        val data = FileInputStream(inputFile).use { it.readBytes() }
+        val encryptedWithIv = encrypt(data, alias)
+        FileOutputStream(outputFile).use { fos ->
+            fos.write(VAULT_HEADER)
+            fos.write(encryptedWithIv)
+        }
+    }
+
+    /**
+     * Decrypts a PASA 3.0 Vault authenticated envelope file.
+     */
+    fun decryptEvidenceVaultFile(inputFile: File, outputFile: File, alias: String = DEFAULT_ALIAS) {
+        val raw = FileInputStream(inputFile).use { it.readBytes() }
+        val payload = if (isEncryptedVaultData(raw)) {
+            raw.copyOfRange(VAULT_HEADER.size, raw.size)
+        } else {
+            raw
+        }
+        val decrypted = decrypt(payload, alias)
+        FileOutputStream(outputFile).use { it.write(decrypted) }
+    }
+
+    /**
+     * Decrypts a PASA 3.0 Vault file into an in-memory byte array (e.g. for streaming to Telegram).
+     */
+    fun decryptEvidenceVaultToBytes(file: File, alias: String = DEFAULT_ALIAS): ByteArray {
+        val raw = FileInputStream(file).use { it.readBytes() }
+        val payload = if (isEncryptedVaultData(raw)) {
+            raw.copyOfRange(VAULT_HEADER.size, raw.size)
+        } else {
+            raw
+        }
+        return decrypt(payload, alias)
+    }
+
+    fun isEncryptedVaultFile(file: File): Boolean {
+        if (!file.exists() || file.length() < (VAULT_HEADER.size + GCM_IV_LENGTH)) return false
+        val headerBytes = ByteArray(VAULT_HEADER.size)
+        FileInputStream(file).use { it.read(headerBytes) }
+        return headerBytes.contentEquals(VAULT_HEADER)
+    }
+
+    private fun isEncryptedVaultData(data: ByteArray): Boolean {
+        if (data.size < (VAULT_HEADER.size + GCM_IV_LENGTH)) return false
+        for (i in VAULT_HEADER.indices) {
+            if (data[i] != VAULT_HEADER[i]) return false
+        }
+        return true
     }
 
     fun encryptFile(inputFile: File, outputFile: File) {

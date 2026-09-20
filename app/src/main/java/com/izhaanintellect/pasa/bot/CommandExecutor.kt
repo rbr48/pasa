@@ -1,11 +1,17 @@
 package com.izhaanintellect.pasa.bot
 
+import android.content.Context
 import android.util.Log
 import com.izhaanintellect.pasa.commands.*
 import com.izhaanintellect.pasa.data.CommandLog
 import com.izhaanintellect.pasa.data.CommandLogDao
+import com.izhaanintellect.pasa.data.PendingUpload
+import com.izhaanintellect.pasa.data.PendingUploadDao
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.security.AuthManager
+import com.izhaanintellect.pasa.security.EncryptionManager
+import com.izhaanintellect.pasa.worker.EvidenceUploadWorker
+import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -20,6 +26,9 @@ import javax.inject.Singleton
  */
 @Singleton
 class CommandExecutor @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val pendingUploadDao: PendingUploadDao,
+    private val encryptionManager: EncryptionManager,
     private val authManager: AuthManager,
     private val preferencesManager: PreferencesManager,
     private val commandLogDao: CommandLogDao,
@@ -95,24 +104,27 @@ class CommandExecutor @Inject constructor(
             // Deliver text response
             sendText(parsed.chatId, result.message)
 
-            // Deliver photo if generated
+            // Deliver photo if generated (encrypted into vault & queued in WorkManager)
             result.photoFile?.let { file ->
                 if (file.exists() && file.length() > 0) {
-                    sendPhoto(parsed.chatId, file, "📸 Captured photo")
+                    val (encFile, _) = enqueueAndEncryptEvidence(null, file, "PHOTO")
+                    sendPhoto(parsed.chatId, encFile, "📸 Captured photo")
                 }
             }
 
-            // Deliver audio if recorded
+            // Deliver audio if recorded (encrypted into vault & queued in WorkManager)
             result.audioFile?.let { file ->
                 if (file.exists() && file.length() > 0) {
-                    sendAudio(parsed.chatId, file, "🎙️ Audio recording")
+                    val (encFile, _) = enqueueAndEncryptEvidence(null, file, "AUDIO")
+                    sendAudio(parsed.chatId, encFile, "🎙️ Audio recording")
                 }
             }
 
-            // Deliver video if recorded
+            // Deliver video if recorded (encrypted into vault & queued in WorkManager)
             result.videoFile?.let { file ->
                 if (file.exists() && file.length() > 0) {
-                    sendVideo(parsed.chatId, file, "🎥 Captured video")
+                    val (encFile, _) = enqueueAndEncryptEvidence(null, file, "VIDEO")
+                    sendVideo(parsed.chatId, encFile, "🎥 Captured video")
                 }
             }
 
@@ -131,6 +143,34 @@ class CommandExecutor @Inject constructor(
             sendText(parsed.chatId, errorMsg)
             logExecution(parsed, "FAILED", errorMsg)
             errorMsg
+        }
+    }
+
+    private suspend fun enqueueAndEncryptEvidence(
+        commandId: String?,
+        file: File,
+        fileType: String
+    ): Pair<File, String> {
+        return try {
+            val uploadId = "up_${System.currentTimeMillis()}_${file.nameWithoutExtension}"
+            val encFile = File(file.parentFile, "${file.nameWithoutExtension}.enc")
+            encryptionManager.encryptEvidenceVaultFile(file, encFile)
+            val pending = PendingUpload(
+                id = uploadId,
+                commandId = commandId ?: "",
+                fileType = fileType,
+                filePath = encFile.absolutePath,
+                isEncrypted = true,
+                status = "PENDING"
+            )
+            pendingUploadDao.insert(pending)
+            EvidenceUploadWorker.schedule(context, uploadId)
+            // Safely delete unencrypted original file now that vault copy is persisted
+            try { file.delete() } catch (_: Exception) {}
+            Pair(encFile, uploadId)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to encrypt evidence vault file: ${e.message}")
+            Pair(file, "")
         }
     }
 
@@ -171,21 +211,52 @@ class CommandExecutor @Inject constructor(
 
         return try {
             val result = handler.execute(parsed.args, parsed.chatId)
+
+            var photo = result.photoFile
+            var photoUploadId = ""
+            if (photo != null && photo.exists() && photo.length() > 0) {
+                val p = enqueueAndEncryptEvidence(commandId, photo, "PHOTO")
+                photo = p.first
+                photoUploadId = p.second
+            }
+
+            var audio = result.audioFile
+            var audioUploadId = ""
+            if (audio != null && audio.exists() && audio.length() > 0) {
+                val a = enqueueAndEncryptEvidence(commandId, audio, "AUDIO")
+                audio = a.first
+                audioUploadId = a.second
+            }
+
+            var video = result.videoFile
+            var videoUploadId = ""
+            if (video != null && video.exists() && video.length() > 0) {
+                val v = enqueueAndEncryptEvidence(commandId, video, "VIDEO")
+                video = v.first
+                videoUploadId = v.second
+            }
+
             val delivered = sendResponseToBackend(
                 commandId = commandId,
                 message = result.message,
-                photoFile = result.photoFile,
-                audioFile = result.audioFile,
-                videoFile = result.videoFile,
+                photoFile = photo,
+                audioFile = audio,
+                videoFile = video,
                 location = result.location
             )
 
-            if (!delivered) {
+            if (delivered) {
+                listOf(photoUploadId, audioUploadId, videoUploadId).filter { it.isNotBlank() }.forEach { upId ->
+                    pendingUploadDao.getById(upId)?.let { u ->
+                        pendingUploadDao.update(u.copy(status = "COMPLETED", completedAt = System.currentTimeMillis()))
+                    }
+                }
+            } else {
                 // Direct fallback to Telegram
                 sendText(parsed.chatId, result.message)
-                result.photoFile?.let { sendPhoto(parsed.chatId, it, "📸 Captured photo") }
-                result.audioFile?.let { sendAudio(parsed.chatId, it, "🎙️ Audio recording") }
-                result.videoFile?.let { sendVideo(parsed.chatId, it, "🎥 Captured video") }
+                photo?.let { sendPhoto(parsed.chatId, it, "📸 Captured photo") }
+                audio?.let { sendAudio(parsed.chatId, it, "🎙️ Audio recording") }
+                video?.let { sendVideo(parsed.chatId, it, "🎥 Captured video") }
                 result.location?.let { (lat, lng) -> sendLocation(parsed.chatId, lat, lng) }
             }
 
@@ -206,7 +277,6 @@ class CommandExecutor @Inject constructor(
     }
 
     private suspend fun sendResponseToBackend(
-
         commandId: String?,
         message: String,
         photoFile: File?,
@@ -220,24 +290,41 @@ class CommandExecutor @Inject constructor(
             val cmdIdBody = commandId?.toRequestBody("text/plain".toMediaTypeOrNull())
             val msgBody = message.toRequestBody("text/plain".toMediaTypeOrNull())
 
+            var evidencePart: MultipartBody.Part? = null
+
             val photoPart = photoFile?.let {
                 if (it.exists() && it.length() > 0) {
-                    val reqFile = it.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData("photo", it.name, reqFile)
+                    if (encryptionManager.isEncryptedVaultFile(it)) {
+                        evidencePart = MultipartBody.Part.createFormData("evidence", it.name, it.asRequestBody("application/octet-stream".toMediaTypeOrNull()))
+                        null
+                    } else {
+                        val reqFile = it.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                        MultipartBody.Part.createFormData("photo", it.name, reqFile)
+                    }
                 } else null
             }
 
             val audioPart = audioFile?.let {
                 if (it.exists() && it.length() > 0) {
-                    val reqFile = it.asRequestBody("audio/m4a".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData("audio", it.name, reqFile)
+                    if (encryptionManager.isEncryptedVaultFile(it)) {
+                        evidencePart = MultipartBody.Part.createFormData("evidence", it.name, it.asRequestBody("application/octet-stream".toMediaTypeOrNull()))
+                        null
+                    } else {
+                        val reqFile = it.asRequestBody("audio/m4a".toMediaTypeOrNull())
+                        MultipartBody.Part.createFormData("audio", it.name, reqFile)
+                    }
                 } else null
             }
 
             val videoPart = videoFile?.let {
                 if (it.exists() && it.length() > 0) {
-                    val reqFile = it.asRequestBody("video/mp4".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData("video", it.name, reqFile)
+                    if (encryptionManager.isEncryptedVaultFile(it)) {
+                        evidencePart = MultipartBody.Part.createFormData("evidence", it.name, it.asRequestBody("application/octet-stream".toMediaTypeOrNull()))
+                        null
+                    } else {
+                        val reqFile = it.asRequestBody("video/mp4".toMediaTypeOrNull())
+                        MultipartBody.Part.createFormData("video", it.name, reqFile)
+                    }
                 } else null
             }
 
@@ -251,6 +338,7 @@ class CommandExecutor @Inject constructor(
                 photo = photoPart,
                 audio = audioPart,
                 video = videoPart,
+                evidence = evidencePart,
                 latitude = latBody,
                 longitude = lngBody
             )
@@ -312,8 +400,14 @@ class CommandExecutor @Inject constructor(
         try {
             val chatIdBody = chatId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
-            val fileBody = file.asRequestBody("video/mp4".toMediaTypeOrNull())
-            val part = MultipartBody.Part.createFormData("video", file.name, fileBody)
+            val part = if (encryptionManager.isEncryptedVaultFile(file)) {
+                val decrypted = encryptionManager.decryptEvidenceVaultToBytes(file)
+                val body = decrypted.toRequestBody("video/mp4".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("video", "video.mp4", body)
+            } else {
+                val fileBody = file.asRequestBody("video/mp4".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("video", file.name, fileBody)
+            }
 
             telegramApi.sendVideo(
                 token = preferencesManager.botToken,
@@ -341,8 +435,14 @@ class CommandExecutor @Inject constructor(
         try {
             val chatIdBody = chatId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
-            val fileBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-            val part = MultipartBody.Part.createFormData("photo", file.name, fileBody)
+            val part = if (encryptionManager.isEncryptedVaultFile(file)) {
+                val decrypted = encryptionManager.decryptEvidenceVaultToBytes(file)
+                val body = decrypted.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("photo", "photo.jpg", body)
+            } else {
+                val fileBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("photo", file.name, fileBody)
+            }
 
             telegramApi.sendPhoto(
                 token = preferencesManager.botToken,
@@ -359,8 +459,14 @@ class CommandExecutor @Inject constructor(
         try {
             val chatIdBody = chatId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
-            val fileBody = file.asRequestBody("audio/mp4".toMediaTypeOrNull())
-            val part = MultipartBody.Part.createFormData("audio", file.name, fileBody)
+            val part = if (encryptionManager.isEncryptedVaultFile(file)) {
+                val decrypted = encryptionManager.decryptEvidenceVaultToBytes(file)
+                val body = decrypted.toRequestBody("audio/mp4".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("audio", "audio.m4a", body)
+            } else {
+                val fileBody = file.asRequestBody("audio/mp4".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("audio", file.name, fileBody)
+            }
 
             telegramApi.sendAudio(
                 token = preferencesManager.botToken,
