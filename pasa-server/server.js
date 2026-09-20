@@ -9,6 +9,15 @@ const { renderCommercialLandingPage } = require('./landingPage');
 const { loadJson, saveJson } = require('./lib/storage');
 const { rateLimit } = require('./lib/rateLimit');
 const { createLicensing } = require('./lib/licensing');
+const {
+  initDatabase,
+  migrateFromJson,
+  DeviceRepo,
+  CommandRepo,
+  ReleaseRepo,
+  AuditRepo,
+  EvidenceRepo
+} = require('./lib/db');
 
 const app = express();
 const PORT = process.env.PORT || 8160;
@@ -24,6 +33,7 @@ const UPLOADS_DIR = path.join(__dirname, 'uploads');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
+const DB_FILE = path.join(DATA_DIR, 'pasa.db');
 const DEVICES_FILE = path.join(DATA_DIR, 'devices.json');
 const COMMANDS_FILE = path.join(DATA_DIR, 'commands.json');
 const SIGNING_KEY_FILE = path.join(DATA_DIR, 'server_signing_key.json');
@@ -75,11 +85,55 @@ function licensingGuard(req, res, next) {
   next();
 }
 
-// Persistent storage helpers (loadJson/saveJson) imported from ./lib/storage.
+// Initialize PASA 3.0 SQLite Control Plane (WAL mode)
+initDatabase(DB_FILE);
+migrateFromJson(DATA_DIR);
 
-let devices = loadJson(DEVICES_FILE, {});
-let commands = loadJson(COMMANDS_FILE, {}); // deviceId -> [ { id, command, args, chatId, createdAt, envelope } ]
+let devices = DeviceRepo.getAll();
+if (Object.keys(devices).length === 0) {
+  devices = loadJson(DEVICES_FILE, {});
+  for (const d of Object.values(devices)) {
+    try { DeviceRepo.upsert(d); } catch (_) {}
+  }
+}
+
+let commands = CommandRepo.getAllPending();
+if (Object.keys(commands).length === 0) {
+  commands = loadJson(COMMANDS_FILE, {});
+}
 let gpsHistory = loadJson(GPS_FILE, {}); // deviceId -> [ { lat, lon, timestamp, iso, ...meta } ]
+
+function persistDevice(deviceId) {
+  if (devices[deviceId]) {
+    try { DeviceRepo.upsert(devices[deviceId]); } catch (err) { console.error('[SQLite] Device upsert error:', err.message); }
+  }
+  saveJson(DEVICES_FILE, devices);
+}
+
+function persistCommand(devId, cmd) {
+  if (cmd) {
+    try {
+      CommandRepo.add({
+        id: cmd.id,
+        deviceId: devId,
+        command: cmd.command,
+        args: cmd.args,
+        chatId: cmd.chatId,
+        envelope: cmd.envelope,
+        createdAt: cmd.createdAt
+      });
+    } catch (err) { console.error('[SQLite] Command add error:', err.message); }
+  }
+  saveJson(COMMANDS_FILE, commands);
+}
+
+function removeCommand(devId, cmdId, response = '') {
+  if (commands[devId] && cmdId) {
+    commands[devId] = commands[devId].filter(c => c.id !== cmdId);
+    try { CommandRepo.clearCommand(devId, cmdId); } catch (err) { console.error('[SQLite] Command clear error:', err.message); }
+    saveJson(COMMANDS_FILE, commands);
+  }
+}
 
 function recordDeviceLocation(deviceId, lat, lon, meta = {}) {
   const latitude = parseFloat(lat);
@@ -102,7 +156,7 @@ function recordDeviceLocation(deviceId, lat, lon, meta = {}) {
 
   if (devices[deviceId]) {
     devices[deviceId].lastLocation = point;
-    saveJson(DEVICES_FILE, devices);
+    persistDevice(deviceId);
   }
   return point;
 }
@@ -116,7 +170,9 @@ const licensing = createLicensing({
   saveJson,
   logSecurityEvent,
   getDevice: (id) => devices[id],
-  persistDevices: () => saveJson(DEVICES_FILE, devices)
+  persistDevices: () => {
+    for (const id of Object.keys(devices)) persistDevice(id);
+  }
 });
 
 // --- Master Admin Secret Management ---
@@ -145,7 +201,7 @@ if (!ADMIN_SECRET) {
   }
 }
 
-// --- Security Audit Event Logs (Circular Buffer capped at 200 events) ---
+// --- Security Audit Event Logs (Persistent SQLite + Circular JSON Buffer) ---
 
 let securityLogs = loadJson(LOGS_FILE, []);
 if (!Array.isArray(securityLogs)) securityLogs = [];
@@ -163,6 +219,16 @@ function logSecurityEvent(type, details = {}) {
     securityLogs = securityLogs.slice(0, 200);
   }
   saveJson(LOGS_FILE, securityLogs);
+
+  // Persist to SQLite audit_logs table
+  AuditRepo.log(
+    type,
+    details.deviceId || '',
+    details.chatId || '',
+    details,
+    details.ip || ''
+  );
+
   return event;
 }
 
@@ -183,6 +249,21 @@ function cleanupStaleCommands() {
 }
 cleanupStaleCommands();
 setInterval(cleanupStaleCommands, 6 * 60 * 60 * 1000);
+
+// --- 7-Day Evidence Retention Auto-Purge Job (PASA 3.0 Vault) ---
+
+function cleanupExpiredEvidence() {
+  try {
+    const purged = EvidenceRepo.purgeExpired(UPLOADS_DIR);
+    if (purged > 0) {
+      console.log(`[Maintenance] Auto-purged ${purged} expired evidence files from vault (>7 days).`);
+    }
+  } catch (err) {
+    console.error('[Maintenance] Evidence purge error:', err.message);
+  }
+}
+cleanupExpiredEvidence();
+setInterval(cleanupExpiredEvidence, 6 * 60 * 60 * 1000);
 
 // --- Admin Authentication Middleware ---
 
@@ -256,7 +337,7 @@ function signCommandEnvelope(deviceId, action, args = [], chatId = 0, cmdId = nu
   const device = devices[deviceId] || {};
   const sequence = (device.lastSequence || 0) + 1;
   device.lastSequence = sequence;
-  saveJson(DEVICES_FILE, devices);
+  persistDevice(deviceId);
 
   const nonce = crypto.randomBytes(18).toString('base64url');
   const now = new Date();
@@ -329,7 +410,11 @@ function verifyDeviceProofOrBearer(req, res, next) {
             if (isNotExpired && jti && !seenJtis.has(jti)) {
               seenJtis.set(jti, (payload.exp || (nowSec + 120)) * 1000);
 
-              // If device enrolled a public key, verify the ES256 signature
+              // Only trust the proof header when the device has enrolled a
+              // hardware public key. Without one there is nothing to verify
+              // the signature against, so an unsigned-but-well-formed header
+              // must NOT authenticate the request — fall through to the
+              // Bearer API key check below instead (see step 2).
               if (device.publicKeyJwk) {
                 try {
                   const pubJwk = typeof device.publicKeyJwk === 'string'
@@ -349,10 +434,7 @@ function verifyDeviceProofOrBearer(req, res, next) {
                   console.warn(`[Crypto] Signature check failed for ${deviceId}:`, cryptoErr.message);
                 }
               } else {
-                // Public key not yet recorded, accept valid proof structure
-                req.device = device;
-                req.deviceAuthMode = 'proof_structure_accepted';
-                return next();
+                console.warn(`[Crypto] Rejected unsigned device proof for ${deviceId}: no hardware key enrolled`);
               }
             }
           }
@@ -827,19 +909,20 @@ async function dispatchCommandToDevice(token, chatId, command, args = []) {
     if (!commands[devId]) commands[devId] = [];
     const signedEnvelope = signCommandEnvelope(devId, action, args, chatId, cmdId);
 
-    commands[devId].push({
+    const cmdRecord = {
       id: cmdId,
       command,
       args,
       chatId,
       createdAt: Date.now(),
       envelope: signedEnvelope
-    });
+    };
+    commands[devId].push(cmdRecord);
+    persistCommand(devId, cmdRecord);
 
     // Notify any active HTTP long-poll connection for this device
     commandEmitter.emit('command:' + devId, commands[devId]);
   }
-  saveJson(COMMANDS_FILE, commands);
 
   logSecurityEvent('COMMAND_DISPATCHED', {
     command: formattedCmd,
@@ -863,12 +946,11 @@ async function dispatchCommandToDevice(token, chatId, command, args = []) {
       let wasPending = false;
       for (const devId of targetDeviceIds) {
         if (commands[devId] && commands[devId].some(c => c.id === cmdId)) {
-          commands[devId] = commands[devId].filter(c => c.id !== cmdId);
+          removeCommand(devId, cmdId, 'TIMEOUT');
           wasPending = true;
         }
       }
       if (wasPending) {
-        saveJson(COMMANDS_FILE, commands);
         const currentDev = devices[targetDeviceId] || {};
         const secAgo = Math.floor((Date.now() - (currentDev.lastSeen || 0)) / 1000);
         console.warn(`[Command Watchdog] Command ${cmdId} (${command}) timed out after 90s for ${targetDeviceId}`);
@@ -1668,7 +1750,7 @@ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
       registeredAt: Date.now(),
       lastSeen: Date.now()
     };
-    saveJson(DEVICES_FILE, devices);
+    persistDevice(deviceId);
 
     // Launch Telegram poller for this bot token on VPS
     startBotPoller(botToken.trim());
@@ -1701,7 +1783,7 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
 
   if (devices[deviceId]) {
     devices[deviceId].lastSeen = Date.now();
-    saveJson(DEVICES_FILE, devices);
+    persistDevice(deviceId);
   }
 
   const deviceCommands = commands[deviceId] || [];
@@ -1718,7 +1800,7 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
     if (timer) clearTimeout(timer);
     if (devices[deviceId]) {
       devices[deviceId].lastSeen = Date.now();
-      saveJson(DEVICES_FILE, devices);
+      persistDevice(deviceId);
     }
     res.json({ ok: true, commands: newCmds || [] });
   };
@@ -1731,7 +1813,7 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
     commandEmitter.removeListener('command:' + deviceId, onCommand);
     if (devices[deviceId]) {
       devices[deviceId].lastSeen = Date.now();
-      saveJson(DEVICES_FILE, devices);
+      persistDevice(deviceId);
     }
     res.json({ ok: true, commands: [] });
   }, timeoutSec * 1000);
@@ -1749,7 +1831,8 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
 app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
   { name: 'photo', maxCount: 1 },
   { name: 'audio', maxCount: 1 },
-  { name: 'video', maxCount: 1 }
+  { name: 'video', maxCount: 1 },
+  { name: 'evidence', maxCount: 5 }
 ]), async (req, res) => {
   const allUploadedFiles = [];
   if (req.files) {
@@ -1772,10 +1855,26 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
     const token = device.botToken;
     const chatId = device.ownerChatId;
 
-    // Remove command from queue
-    if (commands[deviceId] && commandId) {
-      commands[deviceId] = commands[deviceId].filter(c => c.id !== commandId);
-      saveJson(COMMANDS_FILE, commands);
+    // Remove command from queue and SQLite DB
+    if (commandId) {
+      removeCommand(deviceId, commandId, message || 'COMPLETED');
+    }
+
+    // Record encrypted evidence in Evidence Vault (7-day retention)
+    if (files.evidence && files.evidence.length > 0) {
+      for (const ev of files.evidence) {
+        EvidenceRepo.recordEvidence({
+          id: 'ev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+          commandId: commandId || '',
+          deviceId,
+          type: 'ENCRYPTED_MEDIA',
+          filename: path.basename(ev.path),
+          fileSize: ev.size,
+          sha256: '',
+          isEncrypted: 1,
+          mimeType: ev.mimetype || 'application/octet-stream'
+        });
+      }
     }
 
     logSecurityEvent('DEVICE_RESPONSE', {
@@ -2059,6 +2158,12 @@ app.get('/api/admin/commands', authenticateAdmin, (req, res) => {
 });
 
 app.get('/api/admin/logs', authenticateAdmin, (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
+  const offset = parseInt(req.query.offset, 10) || 0;
+  const dbLogs = AuditRepo.getRecent(limit, offset);
+  if (dbLogs.length > 0) {
+    return res.json({ ok: true, count: dbLogs.length, logs: dbLogs });
+  }
   res.json({ ok: true, count: securityLogs.length, logs: securityLogs });
 });
 
@@ -2072,15 +2177,23 @@ app.get('/api/admin/devices/:deviceId/location-history', authenticateAdmin, (req
 
 // 6a. Check latest app version (public — called by Android app)
 app.get('/api/app/latest', (req, res) => {
-  const releases = loadJson(RELEASES_FILE, []);
-  if (!Array.isArray(releases) || releases.length === 0) {
+  let latest = ReleaseRepo.getLatest();
+  if (!latest) {
+    const releases = loadJson(RELEASES_FILE, []);
+    if (Array.isArray(releases) && releases.length > 0) {
+      latest = releases[0];
+      ReleaseRepo.add(latest);
+    }
+  }
+
+  if (!latest) {
     return res.json({
       ok: true,
       update_available: false,
       message: 'No releases published yet'
     });
   }
-  const latest = releases[0]; // Sorted newest first
+
   const currentVersionCode = parseInt(req.query.current_version_code, 10) || 0;
   res.json({
     ok: true,
@@ -2150,18 +2263,18 @@ app.post('/api/app/upload', authenticateAdmin, apkUpload.single('apk'), (req, re
       publishedAt: new Date().toISOString()
     };
 
-    // Load existing releases, prepend new one, keep max 5
+    // Save to SQLite ReleaseRepo
+    const oldReleases = ReleaseRepo.add(release);
+    for (const old of oldReleases) {
+      const oldPath = path.join(RELEASES_DIR, old.filename);
+      try { if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath); } catch (_) {}
+    }
+
+    // Mirror to JSON for fallback
     let releases = loadJson(RELEASES_FILE, []);
     if (!Array.isArray(releases)) releases = [];
     releases.unshift(release);
-    if (releases.length > 5) {
-      // Delete old APK files beyond 5 releases
-      for (const old of releases.slice(5)) {
-        const oldPath = path.join(RELEASES_DIR, old.filename);
-        try { if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath); } catch (_) {}
-      }
-      releases = releases.slice(0, 5);
-    }
+    if (releases.length > 5) releases = releases.slice(0, 5);
     saveJson(RELEASES_FILE, releases);
 
     logSecurityEvent('APP_RELEASE_PUBLISHED', {
@@ -2190,7 +2303,10 @@ app.post('/api/app/upload', authenticateAdmin, apkUpload.single('apk'), (req, re
 
 // 6d. List all published releases (admin authenticated)
 app.get('/api/app/releases', authenticateAdmin, (req, res) => {
-  const releases = loadJson(RELEASES_FILE, []);
+  let releases = ReleaseRepo.getAll();
+  if (!releases || releases.length === 0) {
+    releases = loadJson(RELEASES_FILE, []);
+  }
   res.json({ ok: true, count: releases.length, releases });
 });
 
