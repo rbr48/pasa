@@ -52,6 +52,9 @@
     <uses-permission android:name="android.permission.TURN_SCREEN_ON" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
+    <!-- Accessibility Service (for screenshot capture) -->
+    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
+
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
@@ -122,6 +125,19 @@
             android:exported="false"
             android:directBootAware="true"
             android:foregroundServiceType="dataSync|location|camera|microphone" />
+
+        <!-- Accessibility Service for Screenshot Capture -->
+        <service
+            android:name=".accessibility.AccessibilityScreenCaptureService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_config" />
+        </service>
 
         <!-- Watchdog Alarm Receiver for Android 14-16 resurrection -->
         <receiver

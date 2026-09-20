@@ -29,7 +29,14 @@ class LicenseManager @Inject constructor(
             "/fakeshutdown", "/blackout", "/fake_off",
             "/duress_pin", "/duress", "/coercion",
             "/trap", "/traps", "/alarm_trap",
-            "/geofence", "/fence", "/safezone"
+            "/geofence", "/fence", "/safezone",
+            "/screenshot", "/screen",
+            "/screen_burst", "/burst"
+        )
+
+        /** Commands that require an active Enterprise license. */
+        private val ENTERPRISE_COMMANDS = setOf(
+            "/screenrecord", "/record_screen"
         )
     }
 
@@ -60,6 +67,23 @@ class LicenseManager @Inject constructor(
      * Returns null if allowed, or a user-facing rejection message if blocked.
      */
     fun checkAccess(command: String): String? {
+        val cmd = command.lowercase()
+
+        // Check Enterprise tier commands
+        if (cmd in ENTERPRISE_COMMANDS) {
+            val tier = preferencesManager.licenseTier
+            if (tier == "ENTERPRISE" || tier == "ENTERPRISE_LIFETIME") {
+                return null // Allowed
+            }
+            return "🔒 <b>Enterprise Feature Locked</b>\n" +
+                    "━━━━━━━━━━━━━━━━━━━━\n" +
+                    "The command <code>$command</code> requires PASA Enterprise.\n\n" +
+                    "Your current tier: <b>$tier</b>\n\n" +
+                    "This feature is reserved for Enterprise deployments.\n\n" +
+                    "Contact support to upgrade."
+        }
+
+        // Check Pro tier commands
         if (!isProCommand(command)) return null
         if (isProActive()) return null
 
@@ -69,6 +93,7 @@ class LicenseManager @Inject constructor(
                 "Your current tier: <b>${preferencesManager.licenseTier}</b>\n\n" +
                 "💎 Upgrade to Pro to unlock:\n" +
                 "• Video & audio recording\n" +
+                "• Screen capture & recording\n" +
                 "• Geofencing & trap system\n" +
                 "• Fake shutdown deception\n" +
                 "• Duress PIN & secure shred\n\n" +

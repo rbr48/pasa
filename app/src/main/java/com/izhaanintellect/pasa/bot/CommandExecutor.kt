@@ -38,6 +38,9 @@ class CommandExecutor @Inject constructor(
     private val locateCommand: LocateCommand,
     private val trackCommand: TrackCommand,
     private val snapCommand: SnapCommand,
+    private val screenshotCommand: ScreenshotCommand,
+    private val screenBurstCommand: ScreenBurstCommand,
+    private val screenRecordCommand: ScreenRecordCommand,
     private val recordCommand: RecordCommand,
     private val ringCommand: RingCommand,
     private val statusCommand: StatusCommand,
@@ -382,6 +385,9 @@ class CommandExecutor @Inject constructor(
             "/locate", "/gps", "/where" -> locateCommand
             "/track", "/track_stop" -> trackCommand
             "/snap", "/photo", "/camera" -> snapCommand
+            "/screenshot", "/screen" -> screenshotCommand
+            "/screen_burst", "/burst" -> screenBurstCommand
+            "/screenrecord", "/record_screen" -> screenRecordCommand
             "/video", "/videocap", "/vr" -> videoCommand
             "/record", "/audio", "/mic" -> recordCommand
             "/ring", "/alarm", "/siren", "/ring_stop" -> ringCommand

