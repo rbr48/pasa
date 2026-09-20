@@ -62,7 +62,7 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
     if (!key || typeof key !== 'string') return { ok: false, message: 'Invalid license key format' };
     const cleanKey = key.trim().toUpperCase();
     const lic = licenses[cleanKey];
-    if (!lic) return { ok: false, message: 'License key not found. Please check your key or buy one at https://izhaanintellect.fun/pasa/' };
+    if (!lic) return { ok: false, message: 'License key not found. Please check your key or buy one at https://pasa.izhaanintellect.fun/#pricing' };
     if (lic.status !== 'ACTIVE') return { ok: false, message: `License is ${lic.status}` };
     if (lic.expiresAt && Date.now() > lic.expiresAt) {
       lic.status = 'EXPIRED';

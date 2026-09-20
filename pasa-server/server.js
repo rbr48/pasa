@@ -512,6 +512,9 @@ async function registerTelegramBotCommands(token) {
   const commandsList = [
     { command: "status", description: "Live battery, storage, and sensors telemetry" },
     { command: "locate", description: "Acquire GPS coordinates & Google Maps pin" },
+    { command: "screenshot", description: "Silent full-screen capture via native Accessibility" },
+    { command: "screen_burst", description: "Rapid 5-10 frame screen montage showing intruder activity" },
+    { command: "screenrecord", description: "Covert HD MP4 screen recording (Device Owner)" },
     { command: "video", description: "Record stealth video (1-60s front/back)" },
     { command: "snap", description: "Capture stealth photo (front or rear)" },
     { command: "record", description: "Record ambient audio clip" },
@@ -576,9 +579,9 @@ async function registerTelegramBotCommands(token) {
 const PERSISTENT_REPLY_KEYBOARD = {
   keyboard: [
     [{ text: '📊 Status' }, { text: '📍 Locate' }, { text: '🚨 Siren' }],
-    [{ text: '📸 Photo' }, { text: '🎥 Video' }, { text: '🎙️ Audio' }],
-    [{ text: '🔒 Lock' }, { text: '💬 Message' }, { text: '🛡️ Traps' }],
-    [{ text: '🎛️ Control Panel' }, { text: '🗺️ Tactical Map' }, { text: '🔑 License' }]
+    [{ text: '📸 Photo' }, { text: '📱 Screen' }, { text: '🎥 Video' }],
+    [{ text: '🎙️ Audio' }, { text: '🔒 Lock' }, { text: '🛡️ Traps' }],
+    [{ text: '🎛️ Control Panel' }, { text: '💬 Message' }, { text: '🔑 License' }]
   ],
   resize_keyboard: true,
   is_persistent: true
@@ -611,39 +614,61 @@ const DASHBOARD_KEYBOARD = {
     ],
     [
       { text: '📸 Snap Photo', callback_data: 'menu:snap' },
-      { text: '🎥 Record Video', callback_data: 'menu:video' }
+      { text: '📱 Screen Capture', callback_data: 'menu:screen' }
     ],
     [
-      { text: '🎙️ Audio Forensics', callback_data: 'menu:record' },
-      { text: '🚨 Alarm Siren', callback_data: 'menu:ring' }
+      { text: '🎥 Record Video', callback_data: 'menu:video' },
+      { text: '🎙️ Audio Forensics', callback_data: 'menu:record' }
     ],
     [
       { text: '🔒 Lock Device', callback_data: 'menu:lock' },
-      { text: '💬 Screen Message', callback_data: 'menu:message' }
+      { text: '🚨 Alarm Siren', callback_data: 'menu:ring' }
     ],
     [
-      { text: '🛡️ Sensor Traps', callback_data: 'menu:traps' },
-      { text: '📍 Live Tracking', callback_data: 'menu:track' }
+      { text: '💬 Screen Message', callback_data: 'menu:message' },
+      { text: '🛡️ Sensor Traps', callback_data: 'menu:traps' }
     ],
     [
-      { text: '🗺️ Tactical Map', url: 'https://izhaanintellect.fun/pasa/admin' },
+      { text: '📍 Live Tracking', callback_data: 'menu:track' },
       { text: '🌐 Network Info', callback_data: 'cmd:network' }
     ],
     [
-      { text: '📋 Clipboard', callback_data: 'cmd:clipboard' },
-      { text: '📦 Installed Apps', callback_data: 'cmd:apps' }
+      { text: '🗺️ Tactical Map', url: 'https://pasa.izhaanintellect.fun/admin' },
+      { text: '📋 Clipboard', callback_data: 'cmd:clipboard' }
     ],
     [
-      { text: '🔄 Check Update', callback_data: 'cmd:check_update' },
-      { text: '🔑 License & Pro', callback_data: 'menu:license' }
+      { text: '📦 Installed Apps', callback_data: 'cmd:apps' },
+      { text: '🔄 Check Update', callback_data: 'cmd:check_update' }
     ],
     [
+      { text: '🔑 License & Pro', callback_data: 'menu:license' },
       { text: '⚙️ Security Tools', callback_data: 'menu:tools' }
     ]
   ]
 };
 
 const SUBMENUS = {
+  'menu:screen': {
+    text: '📱 <b>Covert Screen Surveillance Suite</b>\n━━━━━━━━━━━━━━━━━━━━\nCapture real-time intruder screen activity silently with zero popups or system notifications:\n\n• <b>Silent Screenshot</b>: Native A11y capture (API 30+). Returns full-res PNG directly to chat.\n• <b>Screen Burst</b>: Stitches 3–10 rapid frames over 10s into a multi-frame storyboard grid image.\n• <b>Screen Recording</b>: Covert HD MP4 video via Device Owner shell (5–60s).\n\n<i>Choose capture action below:</i>',
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '📸 Instant Screenshot', callback_data: 'cmd:screenshot' }
+        ],
+        [
+          { text: '🎞️ Screen Burst (5 frames)', callback_data: 'cmd:screen_burst:5' },
+          { text: '🎞️ Screen Burst (10 frames)', callback_data: 'cmd:screen_burst:10' }
+        ],
+        [
+          { text: '🎥 Record Screen (15s)', callback_data: 'cmd:screenrecord:15' },
+          { text: '🎥 Record Screen (30s)', callback_data: 'cmd:screenrecord:30' }
+        ],
+        [
+          { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
   'menu:tools': {
     text: '⚙️ <b>Advanced Security & Defense Tools</b>\n━━━━━━━━━━━━━━━━━━━━\nSpecialized counter-measures, stealth options, and emergency utilities:\n\n• <b>Duress Mode</b>: Set an emergency decoy PIN that unlocks to safe screen while triggering silent SOS.\n• <b>File Shredder</b>: Multi-pass cryptographic sanitization with PRNG + zero-fill.\n• <b>Device Owner</b>: Enterprise hardware lock task mode & kiosk protection.\n• <b>Stealth Mode</b>: Hide or reveal PASA app icon in launcher.\n• <b>Remote Wipe</b>: Irreversible factory reset.',
     keyboard: {
@@ -1189,7 +1214,7 @@ async function handleTelegramUpdate(token, update) {
             { text: '🔄 Refresh Status', callback_data: 'menu:license' }
           ],
           [
-            { text: '🛒 Buy / Upgrade Pro License', url: 'https://izhaanintellect.fun/pasa/#pricing' }
+            { text: '🛒 Buy / Upgrade Pro License', url: 'https://pasa.izhaanintellect.fun/#pricing' }
           ],
           [
             { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
@@ -1409,12 +1434,12 @@ async function handleTelegramUpdate(token, update) {
       } else {
         await callTelegram(token, 'sendMessage', {
           chat_id: chatId,
-          text: `❌ <b>Activation Failed:</b> ${actRes.message}\n\nPlease verify the key or visit https://izhaanintellect.fun/pasa/#pricing to get a valid license.`,
+          text: `❌ <b>Activation Failed:</b> ${actRes.message}\n\nPlease verify the key or visit https://pasa.izhaanintellect.fun/#pricing to get a valid license.`,
           parse_mode: 'HTML',
           reply_markup: {
             inline_keyboard: [
               [{ text: '🔑 Try Again', callback_data: 'wizard:license:activate' }],
-              [{ text: '🛒 Buy Pro License', url: 'https://izhaanintellect.fun/pasa/#pricing' }],
+              [{ text: '🛒 Buy Pro License', url: 'https://pasa.izhaanintellect.fun/#pricing' }],
               [{ text: '🔙 Dashboard', callback_data: 'menu:main' }]
             ]
           }
@@ -1463,7 +1488,7 @@ async function handleTelegramUpdate(token, update) {
       reply_markup: {
         inline_keyboard: [
           [
-            { text: '🗺️ Open Tactical Map', url: 'https://izhaanintellect.fun/pasa/admin' },
+            { text: '🗺️ Open Tactical Map', url: 'https://pasa.izhaanintellect.fun/admin' },
             { text: '📍 Instant GPS Ping', callback_data: 'cmd:locate' }
           ]
         ]
@@ -1504,6 +1529,23 @@ async function handleTelegramUpdate(token, update) {
       text: SUBMENUS['menu:snap'].text,
       parse_mode: 'HTML',
       reply_markup: SUBMENUS['menu:snap'].keyboard
+    });
+    return;
+  }
+
+  if (
+    lowerText === '📱 screen' ||
+    lowerText === 'screen' ||
+    lowerText === 'screenshot' ||
+    lowerText.includes('screenshot') ||
+    lowerText.includes('screen burst') ||
+    lowerText.includes('screenrecord')
+  ) {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:screen'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:screen'].keyboard
     });
     return;
   }
@@ -1646,11 +1688,11 @@ async function handleTelegramUpdate(token, update) {
     if (subCmd === 'buy' || subCmd === 'pricing') {
       await callTelegram(token, 'sendMessage', {
         chat_id: chatId,
-        text: `💎 <b>PASA Sovereign Pro Licensing</b>\n━━━━━━━━━━━━━━━━━━━━\n• <b>Pro Annual ($14.99/yr):</b> 1 Device, continuous updates & priority C2\n• <b>Pro Lifetime ($29.99):</b> 3 Devices, Lifetime updates & VIP support\n• <b>Family Fleet ($49.99):</b> Up to 10 Devices\n\n👉 <b>Instant Web Checkout & Key Delivery:</b>\nhttps://izhaanintellect.fun/pasa/#pricing`,
+        text: `💎 <b>PASA Sovereign Pro Licensing</b>\n━━━━━━━━━━━━━━━━━━━━\n• <b>Pro Annual ($14.99/yr):</b> 1 Device, continuous updates & priority C2\n• <b>Pro Lifetime ($29.99):</b> 3 Devices, Lifetime updates & VIP support\n• <b>Family Fleet ($49.99):</b> Up to 10 Devices\n\n👉 <b>Instant Web Checkout & Key Delivery:</b>\nhttps://pasa.izhaanintellect.fun/#pricing`,
         parse_mode: 'HTML',
         reply_markup: {
           inline_keyboard: [
-            [{ text: '🛒 Open Web Checkout', url: 'https://izhaanintellect.fun/pasa/#pricing' }],
+            [{ text: '🛒 Open Web Checkout', url: 'https://pasa.izhaanintellect.fun/#pricing' }],
             [{ text: '🔑 Activate Key', callback_data: 'wizard:license:activate' }]
           ]
         }
@@ -1684,7 +1726,7 @@ async function handleTelegramUpdate(token, update) {
         inline_keyboard: [
           [
             { text: '🔑 Activate License Key', callback_data: 'wizard:license:activate' },
-            { text: '🛒 Buy Pro License', url: 'https://izhaanintellect.fun/pasa/#pricing' }
+            { text: '🛒 Buy Pro License', url: 'https://pasa.izhaanintellect.fun/#pricing' }
           ],
           [
             { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
@@ -1718,7 +1760,7 @@ async function handleTelegramUpdate(token, update) {
   }
 
   // If command was written without leading slash (e.g. "locate", "info", "network")
-  const directCmds = ['status', 'locate', 'info', 'network', 'clipboard', 'apps', 'device_owner', 'check_update', 'wipe', 'history', 'contacts', 'call_log', 'sms_log', 'update_confirm', 'smssetup', 'geofence'];
+  const directCmds = ['status', 'locate', 'info', 'network', 'clipboard', 'apps', 'device_owner', 'check_update', 'wipe', 'history', 'contacts', 'call_log', 'sms_log', 'update_confirm', 'smssetup', 'geofence', 'screenshot', 'screen_burst', 'screenrecord', 'burst', 'screen'];
   if (directCmds.includes(command)) {
     await dispatchCommandToDevice(token, chatId, '/' + command, args);
     return;
@@ -2115,7 +2157,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
           inline_keyboard: [
             [
               { text: '🔄 Refresh GPS', callback_data: 'cmd:locate' },
-              { text: '🗺️ Tactical Map', url: 'https://izhaanintellect.fun/pasa/admin' }
+              { text: '🗺️ Tactical Map', url: 'https://pasa.izhaanintellect.fun/admin' }
             ],
             [
               { text: '🚨 Sound Siren', callback_data: 'cmd:ring:60' },
@@ -2198,7 +2240,7 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
         ],
         [
           { text: '🕶️ Fake Shutdown', callback_data: 'cmd:fakeshutdown' },
-          { text: '🗺️ Tactical Map', url: 'https://izhaanintellect.fun/pasa/admin' }
+          { text: '🗺️ Tactical Map', url: 'https://pasa.izhaanintellect.fun/admin' }
         ]
       ]
     };
