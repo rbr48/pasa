@@ -335,12 +335,17 @@
         <a href="#hardware-showcase" class="hover:text-white transition-colors">Tactical Console</a>
         <a href="#features" class="hover:text-white transition-colors">Security Features</a>
         <a href="#sideload" class="hover:text-white transition-colors">Sideload Guide</a>
+        <a href="#telegram-setup" class="hover:text-white transition-colors text-apple-blueLight">Telegram Setup</a>
         <a href="#compare" class="hover:text-white transition-colors">Compare</a>
         <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
       </nav>
 
       <!-- Right Action Buttons -->
       <div class="flex items-center gap-3">
+        <a href="https://github.com/rbr48/pasa" target="_blank" rel="noopener noreferrer" class="text-apple-grayText hover:text-white transition-colors hidden sm:flex items-center gap-1.5 text-xs py-1 px-2.5 rounded-full border border-white/10 hover:border-white/20 bg-white/[0.03]">
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
         <button onclick="scrollToLedger()" class="text-[12px] text-apple-grayText hover:text-white transition-colors hidden sm:inline-block">
           Verify Key
         </button>
@@ -777,9 +782,13 @@
         <div>
           <div class="text-4xl font-semibold text-neutral-600 mb-4 font-mono">03</div>
           <h4 class="text-lg font-semibold text-white mb-2">Arm &amp; Pair Telegram</h4>
-          <p class="text-sm text-apple-grayText leading-relaxed mb-6">
+          <p class="text-sm text-apple-grayText leading-relaxed mb-4">
             Open PASA, grant Device Administrator or run ADB Device Owner, set your master PIN, and paste your Telegram Bot Token.
           </p>
+          <a href="#telegram-setup" class="inline-flex items-center gap-1.5 text-xs text-apple-blueLight hover:underline mb-6">
+            <span>View Complete Telegram Bot Setup Guide</span>
+            <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i>
+          </a>
         </div>
         <div class="p-3 rounded-xl bg-black/40 border border-white/5 text-xs text-apple-blueLight font-mono break-all">
           adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
@@ -787,6 +796,282 @@
       </div>
 
     </div>
+  </section>
+
+  <!-- ================= TELEGRAM BOT SETUP & C2 TERMINAL GUIDE ================= -->
+  <section id="telegram-setup" class="py-24 px-4 sm:px-6 max-w-5xl mx-auto border-t border-white/[0.06]">
+    
+    <div class="text-center mb-12">
+      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blueLight mb-2">Remote Tactical Console</p>
+      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight text-white">
+        Complete Telegram Bot Setup Guide.
+      </h2>
+      <p class="text-base text-apple-grayText mt-3 max-w-2xl mx-auto">
+        Transform Telegram into your sovereign Command &amp; Control terminal in 60 seconds. Zero third-party cloud intermediaries &mdash; direct, authenticated device telemetry.
+      </p>
+    </div>
+
+    <!-- Telegram Setup Method Selector Tabs -->
+    <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-w-2xl mx-auto mb-12">
+      <button onclick="switchTgTab('private')" id="tabTgPrivate" class="px-5 py-2.5 rounded-full text-xs font-medium transition-all bg-white/10 text-white border border-white/20 flex items-center gap-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-apple-green"></i>
+        <span>Method 1: Private Bot via @BotFather</span>
+      </button>
+      <button onclick="switchTgTab('quick')" id="tabTgQuick" class="px-5 py-2.5 rounded-full text-xs font-medium transition-all bg-white/[0.04] text-apple-grayText border border-white/[0.08] hover:text-white flex items-center gap-2">
+        <i data-lucide="zap" class="w-4 h-4 text-apple-blueLight"></i>
+        <span>Method 2: Quick Pair (@Pas_agent_bot)</span>
+      </button>
+      <button onclick="switchTgTab('cheatsheet')" id="tabTgCheatsheet" class="px-5 py-2.5 rounded-full text-xs font-medium transition-all bg-white/[0.04] text-apple-grayText border border-white/[0.08] hover:text-white flex items-center gap-2">
+        <i data-lucide="terminal" class="w-4 h-4 text-apple-orange"></i>
+        <span>C2 Command Cheat Sheet</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: PRIVATE BOT VIA @BOTFATHER (RECOMMENDED) -->
+    <div id="tgPanePrivate" class="space-y-6">
+      <div class="apple-card p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/[0.08]">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-apple-blue/15 border border-apple-blue/30 flex items-center justify-center text-apple-blueLight font-mono font-bold">1</div>
+            <div>
+              <h4 class="text-lg font-semibold text-white">Create Your Dedicated Bot</h4>
+              <p class="text-xs text-apple-grayText">100% sovereign isolation &mdash; only you hold the HTTP API key.</p>
+            </div>
+          </div>
+          <a href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer" class="apple-btn-secondary text-xs px-4 py-2 flex items-center justify-center gap-1.5 w-full sm:w-auto">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span>Open @BotFather</span>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+          <div class="space-y-3 text-apple-grayText text-xs sm:text-sm">
+            <p>1. Open Telegram and search for official <a href="https://t.me/BotFather" target="_blank" class="text-apple-blueLight hover:underline font-mono">@BotFather</a>.</p>
+            <p>2. Tap <b>Start</b> and type: <code class="bg-black/60 text-white px-2 py-0.5 rounded font-mono text-xs">/newbot</code></p>
+            <p>3. Choose a friendly name (e.g., <span class="text-white">"My Sentinel"</span>), then a unique username ending in <code class="font-mono text-xs text-white">bot</code> (e.g. <span class="text-white">my_phone_sentinel_bot</span>).</p>
+            <p>4. @BotFather will reply with your secret <b>HTTP API Token</b>.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-black/60 border border-white/10 flex flex-col justify-between font-mono text-xs">
+            <div class="text-[11px] text-apple-grayText mb-2">// Sample @BotFather API Token</div>
+            <div class="text-apple-green break-all leading-relaxed" id="sampleBotToken">7894561230:AAGabcdef1234567890abcdef1234567890</div>
+            <div class="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-apple-grayText">
+              <span>Status: TLS Encrypted</span>
+              <button onclick="navigator.clipboard.writeText(document.getElementById('sampleBotToken').textContent); showToast('Sample token copied!');" class="text-apple-blueLight hover:underline">Copy Sample</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="apple-card p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/[0.08]">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-apple-blue/15 border border-apple-blue/30 flex items-center justify-center text-apple-blueLight font-mono font-bold">2</div>
+            <div>
+              <h4 class="text-lg font-semibold text-white">Obtain Your Numeric Telegram Chat ID</h4>
+              <p class="text-xs text-apple-grayText">Prevents anyone else from sending commands to your phone.</p>
+            </div>
+          </div>
+          <a href="https://t.me/userinfobot" target="_blank" rel="noopener noreferrer" class="apple-btn-secondary text-xs px-4 py-2 flex items-center justify-center gap-1.5 w-full sm:w-auto">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span>Open @userinfobot</span>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+          <div class="space-y-3 text-apple-grayText text-xs sm:text-sm">
+            <p>1. Open <a href="https://t.me/userinfobot" target="_blank" class="text-apple-blueLight hover:underline font-mono">@userinfobot</a> in Telegram.</p>
+            <p>2. Tap <b>Start</b>. The bot will reply with your profile info.</p>
+            <p>3. Copy your numeric <b>Id</b> (e.g., <span class="text-white font-mono font-semibold">123456789</span>).</p>
+            <p class="text-xs text-apple-orange/90 flex items-center gap-1.5 pt-1">
+              <i data-lucide="shield-alert" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              <span>Anti-Spoofing: All commands from unauthorized chat IDs are dropped silently.</span>
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-black/60 border border-white/10 flex flex-col justify-between font-mono text-xs">
+            <div class="text-[11px] text-apple-grayText mb-2">// Sample @userinfobot Response</div>
+            <div class="text-white space-y-1">
+              <div><span class="text-apple-grayText">@userinfobot:</span></div>
+              <div>Id: <span class="text-apple-blueLight font-semibold">123456789</span></div>
+              <div>First: John &bull; Last: Doe</div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-white/[0.08] text-[11px] text-apple-grayText">
+              Cryptographically verified owner binding.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="apple-card p-6 sm:p-8">
+        <div class="flex items-center gap-3 mb-6 pb-6 border-b border-white/[0.08]">
+          <div class="w-10 h-10 rounded-full bg-apple-green/15 border border-apple-green/30 flex items-center justify-center text-apple-green font-mono font-bold">3</div>
+          <div>
+            <h4 class="text-lg font-semibold text-white">Enter Credentials in App &amp; Test Live</h4>
+            <p class="text-xs text-apple-grayText">Arms the on-device daemon and establishes real-time connection.</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-black/40 border border-white/5 space-y-2">
+            <div class="font-semibold text-white flex items-center gap-1.5"><i data-lucide="key" class="w-3.5 h-3.5 text-apple-blueLight"></i> Bot Token</div>
+            <p class="text-apple-grayText leading-relaxed">Paste the HTTP API Token from @BotFather into PASA Sentinel.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-black/40 border border-white/5 space-y-2">
+            <div class="font-semibold text-white flex items-center gap-1.5"><i data-lucide="user-check" class="w-3.5 h-3.5 text-apple-green"></i> Owner Chat ID</div>
+            <p class="text-apple-grayText leading-relaxed">Paste your personal numeric ID from @userinfobot.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-black/40 border border-white/5 space-y-2">
+            <div class="font-semibold text-white flex items-center gap-1.5"><i data-lucide="shield" class="w-3.5 h-3.5 text-apple-orange"></i> Emergency PIN</div>
+            <p class="text-apple-grayText leading-relaxed">Choose a 4&ndash;8 digit PIN used for airgap SMS auth and emergency unlock.</p>
+          </div>
+        </div>
+        <div class="mt-6 p-4 rounded-xl bg-apple-blue/10 border border-apple-blue/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <div class="flex items-center gap-3">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-apple-blueLight flex-shrink-0"></i>
+            <span class="text-white">Done! Open your bot in Telegram and send <code class="font-mono bg-black/60 px-2 py-0.5 rounded text-apple-blueLight">/start</code>. Your Tactical C2 Dashboard will instantly appear with live buttons.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: QUICK PAIR VIA @Pas_agent_bot -->
+    <div id="tgPaneQuick" class="space-y-6 hidden">
+      <div class="apple-card p-6 sm:p-8">
+        <div class="text-center max-w-xl mx-auto mb-8">
+          <div class="w-12 h-12 rounded-full bg-apple-blue/15 border border-apple-blue/30 flex items-center justify-center text-apple-blueLight mx-auto mb-3">
+            <i data-lucide="zap" class="w-6 h-6"></i>
+          </div>
+          <h4 class="text-xl font-semibold text-white mb-2">Instant 10-Second Pairing</h4>
+          <p class="text-xs text-apple-grayText">
+            No bot configuration required. Connect directly to our pre-configured official gateway bot in just 3 quick steps:
+          </p>
+          <a href="https://t.me/Pas_agent_bot" target="_blank" rel="noopener noreferrer" class="apple-btn-pill inline-flex items-center gap-2 text-xs px-5 py-2.5 mt-4 shadow-[0_0_25px_rgba(0,113,227,0.3)]">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>Open @Pas_agent_bot on Telegram</span>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+          <div class="p-5 rounded-2xl bg-black/50 border border-white/[0.08] flex flex-col justify-between">
+            <div>
+              <div class="text-2xl font-bold font-mono text-apple-blueLight mb-2">01</div>
+              <h5 class="font-semibold text-white mb-2">Open Bot</h5>
+              <p class="text-xs text-apple-grayText leading-relaxed">
+                Open <a href="https://t.me/Pas_agent_bot" target="_blank" class="text-apple-blueLight hover:underline font-mono">@Pas_agent_bot</a> in Telegram and tap <b>Start</b>.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-white/[0.05] text-[11px] text-apple-grayText">Step 1 of 3</div>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-black/50 border border-white/[0.08] flex flex-col justify-between">
+            <div>
+              <div class="text-2xl font-bold font-mono text-apple-blueLight mb-2">02</div>
+              <h5 class="font-semibold text-white mb-2">Generate Pairing Code</h5>
+              <p class="text-xs text-apple-grayText leading-relaxed">
+                In PASA Sentinel on your Android device, tap <b>"Quick Pair via @Pas_agent_bot"</b> to generate a 6-digit one-time code.
+              </p>
+            </div>
+            <div class="mt-4 p-2 bg-black/60 rounded text-center font-mono text-sm text-apple-green font-bold tracking-widest">
+              839 201
+            </div>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-black/50 border border-white/[0.08] flex flex-col justify-between">
+            <div>
+              <div class="text-2xl font-bold font-mono text-apple-blueLight mb-2">03</div>
+              <h5 class="font-semibold text-white mb-2">Send Code to Bot</h5>
+              <p class="text-xs text-apple-grayText leading-relaxed">
+                Type the 6 digits into the chat with <span class="text-white font-mono">@Pas_agent_bot</span>. Your phone is immediately paired!
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-white/[0.05] text-[11px] text-apple-green flex items-center gap-1">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>
+              <span>Instant C2 Activation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: COMMAND CHEAT SHEET -->
+    <div id="tgPaneCheatsheet" class="space-y-6 hidden">
+      <div class="apple-card p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/[0.08]">
+          <div>
+            <h4 class="text-lg font-semibold text-white">Telegram Remote C2 Command Glossary</h4>
+            <p class="text-xs text-apple-grayText">Tap any command card to copy the syntax to your clipboard.</p>
+          </div>
+          <div class="text-xs text-apple-grayText font-mono bg-black/40 px-3 py-1.5 rounded-lg border border-white/5">
+            Click to Copy
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+          
+          <div onclick="copyTextCmd('/locate')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/locate</span>
+              <span class="text-[10px] text-apple-grayText font-sans uppercase tracking-wider">GNSS Satellite</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Wakes hardware GPS receiver, computes precision satellite lock, and returns direct Google Maps pin with accuracy &amp; battery.</p>
+          </div>
+
+          <div onclick="copyTextCmd('/snap')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/snap <span class="text-white font-normal text-xs">[front|rear]</span></span>
+              <span class="text-[10px] text-apple-orange font-sans uppercase tracking-wider">Covert Photo</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Captures high-res photo with <b>zero screen wake</b>, no viewfinder preview, and no shutter sound. Delivered directly to chat.</p>
+          </div>
+
+          <div onclick="copyTextCmd('/record 30')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/record <span class="text-white font-normal text-xs">[seconds]</span></span>
+              <span class="text-[10px] text-apple-green font-sans uppercase tracking-wider">Ambient Wiretap</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Silently activates microphone (default 30 seconds, up to 300s) and streams high-fidelity voice note to Telegram.</p>
+          </div>
+
+          <div onclick="copyTextCmd('/fakeshutdown')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/fakeshutdown</span>
+              <span class="text-[10px] text-apple-red font-sans uppercase tracking-wider">0-Nit Trap</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Spoofs Android power-down animation and enters 0-nit pitch black screen trap mode while keeping all sensors armed.</p>
+          </div>
+
+          <div onclick="copyTextCmd('/wake')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/wake</span>
+              <span class="text-[10px] text-white font-sans uppercase tracking-wider">Restore Screen</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Re-enables device display and dismisses fake shutdown blackout canvas.</p>
+          </div>
+
+          <div onclick="copyTextCmd('/ring')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/ring</span>
+              <span class="text-[10px] text-apple-orange font-sans uppercase tracking-wider">100% Siren</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Blasts maximum volume alarm overriding hardware silent switch and Do Not Disturb (DND).</p>
+          </div>
+
+          <div onclick="copyTextCmd('/lock')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/lock</span>
+              <span class="text-[10px] text-white font-sans uppercase tracking-wider">Knox Lock</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Instantly locks the screen via Device Owner, disabling lockscreen notification shade and USB access.</p>
+          </div>
+
+          <div onclick="copyTextCmd('/smssetup')" class="p-4 rounded-xl bg-black/50 border border-white/[0.08] hover:border-apple-blue/50 transition-colors cursor-pointer group">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-apple-blueLight font-semibold text-sm group-hover:underline">/smssetup</span>
+              <span class="text-[10px] text-apple-green font-sans uppercase tracking-wider">Airgap OTP</span>
+            </div>
+            <p class="text-apple-grayText font-sans text-xs">Generates TOTP secret key for offline airgapped SMS commands: <span class="text-white">PASA &lt;totp&gt; /locate</span></p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </section>
 
   <!-- ================= APPLE COMPARISON MATRIX ================= -->
@@ -997,7 +1282,11 @@
       <div class="flex flex-col sm:flex-row md:flex-col gap-3 w-full md:w-auto">
         <a id="releaseDownloadBtn" href="/api/app/download/pasa-latest.apk" class="apple-btn-pill px-6 py-3 text-xs text-center font-medium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,113,227,0.35)] apk-download-link">
           <i data-lucide="download" class="w-4 h-4"></i>
-          <span>Download APK</span>
+          <span>Download APK (Fast Mirror)</span>
+        </a>
+        <a href="https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.2.apk" target="_blank" rel="noopener noreferrer" class="apple-btn-secondary px-6 py-2.5 text-xs text-center font-medium flex items-center justify-center gap-2 hover:border-white/30">
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>Get via GitHub Release</span>
         </a>
         <a href="#sideload" class="apple-link text-xs justify-center">
           <span>Sideload instructions</span>
@@ -1357,6 +1646,68 @@
         botSubLine.innerHTML = '&gt; Anti-tamper Ed25519 signature generated. Encrypted payload delivered to Telegram.';
       }
       if (window.lucide) lucide.createIcons();
+    }
+
+    // 2.5 Telegram Bot Setup Guide Tab & Command Handler
+    function switchTgTab(tab) {
+      const pTab = document.getElementById('tabTgPrivate');
+      const qTab = document.getElementById('tabTgQuick');
+      const cTab = document.getElementById('tabTgCheatsheet');
+      const pPane = document.getElementById('tgPanePrivate');
+      const qPane = document.getElementById('tgPaneQuick');
+      const cPane = document.getElementById('tgPaneCheatsheet');
+
+      const activeClasses = ['bg-white/10', 'text-white', 'border-white/20'];
+      const inactiveClasses = ['bg-white/[0.04]', 'text-apple-grayText', 'border-white/[0.08]', 'hover:text-white'];
+
+      [pTab, qTab, cTab].forEach(t => {
+        if (!t) return;
+        t.classList.remove(...activeClasses);
+        t.classList.add(...inactiveClasses);
+      });
+
+      if (pPane) pPane.classList.add('hidden');
+      if (qPane) qPane.classList.add('hidden');
+      if (cPane) cPane.classList.add('hidden');
+
+      if (tab === 'private') {
+        pTab.classList.remove(...inactiveClasses);
+        pTab.classList.add(...activeClasses);
+        if (pPane) pPane.classList.remove('hidden');
+      } else if (tab === 'quick') {
+        qTab.classList.remove(...inactiveClasses);
+        qTab.classList.add(...activeClasses);
+        if (qPane) qPane.classList.remove('hidden');
+      } else if (tab === 'cheatsheet') {
+        cTab.classList.remove(...inactiveClasses);
+        cTab.classList.add(...activeClasses);
+        if (cPane) cPane.classList.remove('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function showToast(msg) {
+      let t = document.getElementById('pasaToast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'pasaToast';
+        t.className = 'fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl bg-[#1d1d1f] border border-white/20 text-white text-xs shadow-2xl flex items-center gap-2 transition-all duration-300 opacity-0 translate-y-2 pointer-events-none';
+        document.body.appendChild(t);
+      }
+      t.innerHTML = '<svg class="w-4 h-4 text-[#30d158] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>' + msg + '</span>';
+      t.classList.remove('opacity-0', 'translate-y-2');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => {
+        t.classList.add('opacity-0', 'translate-y-2');
+      }, 2500);
+    }
+
+    function copyTextCmd(cmd) {
+      navigator.clipboard.writeText(cmd).then(() => {
+        showToast('Copied: ' + cmd);
+      }).catch(() => {
+        showToast('Selected: ' + cmd);
+      });
     }
 
     // 3. Binance Pay Checkout Engine with Operator Approval
