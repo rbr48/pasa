@@ -2885,6 +2885,24 @@ app.post('/api/license/purchase', licensingGuard, async (req, res) => {
     if (cleanTier === 'PRO_ENTERPRISE') priceDisplay = '৳9,990';
     if (price) priceDisplay = '৳' + Number(price).toLocaleString('en-BD');
 
+    // Deduplication check: prevent duplicate alerts if user double clicks or retries within 2 minutes
+    const normalizedEmail = email.trim().toLowerCase();
+    for (const existing of Object.values(licenseOrders)) {
+      if (existing.email === normalizedEmail && existing.txId === effectiveTxId && (Date.now() - existing.createdAt < 120000)) {
+        return res.json({
+          ok: true,
+          pending: true,
+          orderId: existing.orderId,
+          license: {
+            key: existing.licenseKey,
+            tier: existing.tier,
+            maxDevices: maxDevices
+          },
+          message: 'Existing order retrieved.'
+        });
+      }
+    }
+
     const orderId = 'ord_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
 
     // Create and provision the sovereign license key immediately
