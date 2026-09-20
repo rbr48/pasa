@@ -6,7 +6,8 @@
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
 [![Version](https://img.shields.io/badge/Release-v3.0.2%20(Build%208)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
-[![Zero Telemetry](https://img.shields.io/badge/Privacy-100%25%20Zero%20Telemetry-brightgreen.svg)](#privacy--sovereignty)
+[![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Telemetry%20Policy-brightgreen.svg)](PRIVACY.md)
+[![7-Day Guarantee](https://img.shields.io/badge/Guarantee-7--Day%20Money%20Back-30D158.svg)](PRIVACY.md#-4-7-day-money-back-guarantee-binance-pay)
 [![Binance Pay](https://img.shields.io/badge/Payments-Binance%20Pay%20Verified-F0B90B.svg)](#commercial-licensing--binance-pay)
 
 ---
@@ -21,8 +22,10 @@
 5. [Telegram C2 Command Glossary](#telegram-c2-command-glossary)
 6. [Offline Air-Gapped SMS Defense](#offline-air-gapped-sms-defense)
 7. [Commercial Licensing & Binance Pay](#commercial-licensing--binance-pay)
+   - [7-Day Money-Back Guarantee](#-7-day-no-questions-asked-money-back-guarantee)
 8. [Building from Source](#building-from-source)
 9. [Release Verification & Integrity](#release-verification--integrity)
+10. [Zero-Telemetry Privacy Policy](PRIVACY.md)
 
 ---
 
@@ -221,6 +224,13 @@ PASA operates on a sovereign, one-time payment model — **no recurrent monthly 
 4. A real-time Telegram alert arrives on the operator's phone with interactive buttons:
    `[ ✅ Approve & Issue Key ]`  `[ ❌ Reject Fake Payment ]`
 5. Upon confirmation, the cryptographically signed `PASA-LIFE-XXXX-XXXX` key appears automatically on the buyer's screen and is activated.
+
+### 🛡️ 7-Day No-Questions-Asked Money-Back Guarantee
+Every paid license comes with an unconditional **7-day money-back guarantee**:
+* **Full Refund in USDT:** If PASA Sentinel doesn't meet your defense requirements or your device has OEM battery constraints, simply request a refund within 7 days.
+* **Rapid Payout:** 100% of your payment is sent straight back to your Binance Pay ID / UID within 24 hours.
+* **How to Claim:** Message [@Pas_agent_bot](https://t.me/Pas_agent_bot) in Telegram or email [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun) with your Order ID or License Key.
+* Full policy documented in [PRIVACY.md](PRIVACY.md#-4-7-day-money-back-guarantee-binance-pay).
 
 ---
 
