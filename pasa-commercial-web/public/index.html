@@ -1213,9 +1213,15 @@
         </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-black/[0.06] text-[11px]">
-        <div>Copyright &copy; 2026 Izhaan Intellect &amp; PASA Sentinel. All rights reserved.</div>
-        <div class="flex items-center gap-4 mt-3 sm:mt-0">
+      <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-black/[0.06] text-[11px] gap-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <span>Copyright &copy; 2026 Izhaan Intellect &amp; PASA Sentinel. All rights reserved.</span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/[0.04] border border-black/[0.08] text-[11px] font-mono text-apple-grayText">
+            <i data-lucide="eye" class="w-3.5 h-3.5 text-apple-blue"></i>
+            <span>Visitors: <b id="visitorCount" class="text-apple-black font-semibold">2,050</b></span>
+          </span>
+        </div>
+        <div class="flex items-center gap-4">
           <a href="/privacy.html" class="hover:text-apple-black transition-colors">Privacy Policy</a>
           <span>&bull;</span>
           <a href="/terms" class="text-apple-blue font-medium hover:underline">Terms of Service &amp; EULA</a>
@@ -1612,9 +1618,40 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // Init default tab
+    // 5. Visitor Count Engine (starting at 2,050)
+    async function initVisitorCount() {
+      const BASE = 2050;
+      const countEl = document.getElementById('visitorCount');
+      if (!countEl) return;
+
+      try {
+        const res = await fetch('/api/stats/visitors');
+        const data = await res.json();
+        if (data.ok && data.count) {
+          const num = Math.max(Number(data.count), BASE);
+          countEl.textContent = num.toLocaleString('en-US');
+          localStorage.setItem('pasa_vis_count', num);
+          if (window.lucide) lucide.createIcons();
+          return;
+        }
+      } catch (_) {}
+
+      // Fallback local persistence
+      let cached = parseInt(localStorage.getItem('pasa_vis_count') || BASE, 10);
+      if (isNaN(cached) || cached < BASE) cached = BASE;
+      if (!sessionStorage.getItem('pasa_vis_hit')) {
+        cached++;
+        localStorage.setItem('pasa_vis_count', cached);
+        sessionStorage.setItem('pasa_vis_hit', '1');
+      }
+      countEl.textContent = cached.toLocaleString('en-US');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Init default tab & stats
     triggerScenario('snatch');
     selectPayment('bkash');
+    initVisitorCount();
   </script>
 </body>
 </html>

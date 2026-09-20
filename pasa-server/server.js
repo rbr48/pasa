@@ -2994,6 +2994,30 @@ app.post('/api/license/lookup', licensingGuard, (req, res) => {
   res.json({ ok: true, license: found });
 });
 
+// Visitor counter endpoint (starts with 2050)
+const VISITORS_FILE = path.join(DATA_DIR, 'visitors.json');
+let visitorStats = { count: 2050 };
+try {
+  if (fs.existsSync(VISITORS_FILE)) {
+    visitorStats = JSON.parse(fs.readFileSync(VISITORS_FILE, 'utf8'));
+    if (!visitorStats.count || visitorStats.count < 2050) {
+      visitorStats.count = 2050;
+    }
+  } else {
+    fs.writeFileSync(VISITORS_FILE, JSON.stringify(visitorStats, null, 2));
+  }
+} catch (_) {
+  visitorStats = { count: 2050 };
+}
+
+app.get('/api/stats/visitors', (req, res) => {
+  visitorStats.count = (visitorStats.count || 2050) + 1;
+  try {
+    fs.writeFileSync(VISITORS_FILE, JSON.stringify(visitorStats, null, 2));
+  } catch (_) {}
+  res.json({ ok: true, count: visitorStats.count });
+});
+
 // 7e. Payment Webhook Receiver (Stripe / LemonSqueezy / Paddle / bKash / Crypto)
 app.post('/api/webhook/payment', licensingGuard, (req, res) => {
   const secret = process.env.PAYMENT_WEBHOOK_SECRET;
