@@ -11,6 +11,8 @@ import java.io.FileOutputStream
 import java.security.KeyStore
 import java.security.SecureRandom
 import javax.crypto.Cipher
+import javax.crypto.CipherInputStream
+import javax.crypto.CipherOutputStream
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
@@ -101,28 +103,66 @@ class EncryptionManager @Inject constructor(
     /**
      * Encrypts a file using the PASA 3.0 Vault authenticated envelope format:
      * [12 bytes header: "PASA_ENC_V1\n"] + [12 bytes GCM IV] + [AES-256-GCM Ciphertext + 16 bytes auth tag]
+     * Streams data in 64KB chunks to avoid OOM memory pressure on large video/audio captures.
      */
     fun encryptEvidenceVaultFile(inputFile: File, outputFile: File, alias: String = DEFAULT_ALIAS) {
-        val data = FileInputStream(inputFile).use { it.readBytes() }
-        val encryptedWithIv = encrypt(data, alias)
+        val key = getOrCreateKey(alias)
+        val cipher = Cipher.getInstance(AES_GCM_NO_PADDING)
+        val iv = ByteArray(GCM_IV_LENGTH).also { SecureRandom().nextBytes(it) }
+        val spec = GCMParameterSpec(GCM_TAG_LENGTH, iv)
+        cipher.init(Cipher.ENCRYPT_MODE, key, spec)
+
         FileOutputStream(outputFile).use { fos ->
             fos.write(VAULT_HEADER)
-            fos.write(encryptedWithIv)
+            fos.write(iv)
+            CipherOutputStream(fos, cipher).use { cos ->
+                FileInputStream(inputFile).use { fis ->
+                    val buffer = ByteArray(64 * 1024)
+                    var read: Int
+                    while (fis.read(buffer).also { read = it } != -1) {
+                        cos.write(buffer, 0, read)
+                    }
+                }
+            }
         }
     }
 
     /**
-     * Decrypts a PASA 3.0 Vault authenticated envelope file.
+     * Decrypts a PASA 3.0 Vault authenticated envelope file using chunked streaming.
      */
     fun decryptEvidenceVaultFile(inputFile: File, outputFile: File, alias: String = DEFAULT_ALIAS) {
-        val raw = FileInputStream(inputFile).use { it.readBytes() }
-        val payload = if (isEncryptedVaultData(raw)) {
-            raw.copyOfRange(VAULT_HEADER.size, raw.size)
-        } else {
-            raw
+        FileInputStream(inputFile).use { fis ->
+            val headerCheck = ByteArray(VAULT_HEADER.size)
+            val readHeader = fis.read(headerCheck)
+            val hasVaultHeader = readHeader == VAULT_HEADER.size && headerCheck.contentEquals(VAULT_HEADER)
+
+            val iv = ByteArray(GCM_IV_LENGTH)
+            if (!hasVaultHeader) {
+                // If header absent, the first bytes read were IV bytes
+                System.arraycopy(headerCheck, 0, iv, 0, headerCheck.size.coerceAtMost(GCM_IV_LENGTH))
+                val remainingIv = GCM_IV_LENGTH - headerCheck.size
+                if (remainingIv > 0) {
+                    fis.read(iv, headerCheck.size, remainingIv)
+                }
+            } else {
+                fis.read(iv)
+            }
+
+            val key = getOrCreateKey(alias)
+            val cipher = Cipher.getInstance(AES_GCM_NO_PADDING)
+            val spec = GCMParameterSpec(GCM_TAG_LENGTH, iv)
+            cipher.init(Cipher.DECRYPT_MODE, key, spec)
+
+            CipherInputStream(fis, cipher).use { cis ->
+                FileOutputStream(outputFile).use { fos ->
+                    val buffer = ByteArray(64 * 1024)
+                    var read: Int
+                    while (cis.read(buffer).also { read = it } != -1) {
+                        fos.write(buffer, 0, read)
+                    }
+                }
+            }
         }
-        val decrypted = decrypt(payload, alias)
-        FileOutputStream(outputFile).use { it.write(decrypted) }
     }
 
     /**

@@ -293,6 +293,10 @@ class PreferencesManager @Inject constructor(
         get() = prefs.getString("replay_seen_command_ids", "") ?: ""
         set(value) = prefs.edit().putString("replay_seen_command_ids", value).apply()
 
+    var replaySeenSequences: String
+        get() = prefs.getString("replay_seen_sequences", "") ?: ""
+        set(value) = prefs.edit().putString("replay_seen_sequences", value).apply()
+
     var trustedCommandKeys: Map<String, String>
         get() {
             val raw = prefs.getString("trusted_command_keys", null) ?: return emptyMap()

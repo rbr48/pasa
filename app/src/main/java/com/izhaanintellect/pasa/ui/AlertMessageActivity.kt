@@ -28,6 +28,7 @@ import com.izhaanintellect.pasa.security.AuthManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -232,26 +233,34 @@ class AlertMessageActivity : AppCompatActivity() {
             return
         }
 
-        // 2. Standard Lock PIN or Master Password
-        val isPinCorrect = (!activePin.isNullOrBlank() && pin == activePin) ||
-                authManager.verifyMasterPassword(pin)
+        binding.btnKeyUnlock.isEnabled = false
 
-        if (isPinCorrect) {
-            Log.i(TAG, "PIN verified successfully. Unlocking Lost Mode.")
-            Toast.makeText(this, "✅ Device Unlocked", Toast.LENGTH_SHORT).show()
-            preferencesManager.isDuressActive = false
-            exitLostMode()
-        } else {
-            failedPinAttempts++
-            binding.tvPinError.visibility = View.VISIBLE
-            binding.tvPinError.text = "❌ Incorrect PIN ($failedPinAttempts/3 attempts)"
-            enteredPin.clear()
-            updatePinDisplay()
-            playAlertChime()
+        lifecycleScope.launch {
+            // 2. Standard Lock PIN or Master Password (run off-thread to avoid ANR from 600k PBKDF2 iterations)
+            val isPinCorrect = (!activePin.isNullOrBlank() && pin == activePin) ||
+                    withContext(Dispatchers.Default) {
+                        authManager.verifyMasterPassword(pin)
+                    }
 
-            if (failedPinAttempts >= 3) {
-                triggerFailedPinDeterrent()
-                failedPinAttempts = 0
+            binding.btnKeyUnlock.isEnabled = true
+
+            if (isPinCorrect) {
+                Log.i(TAG, "PIN verified successfully. Unlocking Lost Mode.")
+                Toast.makeText(this@AlertMessageActivity, "✅ Device Unlocked", Toast.LENGTH_SHORT).show()
+                preferencesManager.isDuressActive = false
+                exitLostMode()
+            } else {
+                failedPinAttempts++
+                binding.tvPinError.visibility = View.VISIBLE
+                binding.tvPinError.text = "❌ Incorrect PIN ($failedPinAttempts/3 attempts)"
+                enteredPin.clear()
+                updatePinDisplay()
+                playAlertChime()
+
+                if (failedPinAttempts >= 3) {
+                    triggerFailedPinDeterrent()
+                    failedPinAttempts = 0
+                }
             }
         }
     }
@@ -354,7 +363,6 @@ class AlertMessageActivity : AppCompatActivity() {
                 isKioskActive = false
             }
             com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setComprehensiveLockdown(this, false)
-            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setUninstallBlocked(this, false)
         } catch (_: Exception) {}
 
         preferencesManager.isLostModeActive = false
@@ -386,11 +394,6 @@ class AlertMessageActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
-
-        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            keyguardManager?.requestDismissKeyguard(this, null)
-        }
     }
 
     private fun playAlertChime() {

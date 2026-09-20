@@ -26,12 +26,27 @@ commandEmitter.setMaxListeners(100);
 
 // Default bot token (optional fallback via environment variable only - never hardcoded in source)
 const DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || '';
+const ADMIN_BOT_TOKEN = process.env.ADMIN_BOT_TOKEN || process.env.BOT_TOKEN || '';
+const ADMIN_CHAT_ID = String(process.env.ADMIN_CHAT_ID || '5497803807');
+const BINANCE_PAY_ID = process.env.BINANCE_PAY_ID || '756303714';
+const BINANCE_NICKNAME = process.env.BINANCE_NICKNAME || 'RBR48';
 
 // Setup directories
 const DATA_DIR = path.join(__dirname, 'data');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
+const EVIDENCE_DIR = path.join(UPLOADS_DIR, 'evidence');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(EVIDENCE_DIR)) fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
+
+function getAdminBotToken() {
+  if (ADMIN_BOT_TOKEN) return ADMIN_BOT_TOKEN;
+  if (DEFAULT_BOT_TOKEN) return DEFAULT_BOT_TOKEN;
+  for (const dev of Object.values(devices)) {
+    if (dev.botToken) return dev.botToken;
+  }
+  return '';
+}
 
 const DB_FILE = path.join(DATA_DIR, 'pasa.db');
 const DEVICES_FILE = path.join(DATA_DIR, 'devices.json');
@@ -261,7 +276,7 @@ setInterval(cleanupStaleCommands, 6 * 60 * 60 * 1000);
 
 function cleanupExpiredEvidence() {
   try {
-    const purged = EvidenceRepo.purgeExpired(UPLOADS_DIR);
+    const purged = EvidenceRepo.purgeExpired(EVIDENCE_DIR);
     if (purged > 0) {
       console.log(`[Maintenance] Auto-purged ${purged} expired evidence files from vault (>7 days).`);
     }
@@ -1082,6 +1097,18 @@ async function handleTelegramUpdate(token, update) {
     });
 
     // Two-Step Binance Pay Order Approval / Rejection Handlers
+    if (data.startsWith('lic:approve:') || data.startsWith('lic:reject:')) {
+      if (String(chatId) !== String(ADMIN_CHAT_ID)) {
+        console.warn(`[Licensing Security] Unauthorized license action attempt from chatId: ${chatId}. Expected admin: ${ADMIN_CHAT_ID}`);
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `⛔ <b>Access Denied:</b> Only designated Administrator (<code>${ADMIN_CHAT_ID}</code>) can verify or approve licenses.`,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+    }
+
     if (data.startsWith('lic:approve:')) {
       const orderId = data.substring('lic:approve:'.length);
       const order = licenseOrders[orderId];
@@ -1108,9 +1135,9 @@ async function handleTelegramUpdate(token, update) {
 
       const lic = licensing.createLicense(order.email, order.tier, maxDevices, {
         paymentMethod: 'BINANCE_PAY',
-        binancePayId: '756303714',
+        binancePayId: BINANCE_PAY_ID,
         binanceTxId: order.binanceTxId,
-        nickname: 'RBR48'
+        nickname: BINANCE_NICKNAME
       });
 
       order.status = 'APPROVED';
@@ -1166,7 +1193,7 @@ async function handleTelegramUpdate(token, update) {
               `<b>Order ID:</b> <code>${orderId}</code>\n` +
               `<b>Buyer:</b> <code>${order.email}</code>\n` +
               `<b>Submitted TX:</b> <code>${order.binanceTxId || 'None'}</code>\n` +
-              `<b>Reason:</b> Payment not received on Binance Pay ID 756303714.\n\n` +
+              `<b>Reason:</b> Payment not received on Binance Pay ID ${BINANCE_PAY_ID}.\n\n` +
               `🚫 <i>Voided. No license key was issued.</i>`,
         parse_mode: 'HTML'
       });
@@ -1685,6 +1712,63 @@ async function handleTelegramUpdate(token, update) {
       return;
     }
 
+    if (subCmd === 'issue' || subCmd === 'create') {
+      if (String(chatId) !== String(ADMIN_CHAT_ID)) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `⛔ <b>Access Denied:</b> Only designated Administrator (<code>${ADMIN_CHAT_ID}</code>) can issue licenses directly.`,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      const targetEmail = parts[2] || 'manual-admin@pasa.sec';
+      const targetTier = (parts[3] || 'PRO_LIFETIME').toUpperCase();
+      const maxDevs = parseInt(parts[4], 10) || (targetTier === 'PRO_ENTERPRISE' ? 10 : 3);
+      const newLic = licensing.createLicense(targetEmail, targetTier, maxDevs, { paymentMethod: 'ADMIN_MANUAL_ISSUE' });
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: `👑 <b>ADMIN LICENSE ISSUED</b>\n━━━━━━━━━━━━━━━━━━━━\n` +
+              `<b>Key:</b> <code>${newLic.key}</code>\n` +
+              `<b>Recipient:</b> <code>${targetEmail}</code>\n` +
+              `<b>Tier:</b> ${newLic.tier}\n` +
+              `<b>Max Devices:</b> ${newLic.maxDevices}\n` +
+              `<b>Status:</b> ${newLic.status}\n\n` +
+              `<i>Share this key with the client or buyer.</i>`,
+        parse_mode: 'HTML'
+      });
+      return;
+    }
+
+    if (subCmd === 'pending') {
+      if (String(chatId) !== String(ADMIN_CHAT_ID)) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `⛔ <b>Access Denied:</b> Only designated Administrator (<code>${ADMIN_CHAT_ID}</code>) can view pending orders.`,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      const pendingOrders = Object.values(licenseOrders).filter(o => o.status === 'PENDING_APPROVAL');
+      if (pendingOrders.length === 0) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `✅ <b>No Pending Orders:</b> All Binance Pay orders are processed.`,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      let summary = `📋 <b>Pending Binance Pay Orders (${pendingOrders.length})</b>\n━━━━━━━━━━━━━━━━━━━━\n`;
+      for (const po of pendingOrders.slice(0, 10)) {
+        summary += `• <b>Order:</b> <code>${po.orderId}</code> | ${po.tier} ($${po.amountUsdt})\n  Email: <code>${po.email}</code>\n  TX: <code>${po.binanceTxId || 'None'}</code>\n`;
+      }
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: summary,
+        parse_mode: 'HTML'
+      });
+      return;
+    }
+
     if (subCmd === 'buy' || subCmd === 'pricing') {
       await callTelegram(token, 'sendMessage', {
         chat_id: chatId,
@@ -1888,24 +1972,33 @@ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
       return res.status(400).json({ ok: false, description: 'deviceId and botToken required' });
     }
 
-    const apiKey = crypto.randomBytes(32).toString('hex');
+    const existingDev = devices[deviceId];
+    if (existingDev) {
+      const authHeader = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+      const adminPass = req.headers['x-admin-password'] || (req.body && req.body.adminPassword);
+      const isAuthenticated = (authHeader && authHeader === existingDev.apiKey) || (adminPass && adminPass === getAdminSecret());
+      if (!isAuthenticated) {
+        return res.status(403).json({ ok: false, description: 'Device ID already registered. Valid apiKey or admin auth required to update.' });
+      }
+    }
 
-    const existingDev = devices[deviceId] || {};
+    const apiKey = crypto.randomBytes(32).toString('hex');
+    const existingDevObj = existingDev || {};
     devices[deviceId] = {
-      ...existingDev,
+      ...existingDevObj,
       deviceId,
-      deviceName: deviceName || existingDev.deviceName || 'Android Device',
+      deviceName: deviceName || existingDevObj.deviceName || 'Android Device',
       botToken: botToken.trim(),
-      ownerChatId: ownerChatId || existingDev.ownerChatId || '',
-      email: email || existingDev.email || '',
+      ownerChatId: ownerChatId || existingDevObj.ownerChatId || '',
+      email: email || existingDevObj.email || '',
       apiKey: apiKey,
-      publicKeyJwk: publicKeyJwk || existingDev.publicKeyJwk || null,
-      attestationChain: attestationChain || existingDev.attestationChain || [],
-      lastSequence: existingDev.lastSequence || 0,
-      licenseKey: existingDev.licenseKey,
-      licenseTier: existingDev.licenseTier,
-      licenseExpiresAt: existingDev.licenseExpiresAt,
-      registeredAt: existingDev.registeredAt || Date.now(),
+      publicKeyJwk: publicKeyJwk || existingDevObj.publicKeyJwk || null,
+      attestationChain: attestationChain || existingDevObj.attestationChain || [],
+      lastSequence: existingDevObj.lastSequence || 0,
+      licenseKey: existingDevObj.licenseKey,
+      licenseTier: existingDevObj.licenseTier,
+      licenseExpiresAt: existingDevObj.licenseExpiresAt,
+      registeredAt: existingDevObj.registeredAt || Date.now(),
       lastSeen: Date.now()
     };
     persistDevice(deviceId);
@@ -1938,6 +2031,9 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
   const { deviceId } = req.query;
   const timeoutSec = Math.min(Math.max(parseInt(req.query.timeout, 10) || 0, 0), 30);
   if (!deviceId) return res.status(400).json({ ok: false, description: 'Missing deviceId' });
+  if (req.device && req.device.deviceId !== deviceId) {
+    return res.status(403).json({ ok: false, description: 'Forbidden: Device ID mismatch' });
+  }
 
   if (devices[deviceId]) {
     devices[deviceId].lastSeen = Date.now();
@@ -2003,6 +2099,9 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
 
   try {
     const { deviceId, commandId, message, latitude, longitude } = req.body;
+    if (req.device && req.device.deviceId !== deviceId) {
+      return res.status(403).json({ ok: false, description: 'Forbidden: Device ID mismatch' });
+    }
     const files = req.files || {};
 
     const device = devices[deviceId];
@@ -2021,12 +2120,19 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
     // Record encrypted evidence in Evidence Vault (7-day retention)
     if (files.evidence && files.evidence.length > 0) {
       for (const ev of files.evidence) {
+        const destName = 'ev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7) + '_' + path.basename(ev.path);
+        const destPath = path.join(EVIDENCE_DIR, destName);
+        try {
+          fs.copyFileSync(ev.path, destPath);
+        } catch (copyErr) {
+          console.error('Failed to copy evidence file to vault:', copyErr);
+        }
         EvidenceRepo.recordEvidence({
           id: 'ev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
           commandId: commandId || '',
           deviceId,
           type: 'ENCRYPTED_MEDIA',
-          filename: path.basename(ev.path),
+          filename: destName,
           fileSize: ev.size,
           sha256: '',
           isEncrypted: 1,
@@ -2208,6 +2314,9 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
 
   try {
     const { deviceId, alertType, message, latitude, longitude } = req.body;
+    if (req.device && req.device.deviceId !== deviceId) {
+      return res.status(403).json({ ok: false, description: 'Forbidden: Device ID mismatch' });
+    }
     const files = req.files || {};
 
     const device = devices[deviceId];
@@ -2509,7 +2618,7 @@ app.post('/api/license/purchase', licensingGuard, async (req, res) => {
     tier: cleanTier,
     amountUsdt,
     binanceTxId: (binanceTxId || '').trim(),
-    binancePayId: '756303714',
+    binancePayId: BINANCE_PAY_ID,
     status: 'PENDING_APPROVAL',
     licenseKey: null,
     createdAt: Date.now()
@@ -2518,39 +2627,35 @@ app.post('/api/license/purchase', licensingGuard, async (req, res) => {
 
   // Notify registered administrator on Telegram with Approve / Reject buttons
   try {
-    const notifiedKeys = new Set();
-    for (const dev of Object.values(devices)) {
-      if (dev.botToken && dev.ownerChatId) {
-        const dedupKey = `${dev.botToken}:${dev.ownerChatId}`;
-        if (notifiedKeys.has(dedupKey)) continue;
-        notifiedKeys.add(dedupKey);
+    const adminToken = getAdminBotToken();
+    if (adminToken && ADMIN_CHAT_ID) {
+      const txInfo = binanceTxId && binanceTxId.trim()
+        ? `\n<b>Submitted TX/Order ID:</b> <code>${binanceTxId.trim()}</code>`
+        : '\n<b>Submitted TX/Order ID:</b> <i>None provided</i>';
+      const adminAlert =
+        `💰 <b>NEW BINANCE PAY ORDER AWAITING APPROVAL</b>\n` +
+        `━━━━━━━━━━━━━━━━━━━━\n` +
+        `<b>Order ID:</b> <code>${orderId}</code>\n` +
+        `<b>Plan:</b> ${cleanTier} ($${amountUsdt} USDT)\n` +
+        `<b>Buyer Email:</b> <code>${email.trim()}</code>\n` +
+        `<b>Binance Pay ID:</b> <code>${BINANCE_PAY_ID}</code> (${BINANCE_NICKNAME})${txInfo}\n\n` +
+        `<i>👉 Check your Binance App now. Did you receive $${amountUsdt} USDT?</i>`;
 
-        const txInfo = binanceTxId && binanceTxId.trim()
-          ? `\n<b>Submitted TX/Order ID:</b> <code>${binanceTxId.trim()}</code>`
-          : '\n<b>Submitted TX/Order ID:</b> <i>None provided</i>';
-        const adminAlert =
-          `💰 <b>NEW BINANCE PAY ORDER AWAITING APPROVAL</b>\n` +
-          `━━━━━━━━━━━━━━━━━━━━\n` +
-          `<b>Order ID:</b> <code>${orderId}</code>\n` +
-          `<b>Plan:</b> ${cleanTier} ($${amountUsdt} USDT)\n` +
-          `<b>Buyer Email:</b> <code>${email.trim()}</code>\n` +
-          `<b>Binance Pay ID:</b> <code>756303714</code> (RBR48)${txInfo}\n\n` +
-          `<i>👉 Check your Binance App now. Did you receive $${amountUsdt} USDT?</i>`;
-
-        callTelegram(dev.botToken, 'sendMessage', {
-          chat_id: dev.ownerChatId,
-          text: adminAlert,
-          parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: '✅ Approve & Issue Key', callback_data: `lic:approve:${orderId}` },
-                { text: '❌ Reject Fake Payment', callback_data: `lic:reject:${orderId}` }
-              ]
+      callTelegram(adminToken, 'sendMessage', {
+        chat_id: ADMIN_CHAT_ID,
+        text: adminAlert,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '✅ Approve & Issue Key', callback_data: `lic:approve:${orderId}` },
+              { text: '❌ Reject Fake Payment', callback_data: `lic:reject:${orderId}` }
             ]
-          }
-        }).catch(err => console.error('[Binance Alert] Telegram notify failed:', err.message));
-      }
+          ]
+        }
+      }).catch(err => console.error('[Binance Alert] Telegram notify failed:', err.message));
+    } else {
+      console.warn('[Binance Alert] No botToken or ADMIN_CHAT_ID available to dispatch order alert.');
     }
   } catch (e) {
     console.error('[Binance Alert] Error notifying admin:', e.message);
@@ -2623,13 +2728,27 @@ app.post('/api/license/lookup', licensingGuard, (req, res) => {
 
 // 7e. Payment Webhook Receiver (Stripe / LemonSqueezy / Paddle / bKash / Crypto)
 app.post('/api/webhook/payment', licensingGuard, (req, res) => {
+  const secret = process.env.PAYMENT_WEBHOOK_SECRET;
+  if (secret) {
+    const signature = req.headers['x-webhook-signature'] || req.headers['x-hub-signature-256'] || '';
+    const hmac = crypto.createHmac('sha256', secret);
+    const digest = 'sha256=' + hmac.update(JSON.stringify(req.body)).digest('hex');
+    const sigBuffer = Buffer.from(signature);
+    const digestBuffer = Buffer.from(digest);
+    if (sigBuffer.length !== digestBuffer.length || !crypto.timingSafeEqual(sigBuffer, digestBuffer)) {
+      return res.status(401).json({ ok: false, description: 'Invalid webhook signature' });
+    }
+  } else if (process.env.NODE_ENV === 'production') {
+    return res.status(500).json({ ok: false, description: 'Webhook secret not configured on production' });
+  }
+
   const payload = req.body || {};
   console.log('[Payment Webhook] Event received:', JSON.stringify(payload).substring(0, 150));
   const email = payload.email || payload.customer_email || (payload.data && payload.data.object && payload.data.object.customer_email) || 'customer@pasa.sec';
   const tier = payload.tier || payload.plan || 'PRO_ANNUAL';
   const license = licensing.createLicense(email, tier);
   logSecurityEvent('PAYMENT_WEBHOOK_FULFILLED', { email, tier, key: license.key });
-  res.json({ ok: true, received: true, key: license.key });
+  res.json({ ok: true, received: true, message: 'License provisioned successfully.' });
 });
 
 // 7f. Admin License Management

@@ -31,11 +31,39 @@ class LocationTracker @Inject constructor(
     private val fusedClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
 
+    private val locationManager: android.location.LocationManager? by lazy {
+        context.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
+    }
+
     private var locationCallback: LocationCallback? = null
+    private var platformListener: android.location.LocationListener? = null
+
+    private fun getPlatformLocation(): Location? {
+        val lm = locationManager ?: return null
+        return try {
+            val gpsLoc = if (lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
+                @Suppress("MissingPermission")
+                lm.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
+            } else null
+            val netLoc = if (lm.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)) {
+                @Suppress("MissingPermission")
+                lm.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
+            } else null
+
+            when {
+                gpsLoc != null && netLoc != null -> if (gpsLoc.time >= netLoc.time) gpsLoc else netLoc
+                gpsLoc != null -> gpsLoc
+                else -> netLoc
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Platform LocationManager fallback error: ${e.message}")
+            null
+        }
+    }
 
     /**
      * Gets the current device location with high accuracy.
-     * Falls back to last known location if fresh location is unavailable.
+     * Falls back to last known location or AOSP LocationManager if Google Play Services is unavailable.
      */
     suspend fun getCurrentLocation(): Location? {
         if (!hasLocationPermission()) {
@@ -58,32 +86,32 @@ class LocationTracker @Inject constructor(
                         } else {
                             @Suppress("MissingPermission")
                             fusedClient.lastLocation.addOnSuccessListener { lastLoc ->
-                                continuation.resume(lastLoc)
+                                continuation.resume(lastLoc ?: getPlatformLocation())
                             }.addOnFailureListener {
-                                continuation.resume(null)
+                                continuation.resume(getPlatformLocation())
                             }
                         }
                     }.addOnFailureListener { e ->
-                        Log.e(TAG, "getCurrentLocation failed, trying lastLocation", e)
+                        Log.w(TAG, "getCurrentLocation failed, falling back to lastLocation or AOSP LocationManager: ${e.message}")
                         @Suppress("MissingPermission")
                         fusedClient.lastLocation.addOnSuccessListener { lastLoc ->
-                            continuation.resume(lastLoc)
+                            continuation.resume(lastLoc ?: getPlatformLocation())
                         }.addOnFailureListener {
-                            continuation.resume(null)
+                            continuation.resume(getPlatformLocation())
                         }
                     }
 
                     continuation.invokeOnCancellation {
                         cancellationTokenSource.cancel()
                     }
-                } catch (e: SecurityException) {
-                    Log.e(TAG, "SecurityException getting location", e)
-                    continuation.resume(null)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Exception accessing FusedLocationProviderClient, falling back to AOSP: ${e.message}")
+                    continuation.resume(getPlatformLocation())
                 }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error getting location", e)
-            null
+            getPlatformLocation()
         }
     }
 
@@ -121,17 +149,40 @@ class LocationTracker @Inject constructor(
                 Looper.getMainLooper()
             )
             Log.i(TAG, "Continuous tracking started (interval: ${intervalMinutes}m)")
-        } catch (e: SecurityException) {
-            Log.e(TAG, "Failed to request location updates", e)
+        } catch (e: Exception) {
+            Log.w(TAG, "Fused location updates failed, falling back to Android LocationManager: ${e.message}")
+            try {
+                val lm = locationManager
+                if (lm != null) {
+                    val pListener = android.location.LocationListener { loc ->
+                        onLocationUpdate(loc)
+                    }
+                    platformListener = pListener
+                    @Suppress("MissingPermission")
+                    if (lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
+                        lm.requestLocationUpdates(android.location.LocationManager.GPS_PROVIDER, intervalMs, 0f, pListener, Looper.getMainLooper())
+                    }
+                    @Suppress("MissingPermission")
+                    if (lm.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)) {
+                        lm.requestLocationUpdates(android.location.LocationManager.NETWORK_PROVIDER, intervalMs, 0f, pListener, Looper.getMainLooper())
+                    }
+                }
+            } catch (e2: Exception) {
+                Log.e(TAG, "Failed platform location fallback", e2)
+            }
         }
     }
 
     fun stopTracking() {
         locationCallback?.let {
-            fusedClient.removeLocationUpdates(it)
+            try { fusedClient.removeLocationUpdates(it) } catch (_: Exception) {}
             locationCallback = null
-            Log.i(TAG, "Continuous tracking stopped")
         }
+        platformListener?.let {
+            try { locationManager?.removeUpdates(it) } catch (_: Exception) {}
+            platformListener = null
+        }
+        Log.i(TAG, "Continuous tracking stopped")
     }
 
     fun formatLocation(location: Location): String {

@@ -242,10 +242,16 @@ class OtaUpdateManager @Inject constructor(
                 session.fsync(out)
             }
 
-            val intent = Intent("com.izhaanintellect.pasa.OTA_INSTALL_RESULT")
-            val pendingIntent = PendingIntent.getBroadcast(
-                context, 0, intent,
+            val intent = Intent("com.izhaanintellect.pasa.OTA_INSTALL_RESULT").apply {
+                setPackage(context.packageName)
+            }
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                context, 0, intent, flags
             )
             session.commit(pendingIntent.intentSender)
             Log.i(TAG, "Silent install session committed (Device Owner mode)")

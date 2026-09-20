@@ -20,9 +20,20 @@ class PersistentReplayStore(
     @Synchronized
     override fun accept(sequence: Long, commandId: String): Boolean {
         if (commandId in seenCommandIds()) return false
-        if (sequence <= highWaterMark()) return false
-        prefs.replayHighWaterMark = sequence
+        val seenSeqs = seenSequences()
+        if (sequence in seenSeqs) return false
+
+        val hwm = highWaterMark()
+        if (hwm > 0 && sequence < (hwm - historySize)) {
+            // Sequence is older than sliding window threshold
+            return false
+        }
+
+        if (sequence > hwm) {
+            prefs.replayHighWaterMark = sequence
+        }
         rememberCommandId(commandId)
+        rememberSequence(sequence)
         return true
     }
 
@@ -36,5 +47,15 @@ class PersistentReplayStore(
     private fun rememberCommandId(commandId: String) {
         val updated = (seenCommandIds().toList() + commandId).takeLast(historySize)
         prefs.replaySeenCommandIds = updated.joinToString("\n")
+    }
+
+    private fun seenSequences(): Set<Long> {
+        val raw = prefs.replaySeenSequences
+        return if (raw.isBlank()) emptySet() else raw.split(',').mapNotNull { it.trim().toLongOrNull() }.toSet()
+    }
+
+    private fun rememberSequence(seq: Long) {
+        val updated = (seenSequences().toList() + seq).takeLast(historySize)
+        prefs.replaySeenSequences = updated.joinToString(",")
     }
 }

@@ -63,7 +63,7 @@ class TrapManager @Inject constructor(
             sensorManager?.registerListener(
                 this,
                 accelerometer,
-                SensorManager.SENSOR_DELAY_GAME
+                SensorManager.SENSOR_DELAY_NORMAL
             )
             isMonitoring = true
             Log.i(TAG, "Autonomous Traps armed (Snatch & Motion detection active)")

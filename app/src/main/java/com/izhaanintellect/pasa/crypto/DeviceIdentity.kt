@@ -34,26 +34,38 @@ object DeviceIdentity {
         val store = keystore()
         if (store.containsAlias(KEY_ALIAS)) return false
 
-        val strongBoxAvailable = context.packageManager
-            .hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)
+        val strongBoxAvailable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            context.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)
+        } else {
+            false
+        }
+
         try {
             generate(strongBox = strongBoxAvailable, attestationChallenge = attestationChallenge)
-        } catch (_: StrongBoxUnavailableException) {
-            generate(strongBox = false, attestationChallenge = attestationChallenge)
+        } catch (e: Exception) {
+            if (strongBoxAvailable) {
+                generate(strongBox = false, attestationChallenge = attestationChallenge)
+            } else {
+                throw e
+            }
         }
         return true
     }
 
     private fun generate(strongBox: Boolean, attestationChallenge: ByteArray?) {
-        val spec = KeyGenParameterSpec.Builder(KEY_ALIAS, KeyProperties.PURPOSE_SIGN)
+        val builder = KeyGenParameterSpec.Builder(KEY_ALIAS, KeyProperties.PURPOSE_SIGN)
             .setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
             .setDigests(KeyProperties.DIGEST_SHA256)
             .setUserAuthenticationRequired(false)
-            .apply {
-                setIsStrongBoxBacked(strongBox)
-                attestationChallenge?.let { setAttestationChallenge(it) }
-            }
-            .build()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            builder.setIsStrongBoxBacked(strongBox)
+        }
+        if (attestationChallenge != null) {
+            builder.setAttestationChallenge(attestationChallenge)
+        }
+
+        val spec = builder.build()
         KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, KEYSTORE)
             .apply { initialize(spec) }
             .generateKeyPair()

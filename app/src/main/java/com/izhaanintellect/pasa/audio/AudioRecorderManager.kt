@@ -53,7 +53,7 @@ class AudioRecorderManager @Inject constructor(
 
         // 2. Request Foreground Service microphone elevation (Android 14+)
         try {
-            PasaService.currentService?.elevateToMicrophone()
+            PasaService.elevateServiceToMicrophone()
         } catch (e: Exception) {
             Log.w(TAG, "Failed to elevate PasaService to microphone: ${e.message}")
         }
@@ -88,6 +88,9 @@ class AudioRecorderManager @Inject constructor(
             stopRecording()
             null
         } finally {
+            try {
+                PasaService.demoteServiceFromMicrophone()
+            } catch (_: Exception) {}
             releaseWakeLock()
         }
     }

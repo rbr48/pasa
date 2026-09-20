@@ -163,7 +163,7 @@ object AppModule {
         return com.izhaanintellect.pasa.crypto.CommandVerifier(
             deviceId = preferencesManager.deviceId,
             replayStore = replayStore,
-            trustedKeys = preferencesManager.trustedCommandKeys
+            trustedKeysProvider = { preferencesManager.trustedCommandKeys }
         )
     }
 

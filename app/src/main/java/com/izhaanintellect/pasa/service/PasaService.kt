@@ -53,9 +53,18 @@ class PasaService : LifecycleService() {
         private const val MAX_BACKOFF_MS = 30000L
         private const val INITIAL_BACKOFF_MS = 3000L
 
-        @Volatile
-        var currentService: PasaService? = null
-            private set
+        private var serviceRef: java.lang.ref.WeakReference<PasaService>? = null
+
+        val currentService: PasaService?
+            get() = serviceRef?.get()
+
+        fun elevateServiceToMicrophone() {
+            serviceRef?.get()?.elevateToMicrophone()
+        }
+
+        fun demoteServiceFromMicrophone() {
+            serviceRef?.get()?.demoteFromMicrophone()
+        }
 
         fun start(context: Context) {
             val intent = Intent(context, PasaService::class.java)
@@ -75,7 +84,7 @@ class PasaService : LifecycleService() {
     private var isRunning = false
     private var wakeLock: PowerManager.WakeLock? = null
 
-    private fun acquireWakeLock() {
+    fun acquireWakeLock(timeoutMs: Long = 60_000L) {
         try {
             if (wakeLock == null) {
                 val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -83,10 +92,8 @@ class PasaService : LifecycleService() {
                     setReferenceCounted(false)
                 }
             }
-            if (wakeLock?.isHeld == false) {
-                wakeLock?.acquire()
-                Log.d(TAG, "Guardian Partial WakeLock acquired")
-            }
+            wakeLock?.acquire(timeoutMs)
+            Log.d(TAG, "Guardian Partial WakeLock acquired with timeout: ${timeoutMs}ms")
         } catch (e: Exception) {
             Log.w(TAG, "Failed to acquire wake lock: ${e.message}")
         }
@@ -120,20 +127,36 @@ class PasaService : LifecycleService() {
         }
     }
 
+    fun demoteFromMicrophone() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            try {
+                startForeground(
+                    NOTIFICATION_ID,
+                    createNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                )
+                Log.i(TAG, "PasaService demoted from FOREGROUND_SERVICE_TYPE_MICROPHONE")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to demote from MICROPHONE FGS: ${e.message}")
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
-        currentService = this
+        serviceRef = java.lang.ref.WeakReference(this)
         Log.i(TAG, "PasaService created")
-        acquireWakeLock()
+        acquireWakeLock(30_000L)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        currentService = this
+        serviceRef = java.lang.ref.WeakReference(this)
         Log.i(TAG, "PasaService started")
-        acquireWakeLock()
+        acquireWakeLock(30_000L)
 
-        // Start as foreground with Android 14+ foreground service types (including microphone)
+        // Start as foreground with Android 14+ safe background foreground service types
         val notification = createNotification()
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -141,8 +164,7 @@ class PasaService : LifecycleService() {
                     NOTIFICATION_ID,
                     notification,
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION or
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
                 )
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(
@@ -154,19 +176,9 @@ class PasaService : LifecycleService() {
                 startForeground(NOTIFICATION_ID, notification)
             }
         } catch (e: Exception) {
-            Log.w(TAG, "startForeground with microphone type failed, falling back: ${e.message}")
+            Log.w(TAG, "startForeground initial start failed, falling back: ${e.message}")
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    startForeground(
-                        NOTIFICATION_ID,
-                        notification,
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-                    )
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
-                } else {
-                    startForeground(NOTIFICATION_ID, notification)
-                }
+                startForeground(NOTIFICATION_ID, notification)
             } catch (e2: Exception) {
                 Log.e(TAG, "Fallback attempt to start foreground service failed", e2)
             }
@@ -214,7 +226,8 @@ class PasaService : LifecycleService() {
 
     override fun onDestroy() {
         Log.w(TAG, "PasaService destroying — scheduling watchdog restart")
-        currentService = null
+        serviceRef?.clear()
+        serviceRef = null
         isRunning = false
         pollingJob?.cancel()
         motionDetector.stopMonitoring()

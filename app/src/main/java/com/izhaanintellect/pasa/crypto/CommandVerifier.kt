@@ -30,12 +30,14 @@ class CommandRejectedException(message: String) : SecurityException(message)
 class CommandVerifier(
     private val deviceId: String,
     private val replayStore: ReplayStore,
-    private val trustedKeys: Map<String, String>,
+    private val trustedKeys: Map<String, String> = emptyMap(),
     private val clockSkew: Duration = Duration.ofSeconds(30),
-    private val now: () -> Instant = Instant::now
+    private val now: () -> Instant = Instant::now,
+    private val trustedKeysProvider: (() -> Map<String, String>)? = null
 ) {
     fun verify(compactJws: String): VerifiedCommand {
-        if (trustedKeys.isEmpty()) throw CommandRejectedException("No enrolled command signing key")
+        val currentKeys = trustedKeysProvider?.invoke() ?: trustedKeys
+        if (currentKeys.isEmpty()) throw CommandRejectedException("No enrolled command signing key")
 
         val jws = runCatching { JWSObject.parse(compactJws) }
             .getOrElse { throw CommandRejectedException("Malformed command envelope") }
@@ -45,7 +47,7 @@ class CommandVerifier(
         }
 
         val kid = jws.header.keyID ?: throw CommandRejectedException("Command envelope has no key id")
-        val jwk = trustedKeys[kid] ?: throw CommandRejectedException("Untrusted command signing key: $kid")
+        val jwk = currentKeys[kid] ?: throw CommandRejectedException("Untrusted command signing key: $kid")
 
         val verified = runCatching {
             jws.verify(Ed25519Verifier(OctetKeyPair.parse(jwk)))
