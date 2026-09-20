@@ -1,0 +1,42 @@
+[
+  {
+    "versionCode": 5,
+    "versionName": "2.4.0",
+    "filename": "pasa-v2.4.0.apk",
+    "downloadUrl": "api/app/download/pasa-v2.4.0.apk",
+    "fileSize": 18947611,
+    "sha256": "82934252df8935c92513f416453cd39d511333ee17edd2b473c75f33b8c24142",
+    "changelog": "v2.4.0: Official release build with production signature. License tier enforcement, geofence safe zone return alerts, charger disconnect intruder snapshot, network & Wi-Fi tamper detection, forensic extraction (/history, /contacts, /call_log, /sms_log), and SMS brute-force rate limiting.",
+    "publishedAt": "2026-09-20T06:38:00.000Z"
+  },
+  {
+    "versionCode": 4,
+    "versionName": "2.3.0",
+    "filename": "pasa-v2.3.0-4.apk",
+    "downloadUrl": "api/app/download/pasa-v2.3.0-4.apk",
+    "fileSize": 18914700,
+    "sha256": "e8668348501a90aeba497fd4dbf6cf3b154c18ee478b6df58e0c42c6cd080dee",
+    "changelog": "Maximum Convenience Overhaul: Persistent bottom reply keyboard, interactive conversational wizards (screen alerts, custom PIN lock, duress, file shredder), 1-tap quick action keyboards on photos and alerts, and natural language command parsing.",
+    "publishedAt": "2026-09-19T11:20:00.000Z"
+  },
+  {
+    "versionCode": 3,
+    "versionName": "2.2.0",
+    "filename": "pasa-v2.2.0-3.apk",
+    "downloadUrl": "api/app/download/pasa-v2.2.0-3.apk",
+    "fileSize": 18914719,
+    "sha256": "2e94e04550693dcc94a979e175671deaf4bba506fc5e0c1b6a40384fc7363b07",
+    "changelog": "Next-level 5-pillar security: Hardware & USB lockdown, Out-of-band SMS channel, Tactical Map console, Autonomous edge sensor traps, Duress SOS & Panic file shredder.",
+    "publishedAt": "2026-09-19T11:00:00.000Z"
+  },
+  {
+    "versionCode": 2,
+    "versionName": "2.0.0",
+    "filename": "pasa-v2.0.0-2.apk",
+    "downloadUrl": "api/app/download/pasa-v2.0.0-2.apk",
+    "fileSize": 18914549,
+    "sha256": "e97cf8e882ad18e637ecead19cc19afc39ffe8c19f78bbd21435ffb66292fd7d",
+    "changelog": "Added 3-tier security lockout (Custom PIN Lost Mode, Device Owner Kiosk, Fake Shutdown) and in-app OTA auto-updates.",
+    "publishedAt": "2026-09-19T10:40:00.000Z"
+  }
+]
