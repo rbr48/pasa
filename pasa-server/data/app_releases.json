@@ -1,5 +1,15 @@
 [
   {
+    "versionCode": 16,
+    "versionName": "3.1.0",
+    "releaseDate": "2026-09-20",
+    "fileName": "pasa-v3.1.0.apk",
+    "sha256": "87140529c244ae41a41beb2fc04284a88763725d65bd24adb660a80ceb19062a",
+    "size": 18984359,
+    "mandatory": false,
+    "releaseNotes": "v3.1.0: Tactical Lock & Deception Hardening: Universal SecurityActivityLauncher bypassing Android 10-16 Background Activity Launch (BAL) restrictions via high-priority full-screen intents, hardened Fake Shutdown touch forensics (instant MotionEvent.ACTION_DOWN) & hardware key muting, Knox Lost Mode Guard with Master PIN fallback, and non-cancellable Anti-Coercion Duress PIN SOS beacon with covert photo & live GPS tracking."
+  },
+  {
     "versionCode": 15,
     "versionName": "3.0.9",
     "releaseDate": "2026-09-20",

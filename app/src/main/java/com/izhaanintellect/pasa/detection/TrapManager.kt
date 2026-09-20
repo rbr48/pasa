@@ -16,6 +16,7 @@ import com.izhaanintellect.pasa.camera.StealthCaptureBridge
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.location.LocationTracker
 import com.izhaanintellect.pasa.ui.AlertMessageActivity
+import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -119,14 +120,22 @@ class TrapManager @Inject constructor(
             Log.e(TAG, "Failed to lockNow on snatch", e)
         }
 
-        // 2. Launch Lost Mode Guard Screen
+        // 2. Launch Lost Mode Guard Screen via SecurityActivityLauncher
         try {
             val alertIntent = AlertMessageActivity.createIntent(
                 context = context,
                 message = "🚨 SNATCH ALERT: Device locked automatically.",
                 enforcePin = true
             )
-            context.startActivity(alertIntent)
+            SecurityActivityLauncher.launch(
+                context = context,
+                intent = alertIntent,
+                notificationId = AlertMessageActivity.NOTIFICATION_ID,
+                notificationTitle = "🚨 SNATCH-AND-RUN DETECTED",
+                notificationText = "Device automatically locked into security kiosk",
+                wakeScreen = true,
+                ongoing = true
+            )
         } catch (e: Exception) {
             Log.w(TAG, "Could not launch AlertMessageActivity on snatch: ${e.message}")
         }

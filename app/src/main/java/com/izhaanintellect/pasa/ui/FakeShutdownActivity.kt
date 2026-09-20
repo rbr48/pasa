@@ -10,6 +10,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
@@ -21,10 +23,13 @@ import androidx.lifecycle.lifecycleScope
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.camera.StealthCaptureBridge
+import com.izhaanintellect.pasa.commands.FakeShutdownCommand
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.databinding.ActivityFakeShutdownBinding
 import com.izhaanintellect.pasa.location.LocationTracker
+import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -115,9 +120,13 @@ class FakeShutdownActivity : AppCompatActivity() {
             Log.i(TAG, "Fake shutdown blackout sequence initiated")
         }, 2200)
 
-        // Touch capture listener on the screen
-        binding.viewBlackout.setOnClickListener {
-            handleScreenTouchInteraction()
+        // Touch capture listener on the screen: trigger on any physical touch contact (press, tap, swipe)
+        binding.viewBlackout.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                v.performClick()
+                handleScreenTouchInteraction()
+            }
+            true
         }
 
         // Emergency secret wake zone (4 taps in top right corner within 3 seconds)
@@ -136,6 +145,39 @@ class FakeShutdownActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        configureImmersiveBlackout()
+        if (binding.layoutShutdownDialog.visibility != View.VISIBLE) {
+            dimScreenToBlack()
+        }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP,
+            KeyEvent.KEYCODE_VOLUME_DOWN,
+            KeyEvent.KEYCODE_VOLUME_MUTE,
+            KeyEvent.KEYCODE_CALL,
+            KeyEvent.KEYCODE_HEADSETHOOK -> {
+                Log.d(TAG, "Suppressed hardware key event during fake shutdown: ${event.keyCode}")
+                return true // Silently consume hardware button event without showing volume HUD
+            }
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP,
+            KeyEvent.KEYCODE_VOLUME_DOWN,
+            KeyEvent.KEYCODE_VOLUME_MUTE,
+            KeyEvent.KEYCODE_CALL,
+            KeyEvent.KEYCODE_HEADSETHOOK -> return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     private fun dimScreenToBlack() {
         val layoutParams = window.attributes
         layoutParams.screenBrightness = 0.001f // Minimum brightness
@@ -144,13 +186,13 @@ class FakeShutdownActivity : AppCompatActivity() {
 
     private fun handleScreenTouchInteraction() {
         val now = System.currentTimeMillis()
-        // Rate limit forensic alerts to once every 60 seconds
-        if (now - lastTouchAlertTime < 60000) return
+        // Rate limit forensic alerts to once every 30 seconds
+        if (now - lastTouchAlertTime < 30000) return
         lastTouchAlertTime = now
 
         Log.w(TAG, "Thief touched screen in Fake Shutdown mode! Triggering forensic photo.")
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 // 1. Silent Photo
                 val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true)
@@ -196,6 +238,9 @@ class FakeShutdownActivity : AppCompatActivity() {
 
     private fun exitFakeShutdown() {
         preferencesManager.isFakeShutdownActive = false
+
+        // Cancel high-priority alert notification
+        SecurityActivityLauncher.dismissNotification(this, FakeShutdownCommand.NOTIFICATION_ID)
 
         // Restore brightness
         val layoutParams = window.attributes

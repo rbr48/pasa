@@ -42,6 +42,13 @@ class AuthManager @Inject constructor(
     }
 
     /**
+     * Checks if a master password has been configured.
+     */
+    fun hasMasterPassword(): Boolean {
+        return preferencesManager.masterPasswordHash.isNotBlank() && preferencesManager.passwordSalt.isNotBlank()
+    }
+
+    /**
      * Hashes and stores the master password with a cryptographically secure random salt.
      */
     fun setMasterPassword(password: String) {

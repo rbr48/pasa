@@ -2,12 +2,14 @@ package com.izhaanintellect.pasa.commands
 
 import android.util.Log
 import com.izhaanintellect.pasa.data.PreferencesManager
+import com.izhaanintellect.pasa.security.AuthManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class DuressPinCommand @Inject constructor(
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val authManager: AuthManager
 ) : Command {
 
     override val name = "/duress_pin"
@@ -46,6 +48,14 @@ class DuressPinCommand @Inject constructor(
             return CommandResult(
                 success = false,
                 message = "❌ <b>Invalid PIN format!</b> Must be 4 to 8 digits (numeric only)."
+            )
+        }
+
+        if (authManager.hasMasterPassword() && authManager.verifyMasterPassword(target)) {
+            return CommandResult(
+                success = false,
+                message = "❌ <b>Duress PIN Conflict!</b>\n" +
+                        "The Duress PIN cannot be identical to your Master PIN. Please choose a distinct decoy PIN to ensure accurate anti-coercion detection."
             )
         }
 

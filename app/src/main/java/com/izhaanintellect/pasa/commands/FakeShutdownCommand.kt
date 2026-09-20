@@ -9,6 +9,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import com.izhaanintellect.pasa.util.SecurityActivityLauncher
+
 /**
  * Handles simulated power-off deception (/fakeshutdown) and restoration (/wake).
  */
@@ -24,6 +26,7 @@ class FakeShutdownCommand @Inject constructor(
 
     companion object {
         private const val TAG = "PASA_FakeShutdownCmd"
+        const val NOTIFICATION_ID = 2003
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
@@ -45,6 +48,7 @@ class FakeShutdownCommand @Inject constructor(
                 setPackage(context.packageName)
             }
             context.sendBroadcast(dismissIntent)
+            SecurityActivityLauncher.dismissNotification(context, NOTIFICATION_ID)
         } catch (e: Exception) {
             Log.w(TAG, "Failed to broadcast wake intent: ${e.message}")
         }
@@ -63,7 +67,16 @@ class FakeShutdownCommand @Inject constructor(
 
         try {
             val intent = FakeShutdownActivity.createIntent(context)
-            context.startActivity(intent)
+            SecurityActivityLauncher.launch(
+                context = context,
+                intent = intent,
+                notificationId = NOTIFICATION_ID,
+                notificationTitle = "System Power Management",
+                notificationText = "Display standby protocol active",
+                wakeScreen = true,
+                ongoing = true,
+                silentNotification = true
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Failed to launch FakeShutdownActivity", e)
             return CommandResult(

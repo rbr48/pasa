@@ -52,6 +52,9 @@ class UnlockCommand @Inject constructor(
             Log.w(TAG, "Failed to send unlock broadcast: ${e.message}")
         }
 
+        // 4. Dismiss full-screen alert notification
+        com.izhaanintellect.pasa.util.SecurityActivityLauncher.dismissNotification(context, AlertMessageActivity.NOTIFICATION_ID)
+
         return CommandResult(
             success = true,
             message = "🔓 <b>Device Unlocked Remotely</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
