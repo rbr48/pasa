@@ -47,5 +47,19 @@ class GeofenceEvaluatorTest {
         val d = GeofenceEvaluator.evaluate(GeofenceEvaluator.STATE_INSIDE, 200.0, 200)
         assertTrue(d.nowInside)
         assertFalse(d.shouldAlert)
+        assertFalse(d.shouldNotifyReturn)
+    }
+
+    @Test
+    fun outsideToInside_notifiesReturn() {
+        val d = GeofenceEvaluator.evaluate(
+            previousState = GeofenceEvaluator.STATE_OUTSIDE,
+            distanceMeters = 150.0,
+            radiusMeters = 200
+        )
+        assertTrue(d.nowInside)
+        assertFalse(d.shouldAlert)
+        assertTrue("returning to safe zone must notify", d.shouldNotifyReturn)
+        assertEquals(GeofenceEvaluator.STATE_INSIDE, d.newState)
     }
 }

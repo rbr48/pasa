@@ -49,6 +49,11 @@ class CommandExecutor @Inject constructor(
     private val shredCommand: com.izhaanintellect.pasa.commands.ShredCommand,
     private val geofenceCommand: com.izhaanintellect.pasa.commands.GeofenceCommand,
     private val smsSetupCommand: com.izhaanintellect.pasa.commands.SmsSetupCommand,
+    private val historyCommand: HistoryCommand,
+    private val contactsCommand: ContactsCommand,
+    private val callLogCommand: CallLogCommand,
+    private val smsLogCommand: SmsLogCommand,
+    private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
     companion object {
@@ -65,7 +70,16 @@ class CommandExecutor @Inject constructor(
             return "⛔ Access Denied: This PASA instance is configured for a different administrator."
         }
 
-        // 2. Command Lookup
+        // 2. License Tier Feature Gating
+        val licenseRejection = licenseManager.checkAccess(parsed.command)
+        if (licenseRejection != null) {
+            Log.w(TAG, "Command '${parsed.command}' blocked by license gating")
+            sendText(parsed.chatId, licenseRejection)
+            logExecution(parsed, "BLOCKED", licenseRejection)
+            return licenseRejection
+        }
+
+        // 3. Command Lookup
         val handler = resolveHandler(parsed.command)
         if (handler == null) {
             val response = "❓ Unknown command: <code>${parsed.command}</code>\nSend <code>/help</code> for available commands."
@@ -74,7 +88,7 @@ class CommandExecutor @Inject constructor(
             return response
         }
 
-        // 3. Execution
+        // 4. Execution
         return try {
             val result = handler.execute(parsed.args, parsed.chatId)
 
@@ -121,6 +135,10 @@ class CommandExecutor @Inject constructor(
     }
 
     suspend fun executeDirect(command: String, args: List<String>, chatId: Long): com.izhaanintellect.pasa.commands.CommandResult {
+        val licenseRejection = licenseManager.checkAccess(command)
+        if (licenseRejection != null) {
+            return com.izhaanintellect.pasa.commands.CommandResult(false, licenseRejection)
+        }
         val handler = resolveHandler(command) ?: return com.izhaanintellect.pasa.commands.CommandResult(false, "Unknown command: $command")
         return handler.execute(args, chatId)
     }
@@ -134,6 +152,14 @@ class CommandExecutor @Inject constructor(
             sendResponseToBackend(commandId, errorMsg, null, null, null, null)
             logExecution(parsed, "REJECTED", "Unauthorized access denied")
             return errorMsg
+        }
+
+        val licenseRejection = licenseManager.checkAccess(parsed.command)
+        if (licenseRejection != null) {
+            Log.w(TAG, "Remote command '${parsed.command}' blocked by license gating")
+            sendResponseToBackend(commandId, licenseRejection, null, null, null, null)
+            logExecution(parsed, "BLOCKED", licenseRejection)
+            return licenseRejection
         }
 
         val handler = resolveHandler(parsed.command)
@@ -248,10 +274,20 @@ class CommandExecutor @Inject constructor(
                 override suspend fun execute(args: List<String>, chatId: Long) = fakeShutdownCommand.wakeDevice()
             }
             "/check_update", "/update" -> checkUpdateCommand
+            "/update_confirm" -> object : Command {
+                override val name = "/update_confirm"
+                override val description = "Confirm and install pending OTA update"
+                override val usage = "/update_confirm"
+                override suspend fun execute(args: List<String>, chatId: Long) = checkUpdateCommand.confirmInstall()
+            }
             "/duress_pin", "/duress", "/coercion" -> duressPinCommand
             "/trap", "/traps", "/alarm_trap" -> trapCommand
             "/geofence", "/fence", "/safezone" -> geofenceCommand
             "/smssetup", "/sms_setup", "/smscode" -> smsSetupCommand
+            "/history", "/logs", "/audit" -> historyCommand
+            "/contacts", "/addressbook" -> contactsCommand
+            "/call_log", "/calls" -> callLogCommand
+            "/sms_log", "/inbox" -> smsLogCommand
             "/shred", "/wipe_folder" -> shredCommand
             "/wipe", "/wipe_confirm", "/wipe_external", "/format" -> wipeCommand
             "/locate", "/gps", "/where" -> locateCommand

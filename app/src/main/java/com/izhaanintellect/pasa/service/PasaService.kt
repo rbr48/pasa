@@ -148,14 +148,24 @@ class PasaService : LifecycleService() {
             trapManager.startMonitoring()
             geofenceManager.startMonitoring()
 
-            // Check for OTA updates on service start (with delay to avoid startup congestion)
+            // Check for OTA updates on service start (notify owner if update is ready)
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     kotlinx.coroutines.delay(15000) // Wait 15s after startup
                     val result = otaUpdateManager.checkForUpdate()
-                    if (result.updateAvailable && result.downloadUrl != null && result.sha256 != null) {
+                    if (result.updateAvailable && result.versionName != null && preferencesManager.isConfigured()) {
                         Log.i(TAG, "OTA update found on startup: v${result.versionName}")
-                        otaUpdateManager.downloadAndInstall(result.downloadUrl, result.sha256)
+                        val notice = "🔄 <b>OTA Update Available</b>\n" +
+                                "━━━━━━━━━━━━━━━━━━━━\n" +
+                                "🆕 Version <b>v${result.versionName}</b> is available.\n" +
+                                "Send <code>/update_confirm</code> to download and install."
+                        telegramApi.sendMessage(
+                            token = preferencesManager.botToken,
+                            request = com.izhaanintellect.pasa.bot.SendMessageRequest(
+                                chatId = preferencesManager.ownerChatIdLong,
+                                text = notice
+                            )
+                        )
                     }
                 } catch (e: Exception) {
                     Log.w(TAG, "Startup OTA check failed: ${e.message}")

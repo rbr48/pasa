@@ -133,6 +133,14 @@ class PowerAlertReceiver : BroadcastReceiver() {
                 val batteryPct = getBatteryPercentage(context)
                 val location = locationTracker.getCurrentLocation()
 
+                // Capture stealth photo of whoever unplugged the charger
+                val photoFile = try {
+                    StealthCaptureBridge.capturePhoto(context, useFront = true, timeoutMs = 8000L).file
+                } catch (e: Exception) {
+                    Log.w(TAG, "Charger disconnect photo capture failed: ${e.message}")
+                    null
+                }
+
                 val locText = if (location != null) {
                     val lat = String.format(Locale.US, "%.5f", location.latitude)
                     val lng = String.format(Locale.US, "%.5f", location.longitude)
@@ -148,6 +156,7 @@ class PowerAlertReceiver : BroadcastReceiver() {
                     🔋 <b>Battery Level:</b> ${batteryPct}%
                     
                     $locText
+                    ${if (photoFile != null) "\n📸 Intruder snapshot attached." else ""}
                     
                     <i>Send <code>/lock</code> or <code>/ring</code> to trigger emergency defenses.</i>
                 """.trimIndent()
@@ -157,7 +166,7 @@ class PowerAlertReceiver : BroadcastReceiver() {
                     message = alertMsg,
                     lat = location?.latitude,
                     lng = location?.longitude,
-                    photoFile = null
+                    photoFile = photoFile
                 )
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to deliver power disconnect alert", e)

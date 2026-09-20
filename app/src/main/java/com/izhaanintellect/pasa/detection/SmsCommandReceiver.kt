@@ -19,8 +19,8 @@ import javax.inject.Inject
 
 /**
  * Out-of-band offline command receiver via GSM SMS messages.
- * Format: PASA <credential> <command> [args...]
- * where <credential> is the current 6-digit TOTP code (preferred; enroll via
+ * Format: PASA (credential) (command) (args...)
+ * where credential is the current 6-digit TOTP code (preferred; enroll via
  * /smssetup) or, until TOTP is enrolled, the master password (deprecated).
  * Example: PASA 493021 /locate
  * Example: PASA 493021 /lock 5892 Lost phone
@@ -37,6 +37,35 @@ class SmsCommandReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "PASA_SMS"
         private const val PREFIX = "PASA"
+        private const val MAX_FAILED_ATTEMPTS = 5
+        private const val FAILED_WINDOW_MS = 15 * 60 * 1000L // 15 mins
+        private const val WIPE_CONFIRM_WINDOW_MS = 60 * 1000L // 60s
+
+        private val failedAttempts = java.util.concurrent.ConcurrentHashMap<String, MutableList<Long>>()
+        @Volatile private var pendingWipeTimestamp = 0L
+        @Volatile private var pendingWipeSender = ""
+
+        private fun isRateLimited(sender: String): Boolean {
+            val now = System.currentTimeMillis()
+            val attempts = failedAttempts[sender] ?: return false
+            synchronized(attempts) {
+                attempts.removeAll { now - it > FAILED_WINDOW_MS }
+                return attempts.size >= MAX_FAILED_ATTEMPTS
+            }
+        }
+
+        private fun recordFailure(sender: String) {
+            val now = System.currentTimeMillis()
+            val attempts = failedAttempts.computeIfAbsent(sender) { mutableListOf() }
+            synchronized(attempts) {
+                attempts.removeAll { now - it > FAILED_WINDOW_MS }
+                attempts.add(now)
+            }
+        }
+
+        private fun recordSuccess(sender: String) {
+            failedAttempts.remove(sender)
+        }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -60,6 +89,12 @@ class SmsCommandReceiver : BroadcastReceiver() {
 
         Log.i(TAG, "PASA SMS command prefix detected from $senderPhone")
 
+        // 0. Rate limiting protection against brute force
+        if (isRateLimited(senderPhone)) {
+            Log.w(TAG, "SMS Command Dropped: Sender $senderPhone is temporarily rate-limited.")
+            return
+        }
+
         val parts = rawText.split("\\s+".toRegex())
         if (parts.size < 3) {
             Log.w(TAG, "Malformed SMS command: Insufficient arguments")
@@ -75,12 +110,15 @@ class SmsCommandReceiver : BroadcastReceiver() {
         // SMS). Fall back to the master password only if TOTP is not yet enrolled,
         // so existing setups keep working until the owner runs /smssetup.
         val totpSecret = preferencesManager.smsTotpSecret
+        var usedMasterPassword = false
+
         val authorized = when {
             totpSecret.isNotBlank() -> Totp.verify(totpSecret, providedCredential).also {
                 if (!it) Log.w(TAG, "SMS Command Rejected: invalid TOTP code")
             }
             authManager.verifyMasterPassword(providedCredential) -> {
                 Log.w(TAG, "SMS authenticated with master password (deprecated). Run /smssetup to switch to TOTP.")
+                usedMasterPassword = true
                 true
             }
             else -> {
@@ -88,9 +126,16 @@ class SmsCommandReceiver : BroadcastReceiver() {
                 false
             }
         }
-        if (!authorized) return
 
+        if (!authorized) {
+            recordFailure(senderPhone)
+            return
+        }
+
+        recordSuccess(senderPhone)
         Log.i(TAG, "SMS Command Verified: $command ${args.joinToString(" ")}")
+
+        val warningSuffix = if (usedMasterPassword) "\n[Notice: SMS pwd auth is deprecated. Use /smssetup for TOTP]" else ""
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
@@ -99,10 +144,10 @@ class SmsCommandReceiver : BroadcastReceiver() {
                     "/locate", "/gps", "/where" -> {
                         val loc = locationTracker.getCurrentLocation()
                         if (loc != null) {
-                            val reply = "PASA GPS: https://maps.google.com/?q=${loc.latitude},${loc.longitude} (Acc: ${loc.accuracy.toInt()}m)"
+                            val reply = "PASA GPS: https://maps.google.com/?q=${loc.latitude},${loc.longitude} (Acc: ${loc.accuracy.toInt()}m)$warningSuffix"
                             sendSmsReply(senderPhone, reply)
                         } else {
-                            sendSmsReply(senderPhone, "PASA: GPS fix in progress, please retry in 30s.")
+                            sendSmsReply(senderPhone, "PASA: GPS fix in progress, please retry in 30s.$warningSuffix")
                         }
                     }
                     "/lock" -> {
@@ -111,7 +156,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                             args = args,
                             chatId = preferencesManager.ownerChatIdLong
                         )
-                        sendSmsReply(senderPhone, "PASA: Screen locked & Lost Mode applied.")
+                        sendSmsReply(senderPhone, "PASA: Screen locked & Lost Mode applied.$warningSuffix")
                     }
                     "/unlock" -> {
                         commandExecutor.executeDirect(
@@ -119,7 +164,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                             args = args,
                             chatId = preferencesManager.ownerChatIdLong
                         )
-                        sendSmsReply(senderPhone, "PASA: Lost Mode released & unlocked.")
+                        sendSmsReply(senderPhone, "PASA: Lost Mode released & unlocked.$warningSuffix")
                     }
                     "/ring" -> {
                         commandExecutor.executeDirect(
@@ -127,7 +172,15 @@ class SmsCommandReceiver : BroadcastReceiver() {
                             args = args,
                             chatId = preferencesManager.ownerChatIdLong
                         )
-                        sendSmsReply(senderPhone, "PASA: Emergency siren triggered.")
+                        sendSmsReply(senderPhone, "PASA: Emergency siren triggered.$warningSuffix")
+                    }
+                    "/snap", "/photo" -> {
+                        commandExecutor.executeDirect(
+                            command = "/snap",
+                            args = if (args.isNotEmpty()) args else listOf("front"),
+                            chatId = preferencesManager.ownerChatIdLong
+                        )
+                        sendSmsReply(senderPhone, "PASA: Camera capture complete. Dispatched to Telegram.$warningSuffix")
                     }
                     "/fakeshutdown", "/blackout" -> {
                         commandExecutor.executeDirect(
@@ -135,7 +188,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                             args = args,
                             chatId = preferencesManager.ownerChatIdLong
                         )
-                        sendSmsReply(senderPhone, "PASA: Fake shutdown activated.")
+                        sendSmsReply(senderPhone, "PASA: Fake shutdown activated.$warningSuffix")
                     }
                     "/wake" -> {
                         commandExecutor.executeDirect(
@@ -143,7 +196,30 @@ class SmsCommandReceiver : BroadcastReceiver() {
                             args = args,
                             chatId = preferencesManager.ownerChatIdLong
                         )
-                        sendSmsReply(senderPhone, "PASA: Device awakened from blackout.")
+                        sendSmsReply(senderPhone, "PASA: Device awakened from blackout.$warningSuffix")
+                    }
+                    "/wipe" -> {
+                        pendingWipeTimestamp = System.currentTimeMillis()
+                        pendingWipeSender = senderPhone
+                        sendSmsReply(
+                            senderPhone,
+                            "⚠️ DANGER: Remote factory reset requested! Reply within 60s with: PASA <credential> /wipe_confirm <master_password>$warningSuffix"
+                        )
+                    }
+                    "/wipe_confirm" -> {
+                        val elapsed = System.currentTimeMillis() - pendingWipeTimestamp
+                        if (elapsed <= WIPE_CONFIRM_WINDOW_MS && pendingWipeSender == senderPhone) {
+                            pendingWipeTimestamp = 0L
+                            pendingWipeSender = ""
+                            val res = commandExecutor.executeDirect(
+                                command = "/wipe_confirm",
+                                args = args,
+                                chatId = preferencesManager.ownerChatIdLong
+                            )
+                            sendSmsReply(senderPhone, "PASA: ${res.message.take(120)}")
+                        } else {
+                            sendSmsReply(senderPhone, "PASA: Wipe request expired or not initiated. Send /wipe first.")
+                        }
                     }
                     else -> {
                         val res = commandExecutor.executeDirect(
@@ -151,7 +227,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                             args = args,
                             chatId = preferencesManager.ownerChatIdLong
                         )
-                        sendSmsReply(senderPhone, "PASA: ${res.message.take(100)}")
+                        sendSmsReply(senderPhone, "PASA: ${res.message.take(100)}$warningSuffix")
                     }
                 }
             } catch (e: Exception) {

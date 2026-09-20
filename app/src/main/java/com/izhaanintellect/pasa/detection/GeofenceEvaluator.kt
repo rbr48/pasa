@@ -11,12 +11,23 @@ object GeofenceEvaluator {
     const val STATE_OUTSIDE = 0
     const val STATE_INSIDE = 1
 
-    data class Decision(val nowInside: Boolean, val shouldAlert: Boolean, val newState: Int)
+    data class Decision(
+        val nowInside: Boolean,
+        val shouldAlert: Boolean,
+        val shouldNotifyReturn: Boolean,
+        val newState: Int
+    )
 
     fun evaluate(previousState: Int, distanceMeters: Double, radiusMeters: Int): Decision {
         val nowInside = distanceMeters <= radiusMeters
         val shouldAlert = previousState == STATE_INSIDE && !nowInside
+        val shouldNotifyReturn = previousState == STATE_OUTSIDE && nowInside
         val newState = if (nowInside) STATE_INSIDE else STATE_OUTSIDE
-        return Decision(nowInside = nowInside, shouldAlert = shouldAlert, newState = newState)
+        return Decision(
+            nowInside = nowInside,
+            shouldAlert = shouldAlert,
+            shouldNotifyReturn = shouldNotifyReturn,
+            newState = newState
+        )
     }
 }

@@ -119,6 +119,52 @@ class GeofenceManager @Inject constructor(
             Log.w(TAG, "Geofence breach: ${distance.toInt()}m from center (radius ${radius}m)")
             dispatchBreach(loc, distance)
         }
+
+        if (decision.shouldNotifyReturn) {
+            Log.i(TAG, "Device returned to safe zone (${distance.toInt()}m from center)")
+            dispatchReturn(loc)
+        }
+    }
+
+    private suspend fun dispatchReturn(loc: Location) {
+        val lat = String.format(Locale.US, "%.5f", loc.latitude)
+        val lng = String.format(Locale.US, "%.5f", loc.longitude)
+        val message = """
+            ✅ <b>DEVICE RETURNED TO SAFE ZONE</b>
+            ━━━━━━━━━━━━━━━━━━━━
+            📍 Your device is back inside the geofence perimeter.
+
+            📍 <b>Current GPS:</b> $lat, $lng
+            🗺️ <a href="https://maps.google.com/maps?q=$lat,$lng">Open in Google Maps</a>
+        """.trimIndent()
+
+        if (preferencesManager.useBackendServer) {
+            try {
+                pasaBackendApi.sendDeviceAlert(
+                    deviceId = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull()),
+                    alertType = "GEOFENCE_RETURN".toRequestBody("text/plain".toMediaTypeOrNull()),
+                    message = message.toRequestBody("text/plain".toMediaTypeOrNull()),
+                    photo = null,
+                    latitude = loc.latitude.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
+                    longitude = loc.longitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+                )
+                return
+            } catch (e: Exception) {
+                Log.w(TAG, "VPS geofence return alert failed, falling back: ${e.message}")
+            }
+        }
+
+        try {
+            telegramApi.sendMessage(
+                token = preferencesManager.botToken,
+                request = SendMessageRequest(
+                    chatId = preferencesManager.ownerChatIdLong,
+                    text = message
+                )
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Telegram geofence return alert failed", e)
+        }
     }
 
     private suspend fun dispatchBreach(loc: Location, distance: Float) {

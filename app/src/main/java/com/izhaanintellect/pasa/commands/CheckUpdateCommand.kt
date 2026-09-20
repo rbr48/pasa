@@ -16,15 +16,21 @@ class CheckUpdateCommand @Inject constructor(
 
     companion object {
         private const val TAG = "PASA_CheckUpdate"
+        @Volatile private var cachedUpdate: OtaUpdateManager.UpdateCheckResult? = null
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
+        if (args.firstOrNull()?.equals("confirm", ignoreCase = true) == true) {
+            return confirmInstall()
+        }
+
         Log.i(TAG, "Checking for OTA update via Telegram command")
 
         val currentVersion = otaUpdateManager.getCurrentVersionName()
         val checkResult = otaUpdateManager.checkForUpdate()
 
-        if (!checkResult.updateAvailable) {
+        if (!checkResult.updateAvailable || checkResult.downloadUrl == null || checkResult.sha256 == null) {
+            cachedUpdate = null
             return CommandResult(
                 success = true,
                 message = "✅ <b>PASA is up to date</b>\n" +
@@ -33,6 +39,8 @@ class CheckUpdateCommand @Inject constructor(
                         "<i>No newer version available on the server.</i>"
             )
         }
+
+        cachedUpdate = checkResult
 
         val sizeDisplay = checkResult.fileSize?.let {
             val mb = it / (1024.0 * 1024.0)
@@ -43,42 +51,55 @@ class CheckUpdateCommand @Inject constructor(
             "\n📋 <b>Changelog:</b> ${checkResult.changelog}"
         } else ""
 
-        // Auto-download and install
-        val downloadUrl = checkResult.downloadUrl
-        val sha256 = checkResult.sha256
-
-        if (downloadUrl != null && sha256 != null) {
-            val installResult = otaUpdateManager.downloadAndInstall(downloadUrl, sha256)
-
-            return if (installResult.success) {
-                CommandResult(
-                    success = true,
-                    message = "🔄 <b>OTA Update Available & Installing!</b>\n" +
-                            "━━━━━━━━━━━━━━━━━━━━\n" +
-                            "📱 <b>Current:</b> v$currentVersion\n" +
-                            "🆕 <b>New:</b> v${checkResult.versionName} (code ${checkResult.versionCode})\n" +
-                            "📦 <b>Size:</b> $sizeDisplay\n" +
-                            "🔒 <b>SHA-256:</b> <code>${sha256.take(16)}...</code>$changelogSection\n\n" +
-                            "✅ APK downloaded, verified, and install triggered."
-                )
-            } else {
-                CommandResult(
-                    success = false,
-                    message = "🔄 <b>Update Found But Install Failed</b>\n" +
-                            "━━━━━━━━━━━━━━━━━━━━\n" +
-                            "🆕 v${checkResult.versionName} (code ${checkResult.versionCode})\n" +
-                            "❌ ${installResult.message}"
-                )
-            }
-        }
-
         return CommandResult(
             success = true,
-            message = "🔄 <b>Update Available</b>\n" +
+            message = "🔄 <b>OTA Update Available</b>\n" +
                     "━━━━━━━━━━━━━━━━━━━━\n" +
                     "📱 <b>Current:</b> v$currentVersion\n" +
                     "🆕 <b>New:</b> v${checkResult.versionName} (code ${checkResult.versionCode})\n" +
-                    "📦 <b>Size:</b> $sizeDisplay$changelogSection"
+                    "📦 <b>Size:</b> $sizeDisplay\n" +
+                    "🔒 <b>SHA-256:</b> <code>${checkResult.sha256.take(16)}...</code>$changelogSection\n\n" +
+                    "<i>To proceed with download & installation, send:</i>\n" +
+                    "<code>/update_confirm</code>"
         )
+    }
+
+    suspend fun confirmInstall(): CommandResult {
+        var update = cachedUpdate
+        if (update == null) {
+            val check = otaUpdateManager.checkForUpdate()
+            if (check.updateAvailable && check.downloadUrl != null && check.sha256 != null) {
+                update = check
+                cachedUpdate = update
+            }
+        }
+
+        if (update == null || update.downloadUrl.isNullOrBlank() || update.sha256.isNullOrBlank()) {
+            return CommandResult(
+                success = false,
+                message = "🔄 <b>No Pending Update</b>\n" +
+                        "━━━━━━━━━━━━━━━━━━━━\n" +
+                        "Please run <code>/check_update</code> first."
+            )
+        }
+
+        val installResult = otaUpdateManager.downloadAndInstall(update.downloadUrl!!, update.sha256!!)
+        return if (installResult.success) {
+            cachedUpdate = null
+            CommandResult(
+                success = true,
+                message = "🔄 <b>Installing Update v${update.versionName}</b>\n" +
+                        "━━━━━━━━━━━━━━━━━━━━\n" +
+                        "✅ APK downloaded and SHA-256 verified.\n" +
+                        "📲 Package installer triggered on device."
+            )
+        } else {
+            CommandResult(
+                success = false,
+                message = "❌ <b>Installation Failed</b>\n" +
+                        "━━━━━━━━━━━━━━━━━━━━\n" +
+                        "Error: ${installResult.message}"
+            )
+        }
     }
 }
