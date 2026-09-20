@@ -5,7 +5,7 @@
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.0.3%20(Build%209)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
+[![Version](https://img.shields.io/badge/Release-v3.1.5%20(Build%2021)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Telemetry%20Policy-brightgreen.svg)](PRIVACY.md)
 [![7-Day Guarantee](https://img.shields.io/badge/Guarantee-7--Day%20Money%20Back-30D158.svg)](PRIVACY.md#-4-7-day-money-back-guarantee-binance-pay)
 [![Binance Pay](https://img.shields.io/badge/Payments-Binance%20Pay%20Verified-F0B90B.svg)](#commercial-licensing--binance-pay)
@@ -146,36 +146,68 @@ adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
 
 ### What Device Owner unlocks:
 * 🛡️ **Permanent Protection:** The "Uninstall" button in Android Settings is permanently grayed out.
+* 🔐 **Remote Hardware OS Lockscreen PIN Reset:** Overwrite the physical device lock screen PIN/password via `/set_os_pin <new_pin>`.
+* 🔒 **Knox Kiosk Mode (`LOCK_TASK_FEATURE_NONE`):** Physically disables the Home button, Recents button, Power menu, and notification pull-down on lock.
+* 📱 **Status Bar Lockdown:** Completely disables pulling down the notification shade and quick settings.
 * 🚫 **Safe Mode Lockout:** Prevents booting into Safe Mode to disable security services.
-* ✈️ **Network Protection:** Blocks unauthorized toggling of Airplane Mode while locked.
-* 📱 **Status Bar Lockdown:** Disables pulling down the notification shade on the lockscreen.
+* ✈️ **Network Protection:** Blocks unauthorized toggling of Airplane Mode, USB debugging, or file transfers while locked.
+* 👁️ **100% Invisible Stealth:** Zero persistent notification icons via `IMPORTANCE_MIN` channel and hidden launcher icon.
 
 > **Crucial Android 14–16 Setting:**  
 > Go to **App Info → PASA Sentinel → Battery** and set to **"Unrestricted"**. This prevents Android's aggressive background sleep killers from suspending the telemetry daemon.
 
 ---
 
-## 🕹️ Telegram C2 Command Glossary
+## 🕹️ Complete Telegram C2 Command Glossary (44 Commands)
 
-Send these commands directly to your Telegram bot:
+Send these commands directly to your Telegram bot (or use the interactive menu autocomplete):
 
-| Command | Syntax | Action & Behavior |
-|---|---|---|
-| **Live Location** | `/locate` or `/gps` | Wakes GNSS hardware, acquires direct satellite lock, returns precision Google Maps pin, altitude, speed, and accuracy. |
-| **Forensic Camera** | `/snap` or `/photo [front\|rear]` | Captures high-res photo with **zero screen wake, zero preview, and zero shutter sound**. Delivered directly to Telegram. |
-| **Silent Screenshot** | `/screenshot` or `/screen` | Silently captures full device screen via AccessibilityService with zero popups or system notifications. |
-| **Screen Burst** | `/screen_burst [frames=5]` | Samples 3–10 rapid screen frames over 10s and delivers a composited multi-frame grid image showing thief activity. |
-| **Screen Recording** | `/screenrecord [seconds=15]` | Silently records screen as HD MP4 video via Device Owner shell (5–60s) and uploads to chat. |
-| **Ambient Wiretap** | `/record [seconds]` | Covertly activates microphone and streams audio file to Telegram (default 30s, up to 300s). |
-| **Stealth Video** | `/video [front\|rear] [sec]` | Records stealth video without viewfinder preview and streams MP4 to chat. |
-| **Emergency Siren** | `/ring` or `/siren [on\|off]` | Blasts maximum volume 100% SPL alarm, overriding silent switch and Do Not Disturb (DND). |
-| **Fake Shutdown** | `/fakeshutdown` or `/blackout` | Spoofs Android power-down animation and enters 0-nit black screen trap mode while keeping all sensors armed. |
-| **Wake from Trap** | `/wake` | Restores normal display controller from Fake Shutdown mode. |
-| **Remote Lock** | `/lock` | Instantly locks device screen via Device Owner and enters Lost Mode. |
-| **Telemetry Health** | `/status` | Returns battery level, charging state, cellular/Wi-Fi status, uptime, and sensor diagnostics. |
-| **Offline TOTP** | `/smssetup` | Enrolls or rotates the time-based OTP secret for offline air-gapped SMS commands. |
-| **License Check** | `/license` | Checks active Pro license status or activates key (`/license activate KEY`). |
-| **Remote Wipe** | `/wipe` & `/wipe_confirm` | Two-step cryptographically verified factory reset for extreme compromise situations. |
+| Category | Command | Syntax | Action & Behavior |
+|---|---|---|---|
+| **Core & Control** | `/menu` | `/menu` | 📱 Opens interactive touchscreen dashboard & quick controls |
+| | `/help` | `/help` | 📖 Complete documentation manual & command guide |
+| | `/status` | `/status` | 📊 Real-time battery, storage, RAM & sensor diagnostics |
+| | `/selftest` | `/selftest` | 🩺 Comprehensive 9-point security & sensor diagnostic audit |
+| | `/info` | `/info` | ℹ️ Hardware specs, SIM card details, and OS patch level |
+| **Location & Geofencing** | `/locate` | `/locate` or `/gps` | 📍 Acquires high-accuracy GNSS fix and sends Google Maps pin |
+| | `/track` | `/track [minutes]` | 🛰️ Starts continuous periodic GPS tracking |
+| | `/track_stop` | `/track_stop` | 🛑 Stops ongoing continuous GPS tracking |
+| | `/geofence` | `/geofence here 200` | 🌐 Sets safe zone radius & breach/return alerts |
+| **Covert Forensics** | `/snap` | `/snap front\|back\|both` | 📸 Silent covert photo with zero preview or shutter sound |
+| | `/screenshot` | `/screenshot` | 📱 Silent full-screen capture via native Accessibility |
+| | `/screen_burst` | `/screen_burst [5-10]` | 🎞️ Rapid 5–10 frame storyboard montage of intruder activity |
+| | `/screenrecord` | `/screenrecord [seconds]` | 🎥 Covert HD MP4 screen recording (5–60s) via Device Owner |
+| | `/video` | `/video front\|back [sec]` | 📹 Silent camera video clip (1–60s) without screen wake |
+| | `/record` | `/record [seconds]` | 🎙️ Silent ambient microphone wiretap (default 30s) |
+| | `/clipboard` | `/clipboard` | 📋 Reads current device clipboard text |
+| **Lockdown & Emergency** | `/lock` | `/lock [pin] [msg]` | 🔒 Locks device with emergency PIN & Lost Mode banner |
+| | `/lock_message` | `/lock_message <text>` | 💬 Updates lockscreen banner message |
+| | `/lock_pin` | `/lock_pin <pin>` | 🔑 Locks phone with explicit 4–8 digit emergency PIN |
+| | `/set_os_pin` | `/set_os_pin <pin>` | 🔐 Overwrites physical Android OS lockscreen PIN (Device Owner) |
+| | `/unlock` | `/unlock` | 🔓 Dismisses Lost Mode & restores normal device UI |
+| | `/fakeshutdown` | `/fakeshutdown` | 🕶️ Fake shutdown: blackout screen & silent touch traps |
+| | `/wake` | `/wake` | ☀️ Restores device from Fake Shutdown blackout |
+| | `/ring` | `/ring [seconds]` | 🚨 Blasts maximum volume 100% siren, overriding silent/DND |
+| | `/ring_stop` | `/ring_stop` | 🔇 Silences active emergency siren immediately |
+| | `/message` | `/message <text>` | 📢 Displays urgent fullscreen alert banner on display |
+| **Defense & Deception** | `/duress_pin` | `/duress_pin <pin>` | 🆘 Sets decoy coercion PIN: simulates unlock while sending SOS |
+| | `/trap` | `/trap on\|off\|status` | 🛡️ Arms autonomous sensor traps (snatch, charger, pocket) |
+| | `/shred` | `/shred <path>` | 🗑️ Cryptographically sanitizes sensitive files with zero-fill |
+| | `/device_owner` | `/device_owner` | 👑 Checks Device Owner & Kiosk hardware lock status |
+| | `/stealth` | `/stealth` (or `/hide`) | 👁️ Hides/reveals PASA app icon in launcher |
+| **Extraction & Logs** | `/contacts` | `/contacts [search]` | 👥 Searches or reads device address book contacts |
+| | `/call_log` | `/call_log [count]` | 📞 Views incoming and outgoing call history |
+| | `/sms_log` | `/sms_log [count]` | 💬 Views recent SMS inbox messages |
+| | `/history` | `/history [count]` | 📜 Views recent command execution audit trail |
+| | `/network` | `/network` | 🌐 Current IP, Wi-Fi SSID, and cellular carrier signal |
+| **System & Maintenance** | `/apps` | `/apps` | 📦 Lists installed third-party applications |
+| | `/app_uninstall` | `/app_uninstall <pkg>` | ❌ Silently uninstalls package (Device Owner) |
+| | `/smssetup` | `/smssetup` | 📲 Enrolls TOTP secret for offline air-gapped SMS commands |
+| | `/license` | `/license` | 🔑 Checks Pro license status or activates purchased key |
+| | `/check_update` | `/check_update` | 🔄 Checks for OTA application updates |
+| | `/update_confirm` | `/update_confirm` | ⚡ Downloads and installs pending OTA update directly |
+| | `/wipe` | `/wipe` | ⚠️ Initiates remote emergency factory reset (requires auth) |
+| | `/wipe_confirm` | `/wipe_confirm <pass>` | 💥 Confirms remote factory reset with master password |
 
 ---
 
