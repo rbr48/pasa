@@ -2370,10 +2370,15 @@ app.post('/api/license/purchase', licensingGuard, async (req, res) => {
     nickname: 'RBR48'
   });
 
-  // Notify registered administrator on Telegram
+  // Notify registered administrator on Telegram (deduplicated by botToken + ownerChatId)
   try {
+    const notifiedKeys = new Set();
     for (const dev of Object.values(devices)) {
       if (dev.botToken && dev.ownerChatId) {
+        const dedupKey = `${dev.botToken}:${dev.ownerChatId}`;
+        if (notifiedKeys.has(dedupKey)) continue;
+        notifiedKeys.add(dedupKey);
+
         const amountUsdt = cleanTier === 'PRO_ENTERPRISE' ? '79.99' : '29.99';
         const txInfo = binanceTxId && binanceTxId.trim() ? `\n<b>Binance Order/TX ID:</b> <code>${binanceTxId.trim()}</code>` : '';
         const adminAlert =
