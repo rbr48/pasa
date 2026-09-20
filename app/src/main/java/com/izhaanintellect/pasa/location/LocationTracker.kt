@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -72,43 +73,51 @@ class LocationTracker @Inject constructor(
         }
 
         return try {
-            suspendCancellableCoroutine { continuation ->
-                try {
-                    val cancellationTokenSource = com.google.android.gms.tasks.CancellationTokenSource()
+            withTimeoutOrNull(8000L) {
+                suspendCancellableCoroutine { continuation ->
+                    try {
+                        val cancellationTokenSource = com.google.android.gms.tasks.CancellationTokenSource()
 
-                    @Suppress("MissingPermission")
-                    fusedClient.getCurrentLocation(
-                        Priority.PRIORITY_HIGH_ACCURACY,
-                        cancellationTokenSource.token
-                    ).addOnSuccessListener { location ->
-                        if (location != null) {
-                            continuation.resume(location)
-                        } else {
-                            @Suppress("MissingPermission")
-                            fusedClient.lastLocation.addOnSuccessListener { lastLoc ->
-                                continuation.resume(lastLoc ?: getPlatformLocation())
-                            }.addOnFailureListener {
-                                continuation.resume(getPlatformLocation())
+                        @Suppress("MissingPermission")
+                        fusedClient.getCurrentLocation(
+                            Priority.PRIORITY_HIGH_ACCURACY,
+                            cancellationTokenSource.token
+                        ).addOnSuccessListener { location ->
+                            if (continuation.isActive) {
+                                if (location != null) {
+                                    continuation.resume(location)
+                                } else {
+                                    @Suppress("MissingPermission")
+                                    fusedClient.lastLocation.addOnSuccessListener { lastLoc ->
+                                        if (continuation.isActive) continuation.resume(lastLoc ?: getPlatformLocation())
+                                    }.addOnFailureListener {
+                                        if (continuation.isActive) continuation.resume(getPlatformLocation())
+                                    }
+                                }
+                            }
+                        }.addOnFailureListener { e ->
+                            Log.w(TAG, "getCurrentLocation failed, falling back to lastLocation or AOSP LocationManager: ${e.message}")
+                            if (continuation.isActive) {
+                                @Suppress("MissingPermission")
+                                fusedClient.lastLocation.addOnSuccessListener { lastLoc ->
+                                    if (continuation.isActive) continuation.resume(lastLoc ?: getPlatformLocation())
+                                }.addOnFailureListener {
+                                    if (continuation.isActive) continuation.resume(getPlatformLocation())
+                                }
                             }
                         }
-                    }.addOnFailureListener { e ->
-                        Log.w(TAG, "getCurrentLocation failed, falling back to lastLocation or AOSP LocationManager: ${e.message}")
-                        @Suppress("MissingPermission")
-                        fusedClient.lastLocation.addOnSuccessListener { lastLoc ->
-                            continuation.resume(lastLoc ?: getPlatformLocation())
-                        }.addOnFailureListener {
-                            continuation.resume(getPlatformLocation())
-                        }
-                    }
 
-                    continuation.invokeOnCancellation {
-                        cancellationTokenSource.cancel()
+                        continuation.invokeOnCancellation {
+                            try {
+                                cancellationTokenSource.cancel()
+                            } catch (_: Exception) {}
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Exception accessing FusedLocationProviderClient, falling back to AOSP: ${e.message}")
+                        if (continuation.isActive) continuation.resume(getPlatformLocation())
                     }
-                } catch (e: Exception) {
-                    Log.w(TAG, "Exception accessing FusedLocationProviderClient, falling back to AOSP: ${e.message}")
-                    continuation.resume(getPlatformLocation())
                 }
-            }
+            } ?: getPlatformLocation()
         } catch (e: Exception) {
             Log.e(TAG, "Error getting location", e)
             getPlatformLocation()

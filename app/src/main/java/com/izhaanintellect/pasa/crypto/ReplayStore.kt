@@ -2,6 +2,8 @@ package com.izhaanintellect.pasa.crypto
 
 import com.izhaanintellect.pasa.data.PreferencesManager
 
+class DuplicateCommandException(message: String) : Exception(message)
+
 interface ReplayStore {
     fun accept(sequence: Long, commandId: String): Boolean
     fun highWaterMark(): Long
@@ -19,7 +21,9 @@ class PersistentReplayStore(
 
     @Synchronized
     override fun accept(sequence: Long, commandId: String): Boolean {
-        if (commandId in seenCommandIds()) return false
+        if (commandId in seenCommandIds()) {
+            throw DuplicateCommandException("Command $commandId was already accepted and processed")
+        }
         val seenSeqs = seenSequences()
         if (sequence in seenSeqs) return false
 

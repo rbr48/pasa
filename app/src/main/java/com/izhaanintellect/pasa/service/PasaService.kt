@@ -280,6 +280,10 @@ class PasaService : LifecycleService() {
                                                 argsToExecute = verified.args
                                                 if (verified.chatId > 0) chatIdToUse = verified.chatId
                                                 Log.i(TAG, "✅ Cryptographically verified command envelope: ${verified.action} (seq=${verified.sequence})")
+                                            } catch (e: com.izhaanintellect.pasa.crypto.DuplicateCommandException) {
+                                                Log.i(TAG, "Command ${remoteCmd.id} was already executed previously. Acknowledging duplicate delivery to VPS.")
+                                                commandExecutor.sendResponseToBackend(remoteCmd.id, "ALREADY_COMPLETED", null, null, null, null)
+                                                continue
                                             } catch (e: Exception) {
                                                 Log.w(TAG, "🚨 Security rejection for command envelope ${remoteCmd.id}: ${e.message}")
                                                 val rejectMsg = "⛔ Security Rejection: Command ${remoteCmd.command} rejected (${e.message})"
@@ -295,7 +299,12 @@ class PasaService : LifecycleService() {
                                             senderName = if (envelope.isNullOrBlank()) "VPS Gateway" else "VPS Signed (${remoteCmd.id.take(6)})",
                                             rawText = "$commandToExecute ${argsToExecute.joinToString(" ")}"
                                         )
-                                        commandExecutor.executeRemoteCommand(parsed, remoteCmd.id)
+                                        withTimeoutOrNull(45_000L) {
+                                            commandExecutor.executeRemoteCommand(parsed, remoteCmd.id)
+                                        } ?: run {
+                                            Log.e(TAG, "Command ${remoteCmd.id} exceeded 45s execution deadline!")
+                                            commandExecutor.sendResponseToBackend(remoteCmd.id, "❌ Execution Timeout (45s exceeded)", null, null, null, null)
+                                        }
                                     } catch (e: Exception) {
                                         Log.e(TAG, "Error executing remote command ${remoteCmd.id}", e)
                                     }

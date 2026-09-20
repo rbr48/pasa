@@ -292,13 +292,13 @@ class CommandExecutor @Inject constructor(
         return sendResponseToBackend(commandId, reason, null, null, null, null)
     }
 
-    private suspend fun sendResponseToBackend(
+    suspend fun sendResponseToBackend(
         commandId: String?,
         message: String,
-        photoFile: File?,
-        audioFile: File?,
-        videoFile: File?,
-        location: Pair<Double, Double>?
+        photoFile: File? = null,
+        audioFile: File? = null,
+        videoFile: File? = null,
+        location: Pair<Double, Double>? = null
     ): Boolean {
         if (!preferencesManager.useBackendServer) return false
         return try {
