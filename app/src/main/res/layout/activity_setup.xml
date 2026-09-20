@@ -59,11 +59,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-        <!-- Card: VPS Backend Setup -->
+        <!-- Card: VPS Backend Setup (Hidden by default; uses default cloud server) -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardVpsSetup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:visibility="gone"
             app:cardBackgroundColor="#131B2E"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
@@ -79,7 +81,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1. VPS Backend Control Plane"
+                    android:text="Advanced: VPS Control Plane"
                     android:textColor="#38BDF8"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -142,7 +144,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2. Telegram Bot Integration"
+                    android:text="1. Telegram Bot Integration"
                     android:textColor="#38BDF8"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -216,7 +218,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3. Master Authentication"
+                    android:text="2. Master Authentication"
                     android:textColor="#38BDF8"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -282,7 +284,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="4. System Privileges"
+                    android:text="3. System Privileges"
                     android:textColor="#38BDF8"
                     android:textSize="15sp"
                     android:textStyle="bold" />

@@ -251,6 +251,9 @@ class CommandExecutor @Inject constructor(
                         pendingUploadDao.update(u.copy(status = "COMPLETED", completedAt = System.currentTimeMillis()))
                     }
                 }
+                try { photo?.delete() } catch (_: Exception) {}
+                try { audio?.delete() } catch (_: Exception) {}
+                try { video?.delete() } catch (_: Exception) {}
             } else {
                 // Direct fallback to Telegram
                 sendText(parsed.chatId, result.message)
@@ -290,41 +293,39 @@ class CommandExecutor @Inject constructor(
             val cmdIdBody = commandId?.toRequestBody("text/plain".toMediaTypeOrNull())
             val msgBody = message.toRequestBody("text/plain".toMediaTypeOrNull())
 
-            var evidencePart: MultipartBody.Part? = null
-
             val photoPart = photoFile?.let {
                 if (it.exists() && it.length() > 0) {
-                    if (encryptionManager.isEncryptedVaultFile(it)) {
-                        evidencePart = MultipartBody.Part.createFormData("evidence", it.name, it.asRequestBody("application/octet-stream".toMediaTypeOrNull()))
-                        null
+                    val bytes = if (encryptionManager.isEncryptedVaultFile(it)) {
+                        encryptionManager.decryptEvidenceVaultToBytes(it)
                     } else {
-                        val reqFile = it.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                        MultipartBody.Part.createFormData("photo", it.name, reqFile)
+                        it.readBytes()
                     }
+                    val reqFile = bytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("photo", "photo.jpg", reqFile)
                 } else null
             }
 
             val audioPart = audioFile?.let {
                 if (it.exists() && it.length() > 0) {
-                    if (encryptionManager.isEncryptedVaultFile(it)) {
-                        evidencePart = MultipartBody.Part.createFormData("evidence", it.name, it.asRequestBody("application/octet-stream".toMediaTypeOrNull()))
-                        null
+                    val bytes = if (encryptionManager.isEncryptedVaultFile(it)) {
+                        encryptionManager.decryptEvidenceVaultToBytes(it)
                     } else {
-                        val reqFile = it.asRequestBody("audio/m4a".toMediaTypeOrNull())
-                        MultipartBody.Part.createFormData("audio", it.name, reqFile)
+                        it.readBytes()
                     }
+                    val reqFile = bytes.toRequestBody("audio/m4a".toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("audio", "audio.m4a", reqFile)
                 } else null
             }
 
             val videoPart = videoFile?.let {
                 if (it.exists() && it.length() > 0) {
-                    if (encryptionManager.isEncryptedVaultFile(it)) {
-                        evidencePart = MultipartBody.Part.createFormData("evidence", it.name, it.asRequestBody("application/octet-stream".toMediaTypeOrNull()))
-                        null
+                    val bytes = if (encryptionManager.isEncryptedVaultFile(it)) {
+                        encryptionManager.decryptEvidenceVaultToBytes(it)
                     } else {
-                        val reqFile = it.asRequestBody("video/mp4".toMediaTypeOrNull())
-                        MultipartBody.Part.createFormData("video", it.name, reqFile)
+                        it.readBytes()
                     }
+                    val reqFile = bytes.toRequestBody("video/mp4".toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("video", "video.mp4", reqFile)
                 } else null
             }
 
@@ -338,7 +339,7 @@ class CommandExecutor @Inject constructor(
                 photo = photoPart,
                 audio = audioPart,
                 video = videoPart,
-                evidence = evidencePart,
+                evidence = null,
                 latitude = latBody,
                 longitude = lngBody
             )

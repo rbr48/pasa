@@ -47,6 +47,7 @@ class EvidenceUploadWorker @AssistedInject constructor(
             val workRequest = OneTimeWorkRequestBuilder<EvidenceUploadWorker>()
                 .setConstraints(constraints)
                 .setInputData(workDataOf(KEY_UPLOAD_ID to uploadId))
+                .setInitialDelay(15, TimeUnit.SECONDS)
                 .setBackoffCriteria(
                     BackoffPolicy.EXPONENTIAL,
                     15,
@@ -151,20 +152,43 @@ class EvidenceUploadWorker @AssistedInject constructor(
             if (preferencesManager.useBackendServer) {
                 val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
                 val cmdIdBody = task.commandId.toRequestBody("text/plain".toMediaTypeOrNull())
-                val msgBody = "Evidence upload delivered via WorkManager".toRequestBody("text/plain".toMediaTypeOrNull())
+                val msgCaption = when (task.fileType) {
+                    "PHOTO" -> "📸 Captured photo"
+                    "AUDIO" -> "🎙️ Audio recording"
+                    "VIDEO" -> "🎥 Captured video"
+                    else -> "📁 Captured evidence"
+                }
+                val msgBody = msgCaption.toRequestBody("text/plain".toMediaTypeOrNull())
 
-                val reqFile = file.asRequestBody("application/octet-stream".toMediaTypeOrNull())
-                val partName = if (task.isEncrypted) "evidence" else task.fileType.lowercase()
-                val multipart = MultipartBody.Part.createFormData(partName, file.name, reqFile)
+                val uploadBytes = if (task.isEncrypted) {
+                    encryptionManager.decryptEvidenceVaultToBytes(file)
+                } else {
+                    file.readBytes()
+                }
+
+                val photoPart = if (task.fileType == "PHOTO") {
+                    val reqFile = uploadBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("photo", "photo.jpg", reqFile)
+                } else null
+
+                val audioPart = if (task.fileType == "AUDIO") {
+                    val reqFile = uploadBytes.toRequestBody("audio/m4a".toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("audio", "audio.m4a", reqFile)
+                } else null
+
+                val videoPart = if (task.fileType == "VIDEO") {
+                    val reqFile = uploadBytes.toRequestBody("video/mp4".toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("video", "video.mp4", reqFile)
+                } else null
 
                 val response = pasaBackendApi.sendDeviceResponse(
                     deviceId = deviceIdBody,
                     commandId = cmdIdBody,
                     message = msgBody,
-                    photo = if (!task.isEncrypted && task.fileType == "PHOTO") multipart else null,
-                    audio = if (!task.isEncrypted && task.fileType == "AUDIO") multipart else null,
-                    video = if (!task.isEncrypted && task.fileType == "VIDEO") multipart else null,
-                    evidence = if (task.isEncrypted) multipart else null,
+                    photo = photoPart,
+                    audio = audioPart,
+                    video = videoPart,
+                    evidence = null,
                     latitude = null,
                     longitude = null
                 )

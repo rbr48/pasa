@@ -90,7 +90,7 @@ class SetupActivity : AppCompatActivity() {
         setupClickListeners()
         setupDashboardObservers()
 
-        binding.etServerUrl.setText(viewModel.getSavedServerUrl())
+        binding.etServerUrl.setText(viewModel.getSavedServerUrl().ifBlank { PreferencesManager.DEFAULT_SERVER_URL })
         if (preferencesManager.botToken.isNotBlank()) {
             binding.etBotToken.setText(preferencesManager.botToken)
         } else {
@@ -106,6 +106,26 @@ class SetupActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        // Developer easter egg: 5 taps on logo reveals/hides custom VPS Control Plane setup
+        var logoTapCount = 0
+        var lastLogoTapTime = 0L
+        binding.ivLogo.setOnClickListener {
+            val now = System.currentTimeMillis()
+            if (now - lastLogoTapTime > 2000) {
+                logoTapCount = 1
+            } else {
+                logoTapCount++
+            }
+            lastLogoTapTime = now
+            if (logoTapCount >= 5) {
+                logoTapCount = 0
+                val isVisible = binding.cardVpsSetup.visibility == android.view.View.VISIBLE
+                binding.cardVpsSetup.visibility = if (isVisible) android.view.View.GONE else android.view.View.VISIBLE
+                val msg = if (!isVisible) "⚙️ Advanced VPS Gateway settings revealed" else "🔒 VPS settings hidden (using default cloud gateway)"
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         // Test VPS Backend Connection
         binding.btnTestServer.setOnClickListener {
             val serverUrl = binding.etServerUrl.text.toString().trim()
@@ -226,17 +246,13 @@ class SetupActivity : AppCompatActivity() {
 
 
     private fun activatePasa() {
-        val serverUrl = binding.etServerUrl.text.toString().trim()
+        val serverUrl = binding.etServerUrl.text.toString().trim().ifBlank { PreferencesManager.DEFAULT_SERVER_URL }
         val botToken = binding.etBotToken.text.toString().trim()
         val chatId = binding.etChatId.text.toString().trim()
         val password = binding.etMasterPassword.text.toString()
         val email = binding.etBackupEmail.text.toString().trim()
         val stealthMode = binding.switchStealth.isChecked
 
-        if (serverUrl.isEmpty()) {
-            binding.tilServerUrl.error = "Server URL cannot be empty"
-            return
-        }
         binding.tilServerUrl.error = null
 
         if (botToken.isEmpty()) {
