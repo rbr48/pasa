@@ -198,10 +198,25 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
     return Object.values(licenses);
   }
 
+  function revokeLicense(key, reason = 'REVOKED') {
+    if (!key || typeof key !== 'string') return false;
+    const cleanKey = key.trim().toUpperCase();
+    const lic = licenses[cleanKey];
+    if (lic) {
+      lic.status = 'REVOKED';
+      lic.revokeReason = reason;
+      saveJson(licensesFile, licenses);
+      logSecurityEvent('LICENSE_REVOKED', { key: cleanKey, reason });
+      return true;
+    }
+    return false;
+  }
+
   return {
     generateLicenseKey,
     createLicense,
     activateLicense,
+    revokeLicense,
     getDeviceLicenseStatus,
     lookupLicense,
     listLicenses

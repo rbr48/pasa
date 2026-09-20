@@ -1158,42 +1158,32 @@ async function handleTelegramUpdate(token, update) {
         });
         return;
       }
-      if (order.status !== 'PENDING_APPROVAL') {
+      if (order.status === 'APPROVED') {
         await callTelegram(token, 'sendMessage', {
           chat_id: chatId,
-          text: `ℹ️ Order <code>${orderId}</code> is already marked as <b>${order.status}</b>.`,
+          text: `ℹ️ Order <code>${orderId}</code> is already marked as <b>APPROVED</b>.`,
           parse_mode: 'HTML'
         });
         return;
       }
 
-      let maxDevices = 1;
-      if (order.tier === 'PRO_LIFETIME') maxDevices = 3;
-      if (order.tier === 'PRO_ENTERPRISE') maxDevices = 10;
-
-      const lic = licensing.createLicense(order.email, order.tier, maxDevices, {
-        paymentMethod: 'BINANCE_PAY',
-        binancePayId: BINANCE_PAY_ID,
-        binanceTxId: order.binanceTxId,
-        nickname: BINANCE_NICKNAME
-      });
-
       order.status = 'APPROVED';
-      order.licenseKey = lic.key;
       order.approvedAt = Date.now();
       saveJson(ORDERS_FILE, licenseOrders);
 
+      const methodLabel = order.provider === 'bkash' ? 'bKash Send Money' : 'Binance Pay';
       await callTelegram(token, 'editMessageText', {
         chat_id: chatId,
         message_id: messageId,
-        text: `✅ <b>BINANCE PAY ORDER APPROVED!</b>\n` +
+        text: `✅ <b>PAYMENT VERIFIED & APPROVED!</b>\n` +
               `━━━━━━━━━━━━━━━━━━━━\n` +
               `<b>Order ID:</b> <code>${orderId}</code>\n` +
-              `<b>Plan:</b> ${order.tier} ($${order.amountUsdt} USDT)\n` +
+              `<b>Method:</b> ${methodLabel}\n` +
+              `<b>Plan:</b> ${order.tier} (${order.price || ''})\n` +
               `<b>Buyer:</b> <code>${order.email}</code>\n` +
-              `<b>Binance TX:</b> <code>${order.binanceTxId || 'N/A'}</code>\n` +
-              `<b>Generated Key:</b> <code>${lic.key}</code>\n\n` +
-              `🛡️ <i>License key is now ACTIVE and delivered to buyer screen!</i>`,
+              `<b>Submitted TX:</b> <code>${order.txId || order.binanceTxId || 'N/A'}</code>\n` +
+              `<b>Active Key:</b> <code>${order.licenseKey}</code>\n\n` +
+              `🛡️ <i>Payment confirmed. License key remains ACTIVE.</i>`,
         parse_mode: 'HTML'
       });
       return;
@@ -1210,10 +1200,10 @@ async function handleTelegramUpdate(token, update) {
         });
         return;
       }
-      if (order.status !== 'PENDING_APPROVAL') {
+      if (order.status === 'REJECTED') {
         await callTelegram(token, 'sendMessage', {
           chat_id: chatId,
-          text: `ℹ️ Order <code>${orderId}</code> is already marked as <b>${order.status}</b>.`,
+          text: `ℹ️ Order <code>${orderId}</code> is already marked as <b>REJECTED</b>.`,
           parse_mode: 'HTML'
         });
         return;
@@ -1223,16 +1213,22 @@ async function handleTelegramUpdate(token, update) {
       order.rejectedAt = Date.now();
       saveJson(ORDERS_FILE, licenseOrders);
 
+      if (order.licenseKey && typeof licensing.revokeLicense === 'function') {
+        licensing.revokeLicense(order.licenseKey, 'PAYMENT_REJECTED_BY_ADMIN');
+      }
+
+      const methodLabel = order.provider === 'bkash' ? 'bKash Send Money' : 'Binance Pay';
       await callTelegram(token, 'editMessageText', {
         chat_id: chatId,
         message_id: messageId,
-        text: `❌ <b>ORDER REJECTED (FAKE PAYMENT)</b>\n` +
+        text: `❌ <b>ORDER REJECTED & KEY REVOKED</b>\n` +
               `━━━━━━━━━━━━━━━━━━━━\n` +
               `<b>Order ID:</b> <code>${orderId}</code>\n` +
+              `<b>Method:</b> ${methodLabel}\n` +
               `<b>Buyer:</b> <code>${order.email}</code>\n` +
-              `<b>Submitted TX:</b> <code>${order.binanceTxId || 'None'}</code>\n` +
-              `<b>Reason:</b> Payment not received on Binance Pay ID ${BINANCE_PAY_ID}.\n\n` +
-              `🚫 <i>Voided. No license key was issued.</i>`,
+              `<b>Submitted TX:</b> <code>${order.txId || order.binanceTxId || 'None'}</code>\n` +
+              `<b>Revoked Key:</b> <code>${order.licenseKey || 'None'}</code>\n\n` +
+              `🚫 <i>Voided. The license key has been revoked and can no longer activate any device.</i>`,
         parse_mode: 'HTML'
       });
       return;
@@ -2871,71 +2867,101 @@ app.get('/api/app/releases', authenticateAdmin, (req, res) => {
 
 // 7a. Purchase / Generate License Key
 app.post('/api/license/purchase', licensingGuard, async (req, res) => {
-  const { email, tier, binanceTxId } = req.body || {};
-  if (!email || typeof email !== 'string' || !email.includes('@')) {
-    return res.status(400).json({ ok: false, description: 'A valid email address is required' });
-  }
-
-  const cleanTier = (tier || 'PRO_LIFETIME').toUpperCase();
-  const amountUsdt = cleanTier === 'PRO_ENTERPRISE' ? '79.99' : '29.99';
-  const orderId = 'ord_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
-
-  licenseOrders[orderId] = {
-    orderId,
-    email: email.trim().toLowerCase(),
-    tier: cleanTier,
-    amountUsdt,
-    binanceTxId: (binanceTxId || '').trim(),
-    binancePayId: BINANCE_PAY_ID,
-    status: 'PENDING_APPROVAL',
-    licenseKey: null,
-    createdAt: Date.now()
-  };
-  saveJson(ORDERS_FILE, licenseOrders);
-
-  // Notify registered administrator on Telegram with Approve / Reject buttons
   try {
-    const adminToken = getAdminBotToken();
-    if (adminToken && ADMIN_CHAT_ID) {
-      const txInfo = binanceTxId && binanceTxId.trim()
-        ? `\n<b>Submitted TX/Order ID:</b> <code>${binanceTxId.trim()}</code>`
-        : '\n<b>Submitted TX/Order ID:</b> <i>None provided</i>';
-      const adminAlert =
-        `💰 <b>NEW BINANCE PAY ORDER AWAITING APPROVAL</b>\n` +
-        `━━━━━━━━━━━━━━━━━━━━\n` +
-        `<b>Order ID:</b> <code>${orderId}</code>\n` +
-        `<b>Plan:</b> ${cleanTier} ($${amountUsdt} USDT)\n` +
-        `<b>Buyer Email:</b> <code>${email.trim()}</code>\n` +
-        `<b>Binance Pay ID:</b> <code>${BINANCE_PAY_ID}</code> (${BINANCE_NICKNAME})${txInfo}\n\n` +
-        `<i>👉 Check your Binance App now. Did you receive $${amountUsdt} USDT?</i>`;
-
-      callTelegram(adminToken, 'sendMessage', {
-        chat_id: ADMIN_CHAT_ID,
-        text: adminAlert,
-        parse_mode: 'HTML',
-        reply_markup: {
-          inline_keyboard: [
-            [
-              { text: '✅ Approve & Issue Key', callback_data: `lic:approve:${orderId}` },
-              { text: '❌ Reject Fake Payment', callback_data: `lic:reject:${orderId}` }
-            ]
-          ]
-        }
-      }).catch(err => console.error('[Binance Alert] Telegram notify failed:', err.message));
-    } else {
-      console.warn('[Binance Alert] No botToken or ADMIN_CHAT_ID available to dispatch order alert.');
+    const { email, tier, provider, txId, binanceTxId, price } = req.body || {};
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return res.status(400).json({ ok: false, description: 'A valid email address is required' });
     }
-  } catch (e) {
-    console.error('[Binance Alert] Error notifying admin:', e.message);
-  }
 
-  res.json({
-    ok: true,
-    pending: true,
-    orderId,
-    amountUsdt,
-    message: 'Binance Pay order submitted. Awaiting operator payment confirmation.'
-  });
+    const cleanTier = (tier || 'PRO_LIFETIME').toUpperCase();
+    const effectiveProvider = (provider || (binanceTxId ? 'binance' : 'bkash')).toLowerCase();
+    const effectiveTxId = (txId || binanceTxId || '').trim();
+
+    let maxDevices = 3;
+    if (cleanTier === 'PRO_ENTERPRISE') maxDevices = 10;
+    if (cleanTier === 'COMMUNITY_TRIAL') maxDevices = 1;
+
+    let priceDisplay = '৳3,490';
+    if (cleanTier === 'PRO_ENTERPRISE') priceDisplay = '৳9,990';
+    if (price) priceDisplay = '৳' + Number(price).toLocaleString('en-BD');
+
+    const orderId = 'ord_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+
+    // Create and provision the sovereign license key immediately
+    const lic = licensing.createLicense(email.trim().toLowerCase(), cleanTier, maxDevices, {
+      paymentMethod: effectiveProvider === 'bkash' ? 'BKASH_SEND_MONEY' : 'BINANCE_PAY',
+      txId: effectiveTxId,
+      binanceTxId: effectiveTxId,
+      binancePayId: BINANCE_PAY_ID,
+      price: priceDisplay
+    });
+
+    licenseOrders[orderId] = {
+      orderId,
+      email: email.trim().toLowerCase(),
+      tier: cleanTier,
+      provider: effectiveProvider,
+      price: priceDisplay,
+      txId: effectiveTxId,
+      status: 'PENDING_VERIFICATION',
+      licenseKey: lic.key,
+      createdAt: Date.now()
+    };
+    saveJson(ORDERS_FILE, licenseOrders);
+
+    // Notify registered administrator on Telegram
+    try {
+      const adminToken = getAdminBotToken();
+      if (adminToken && ADMIN_CHAT_ID) {
+        const paymentTitle = effectiveProvider === 'bkash' ? '🟣 NEW bKash SEND MONEY ORDER' : '🟡 NEW BINANCE PAY ORDER';
+        const paymentTarget = effectiveProvider === 'bkash' ? '01737-910040 (Personal bKash)' : `Binance Pay ID: <code>${BINANCE_PAY_ID}</code> (${BINANCE_NICKNAME})`;
+
+        const adminAlert =
+          `💰 <b>${paymentTitle}</b>\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `<b>Order ID:</b> <code>${orderId}</code>\n` +
+          `<b>Plan:</b> ${cleanTier} (${priceDisplay})\n` +
+          `<b>Buyer:</b> <code>${email.trim()}</code>\n` +
+          `<b>Target Account:</b> ${paymentTarget}\n` +
+          `<b>Submitted TX ID:</b> <code>${effectiveTxId || 'None'}</code>\n` +
+          `<b>Provisioned Key:</b> <code>${lic.key}</code>\n\n` +
+          `<i>👉 Verify in your ${effectiveProvider === 'bkash' ? 'bKash App' : 'Binance Pay'} that this amount was received.</i>`;
+
+        callTelegram(adminToken, 'sendMessage', {
+          chat_id: ADMIN_CHAT_ID,
+          text: adminAlert,
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: '✅ Verified & Keep Active', callback_data: `lic:approve:${orderId}` },
+                { text: '❌ Reject & Revoke Key', callback_data: `lic:reject:${orderId}` }
+              ]
+            ]
+          }
+        }).catch(err => console.error('[Order Alert] Telegram notify failed:', err.message));
+      } else {
+        console.warn('[Order Alert] No botToken or ADMIN_CHAT_ID available to dispatch order alert.');
+      }
+    } catch (e) {
+      console.error('[Order Alert] Error notifying admin:', e.message);
+    }
+
+    res.json({
+      ok: true,
+      pending: true,
+      orderId,
+      license: {
+        key: lic.key,
+        tier: lic.tier,
+        maxDevices: lic.maxDevices
+      },
+      message: 'License provisioned successfully.'
+    });
+  } catch (err) {
+    console.error('[License Purchase Error]:', err);
+    res.status(500).json({ ok: false, description: err.message });
+  }
 });
 
 // Check status of pending Binance Pay order (polled by browser)
