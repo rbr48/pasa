@@ -351,6 +351,7 @@
       background: linear-gradient(145deg, #e8f0fc 0%, #ffffff 100%);
       border: 2px solid #0071e3 !important;
       box-shadow: 0 0 40px rgba(0,113,227,0.12);
+      overflow: visible !important;
     }
   </style>
 
@@ -1021,7 +1022,7 @@
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch pt-4">
       
       <!-- Tier 1: Community Trial -->
       <div class="apple-card p-8 flex flex-col justify-between">
@@ -1050,8 +1051,8 @@
       </div>
 
       <!-- Tier 2: Pro Lifetime -->
-      <div class="apple-card tier-hero p-8 flex flex-col justify-between">
-        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-apple-blue text-white text-[11px] font-medium tracking-wide shadow-md">
+      <div class="apple-card tier-hero p-8 flex flex-col justify-between !overflow-visible relative">
+        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-apple-blue text-white text-[11px] font-semibold tracking-wide shadow-md z-10 whitespace-nowrap">
           Most Popular
         </div>
         <div>
@@ -1255,17 +1256,11 @@
           <div>
             <label class="block text-xs font-medium text-apple-black mb-2">Payment Method</label>
             <div class="grid grid-cols-2 gap-2 mb-3">
-              <button type="button" onclick="selectPayment('bkash')" id="pmBkash" class="payment-method-btn flex items-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
+              <button type="button" onclick="selectPayment('bkash')" id="pmBkash" class="payment-method-btn flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
                 <span class="text-base">🟣</span> bKash
               </button>
-              <button type="button" onclick="selectPayment('binance')" id="pmBinance" class="payment-method-btn flex items-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
+              <button type="button" onclick="selectPayment('binance')" id="pmBinance" class="payment-method-btn flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
                 <span class="text-base">🟡</span> Binance Pay
-              </button>
-              <button type="button" onclick="selectPayment('stripe')" id="pmStripe" class="payment-method-btn flex items-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
-                <span class="text-base">💳</span> Card (Stripe)
-              </button>
-              <button type="button" onclick="selectPayment('crypto')" id="pmCrypto" class="payment-method-btn flex items-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
-                <span class="text-base">₿</span> Crypto
               </button>
             </div>
             <input type="hidden" id="paymentProvider" value="bkash">
@@ -1324,28 +1319,6 @@
             <div class="mt-3">
               <label class="block text-xs font-medium text-apple-black mb-1.5">Binance Order / Transaction ID</label>
               <input type="text" id="binanceTxId" placeholder="e.g. 123456789012" class="w-full bg-white border border-yellow-200 rounded-xl px-4 py-2.5 text-xs font-mono text-apple-black placeholder:text-apple-grayText focus:outline-none focus:border-yellow-400 transition-colors">
-            </div>
-          </div>
-
-          <!-- Stripe Panel -->
-          <div id="panel-stripe" class="payment-panel p-4 bg-blue-50 rounded-xl border border-blue-100">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-lg">💳</span>
-              <span class="text-sm font-semibold text-apple-blue">Credit / Debit Card</span>
-            </div>
-            <p class="text-xs text-apple-grayText">You will be redirected to Stripe's secure checkout to complete payment. Your card details are never stored by PASA servers.</p>
-          </div>
-
-          <!-- Crypto Panel -->
-          <div id="panel-crypto" class="payment-panel p-4 bg-gray-50 rounded-xl border border-gray-100">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-lg">₿</span>
-              <span class="text-sm font-semibold text-apple-black">Cryptocurrency</span>
-            </div>
-            <p class="text-xs text-apple-grayText">Accepted: BTC, USDT (TRC20/ERC20), XMR. A payment address will be generated after submitting your email. Send exact amount and paste TxID below.</p>
-            <div class="mt-3">
-              <label class="block text-xs font-medium text-apple-black mb-1.5">Crypto Transaction Hash</label>
-              <input type="text" id="cryptoTxId" placeholder="0x... or txid" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-mono text-apple-black placeholder:text-apple-grayText focus:outline-none focus:border-gray-400 transition-colors">
             </div>
           </div>
 
@@ -1541,9 +1514,6 @@
       } else if (provider === 'binance') {
         txId = (document.getElementById('binanceTxId').value || '').trim();
         if (!txId) { alert('Please enter your Binance Order/Transaction ID to proceed.'); return; }
-      } else if (provider === 'crypto') {
-        txId = (document.getElementById('cryptoTxId').value || '').trim();
-        if (!txId) { alert('Please enter your Crypto Transaction Hash to proceed.'); return; }
       }
 
       btn.disabled = true;
