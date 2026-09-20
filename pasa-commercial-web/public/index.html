@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PASA Sentinel — Sovereign Mobile Anti-Theft & Covert Defense System</title>
-  <meta name="description" content="Next-generation sovereign Android defense agent. Zero Google Play telemetry. Dual-channel Telegram & SMS C2, autonomous hardware anti-snatch traps, and Knox-grade Device Owner persistence.">
+  <title>PASA Sentinel — Sovereign Mobile Anti-Theft &amp; Covert Defense System</title>
+  <meta name="description" content="Next-generation sovereign Android defense agent. Zero Google Play telemetry. Dual-channel Telegram &amp; SMS C2, autonomous hardware anti-snatch traps, and Knox-grade Device Owner persistence.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%230071e3%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
 
   <!-- Apple SF Pro / Inter Typography System -->
@@ -25,20 +25,25 @@
           },
           colors: {
             apple: {
-              black: '#000000',
-              graphite: '#161617',
-              card: '#1d1d1f',
-              cardElevated: '#232326',
+              bg: '#f5f5f7',
+              bgSection: '#ffffff',
+              black: '#1d1d1f',
+              graphite: '#2d2d2f',
+              card: '#ffffff',
+              cardElevated: '#f0f0f2',
               blue: '#0071e3',
               blueHover: '#0077ed',
-              blueLight: '#2997ff',
-              grayText: '#86868b',
+              blueLight: '#0066cc',
+              grayText: '#6e6e73',
               grayLight: '#f5f5f7',
-              green: '#30d158',
-              orange: '#ff9f0a',
-              red: '#ff453a',
-              border: 'rgba(255, 255, 255, 0.08)',
-              borderHover: 'rgba(255, 255, 255, 0.2)',
+              grayBorder: '#d2d2d7',
+              green: '#1d8348',
+              greenLight: '#30d158',
+              orange: '#c45000',
+              red: '#c0392b',
+              redLight: '#ff453a',
+              border: 'rgba(0, 0, 0, 0.08)',
+              borderHover: 'rgba(0, 0, 0, 0.18)',
             }
           }
         }
@@ -51,19 +56,21 @@
 
   <style>
     /* ==========================================================
-       APPLE PRO DESIGN SYSTEM (apple.com / iPhone Pro style)
-       Clean, Architectural, Minimalist Industrial Elegance
+       PASA SENTINEL — LIGHT THEME DESIGN SYSTEM
+       Clean, minimal, high-contrast, Apple.com light aesthetic
        ========================================================== */
     :root {
-      --apple-bg: #000000;
-      --apple-card: #161617;
+      --apple-bg: #f5f5f7;
+      --apple-card: #ffffff;
       --apple-blue: #0071e3;
-      --apple-text-gray: #86868b;
+      --apple-text: #1d1d1f;
+      --apple-text-gray: #6e6e73;
+      --apple-border: rgba(0, 0, 0, 0.1);
     }
 
     body {
       background-color: var(--apple-bg);
-      color: #f5f5f7;
+      color: var(--apple-text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", sans-serif;
       overflow-x: hidden;
       margin: 0;
@@ -72,12 +79,12 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Apple Ultra-Thin Frosted Glass Navigation */
+    /* Apple Frosted Glass Navigation — Light */
     .apple-nav {
-      background: rgba(0, 0, 0, 0.82);
+      background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     }
 
     /* Apple Pill Button */
@@ -87,6 +94,9 @@
       border-radius: 9999px;
       font-weight: 500;
       transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .apple-btn-pill:hover {
       background-color: #0077ed;
@@ -98,20 +108,23 @@
 
     /* Apple Subtle Secondary Pill */
     .apple-btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      color: #f5f5f7;
+      background: rgba(0, 0, 0, 0.06);
+      color: #1d1d1f;
       border-radius: 9999px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(0, 0, 0, 0.1);
       transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .apple-btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.14);
-      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(0, 0, 0, 0.1);
+      border-color: rgba(0, 0, 0, 0.2);
     }
 
     /* Apple Link with Chevron */
     .apple-link {
-      color: #2997ff;
+      color: #0071e3;
       display: inline-flex;
       align-items: center;
       gap: 4px;
@@ -123,36 +136,35 @@
       text-decoration: underline;
     }
 
-    /* Apple Pro Bento Feature Cards */
+    /* Apple Bento Feature Cards — Light */
     .apple-card {
-      background-color: #161617;
-      border-radius: 28px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background-color: #ffffff;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
       transition: border-color 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
       position: relative;
       overflow: hidden;
     }
     .apple-card:hover {
-      border-color: rgba(255, 255, 255, 0.18);
+      border-color: rgba(0, 0, 0, 0.15);
       transform: translateY(-2px);
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.12);
     }
 
     /* Titanium Hardware Smartphone Frame */
     .apple-titanium-device {
-      background: linear-gradient(160deg, #2d2d30 0%, #1c1c1e 40%, #0d0d0e 100%);
+      background: linear-gradient(160deg, #e8e8ea 0%, #d1d1d6 40%, #b8b8be 100%);
       border-radius: 54px;
       padding: 12px;
-      box-shadow: 
-        0 0 0 1px rgba(255, 255, 255, 0.14),
-        0 0 0 2px rgba(0, 0, 0, 0.8),
-        0 35px 80px -20px rgba(0, 0, 0, 0.95);
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.12),
+        0 0 0 2px rgba(255, 255, 255, 0.8),
+        0 35px 80px -20px rgba(0, 0, 0, 0.25);
       position: relative;
     }
 
-    /* ===== CINEMATIC HERO SYSTEM ===== */
+    /* ===== HERO SYSTEM — LIGHT ===== */
 
-    /* Hero backdrop with deep radial light */
     .hero-backdrop {
       position: absolute;
       inset: 0;
@@ -167,7 +179,7 @@
       transform: translateX(-50%);
       width: 140%;
       height: 100%;
-      background: radial-gradient(ellipse 60% 50% at 50% 20%, rgba(0, 113, 227, 0.15) 0%, rgba(41, 151, 255, 0.06) 30%, transparent 65%);
+      background: radial-gradient(ellipse 60% 50% at 50% 20%, rgba(0, 113, 227, 0.07) 0%, rgba(0, 113, 227, 0.03) 30%, transparent 65%);
       pointer-events: none;
     }
     .hero-backdrop::after {
@@ -177,11 +189,10 @@
       left: 0;
       right: 0;
       height: 200px;
-      background: linear-gradient(to top, #000000 0%, transparent 100%);
+      background: linear-gradient(to top, #f5f5f7 0%, transparent 100%);
       pointer-events: none;
     }
 
-    /* Animated aurora streaks */
     .hero-aurora {
       position: absolute;
       top: 0;
@@ -189,8 +200,8 @@
       width: 120%;
       height: 100%;
       background:
-        linear-gradient(115deg, transparent 20%, rgba(0, 113, 227, 0.05) 40%, transparent 60%),
-        linear-gradient(245deg, transparent 30%, rgba(41, 151, 255, 0.04) 50%, transparent 70%);
+        linear-gradient(115deg, transparent 20%, rgba(0, 113, 227, 0.04) 40%, transparent 60%),
+        linear-gradient(245deg, transparent 30%, rgba(0, 113, 227, 0.02) 50%, transparent 70%);
       animation: auroraShift 12s ease-in-out infinite alternate;
       pointer-events: none;
     }
@@ -199,7 +210,6 @@
       100% { transform: translateX(3%) skewX(1deg); opacity: 1; }
     }
 
-    /* The floating shield orb */
     .hero-orb {
       position: relative;
       width: 200px;
@@ -212,11 +222,11 @@
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, rgba(0, 113, 227, 0.5) 0%, rgba(0, 50, 120, 0.3) 50%, rgba(0, 0, 0, 0.6) 100%);
+      background: radial-gradient(circle at 35% 35%, rgba(0, 113, 227, 0.85) 0%, rgba(0, 70, 150, 0.7) 50%, rgba(0, 40, 100, 0.4) 100%);
       box-shadow:
-        0 0 60px 10px rgba(0, 113, 227, 0.25),
-        0 0 120px 30px rgba(41, 151, 255, 0.08),
-        inset 0 -8px 20px rgba(0, 0, 0, 0.6);
+        0 0 40px 8px rgba(0, 113, 227, 0.2),
+        0 0 80px 20px rgba(0, 113, 227, 0.08),
+        inset 0 -8px 20px rgba(0, 0, 0, 0.15);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -225,11 +235,10 @@
       z-index: 2;
     }
     @keyframes orbPulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 60px 10px rgba(0,113,227,0.25), 0 0 120px 30px rgba(41,151,255,0.08), inset 0 -8px 20px rgba(0,0,0,0.6); }
-      50% { transform: scale(1.04); box-shadow: 0 0 80px 15px rgba(0,113,227,0.35), 0 0 140px 40px rgba(41,151,255,0.12), inset 0 -8px 20px rgba(0,0,0,0.6); }
+      0%, 100% { transform: scale(1); box-shadow: 0 0 40px 8px rgba(0,113,227,0.2), 0 0 80px 20px rgba(0,113,227,0.08), inset 0 -8px 20px rgba(0,0,0,0.15); }
+      50% { transform: scale(1.04); box-shadow: 0 0 55px 12px rgba(0,113,227,0.28), 0 0 100px 30px rgba(0,113,227,0.12), inset 0 -8px 20px rgba(0,0,0,0.15); }
     }
 
-    /* Concentric sonar rings */
     .hero-ring {
       position: absolute;
       border-radius: 50%;
@@ -243,11 +252,10 @@
     .hero-ring:nth-child(2) { width: 220px; height: 220px; animation-delay: 1.3s; }
     .hero-ring:nth-child(3) { width: 280px; height: 280px; animation-delay: 2.6s; }
     @keyframes ringExpand {
-      0% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.85); }
+      0% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.85); }
       100% { opacity: 0; transform: translate(-50%, -50%) scale(1.3); }
     }
 
-    /* Staggered fade-in for hero text */
     .hero-reveal {
       opacity: 0;
       transform: translateY(28px);
@@ -262,25 +270,24 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Floating badge (pill label) */
     .hero-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 5px 14px 5px 10px;
       border-radius: 9999px;
-      background: rgba(0, 113, 227, 0.12);
-      border: 1px solid rgba(0, 113, 227, 0.25);
+      background: rgba(0, 113, 227, 0.08);
+      border: 1px solid rgba(0, 113, 227, 0.2);
       font-size: 12px;
       font-weight: 500;
-      color: #2997ff;
+      color: #0066cc;
       letter-spacing: 0.03em;
     }
     .hero-badge-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #2997ff;
+      background: #0071e3;
       animation: dotBlink 2s ease-in-out infinite;
     }
     @keyframes dotBlink {
@@ -288,23 +295,16 @@
       50% { opacity: 0.3; }
     }
 
-    /* Stat counters */
-    .hero-stat {
-      text-align: center;
-      padding: 0 16px;
-    }
+    .hero-stat { text-align: center; padding: 0 16px; }
     .hero-stat-value {
       font-size: 28px;
       font-weight: 700;
       letter-spacing: -0.02em;
-      background: linear-gradient(180deg, #ffffff 30%, rgba(255,255,255,0.6) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #1d1d1f;
     }
     .hero-stat-label {
       font-size: 11px;
-      color: #86868b;
+      color: #6e6e73;
       margin-top: 4px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -312,36 +312,75 @@
 
     /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #000000; }
-    ::-webkit-scrollbar-thumb { background: #2c2c2e; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #48484a; }
+    ::-webkit-scrollbar-track { background: #f5f5f7; }
+    ::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #b0b0b8; }
+
+    /* Comparison table header highlight */
+    .compare-pasa-col { background: rgba(0,113,227,0.05); }
+    .compare-yes { color: #1d8348; }
+    .compare-no { color: #b0b0b8; }
+    .compare-partial { color: #c45000; }
+
+    /* Payment provider panels */
+    .payment-panel { display: none; }
+    .payment-panel.active { display: block; }
+
+    /* bKash brand colors */
+    .bkash-pink { color: #e2136e; }
+    .bkash-bg { background: #fdf0f6; border: 1px solid #f8c8e0; border-radius: 12px; }
+
+    /* Binance brand */
+    .binance-yellow { color: #d4a017; }
+    .binance-bg { background: #fdf9ec; border: 1px solid #f5e0a0; border-radius: 12px; }
+
+    /* Mono code block */
+    .code-block {
+      background: #f0f0f2;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #1d1d1f;
+      word-break: break-all;
+    }
+
+    /* Tier card highlight */
+    .tier-hero {
+      background: linear-gradient(145deg, #e8f0fc 0%, #ffffff 100%);
+      border: 2px solid #0071e3 !important;
+      box-shadow: 0 0 40px rgba(0,113,227,0.12);
+    }
   </style>
+
 </head>
-<body class="bg-black text-apple-grayLight">
+<body class="bg-apple-bg text-apple-black">
 
   <!-- ================= APPLE TRANSLUCENT TOP NAVIGATION ================= -->
   <header class="sticky top-0 z-50 apple-nav h-12 flex items-center">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full flex items-center justify-between">
       
-      <!-- Apple-style Logo & Name -->
-      <a href="#" class="flex items-center gap-2 text-white hover:opacity-80 transition-opacity">
-        <i data-lucide="shield" class="w-4 h-4 text-apple-blueLight"></i>
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-2 text-apple-black hover:opacity-70 transition-opacity">
+        <i data-lucide="shield" class="w-4 h-4 text-apple-blue"></i>
         <span class="text-sm font-semibold tracking-tight">PASA Sentinel</span>
       </a>
 
       <!-- Center Links (Desktop) -->
       <nav class="hidden md:flex items-center gap-7 text-[12px] text-apple-grayText font-normal">
-        <a href="#overview" class="hover:text-white transition-colors">Overview</a>
-        <a href="#hardware-showcase" class="hover:text-white transition-colors">Tactical Console</a>
-        <a href="#features" class="hover:text-white transition-colors">Security Features</a>
-        <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
-        <a href="/privacy.html" class="hover:text-white transition-colors">Privacy</a>
-        <a href="/terms" class="text-white hover:underline">Terms of Service</a>
+        <a href="#overview" class="hover:text-apple-black transition-colors">Overview</a>
+        <a href="#hardware-showcase" class="hover:text-apple-black transition-colors">Tactical Console</a>
+        <a href="#features" class="hover:text-apple-black transition-colors">Security Features</a>
+        <a href="#compare" class="hover:text-apple-black transition-colors">Compare</a>
+        <a href="#pricing" class="hover:text-apple-black transition-colors">Pricing</a>
+        <a href="/privacy.html" class="hover:text-apple-black transition-colors">Privacy</a>
+        <a href="/terms" class="hover:text-apple-black transition-colors">Terms</a>
       </nav>
 
-      <!-- Right Action Buttons -->
+      <!-- Right Action -->
       <div class="flex items-center gap-3">
-        <button onclick="scrollToLedger()" class="text-[12px] text-apple-grayText hover:text-white transition-colors hidden sm:inline-block">
+        <button onclick="scrollToLedger()" class="text-[12px] text-apple-grayText hover:text-apple-black transition-colors hidden sm:inline-block">
           Verify Key
         </button>
         <a href="/releases/pasa-latest.apk" class="apple-btn-pill text-xs px-3.5 py-1.5 flex items-center gap-1.5">
@@ -353,57 +392,51 @@
   </header>
 
   <!-- Sub-ribbon Banner -->
-  <div class="bg-[#121212] border-b border-white/[0.05] py-2 px-4 text-center text-xs text-apple-grayText">
+  <div class="bg-white border-b border-black/[0.06] py-2 px-4 text-center text-xs text-apple-grayText">
     <span>Stock Android rootless anti-theft defense. Zero Google Play telemetry dependencies.</span>
-    <a href="#features" class="text-apple-blueLight hover:underline ml-1.5">Learn more &gt;</a>
+    <a href="#features" class="text-apple-blue hover:underline ml-1.5">Learn more &gt;</a>
   </div>
 
   <!-- ================= HERO — CINEMATIC SPLIT ================= -->
-  <section id="overview" class="relative overflow-hidden" style="min-height: calc(100vh - 80px);">
+  <section id="overview" class="relative overflow-hidden bg-apple-bg" style="min-height: calc(100vh - 80px);">
 
-    <!-- Layered cinematic backdrop -->
     <div class="hero-backdrop">
       <div class="hero-aurora"></div>
     </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 pt-16 pb-20 lg:pt-24 lg:pb-28" style="min-height: calc(100vh - 80px);">
 
-      <!-- LEFT COLUMN — Typography & CTAs -->
+      <!-- LEFT COLUMN -->
       <div class="flex-1 max-w-2xl text-center lg:text-left order-2 lg:order-1">
 
-        <!-- Status badge -->
         <div class="hero-reveal hero-reveal-1 mb-6">
           <span class="hero-badge">
             <span class="hero-badge-dot"></span>
-            v3.0.0 — All Systems Operational
+            v3.1.7 — All Systems Operational
           </span>
         </div>
 
-        <!-- Headline -->
-        <h1 class="hero-reveal hero-reveal-2 text-5xl sm:text-6xl lg:text-7xl xl:text-[80px] font-bold tracking-tight text-white leading-[1.05] mb-5">
+        <h1 class="hero-reveal hero-reveal-2 text-5xl sm:text-6xl lg:text-7xl xl:text-[80px] font-bold tracking-tight text-apple-black leading-[1.05] mb-5">
           Your phone<br>fights back.
         </h1>
 
-        <!-- Sub-headline -->
-        <p class="hero-reveal hero-reveal-3 text-lg sm:text-xl text-[#a1a1a6] max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed mb-8">
+        <p class="hero-reveal hero-reveal-3 text-lg sm:text-xl text-apple-grayText max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed mb-8">
           When thieves cut Wi-Fi, pull the SIM, and hit airplane mode — PASA Sentinel keeps working. Air-gapped SMS commands, silent mugshots, fake shutdowns, and a fortress-grade lock they can't uninstall.
         </p>
 
-        <!-- Action buttons -->
         <div class="hero-reveal hero-reveal-4 flex flex-col sm:flex-row items-center lg:items-start gap-3.5 mb-10">
-          <a href="/api/app/download/pasa-v3.0.0.apk" class="apple-btn-pill px-7 py-3.5 text-sm flex items-center justify-center gap-2.5 shadow-[0_0_30px_rgba(0,113,227,0.3)] w-full sm:w-auto">
+          <a href="/releases/pasa-latest.apk" class="apple-btn-pill px-7 py-3.5 text-sm flex items-center justify-center gap-2.5 shadow-[0_4px_18px_rgba(0,113,227,0.3)] w-full sm:w-auto">
             <i data-lucide="download" class="w-4 h-4"></i>
             <span>Download APK — Free</span>
           </a>
-          <button onclick="openCheckout('PRO_LIFETIME', 29.99)" class="apple-btn-secondary px-6 py-3.5 text-sm flex items-center justify-center gap-2 w-full sm:w-auto">
-            <span>Unlock Pro &bull; $29.99</span>
+          <button onclick="openCheckout('PRO_LIFETIME', 3490)" class="apple-btn-secondary px-6 py-3.5 text-sm flex items-center justify-center gap-2 w-full sm:w-auto">
+            <span>Unlock Pro &bull; ৳3,490</span>
           </button>
         </div>
 
-        <!-- Micro-proof strip -->
-        <div class="hero-reveal hero-reveal-5 flex items-center justify-center lg:justify-start gap-6 text-xs text-[#86868b]">
+        <div class="hero-reveal hero-reveal-5 flex items-center justify-center lg:justify-start gap-6 text-xs text-apple-grayText">
           <span class="flex items-center gap-1.5">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-apple-blueLight"></i>
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-apple-blue"></i>
             Device Owner
           </span>
           <span class="flex items-center gap-1.5">
@@ -417,14 +450,12 @@
         </div>
       </div>
 
-      <!-- RIGHT COLUMN — Shield Orb Visual -->
+      <!-- RIGHT COLUMN — Shield Orb -->
       <div class="flex-shrink-0 flex items-center justify-center order-1 lg:order-2">
         <div class="hero-orb">
-          <!-- Sonar rings -->
           <div class="hero-ring"></div>
           <div class="hero-ring"></div>
           <div class="hero-ring"></div>
-          <!-- Glowing core -->
           <div class="hero-orb-core">
             <i data-lucide="shield" class="w-12 h-12 text-white/90"></i>
           </div>
@@ -434,23 +465,23 @@
     </div>
 
     <!-- Bottom Stats Bar -->
-    <div class="relative z-10 border-t border-white/[0.06] bg-white/[0.02]">
+    <div class="relative z-10 border-t border-black/[0.06] bg-white/60">
       <div class="max-w-5xl mx-auto py-6 flex items-center justify-center gap-0">
         <div class="hero-stat">
           <div class="hero-stat-value">4</div>
           <div class="hero-stat-label">Hardware Traps</div>
         </div>
-        <div class="w-px h-10 bg-white/[0.08]"></div>
+        <div class="w-px h-10 bg-black/[0.08]"></div>
         <div class="hero-stat">
           <div class="hero-stat-value">2</div>
           <div class="hero-stat-label">C2 Channels</div>
         </div>
-        <div class="w-px h-10 bg-white/[0.08]"></div>
+        <div class="w-px h-10 bg-black/[0.08]"></div>
         <div class="hero-stat">
           <div class="hero-stat-value">0</div>
           <div class="hero-stat-label">Google Dependencies</div>
         </div>
-        <div class="w-px h-10 bg-white/[0.08]"></div>
+        <div class="w-px h-10 bg-black/[0.08]"></div>
         <div class="hero-stat">
           <div class="hero-stat-value">∞</div>
           <div class="hero-stat-label">Persistence</div>
@@ -463,8 +494,8 @@
   <section id="hardware-showcase" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
     
     <div class="text-center mb-12">
-      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blueLight mb-2">Interactive Hardware Showcase</p>
-      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight text-white">
+      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Interactive Hardware Showcase</p>
+      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight text-apple-black">
         Explore the security architecture.
       </h2>
       <p class="text-base text-apple-grayText mt-3 max-w-2xl mx-auto">
@@ -472,18 +503,18 @@
       </p>
     </div>
 
-    <!-- Apple-style Interactive Feature Switcher Pills -->
+    <!-- Scenario Pills -->
     <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-w-3xl mx-auto mb-12">
-      <button onclick="triggerScenario('snatch')" id="tabSnatch" class="scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-white/10 text-white border border-white/20">
+      <button onclick="triggerScenario('snatch')" id="tabSnatch" class="scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-apple-blue/10 text-apple-blue border border-apple-blue/30">
         Kinetic Snatch Attack
       </button>
-      <button onclick="triggerScenario('sms')" id="tabSms" class="scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-white/[0.04] text-apple-grayText border border-white/[0.08] hover:text-white">
+      <button onclick="triggerScenario('sms')" id="tabSms" class="scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-black/[0.04] text-apple-grayText border border-black/[0.08] hover:text-apple-black">
         Airgap SMS (Data Cut)
       </button>
-      <button onclick="triggerScenario('shutdown')" id="tabShutdown" class="scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-white/[0.04] text-apple-grayText border border-white/[0.08] hover:text-white">
+      <button onclick="triggerScenario('shutdown')" id="tabShutdown" class="scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-black/[0.04] text-apple-grayText border border-black/[0.08] hover:text-apple-black">
         Fake Shutdown Blackout
       </button>
-      <button onclick="triggerScenario('camera')" id="tabCamera" class="scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-white/[0.04] text-apple-grayText border border-white/[0.08] hover:text-white">
+      <button onclick="triggerScenario('camera')" id="tabCamera" class="scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-black/[0.04] text-apple-grayText border border-black/[0.08] hover:text-apple-black">
         Silent Forensic Camera
       </button>
     </div>
@@ -491,58 +522,52 @@
     <!-- Hardware Showcase Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center max-w-5xl mx-auto">
       
-      <!-- Studio-Lit Titanium Smartphone Device -->
+      <!-- Smartphone Device -->
       <div class="lg:col-span-5 flex justify-center">
         <div class="w-[300px] sm:w-[320px] h-[640px] apple-titanium-device">
-          
-          <!-- Screen Display Bezel -->
           <div id="phoneScreen" class="w-full h-full rounded-[44px] bg-[#000000] overflow-hidden relative border border-white/10 flex flex-col justify-between p-6 transition-colors duration-500">
             
-            <!-- Phone Header -->
             <div>
-              <div class="flex items-center justify-between text-[11px] font-mono text-apple-grayText mb-6">
+              <div class="flex items-center justify-between text-[11px] font-mono text-gray-400 mb-6">
                 <span id="phoneClock">14:02:18</span>
                 <div class="w-16 h-4 bg-neutral-900 rounded-full mx-auto"></div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[10px] text-apple-blueLight font-semibold">5G</span>
+                  <span class="text-[10px] text-blue-400 font-semibold">5G</span>
                   <span>94%</span>
                 </div>
               </div>
-              <div class="text-[10px] text-apple-grayText uppercase tracking-wider text-center">
+              <div class="text-[10px] text-gray-500 uppercase tracking-wider text-center">
                 System: Armed &bull; Node #DEV-701A
               </div>
             </div>
 
-            <!-- OLED Security State Visual -->
             <div id="centerDisplay" class="flex flex-col items-center justify-center text-center my-auto">
-              <div id="shieldContainer" class="w-20 h-20 rounded-full bg-apple-blue/15 border border-apple-blue/40 flex items-center justify-center mb-4 transition-all">
-                <i id="shieldIcon" data-lucide="shield-check" class="w-10 h-10 text-apple-blueLight"></i>
+              <div id="shieldContainer" class="w-20 h-20 rounded-full bg-blue-900/30 border border-blue-600/40 flex items-center justify-center mb-4 transition-all">
+                <i id="shieldIcon" data-lucide="shield-check" class="w-10 h-10 text-blue-400"></i>
               </div>
               <h4 id="statusTitle" class="text-base font-semibold text-white tracking-tight">Sentinel Armed</h4>
-              <p id="statusSubtitle" class="text-xs text-apple-grayText mt-1">4 Hardware Traps Active</p>
+              <p id="statusSubtitle" class="text-xs text-gray-400 mt-1">4 Hardware Traps Active</p>
 
-              <!-- Device Telemetry Grid -->
               <div id="sensorMatrix" class="grid grid-cols-2 gap-2 mt-6 w-full text-left text-[11px]">
                 <div class="bg-neutral-900/90 border border-white/5 p-2.5 rounded-xl">
-                  <div class="text-[10px] text-apple-grayText">Kinetic Snatch</div>
-                  <div class="text-apple-blueLight font-medium">Armed (&plusmn;0.02G)</div>
+                  <div class="text-[10px] text-gray-500">Kinetic Snatch</div>
+                  <div class="text-blue-400 font-medium">Armed (±0.02G)</div>
                 </div>
                 <div class="bg-neutral-900/90 border border-white/5 p-2.5 rounded-xl">
-                  <div class="text-[10px] text-apple-grayText">Cellular SMS</div>
-                  <div class="text-apple-green font-medium">Dual Standby</div>
+                  <div class="text-[10px] text-gray-500">Cellular SMS</div>
+                  <div class="text-green-400 font-medium">Dual Standby</div>
                 </div>
                 <div class="bg-neutral-900/90 border border-white/5 p-2.5 rounded-xl">
-                  <div class="text-[10px] text-apple-grayText">Device Owner</div>
+                  <div class="text-[10px] text-gray-500">Device Owner</div>
                   <div class="text-white font-medium">Knox Enforced</div>
                 </div>
                 <div class="bg-neutral-900/90 border border-white/5 p-2.5 rounded-xl">
-                  <div class="text-[10px] text-apple-grayText">Camera Core</div>
-                  <div class="text-apple-blueLight font-medium">Covert Camera2</div>
+                  <div class="text-[10px] text-gray-500">Camera Core</div>
+                  <div class="text-blue-400 font-medium">Covert Camera2</div>
                 </div>
               </div>
             </div>
 
-            <!-- Home Bar -->
             <div class="text-center pt-2">
               <div class="w-24 h-1 bg-neutral-700 rounded-full mx-auto"></div>
             </div>
@@ -551,175 +576,167 @@
         </div>
       </div>
 
-      <!-- Right: Detailed Telemetry Context Card -->
-      <div class="lg:col-span-7 space-y-4">
-        
-        <div class="apple-card p-7 sm:p-8">
-          <div class="flex items-center justify-between pb-4 mb-5 border-b border-white/[0.08]">
-            <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full bg-apple-green"></div>
-              <span id="incidentHeader" class="text-sm font-semibold text-white">Operator C2 Channel Dispatch</span>
-            </div>
-            <span id="incidentBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-apple-green/10 text-apple-green font-medium">
-              Standby Ready
-            </span>
-          </div>
+      <!-- Right Panel: Incident Feed -->
+      <div class="lg:col-span-7 space-y-6">
 
-          <div class="space-y-3 font-mono text-xs">
-            <div class="text-apple-grayText text-[11px] uppercase tracking-wider">Incoming Telemetry Feed</div>
-            <div id="botMessageLine" class="p-4 rounded-xl bg-black/60 border border-white/5 text-neutral-300 leading-relaxed">
-              &gt; <span class="text-white font-semibold">Sentinel Agent initialized on node #DEV-701A (Pixel 9 Pro).</span> All 4 hardware anti-theft sensors online. Click a scenario button above to simulate an attack.
-            </div>
-            <div id="botSubLine" class="text-[11px] text-apple-grayText">
-              &gt; Telegram C2 link active. SMS fallback carrier standby. Zero Google telemetry dependencies.
-            </div>
+        <div class="apple-card p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h4 id="incidentHeader" class="text-base font-semibold text-apple-black">Incident Intercept: Snatch Detected</h4>
+            <span id="incidentBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 font-medium border border-red-100">Defense Active</span>
           </div>
-
-          <div class="grid grid-cols-3 gap-4 mt-6 pt-5 border-t border-white/[0.08] text-xs">
-            <div>
-              <div class="text-[11px] text-apple-grayText">Protection Level</div>
-              <div class="text-white font-medium mt-0.5">Android Enterprise Kiosk</div>
-            </div>
-            <div>
-              <div class="text-[11px] text-apple-grayText">Uninstallation</div>
-              <div class="text-apple-red font-medium mt-0.5">Disabled in Kernel</div>
-            </div>
-            <div>
-              <div class="text-[11px] text-apple-grayText">Cryptography</div>
-              <div class="text-apple-blueLight font-medium mt-0.5">Ed25519 Local Keypair</div>
-            </div>
+          <div class="code-block space-y-1.5">
+            <p id="botMessageLine" class="text-[11px]">&gt; <b>ALARM:</b> Abrupt 2.85G delta detected at 14:02:44. Screen locked via Device Owner.</p>
+            <p id="botSubLine" class="text-[11px] text-apple-grayText">&gt; Siren dispatched at 100% SPL. Covert selfie captured. GPS pin (23.7771, 90.3994) pushed to Telegram.</p>
           </div>
         </div>
 
-        <!-- Exploit Analysis Callout -->
-        <div class="apple-card p-6">
-          <h4 class="text-sm font-semibold text-white mb-2 flex items-center gap-2">
-            <i data-lucide="shield-alert" class="w-4 h-4 text-apple-orange"></i>
-            <span>Why consumer anti-theft apps surrender</span>
-          </h4>
-          <p class="text-xs text-apple-grayText leading-relaxed">
-            Google "Find My Device" and Play Store apps live inside sandboxed user permissions. When a thief toggles Airplane Mode or uninstalls the app in 5 seconds, all tracking stops. PASA Sentinel operates at the Device Owner firmware layer, intercepts raw cellular SMS from carrier towers with zero mobile data, and locks uninstallation in the OS kernel.
-          </p>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="apple-card p-5">
+            <div class="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
+              <i data-lucide="telegram" class="w-4 h-4 text-apple-blue"></i>
+            </div>
+            <div class="text-xs font-semibold text-apple-black mb-1">Telegram C2</div>
+            <div class="text-xs text-apple-grayText">Real-time commands via Telegram Bot even on zero data</div>
+          </div>
+          <div class="apple-card p-5">
+            <div class="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center mb-3">
+              <i data-lucide="message-square" class="w-4 h-4 text-apple-orange"></i>
+            </div>
+            <div class="text-xs font-semibold text-apple-black mb-1">SMS Fallback</div>
+            <div class="text-xs text-apple-grayText">TOTP-signed cellular fallback. Works with no internet at all</div>
+          </div>
+          <div class="apple-card p-5">
+            <div class="w-8 h-8 rounded-xl bg-green-50 flex items-center justify-center mb-3">
+              <i data-lucide="map-pin" class="w-4 h-4 text-apple-green"></i>
+            </div>
+            <div class="text-xs font-semibold text-apple-black mb-1">Live GPS</div>
+            <div class="text-xs text-apple-grayText">Hardware GNSS location streaming every 30 seconds</div>
+          </div>
+          <div class="apple-card p-5">
+            <div class="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center mb-3">
+              <i data-lucide="camera" class="w-4 h-4 text-purple-600"></i>
+            </div>
+            <div class="text-xs font-semibold text-apple-black mb-1">Forensic Camera</div>
+            <div class="text-xs text-apple-grayText">Silent Camera2 API. No UI wake. No shutter sound</div>
+          </div>
         </div>
 
       </div>
-
     </div>
   </section>
 
-  <!-- ================= APPLE PRO BENTO FEATURE GRID ================= -->
-  <section id="features" class="py-24 px-4 sm:px-6 max-w-6xl mx-auto">
-    
+  <!-- ================= SECURITY FEATURES BENTO ================= -->
+  <section id="features" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
+
     <div class="text-center mb-16">
-      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blueLight mb-2">Pro Architectural Pillars</p>
-      <h2 class="text-4xl sm:text-6xl font-semibold tracking-tight text-white">
-        Engineered for the unexpected.
+      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Defense Architecture</p>
+      <h2 class="text-4xl sm:text-5xl font-semibold tracking-tight text-apple-black">
+        No compromise. No backdoors.
       </h2>
-      <p class="text-base text-apple-grayText mt-4 max-w-2xl mx-auto">
-        Every layer of PASA Sentinel is built with hardened, rootless Android primitives designed to resist physical device theft and network severance.
+      <p class="text-base text-apple-grayText mt-3 max-w-xl mx-auto">
+        Every module built for adversarial conditions — thieves, disassemblers, and forensic analysts.
       </p>
     </div>
 
-    <!-- 6 Bento Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
       <!-- Card 1 -->
       <div class="apple-card p-8 flex flex-col justify-between">
         <div>
-          <div class="w-10 h-10 rounded-2xl bg-white/[0.06] flex items-center justify-center text-apple-blueLight mb-6">
-            <i data-lucide="radio" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-red-50 flex items-center justify-center text-red-500 mb-6">
+            <i data-lucide="zap" class="w-5 h-5"></i>
           </div>
-          <h3 class="text-xl font-semibold text-white mb-2 tracking-tight">Dual-Channel Command Plane</h3>
+          <h3 class="text-xl font-semibold text-apple-black mb-2 tracking-tight">Kinetic Snatch Trap</h3>
           <p class="text-sm text-apple-grayText leading-relaxed">
-            Real-time TLS Telegram Bot API commands for lightning-fast telemetry, paired with an autonomous raw cellular SMS parser that triggers when internet connectivity is severed.
+            Accelerometer delta threshold triggers instant Device Owner screen lock, 100dB alarm, and forensic selfie — in under 800ms.
           </p>
         </div>
-        <div class="mt-8 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs text-apple-grayText">
-          <span>Fallback: GSM SMS</span>
-          <span class="text-apple-green font-medium">Standby Active</span>
+        <div class="mt-8 pt-4 border-t border-black/[0.06] flex items-center justify-between text-xs text-apple-grayText">
+          <span>Response Latency</span>
+          <span class="text-red-500 font-medium">&lt; 800ms</span>
         </div>
       </div>
 
       <!-- Card 2 -->
       <div class="apple-card p-8 flex flex-col justify-between">
         <div>
-          <div class="w-10 h-10 rounded-2xl bg-white/[0.06] flex items-center justify-center text-apple-orange mb-6">
-            <i data-lucide="zap" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-apple-blue mb-6">
+            <i data-lucide="radio" class="w-5 h-5"></i>
           </div>
-          <h3 class="text-xl font-semibold text-white mb-2 tracking-tight">Hardware Anti-Snatch Traps</h3>
+          <h3 class="text-xl font-semibold text-apple-black mb-2 tracking-tight">Air-Gap SMS C2</h3>
           <p class="text-sm text-apple-grayText leading-relaxed">
-            Direct accelerometer monitoring triggers instant screen lockout, siren blasts, and selfie mugshots upon abrupt motion snatch, charger severance, or pocket extraction.
+            TOTP-encrypted commands over raw GSM PDU. Locate, lock, ring, wipe — all work even when the thief disables mobile data.
           </p>
         </div>
-        <div class="mt-8 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs text-apple-grayText">
-          <span>Accelerometer Delta</span>
-          <span class="text-apple-orange font-medium">2.8G Threshold</span>
+        <div class="mt-8 pt-4 border-t border-black/[0.06] flex items-center justify-between text-xs text-apple-grayText">
+          <span>Encryption</span>
+          <span class="text-apple-blue font-medium">TOTP + HMAC-SHA1</span>
         </div>
       </div>
 
       <!-- Card 3 -->
       <div class="apple-card p-8 flex flex-col justify-between">
         <div>
-          <div class="w-10 h-10 rounded-2xl bg-white/[0.06] flex items-center justify-center text-apple-blueLight mb-6">
-            <i data-lucide="camera" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-600 mb-6">
+            <i data-lucide="power-off" class="w-5 h-5"></i>
           </div>
-          <h3 class="text-xl font-semibold text-white mb-2 tracking-tight">Silent Forensic Telemetry</h3>
+          <h3 class="text-xl font-semibold text-apple-black mb-2 tracking-tight">Fake Shutdown Blackout</h3>
           <p class="text-sm text-apple-grayText leading-relaxed">
-            Captures front/rear camera photos and records ambient wiretap audio covertly without screen wake, viewfinder preview, or shutter click, streaming payloads straight to your Telegram chat.
+            Spoofs the power-off sequence. Display goes dark but daemon continues GPS tracking, microphone capture, and Telegram relay.
           </p>
         </div>
-        <div class="mt-8 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs text-apple-grayText">
-          <span>Viewfinder Leak</span>
-          <span class="text-white font-medium">0% (Black Screen)</span>
+        <div class="mt-8 pt-4 border-t border-black/[0.06] flex items-center justify-between text-xs text-apple-grayText">
+          <span>Thief Perception</span>
+          <span class="text-gray-500 font-medium">Phone is OFF</span>
         </div>
       </div>
 
       <!-- Card 4 -->
       <div class="apple-card p-8 flex flex-col justify-between">
         <div>
-          <div class="w-10 h-10 rounded-2xl bg-white/[0.06] flex items-center justify-center text-apple-red mb-6">
-            <i data-lucide="eye-off" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center text-apple-orange mb-6">
+            <i data-lucide="camera" class="w-5 h-5"></i>
           </div>
-          <h3 class="text-xl font-semibold text-white mb-2 tracking-tight">Simulated Fake Shutdown</h3>
+          <h3 class="text-xl font-semibold text-apple-black mb-2 tracking-tight">Silent Forensic Camera</h3>
           <p class="text-sm text-apple-grayText leading-relaxed">
-            Simulates native Android power-down animations and blacks out OLED panels completely. The thief believes the device is dead while GPS tracking and audio wiretaps remain operational.
+            Camera2 API triggered silently. No screen flash, no shutter sound. 1080p forensic mugshot delivered to Telegram with Ed25519 anti-tamper signature.
           </p>
         </div>
-        <div class="mt-8 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs text-apple-grayText">
-          <span>Display Controller</span>
-          <span class="text-apple-grayText font-medium">0 Nits (OLED Off)</span>
+        <div class="mt-8 pt-4 border-t border-black/[0.06] flex items-center justify-between text-xs text-apple-grayText">
+          <span>Delivery</span>
+          <span class="text-apple-orange font-medium">Telegram &amp; On-Device</span>
         </div>
       </div>
 
       <!-- Card 5 -->
       <div class="apple-card p-8 flex flex-col justify-between">
         <div>
-          <div class="w-10 h-10 rounded-2xl bg-white/[0.06] flex items-center justify-center text-apple-green mb-6">
-            <i data-lucide="shield" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 mb-6">
+            <i data-lucide="shield-off" class="w-5 h-5"></i>
           </div>
-          <h3 class="text-xl font-semibold text-white mb-2 tracking-tight">Device Owner Persistence</h3>
+          <h3 class="text-xl font-semibold text-apple-black mb-2 tracking-tight">Device Owner Persistence</h3>
           <p class="text-sm text-apple-grayText leading-relaxed">
-            Binds through Android Enterprise Device Administration or ADB Device Owner. Disables package uninstallation, blocks Safe Mode bypasses, and prevents malicious factory wipes.
+            Binds through Android Enterprise Device Administration or ADB Device Owner. Disables package uninstallation, blocks Safe Mode bypasses.
           </p>
         </div>
-        <div class="mt-8 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs text-apple-grayText">
+        <div class="mt-8 pt-4 border-t border-black/[0.06] flex items-center justify-between text-xs text-apple-grayText">
           <span>Uninstall Setting</span>
-          <span class="text-apple-red font-medium">Disabled in Kernel</span>
+          <span class="text-red-500 font-medium">Disabled in Kernel</span>
         </div>
       </div>
 
       <!-- Card 6 -->
       <div class="apple-card p-8 flex flex-col justify-between">
         <div>
-          <div class="w-10 h-10 rounded-2xl bg-white/[0.06] flex items-center justify-center text-white mb-6">
+          <div class="w-10 h-10 rounded-2xl bg-green-50 flex items-center justify-center text-apple-green mb-6">
             <i data-lucide="database" class="w-5 h-5"></i>
           </div>
-          <h3 class="text-xl font-semibold text-white mb-2 tracking-tight">Self-Hosted Sovereign Ledger</h3>
+          <h3 class="text-xl font-semibold text-apple-black mb-2 tracking-tight">Self-Hosted Sovereign Ledger</h3>
           <p class="text-sm text-apple-grayText leading-relaxed">
-            Zero Google Play Services dependency. No third-party ad networks, no analytics backdoors, and no Firebase tracking. You own your telemetry, your keys, and your device.
+            Zero Google Play Services dependency. No ad networks, no analytics backdoors, no Firebase tracking. You own your telemetry, keys, and device.
           </p>
         </div>
-        <div class="mt-8 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs text-apple-grayText">
+        <div class="mt-8 pt-4 border-t border-black/[0.06] flex items-center justify-between text-xs text-apple-grayText">
           <span>Google Telemetry</span>
           <span class="text-apple-green font-medium">0 Bytes (Blocked)</span>
         </div>
@@ -728,12 +745,12 @@
     </div>
   </section>
 
-  <!-- ================= SIDELOADING WALKTHROUGH (APPLE 3-STEP TOUR) ================= -->
+  <!-- ================= SIDELOADING WALKTHROUGH ================= -->
   <section id="sideload" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
     
     <div class="text-center mb-16">
-      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blueLight mb-2">Deployment Protocol</p>
-      <h2 class="text-4xl sm:text-5xl font-semibold tracking-tight text-white">
+      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Deployment Protocol</p>
+      <h2 class="text-4xl sm:text-5xl font-semibold tracking-tight text-apple-black">
         Sideloading. Simpler than ever.
       </h2>
       <p class="text-base text-apple-grayText mt-3 max-w-xl mx-auto">
@@ -743,44 +760,41 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
-      <!-- Step 01 -->
       <div class="apple-card p-8 flex flex-col justify-between">
         <div>
-          <div class="text-4xl font-semibold text-neutral-600 mb-4 font-mono">01</div>
-          <h4 class="text-lg font-semibold text-white mb-2">Download &amp; Authorize</h4>
+          <div class="text-4xl font-semibold text-black/10 mb-4 font-mono">01</div>
+          <h4 class="text-lg font-semibold text-apple-black mb-2">Download &amp; Authorize</h4>
           <p class="text-sm text-apple-grayText leading-relaxed mb-6">
             Tap <b>Download APK</b>. When Chrome displays "File might be harmful" (standard for all off-market APKs), tap <b>Download anyway</b>.
           </p>
         </div>
-        <div class="p-3 rounded-xl bg-black/40 border border-white/5 text-xs text-apple-grayText font-mono">
+        <div class="code-block">
           Settings &rarr; Install Unknown Apps &rarr; Toggle Chrome
         </div>
       </div>
 
-      <!-- Step 02 -->
       <div class="apple-card p-8 flex flex-col justify-between">
         <div>
-          <div class="text-4xl font-semibold text-neutral-600 mb-4 font-mono">02</div>
-          <h4 class="text-lg font-semibold text-white mb-2">Play Protect Clearance</h4>
+          <div class="text-4xl font-semibold text-black/10 mb-4 font-mono">02</div>
+          <h4 class="text-lg font-semibold text-apple-black mb-2">Play Protect Clearance</h4>
           <p class="text-sm text-apple-grayText leading-relaxed mb-6">
             Google Play Protect flags unlisted sovereign applications. In the prompt, simply tap <b>"More details"</b> and click <b>"Install anyway"</b>.
           </p>
         </div>
-        <div class="p-3 rounded-xl bg-black/40 border border-white/5 text-xs text-apple-green font-mono">
+        <div class="code-block text-apple-green">
           No telemetry submitted to Google servers.
         </div>
       </div>
 
-      <!-- Step 03 -->
       <div class="apple-card p-8 flex flex-col justify-between">
         <div>
-          <div class="text-4xl font-semibold text-neutral-600 mb-4 font-mono">03</div>
-          <h4 class="text-lg font-semibold text-white mb-2">Arm &amp; Pair Telegram</h4>
+          <div class="text-4xl font-semibold text-black/10 mb-4 font-mono">03</div>
+          <h4 class="text-lg font-semibold text-apple-black mb-2">Arm &amp; Pair Telegram</h4>
           <p class="text-sm text-apple-grayText leading-relaxed mb-6">
             Open PASA, grant Device Administrator or run ADB Device Owner, set your master PIN, and paste your Telegram Bot Token.
           </p>
         </div>
-        <div class="p-3 rounded-xl bg-black/40 border border-white/5 text-xs text-apple-blueLight font-mono break-all">
+        <div class="code-block text-apple-blue break-all">
           adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
         </div>
       </div>
@@ -788,72 +802,222 @@
     </div>
   </section>
 
-  <!-- ================= APPLE COMPARISON MATRIX ================= -->
-  <section id="compare" class="py-20 px-4 sm:px-6 max-w-5xl mx-auto">
+  <!-- ================= EXPANDED COMPARISON MATRIX ================= -->
+  <section id="compare" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
     
-    <div class="text-center mb-16">
-      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blueLight mb-2">Compare Systems</p>
-      <h2 class="text-4xl sm:text-5xl font-semibold tracking-tight text-white">
+    <div class="text-center mb-12">
+      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Compare Systems</p>
+      <h2 class="text-4xl sm:text-5xl font-semibold tracking-tight text-apple-black">
         Which defense is right for you?
       </h2>
+      <p class="text-base text-apple-grayText mt-3 max-w-2xl mx-auto">
+        See how PASA Sentinel stacks up against the world's most popular anti-theft and MDM solutions across the parameters that matter most.
+      </p>
     </div>
 
-    <div class="apple-card overflow-x-auto p-6 sm:p-8">
+    <div class="apple-card overflow-x-auto p-0">
       <table class="w-full text-left border-collapse text-xs sm:text-sm">
         <thead>
-          <tr class="border-b border-white/[0.08] text-apple-grayText">
-            <th class="py-4 px-4 font-medium">Capability</th>
-            <th class="py-4 px-4 font-semibold text-apple-blueLight">PASA Sentinel v3.0.0</th>
-            <th class="py-4 px-4 font-medium">Google Find My Device</th>
-            <th class="py-4 px-4 font-medium">Play Store Antivirus</th>
+          <tr class="border-b border-black/[0.07]">
+            <th class="py-4 px-5 font-semibold text-apple-grayText bg-apple-grayLight rounded-tl-xl" style="min-width:200px">
+              Capability
+              <div class="text-[10px] font-normal text-apple-grayText mt-0.5">Parameter</div>
+            </th>
+            <th class="py-4 px-5 font-semibold text-apple-blue bg-blue-50 text-center" style="min-width:130px">
+              PASA Sentinel
+              <div class="text-[10px] font-normal mt-0.5 text-apple-grayText">v3.1.7 — Free / ৳3,490 Pro</div>
+            </th>
+            <th class="py-4 px-5 font-medium text-apple-grayText bg-apple-grayLight text-center" style="min-width:130px">
+              Google Find My Device
+              <div class="text-[10px] font-normal mt-0.5">Free / Built-in</div>
+            </th>
+            <th class="py-4 px-5 font-medium text-apple-grayText bg-apple-grayLight text-center" style="min-width:130px">
+              Samsung SmartThings Find
+              <div class="text-[10px] font-normal mt-0.5">Free / Samsung only</div>
+            </th>
+            <th class="py-4 px-5 font-medium text-apple-grayText bg-apple-grayLight text-center" style="min-width:130px">
+              Cerberus Anti-Theft
+              <div class="text-[10px] font-normal mt-0.5">€2.99/yr</div>
+            </th>
+            <th class="py-4 px-5 font-medium text-apple-grayText bg-apple-grayLight text-center rounded-tr-xl" style="min-width:130px">
+              Microsoft Intune MDM
+              <div class="text-[10px] font-normal mt-0.5">\$6–\$8/user/mo</div>
+            </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-white/[0.05]">
-          <tr>
-            <td class="py-4 px-4 font-medium text-white">Offline SMS Cellular Fallback<div class="text-xs text-apple-grayText font-normal">Works when thief disables Wi-Fi &amp; Mobile Data</div></td>
-            <td class="py-4 px-4 text-apple-green font-semibold"><i data-lucide="check" class="w-5 h-5"></i></td>
-            <td class="py-4 px-4 text-neutral-600"><i data-lucide="minus" class="w-5 h-5"></i></td>
-            <td class="py-4 px-4 text-neutral-600"><i data-lucide="minus" class="w-5 h-5"></i></td>
+        <tbody class="divide-y divide-black/[0.05]">
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              Offline SMS Cellular Fallback
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">Works when Wi-Fi &amp; Mobile Data are disabled</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-partial font-medium text-xs">Limited (no TOTP)</td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
           </tr>
-          <tr>
-            <td class="py-4 px-4 font-medium text-white">Device Owner Anti-Uninstall<div class="text-xs text-apple-grayText font-normal">Uninstallation disabled in Android Settings and Safe Mode</div></td>
-            <td class="py-4 px-4 text-apple-green font-semibold"><i data-lucide="check" class="w-5 h-5"></i></td>
-            <td class="py-4 px-4 text-apple-grayText text-xs">System App Only</td>
-            <td class="py-4 px-4 text-neutral-600"><i data-lucide="minus" class="w-5 h-5"></i></td>
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              Device Owner Anti-Uninstall
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">Prevents removal via Settings, Safe Mode &amp; ADB</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-partial text-xs font-medium">System App Only</td>
+            <td class="py-4 px-5 text-center compare-partial text-xs font-medium">Knox Only</td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-yes"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
           </tr>
-          <tr>
-            <td class="py-4 px-4 font-medium text-white">Fake Shutdown Blackout<div class="text-xs text-apple-grayText font-normal">Deceives thief with dark screen while keeping GPS active</div></td>
-            <td class="py-4 px-4 text-apple-green font-semibold"><i data-lucide="check" class="w-5 h-5"></i></td>
-            <td class="py-4 px-4 text-neutral-600"><i data-lucide="minus" class="w-5 h-5"></i></td>
-            <td class="py-4 px-4 text-neutral-600"><i data-lucide="minus" class="w-5 h-5"></i></td>
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              Fake Shutdown / Blackout Mode
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">Deceives thief; keeps GPS &amp; mic active covertly</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
           </tr>
-          <tr>
-            <td class="py-4 px-4 font-medium text-white">Silent Forensic Camera &amp; Mic<div class="text-xs text-apple-grayText font-normal">Covert photos and audio streaming directly to Telegram</div></td>
-            <td class="py-4 px-4 text-apple-green font-semibold"><i data-lucide="check" class="w-5 h-5"></i></td>
-            <td class="py-4 px-4 text-neutral-600"><i data-lucide="minus" class="w-5 h-5"></i></td>
-            <td class="py-4 px-4 text-apple-red text-xs">Blocked by Play Store</td>
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              Silent Forensic Camera
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">No screen wake, no shutter; photo to Telegram</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-yes text-xs font-medium">✓ (with screen wake)</td>
+            <td class="py-4 px-5 text-center compare-no text-xs">Blocked by policy</td>
           </tr>
-          <tr>
-            <td class="py-4 px-4 font-medium text-white">Zero Google Telemetry &amp; Self-Hosted<div class="text-xs text-apple-grayText font-normal">No ad networks, no tracking SDKs, 100% private ownership</div></td>
-            <td class="py-4 px-4 text-apple-green font-semibold"><i data-lucide="check" class="w-5 h-5"></i></td>
-            <td class="py-4 px-4 text-neutral-600"><i data-lucide="minus" class="w-5 h-5"></i></td>
-            <td class="py-4 px-4 text-neutral-600"><i data-lucide="minus" class="w-5 h-5"></i></td>
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              Kinetic Snatch / Motion Trap
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">Accelerometer threshold auto-alarm &lt;800ms</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-yes text-xs font-medium">✓ Pocket mode</td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
           </tr>
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              Zero Google Telemetry
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">No Firebase / Play Services / ad-network data exfil</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no text-xs font-medium">Requires Play Svcs</td>
+            <td class="py-4 px-5 text-center compare-no text-xs font-medium">Samsung account req</td>
+            <td class="py-4 px-5 text-center compare-no text-xs">Google FCM push</td>
+            <td class="py-4 px-5 text-center compare-no text-xs">MS cloud required</td>
+          </tr>
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              Self-Hosted / Private Cloud
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">Your own VPS; no vendor lock-in</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-partial text-xs font-medium">On-prem option ($$)</td>
+          </tr>
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              OTA Auto-Update (Rootless)
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">Silent APK update without Play Store</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-yes text-xs">Play Store</td>
+            <td class="py-4 px-5 text-center compare-yes text-xs">Galaxy Store</td>
+            <td class="py-4 px-5 text-center compare-yes text-xs">Play Store</td>
+            <td class="py-4 px-5 text-center compare-yes text-xs">Intune MDM push</td>
+          </tr>
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              Telegram Bot C2 Interface
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">Real-time encrypted command channel</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no"><i data-lucide="x-circle" class="w-5 h-5 mx-auto"></i></td>
+          </tr>
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              Works on Non-Samsung Android
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">Any Android 8+ device, no OEM dependency</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-yes"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-no text-xs font-medium">Samsung only</td>
+            <td class="py-4 px-5 text-center compare-yes"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-yes"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+          </tr>
+
+          <tr class="hover:bg-black/[0.015]">
+            <td class="py-4 px-5 font-medium text-apple-black">
+              One-Time Cost / No Subscription
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">Perpetual license with future updates</div>
+            </td>
+            <td class="py-4 px-5 text-center compare-yes font-semibold bg-blue-50/40"><i data-lucide="check-circle" class="w-5 h-5 mx-auto"></i></td>
+            <td class="py-4 px-5 text-center compare-yes text-xs">Free forever</td>
+            <td class="py-4 px-5 text-center compare-yes text-xs">Free forever</td>
+            <td class="py-4 px-5 text-center compare-no text-xs font-medium">Annual renewal</td>
+            <td class="py-4 px-5 text-center compare-no text-xs font-medium">Monthly per user</td>
+          </tr>
+
+          <!-- Price row -->
+          <tr class="bg-apple-grayLight/60 border-t-2 border-black/[0.07]">
+            <td class="py-4 px-5 font-semibold text-apple-black rounded-bl-xl">
+              Price
+              <div class="text-xs text-apple-grayText font-normal mt-0.5">Lifetime / annual per device</div>
+            </td>
+            <td class="py-4 px-5 text-center bg-blue-50/60 font-bold text-apple-blue">
+              Free (Trial)<br>
+              <span class="font-semibold text-sm">৳3,490 Pro</span><br>
+              <span class="text-xs font-normal text-apple-grayText">৳9,990 Enterprise</span>
+            </td>
+            <td class="py-4 px-5 text-center font-semibold text-apple-green">Free</td>
+            <td class="py-4 px-5 text-center font-semibold text-apple-green">Free</td>
+            <td class="py-4 px-5 text-center font-semibold text-apple-orange">€2.99/yr</td>
+            <td class="py-4 px-5 text-center font-semibold text-apple-orange rounded-br-xl">\$6–\$8/user/mo</td>
+          </tr>
+
         </tbody>
       </table>
     </div>
+
+    <!-- Legend -->
+    <div class="flex flex-wrap items-center justify-center gap-5 mt-6 text-xs text-apple-grayText">
+      <span class="flex items-center gap-1.5 compare-yes"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Fully Supported</span>
+      <span class="flex items-center gap-1.5 compare-partial"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Partial / Limited</span>
+      <span class="flex items-center gap-1.5 compare-no"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Not Supported</span>
+    </div>
   </section>
 
-  <!-- ================= APPLE PRICING TIERS ================= -->
+  <!-- ================= PRICING TIERS ================= -->
   <section id="pricing" class="py-24 px-4 sm:px-6 max-w-6xl mx-auto">
     
     <div class="text-center mb-16">
-      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blueLight mb-2">Sovereign Licenses</p>
-      <h2 class="text-4xl sm:text-6xl font-semibold tracking-tight text-white">
+      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Sovereign Licenses</p>
+      <h2 class="text-4xl sm:text-6xl font-semibold tracking-tight text-apple-black">
         Simple, transparent pricing.
       </h2>
       <p class="text-base text-apple-grayText mt-4 max-w-xl mx-auto">
-        No recurrent monthly subscriptions. Immediate automated license generation.
+        No recurring monthly subscriptions. Immediate automated license generation.
       </p>
     </div>
 
@@ -864,99 +1028,99 @@
         <div>
           <div class="flex items-center justify-between mb-4">
             <span class="text-xs font-semibold uppercase text-apple-grayText">Community Trial</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-apple-grayText">1 Device</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-black/[0.05] text-apple-grayText">1 Device</span>
           </div>
           <div class="flex items-baseline gap-1 mb-3">
-            <span class="text-4xl font-bold text-white">$0</span>
+            <span class="text-4xl font-bold text-apple-black">Free</span>
             <span class="text-xs text-apple-grayText">/ 7-day trial</span>
           </div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
             Complete evaluation license. Experience all defensive commands, Telegram C2, and silent camera triggers.
           </p>
-          <ul class="space-y-3 text-xs text-neutral-300 mb-8">
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> 1 Active Smartphone node</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> Full Telegram Bot C2</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> Covert camera &amp; siren</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> Community GitHub docs</li>
+          <ul class="space-y-3 text-xs text-apple-black mb-8">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blue"></i> 1 Active Smartphone node</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blue"></i> Full Telegram Bot C2</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blue"></i> Covert camera &amp; siren</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blue"></i> Community GitHub docs</li>
           </ul>
         </div>
-        <a href="/api/app/download/pasa-v3.0.0.apk" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium block">
+        <a href="/releases/pasa-latest.apk" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium block">
           Download Free APK
         </a>
       </div>
 
-      <!-- Tier 2: Pro Lifetime (Hero Card) -->
-      <div class="apple-card p-8 flex flex-col justify-between border-2 border-apple-blue relative shadow-[0_0_50px_rgba(0,113,227,0.25)] bg-gradient-to-b from-[#1a2336] to-[#161617]">
+      <!-- Tier 2: Pro Lifetime -->
+      <div class="apple-card tier-hero p-8 flex flex-col justify-between">
         <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-apple-blue text-white text-[11px] font-medium tracking-wide shadow-md">
           Most Popular
         </div>
         <div>
           <div class="flex items-center justify-between mb-4 mt-2">
-            <span class="text-xs font-semibold uppercase text-apple-blueLight">Pro Lifetime</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-apple-blue/20 text-apple-blueLight font-medium">3 Devices</span>
+            <span class="text-xs font-semibold uppercase text-apple-blue">Pro Lifetime</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-apple-blue font-medium">3 Devices</span>
           </div>
-          <div class="flex items-baseline gap-1 mb-3">
-            <span class="text-5xl font-bold text-white">$29.99</span>
-            <span class="text-xs text-apple-grayText">/ one-time payment</span>
+          <div class="flex items-baseline gap-1 mb-1">
+            <span class="text-5xl font-bold text-apple-black">৳3,490</span>
           </div>
+          <div class="text-xs text-apple-grayText mb-3">one-time payment · ~\$29 USD</div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
             Perpetual sovereign defense. Protect your primary phone and family devices forever with all future updates.
           </p>
-          <ul class="space-y-3 text-xs text-white mb-8">
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> <b>3 Device Nodes</b> simultaneously armed</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> <b>Offline Cellular SMS</b> emergency fallback</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> <b>Fake Shutdown Blackout</b> trap mode</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> <b>Autonomous Anti-Snatch</b> kinetic sensor</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blueLight"></i> <b>Lifetime OTA updates</b> &amp; priority routing</li>
+          <ul class="space-y-3 text-xs text-apple-black mb-8">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blue"></i> <b>3 Device Nodes</b> simultaneously armed</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blue"></i> <b>Offline Cellular SMS</b> emergency fallback</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blue"></i> <b>Fake Shutdown Blackout</b> trap mode</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blue"></i> <b>Autonomous Anti-Snatch</b> kinetic sensor</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blue"></i> <b>Lifetime OTA updates</b> &amp; priority routing</li>
           </ul>
         </div>
-        <button onclick="openCheckout('PRO_LIFETIME', 29.99)" class="apple-btn-pill w-full py-3.5 text-xs text-center font-medium shadow-[0_0_20px_rgba(0,113,227,0.4)]">
-          Buy Pro Lifetime
+        <button onclick="openCheckout('PRO_LIFETIME', 3490)" class="apple-btn-pill w-full py-3.5 text-xs text-center font-medium shadow-[0_4px_18px_rgba(0,113,227,0.35)]">
+          Buy Pro Lifetime — ৳3,490
         </button>
       </div>
 
-      <!-- Tier 3: Fleet / Org -->
+      <!-- Tier 3: Fleet / Enterprise -->
       <div class="apple-card p-8 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-4">
             <span class="text-xs font-semibold uppercase text-apple-grayText">Fleet / Enterprise</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-apple-grayText">10 Devices</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-black/[0.05] text-apple-grayText">10 Devices</span>
           </div>
-          <div class="flex items-baseline gap-1 mb-3">
-            <span class="text-4xl font-bold text-white">$79.99</span>
-            <span class="text-xs text-apple-grayText">/ one-time payment</span>
+          <div class="flex items-baseline gap-1 mb-1">
+            <span class="text-4xl font-bold text-apple-black">৳9,990</span>
           </div>
+          <div class="text-xs text-apple-grayText mb-3">one-time payment · ~\$83 USD</div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
             For executive teams, secure facilities, and multi-device fleet deployments requiring Knox-grade ADB provisioning.
           </p>
-          <ul class="space-y-3 text-xs text-neutral-300 mb-8">
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-white"></i> <b>10 Hardware Device Nodes</b></li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-white"></i> Automated ADB Device Owner scripts</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-white"></i> Multi-admin Telegram dispatch</li>
-            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-white"></i> Dedicated deployment engineering</li>
+          <ul class="space-y-3 text-xs text-apple-black mb-8">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-black"></i> <b>10 Hardware Device Nodes</b></li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-black"></i> Automated ADB Device Owner scripts</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-black"></i> Multi-admin Telegram dispatch</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-black"></i> Dedicated deployment engineering</li>
           </ul>
         </div>
-        <button onclick="openCheckout('PRO_ENTERPRISE', 79.99)" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium">
-          Deploy Fleet License
+        <button onclick="openCheckout('PRO_ENTERPRISE', 9990)" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium">
+          Deploy Fleet License — ৳9,990
         </button>
       </div>
 
     </div>
   </section>
 
-  <!-- ================= CRYPTOGRAPHIC LICENSE LEDGER VALIDATOR ================= -->
+  <!-- ================= LICENSE LEDGER VALIDATOR ================= -->
   <section id="ledger" class="py-16 px-4 sm:px-6 max-w-4xl mx-auto text-center">
     <div class="apple-card p-8 sm:p-12">
-      <div class="w-12 h-12 rounded-2xl bg-white/[0.06] flex items-center justify-center text-apple-blueLight mx-auto mb-4">
+      <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-apple-blue mx-auto mb-4">
         <i data-lucide="key-round" class="w-6 h-6"></i>
       </div>
-      <h3 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight mb-2">Cryptographic License Ledger</h3>
+      <h3 class="text-2xl sm:text-3xl font-semibold text-apple-black tracking-tight mb-2">Cryptographic License Ledger</h3>
       <p class="text-sm text-apple-grayText max-w-md mx-auto mb-8">
         Query the live control plane to inspect remaining days, linked devices, or recover an issued key:
       </p>
 
       <div class="flex flex-col sm:flex-row gap-2.5 max-w-md mx-auto">
-        <input type="text" id="lookupQuery" placeholder="License Key (PASA-...) or email" class="flex-1 bg-black/60 border border-white/15 rounded-full px-5 py-3 text-xs font-mono text-white placeholder:text-neutral-500 focus:outline-none focus:border-apple-blue transition-colors">
+        <input type="text" id="lookupQuery" placeholder="License Key (PASA-...) or email" class="flex-1 bg-black/[0.04] border border-black/[0.1] rounded-full px-5 py-3 text-xs font-mono text-apple-black placeholder:text-apple-grayText focus:outline-none focus:border-apple-blue transition-colors">
         <button onclick="lookupLicense()" class="apple-btn-pill px-6 py-3 text-xs font-medium">
           Validate
         </button>
@@ -968,27 +1132,27 @@
 
   <!-- ================= OFFICIAL PRODUCTION BINARY CARD ================= -->
   <section class="py-8 px-4 sm:px-6 max-w-5xl mx-auto">
-    <div class="apple-card p-8 flex flex-col md:flex-row items-center justify-between gap-6 border-white/[0.12]">
+    <div class="apple-card p-8 flex flex-col md:flex-row items-center justify-between gap-6">
       <div>
-        <span class="text-xs font-semibold uppercase text-apple-blueLight tracking-wider mb-1 block">Official Production Release</span>
-        <h3 class="text-xl font-semibold text-white tracking-tight mb-2">PASA Sentinel for Android v3.0.0</h3>
+        <span class="text-xs font-semibold uppercase text-apple-blue tracking-wider mb-1 block">Official Production Release</span>
+        <h3 class="text-xl font-semibold text-apple-black tracking-tight mb-2">PASA Sentinel for Android v3.1.7</h3>
         <div class="flex flex-wrap items-center gap-3 text-xs text-apple-grayText font-mono">
-          <span>Build: <b class="text-white">#6 (v3.0.0)</b></span>
+          <span>Build: <b class="text-apple-black">#23 (v3.1.7)</b></span>
           <span>&bull;</span>
-          <span>Size: <b class="text-white">18.08 MB</b></span>
+          <span>Size: <b class="text-apple-black">19.0 MB</b></span>
           <span>&bull;</span>
-          <span>Min SDK: <b class="text-white">Android 8.0</b></span>
+          <span>Min SDK: <b class="text-apple-black">Android 8.0</b></span>
           <span>&bull;</span>
-          <span>Target: <b class="text-white">Android 15</b></span>
+          <span>Target: <b class="text-apple-black">Android 16</b></span>
         </div>
         <div class="mt-3 flex items-center gap-2">
           <span class="text-xs text-apple-grayText">SHA-256:</span>
-          <code id="sha256Hash" class="text-[11px] font-mono text-apple-grayText bg-black/50 px-2 py-0.5 rounded border border-white/5 break-all">e6683918812380d5df5e391300fe2ecb8edd92455e0094df061032ebbfa0641e</code>
-          <button onclick="copySha256()" class="text-xs text-apple-blueLight hover:underline font-medium">Copy</button>
+          <code id="sha256Hash" class="text-[11px] font-mono text-apple-grayText bg-black/[0.04] px-2 py-0.5 rounded border border-black/[0.06] break-all">8b5b0857e63a429a3d813fcc351f55de0a5b6ae724f9d7273726355296e0b2da</code>
+          <button onclick="copySha256()" class="text-xs text-apple-blue hover:underline font-medium">Copy</button>
         </div>
       </div>
       <div class="flex flex-col sm:flex-row md:flex-col gap-3 w-full md:w-auto">
-        <a href="/api/app/download/pasa-v3.0.0.apk" class="apple-btn-pill px-6 py-3 text-xs text-center font-medium flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,113,227,0.35)]">
+        <a href="/releases/pasa-latest.apk" class="apple-btn-pill px-6 py-3 text-xs text-center font-medium flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(0,113,227,0.25)]">
           <i data-lucide="download" class="w-4 h-4"></i>
           <span>Download APK</span>
         </a>
@@ -1000,126 +1164,219 @@
     </div>
   </section>
 
-  <!-- ================= APPLE MULTI-COLUMN DIRECTORY FOOTER ================= -->
-  <footer class="border-t border-white/[0.08] bg-[#0c0c0d] py-14 px-4 sm:px-6 text-xs text-apple-grayText mt-24">
+  <!-- ================= FOOTER ================= -->
+  <footer class="border-t border-black/[0.07] bg-white py-14 px-4 sm:px-6 text-xs text-apple-grayText mt-24">
     <div class="max-w-6xl mx-auto">
       
-      <!-- Disclaimers / Legal Notes -->
-      <div class="space-y-2 pb-8 mb-8 border-b border-white/[0.08] text-[11px] leading-relaxed">
+      <div class="space-y-2 pb-8 mb-8 border-b border-black/[0.06] text-[11px] leading-relaxed">
         <p>1. Offline cellular SMS telemetry requires active GSM carrier network coverage on the target SIM card. Reverse SMS location coordinates are computed via device GPS/GNSS receiver.</p>
         <p>2. Device Owner permanence prevents uninstallation via standard Android UI and Safe Mode. ADB Device Owner requires explicit user initialization through Android Debug Bridge or Enterprise Zero-Touch enrollment.</p>
         <p>3. PASA Sentinel is an independent sovereign cybersecurity tool. It does not submit telemetry, user credentials, or location data to Google Play or third-party servers.</p>
       </div>
 
-      <!-- Navigation Columns -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 pb-10">
         <div>
-          <h5 class="text-white font-medium mb-3 text-xs">Product</h5>
+          <h5 class="text-apple-black font-medium mb-3 text-xs">Product</h5>
           <ul class="space-y-2">
-            <li><a href="/api/app/download/pasa-v3.0.0.apk" class="hover:text-white transition-colors">Download APK (v3.0.0)</a></li>
-            <li><a href="#overview" class="hover:text-white transition-colors">Overview</a></li>
-            <li><a href="#features" class="hover:text-white transition-colors">Security Features</a></li>
-            <li><a href="#compare" class="hover:text-white transition-colors">Compare Defense Systems</a></li>
-            <li><a href="#pricing" class="hover:text-white transition-colors">Pricing &amp; Licenses</a></li>
+            <li><a href="/releases/pasa-latest.apk" class="hover:text-apple-black transition-colors">Download APK (v3.1.7)</a></li>
+            <li><a href="#overview" class="hover:text-apple-black transition-colors">Overview</a></li>
+            <li><a href="#features" class="hover:text-apple-black transition-colors">Security Features</a></li>
+            <li><a href="#compare" class="hover:text-apple-black transition-colors">Compare Defense Systems</a></li>
+            <li><a href="#pricing" class="hover:text-apple-black transition-colors">Pricing &amp; Licenses</a></li>
           </ul>
         </div>
         <div>
-          <h5 class="text-white font-medium mb-3 text-xs">Deployment</h5>
+          <h5 class="text-apple-black font-medium mb-3 text-xs">Deployment</h5>
           <ul class="space-y-2">
-            <li><a href="#sideload" class="hover:text-white transition-colors">60s Sideload Guide</a></li>
-            <li><a href="#sideload" class="hover:text-white transition-colors">ADB Device Owner Setup</a></li>
-            <li><a href="#ledger" class="hover:text-white transition-colors">Validate License Key</a></li>
-            <li><a href="https://t.me/Pas_agent_bot" target="_blank" class="hover:text-white transition-colors">Telegram Bot (@Pas_agent_bot)</a></li>
+            <li><a href="#sideload" class="hover:text-apple-black transition-colors">60s Sideload Guide</a></li>
+            <li><a href="#sideload" class="hover:text-apple-black transition-colors">ADB Device Owner Setup</a></li>
+            <li><a href="#ledger" class="hover:text-apple-black transition-colors">Validate License Key</a></li>
+            <li><a href="https://t.me/Pas_agent_bot" target="_blank" class="hover:text-apple-black transition-colors">Telegram Bot (@Pas_agent_bot)</a></li>
           </ul>
         </div>
         <div>
-          <h5 class="text-white font-medium mb-3 text-xs">Architecture</h5>
+          <h5 class="text-apple-black font-medium mb-3 text-xs">Architecture</h5>
           <ul class="space-y-2">
-            <li><a href="https://github.com/rbr48/pasa" target="_blank" class="hover:text-white transition-colors">GitHub Repository</a></li>
-            <li><a href="/health" class="hover:text-white transition-colors">Control Plane Health</a></li>
-            <li><a href="/api/app/releases" class="hover:text-white transition-colors">OTA Releases Ledger</a></li>
+            <li><a href="https://github.com/rbr48/pasa" target="_blank" class="hover:text-apple-black transition-colors">GitHub Repository</a></li>
+            <li><a href="/health" class="hover:text-apple-black transition-colors">Control Plane Health</a></li>
+            <li><a href="/api/app/releases" class="hover:text-apple-black transition-colors">OTA Releases Ledger</a></li>
           </ul>
         </div>
         <div>
-          <h5 class="text-white font-medium mb-3 text-xs">System Status</h5>
+          <h5 class="text-apple-black font-medium mb-3 text-xs">System Status</h5>
           <div class="flex items-center gap-2 mt-1">
-            <span class="w-2 h-2 rounded-full bg-apple-green"></span>
+            <span class="w-2 h-2 rounded-full bg-apple-greenLight"></span>
             <span class="text-apple-green font-medium">Control Plane Operational</span>
           </div>
           <p class="mt-2 text-[11px]">Knox-grade sovereign anti-theft defense. Zero compromise.</p>
         </div>
       </div>
 
-      <!-- Copyright & Bottom Line -->
-      <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-white/[0.08] text-[11px]">
-        <div>Copyright &copy; 2026 PASA Sentinel. All rights reserved.</div>
+      <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-black/[0.06] text-[11px]">
+        <div>Copyright &copy; 2026 Izhaan Intellect &amp; PASA Sentinel. All rights reserved.</div>
         <div class="flex items-center gap-4 mt-3 sm:mt-0">
-          <a href="/privacy.html" class="hover:text-white transition-colors">Privacy Policy</a>
+          <a href="/privacy.html" class="hover:text-apple-black transition-colors">Privacy Policy</a>
           <span>&bull;</span>
-          <a href="/terms" class="text-white font-medium hover:underline">Terms of Service &amp; EULA</a>
+          <a href="/terms" class="text-apple-blue font-medium hover:underline">Terms of Service &amp; EULA</a>
           <span>&bull;</span>
-          <a href="https://github.com/rbr48/pasa" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">GitHub</a>
+          <a href="https://github.com/rbr48/pasa" target="_blank" rel="noopener noreferrer" class="hover:text-apple-black transition-colors">GitHub</a>
         </div>
       </div>
 
     </div>
   </footer>
 
-  <!-- ================= APPLE STORE-STYLE CHECKOUT MODAL ================= -->
-  <div id="checkoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-2xl bg-black/75">
-    <div class="apple-card max-w-md w-full p-8 border-white/[0.15] shadow-2xl relative">
+  <!-- ================= CHECKOUT MODAL ================= -->
+  <div id="checkoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xl bg-black/30">
+    <div class="apple-card max-w-lg w-full p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       
       <!-- Close Button -->
-      <button onclick="closeCheckout()" class="absolute top-5 right-5 text-apple-grayText hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+      <button onclick="closeCheckout()" class="absolute top-5 right-5 text-apple-grayText hover:text-apple-black p-1 rounded-full hover:bg-black/[0.06] transition-colors">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
       <!-- Step 1: Purchase Form -->
       <div id="checkoutStepForm">
-        <div class="text-xs font-semibold uppercase tracking-wider text-apple-blueLight mb-1">Instant Activation</div>
-        <h3 id="checkoutPlanTitle" class="text-2xl font-semibold text-white tracking-tight mb-2">Pro Lifetime License</h3>
-        <p class="text-xs text-apple-grayText mb-6">Enter your email to receive your cryptographically signed license key:</p>
+        <div class="text-xs font-semibold uppercase tracking-wider text-apple-blue mb-1">Instant Activation</div>
+        <h3 id="checkoutPlanTitle" class="text-2xl font-semibold text-apple-black tracking-tight mb-1">Pro Lifetime License</h3>
+        <p id="checkoutPriceLine" class="text-xl font-bold text-apple-blue mb-4">৳3,490</p>
+        <p class="text-xs text-apple-grayText mb-6">Select your payment method and enter your email to receive your cryptographically signed license key:</p>
 
         <form id="purchaseForm" onsubmit="handlePurchaseSubmit(event)" class="space-y-4">
           <input type="hidden" id="selectedTier" value="PRO_LIFETIME">
+          <input type="hidden" id="selectedPrice" value="3490">
 
           <div>
-            <label class="block text-xs font-medium text-neutral-300 mb-1.5">Recipient Email Address</label>
-            <input type="email" id="customerEmail" required placeholder="operator@domain.com" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-apple-blue transition-colors">
+            <label class="block text-xs font-medium text-apple-black mb-1.5">Recipient Email Address</label>
+            <input type="email" id="customerEmail" required placeholder="operator@domain.com" class="w-full bg-black/[0.04] border border-black/[0.1] rounded-xl px-4 py-3 text-xs text-apple-black placeholder:text-apple-grayText focus:outline-none focus:border-apple-blue transition-colors">
           </div>
 
+          <!-- Payment Method Selector -->
           <div>
-            <label class="block text-xs font-medium text-neutral-300 mb-1.5">Payment Method</label>
-            <select id="paymentProvider" class="w-full bg-black/60 border border-white/15 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-apple-blue transition-colors">
-              <option value="stripe">Credit / Debit Card (Stripe Instant)</option>
-              <option value="crypto">Cryptocurrency (BTC / XMR / USDT)</option>
-              <option value="bkash">Local MFS (bKash / Nagad / Rocket)</option>
-            </select>
+            <label class="block text-xs font-medium text-apple-black mb-2">Payment Method</label>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <button type="button" onclick="selectPayment('bkash')" id="pmBkash" class="payment-method-btn flex items-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
+                <span class="text-base">🟣</span> bKash
+              </button>
+              <button type="button" onclick="selectPayment('binance')" id="pmBinance" class="payment-method-btn flex items-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
+                <span class="text-base">🟡</span> Binance Pay
+              </button>
+              <button type="button" onclick="selectPayment('stripe')" id="pmStripe" class="payment-method-btn flex items-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
+                <span class="text-base">💳</span> Card (Stripe)
+              </button>
+              <button type="button" onclick="selectPayment('crypto')" id="pmCrypto" class="payment-method-btn flex items-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
+                <span class="text-base">₿</span> Crypto
+              </button>
+            </div>
+            <input type="hidden" id="paymentProvider" value="bkash">
           </div>
 
-          <div class="pt-3 flex items-center justify-between text-xs border-t border-white/[0.08]">
+          <!-- bKash Panel -->
+          <div id="panel-bkash" class="payment-panel active bkash-bg p-4">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-lg">🟣</span>
+              <span class="text-sm font-semibold bkash-pink">bKash Send Money</span>
+            </div>
+            <div class="space-y-2 text-xs text-apple-black">
+              <div class="flex items-center justify-between">
+                <span class="text-apple-grayText">Send Money to:</span>
+                <span class="font-mono font-bold text-lg bkash-pink tracking-widest">01737-910040</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-apple-grayText">Account Type:</span>
+                <span class="font-medium">Personal (Send Money)</span>
+              </div>
+              <div class="mt-3 p-3 bg-white/80 rounded-lg border border-pink-100 text-[11px] text-apple-grayText leading-relaxed">
+                <b class="text-apple-black">Instructions:</b><br>
+                1. Open bKash &rarr; <b>Send Money</b><br>
+                2. Number: <b class="bkash-pink">01737910040</b><br>
+                3. Amount: <b id="bkashAmount">৳3,490</b><br>
+                4. Reference: your email address<br>
+                5. Complete payment &amp; note the <b>Transaction ID</b>
+              </div>
+            </div>
+            <div class="mt-3">
+              <label class="block text-xs font-medium text-apple-black mb-1.5">bKash Transaction ID</label>
+              <input type="text" id="bkashTxId" placeholder="e.g. AX12B34C56D" class="w-full bg-white border border-pink-200 rounded-xl px-4 py-2.5 text-xs font-mono text-apple-black placeholder:text-apple-grayText focus:outline-none focus:border-pink-400 transition-colors">
+            </div>
+          </div>
+
+          <!-- Binance Pay Panel -->
+          <div id="panel-binance" class="payment-panel binance-bg p-4">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-lg">🟡</span>
+              <span class="text-sm font-semibold binance-yellow">Binance Pay</span>
+            </div>
+            <div class="space-y-2 text-xs text-apple-black">
+              <div class="flex items-center justify-between">
+                <span class="text-apple-grayText">Pay to Binance ID:</span>
+                <span class="font-mono font-bold text-base binance-yellow">986043605</span>
+              </div>
+              <div class="mt-3 p-3 bg-white/80 rounded-lg border border-yellow-100 text-[11px] text-apple-grayText leading-relaxed">
+                <b class="text-apple-black">Instructions:</b><br>
+                1. Open Binance &rarr; <b>Pay</b> &rarr; <b>Send</b><br>
+                2. Search Pay ID: <b class="binance-yellow">986043605</b><br>
+                3. Amount: equivalent of <b id="binanceAmount">৳3,490</b> in USDT/BNB/BTC<br>
+                4. Note: your email address<br>
+                5. Copy the <b>Order Number / TxID</b> after payment
+              </div>
+            </div>
+            <div class="mt-3">
+              <label class="block text-xs font-medium text-apple-black mb-1.5">Binance Order / Transaction ID</label>
+              <input type="text" id="binanceTxId" placeholder="e.g. 123456789012" class="w-full bg-white border border-yellow-200 rounded-xl px-4 py-2.5 text-xs font-mono text-apple-black placeholder:text-apple-grayText focus:outline-none focus:border-yellow-400 transition-colors">
+            </div>
+          </div>
+
+          <!-- Stripe Panel -->
+          <div id="panel-stripe" class="payment-panel p-4 bg-blue-50 rounded-xl border border-blue-100">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-lg">💳</span>
+              <span class="text-sm font-semibold text-apple-blue">Credit / Debit Card</span>
+            </div>
+            <p class="text-xs text-apple-grayText">You will be redirected to Stripe's secure checkout to complete payment. Your card details are never stored by PASA servers.</p>
+          </div>
+
+          <!-- Crypto Panel -->
+          <div id="panel-crypto" class="payment-panel p-4 bg-gray-50 rounded-xl border border-gray-100">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-lg">₿</span>
+              <span class="text-sm font-semibold text-apple-black">Cryptocurrency</span>
+            </div>
+            <p class="text-xs text-apple-grayText">Accepted: BTC, USDT (TRC20/ERC20), XMR. A payment address will be generated after submitting your email. Send exact amount and paste TxID below.</p>
+            <div class="mt-3">
+              <label class="block text-xs font-medium text-apple-black mb-1.5">Crypto Transaction Hash</label>
+              <input type="text" id="cryptoTxId" placeholder="0x... or txid" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-mono text-apple-black placeholder:text-apple-grayText focus:outline-none focus:border-gray-400 transition-colors">
+            </div>
+          </div>
+
+          <!-- Total -->
+          <div class="pt-3 flex items-center justify-between text-xs border-t border-black/[0.07]">
             <span class="text-apple-grayText">Total Due (One-Time):</span>
-            <span id="checkoutPriceTag" class="text-2xl font-bold text-white font-mono">$29.99</span>
+            <span id="checkoutPriceTag" class="text-2xl font-bold text-apple-black font-mono">৳3,490</span>
           </div>
 
-          <button type="submit" id="submitOrderBtn" class="apple-btn-pill w-full py-3.5 text-xs font-medium shadow-[0_0_20px_rgba(0,113,227,0.35)]">
+          <button type="submit" id="submitOrderBtn" class="apple-btn-pill w-full py-3.5 text-xs font-medium shadow-[0_4px_16px_rgba(0,113,227,0.3)]">
             Authorize &amp; Issue License Key
           </button>
+
+          <p class="text-[10px] text-apple-grayText text-center">
+            By purchasing you agree to our <a href="/terms" class="text-apple-blue hover:underline">Terms of Service &amp; EULA</a>. All sales are final. Licenses are non-transferable.
+          </p>
         </form>
       </div>
 
-      <!-- Step 2: Key Generated Success Screen -->
+      <!-- Step 2: Success Screen -->
       <div id="checkoutStepSuccess" class="hidden text-center">
-        <div class="w-12 h-12 rounded-full bg-apple-green/15 border border-apple-green/40 flex items-center justify-center text-apple-green mx-auto mb-4">
+        <div class="w-12 h-12 rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-apple-green mx-auto mb-4">
           <i data-lucide="check" class="w-6 h-6"></i>
         </div>
         <div class="text-xs font-semibold uppercase tracking-wider text-apple-green mb-1">License Provisioned</div>
-        <h3 class="text-xl font-semibold text-white tracking-tight mb-2">Key Issued Successfully</h3>
-        <p class="text-xs text-apple-grayText mb-6">Activate this key directly in Telegram or paste it inside the Android app:</p>
+        <h3 class="text-xl font-semibold text-apple-black tracking-tight mb-2">Key Issued Successfully</h3>
+        <p id="successSubtext" class="text-xs text-apple-grayText mb-6">Activate this key directly in Telegram or paste it inside the Android app:</p>
 
-        <div class="p-4 rounded-xl bg-black/80 border border-white/10 mb-6">
+        <div class="p-4 rounded-xl bg-black/[0.04] border border-black/[0.08] mb-6">
           <div class="text-[11px] text-apple-grayText uppercase mb-1">Sovereign Key</div>
-          <code id="generatedKeyDisplay" class="text-base font-mono font-bold text-apple-blueLight select-all">PASA-LIFE-XXXX-XXXX-XXXX</code>
+          <code id="generatedKeyDisplay" class="text-base font-mono font-bold text-apple-blue select-all">PASA-LIFE-XXXX-XXXX-XXXX</code>
         </div>
 
         <div class="space-y-3">
@@ -1128,7 +1385,7 @@
             <span>Copy License Key</span>
           </button>
           <a id="telegramActivateLink" href="https://t.me/Pas_agent_bot" target="_blank" class="apple-btn-secondary w-full py-3 text-xs font-medium flex items-center justify-center gap-2">
-            <i data-lucide="send" class="w-4 h-4 text-apple-blueLight"></i>
+            <i data-lucide="send" class="w-4 h-4 text-apple-blue"></i>
             <span>Activate in Telegram (@Pas_agent_bot)</span>
           </a>
         </div>
@@ -1137,11 +1394,17 @@
     </div>
   </div>
 
-  <!-- ================= SCRIPTS & LOGIC ENGINE ================= -->
+  <!-- ================= SCRIPTS ================= -->
   <script>
     if (window.lucide) lucide.createIcons();
 
-    // 1. Scenario Tab & Hardware Display Switcher
+    // Clock update
+    setInterval(() => {
+      const el = document.getElementById('phoneClock');
+      if (el) el.textContent = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    }, 1000);
+
+    // 1. Scenario Tab Switcher
     function triggerScenario(type) {
       const screen = document.getElementById('phoneScreen');
       const shieldContainer = document.getElementById('shieldContainer');
@@ -1153,43 +1416,40 @@
       const botMessageLine = document.getElementById('botMessageLine');
       const botSubLine = document.getElementById('botSubLine');
 
-      // Reset tabs
       document.querySelectorAll('.scenario-tab').forEach(b => {
-        b.className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-white/[0.04] text-apple-grayText border border-white/[0.08] hover:text-white';
+        b.className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-black/[0.04] text-apple-grayText border border-black/[0.08] hover:text-apple-black';
       });
 
       if (type === 'snatch') {
-        document.getElementById('tabSnatch').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-apple-red/20 text-white border border-apple-red';
-        screen.className = 'w-full h-full rounded-[44px] bg-[#1a0505] overflow-hidden relative border-2 border-apple-red flex flex-col justify-between p-6 transition-all duration-300';
-        shieldContainer.className = 'w-20 h-20 rounded-full bg-apple-red/20 border border-apple-red flex items-center justify-center mb-4';
+        document.getElementById('tabSnatch').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-red-100 text-red-600 border border-red-200';
+        screen.className = 'w-full h-full rounded-[44px] bg-[#1a0505] overflow-hidden relative border-2 border-red-500 flex flex-col justify-between p-6 transition-all duration-300';
+        shieldContainer.className = 'w-20 h-20 rounded-full bg-red-900/30 border border-red-500 flex items-center justify-center mb-4';
         shieldIcon.setAttribute('data-lucide', 'alert-triangle');
-        shieldIcon.className = 'w-10 h-10 text-apple-red';
+        shieldIcon.className = 'w-10 h-10 text-red-400';
         title.textContent = 'Snatch Motion Detected';
-        title.className = 'text-base font-semibold text-apple-red tracking-tight';
+        title.className = 'text-base font-semibold text-red-400 tracking-tight';
         subtitle.textContent = '2.85G delta lockout engaged';
-
         incidentHeader.textContent = 'Incident Intercept: Snatch Detected';
         incidentBadge.textContent = 'Defense Active';
-        incidentBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-apple-red/10 text-apple-red font-medium';
+        incidentBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 font-medium border border-red-100';
         botMessageLine.innerHTML = '&gt; <b>ALARM:</b> Abrupt 2.85G delta detected at 14:02:44. Screen locked via Device Owner.';
         botSubLine.innerHTML = '&gt; Siren dispatched at 100% SPL. Covert selfie captured. GPS pin (23.7771, 90.3994) pushed to Telegram.';
       } else if (type === 'sms') {
-        document.getElementById('tabSms').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-apple-blue/20 text-white border border-apple-blue';
-        screen.className = 'w-full h-full rounded-[44px] bg-black overflow-hidden relative border-2 border-apple-blue flex flex-col justify-between p-6 transition-all duration-300';
-        shieldContainer.className = 'w-20 h-20 rounded-full bg-apple-blue/20 border border-apple-blue flex items-center justify-center mb-4';
+        document.getElementById('tabSms').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-blue-100 text-blue-600 border border-blue-200';
+        screen.className = 'w-full h-full rounded-[44px] bg-black overflow-hidden relative border-2 border-blue-500 flex flex-col justify-between p-6 transition-all duration-300';
+        shieldContainer.className = 'w-20 h-20 rounded-full bg-blue-900/30 border border-blue-500 flex items-center justify-center mb-4';
         shieldIcon.setAttribute('data-lucide', 'radio');
-        shieldIcon.className = 'w-10 h-10 text-apple-blueLight';
+        shieldIcon.className = 'w-10 h-10 text-blue-400';
         title.textContent = 'Airgap SMS Intercept';
-        title.className = 'text-base font-semibold text-apple-blueLight tracking-tight';
+        title.className = 'text-base font-semibold text-blue-400 tracking-tight';
         subtitle.textContent = 'Data Cut // Carrier PDU Active';
-
         incidentHeader.textContent = 'Offline Cellular Recovery';
         incidentBadge.textContent = 'Carrier PDU';
-        incidentBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-apple-blue/10 text-apple-blueLight font-medium';
+        incidentBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium border border-blue-100';
         botMessageLine.innerHTML = '&gt; <b>SMS RECEIVED:</b> "PASA ******* /locate" intercepted from whitelisted SIM.';
         botSubLine.innerHTML = '&gt; Mobile data offline. GNSS hardware coordinates acquired. Reverse SMS payload dispatched.';
       } else if (type === 'shutdown') {
-        document.getElementById('tabShutdown').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-white/20 text-white border border-white';
+        document.getElementById('tabShutdown').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-gray-200 text-gray-700 border border-gray-300';
         screen.className = 'w-full h-full rounded-[44px] bg-black overflow-hidden relative border border-white/5 flex flex-col justify-between p-6 transition-all duration-300';
         shieldContainer.className = 'w-20 h-20 rounded-full bg-transparent border border-transparent flex items-center justify-center mb-4';
         shieldIcon.setAttribute('data-lucide', 'power-off');
@@ -1197,35 +1457,52 @@
         title.textContent = 'Blackout (0 Nits)';
         title.className = 'text-base font-semibold text-neutral-700 tracking-tight';
         subtitle.textContent = 'Thief sees dead battery screen';
-
         incidentHeader.textContent = 'Stealth Fake Power-Down';
         incidentBadge.textContent = 'Covert Active';
-        incidentBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-white font-medium';
+        incidentBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-200';
         botMessageLine.innerHTML = '&gt; <b>FAKE SHUTDOWN:</b> Power-down animation spoofed. Display controller off. Daemon active.';
         botSubLine.innerHTML = '&gt; Silent ambient microphone buffer live. Continuous background GPS beacon streaming.';
       } else if (type === 'camera') {
-        document.getElementById('tabCamera').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-apple-orange/20 text-white border border-apple-orange';
-        screen.className = 'w-full h-full rounded-[44px] bg-black overflow-hidden relative border-2 border-apple-orange flex flex-col justify-between p-6 transition-all duration-300';
-        shieldContainer.className = 'w-20 h-20 rounded-full bg-apple-orange/20 border border-apple-orange flex items-center justify-center mb-4';
+        document.getElementById('tabCamera').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-orange-100 text-orange-600 border border-orange-200';
+        screen.className = 'w-full h-full rounded-[44px] bg-black overflow-hidden relative border-2 border-orange-500 flex flex-col justify-between p-6 transition-all duration-300';
+        shieldContainer.className = 'w-20 h-20 rounded-full bg-orange-900/30 border border-orange-500 flex items-center justify-center mb-4';
         shieldIcon.setAttribute('data-lucide', 'camera');
-        shieldIcon.className = 'w-10 h-10 text-apple-orange';
+        shieldIcon.className = 'w-10 h-10 text-orange-400';
         title.textContent = 'Forensic Snapshot';
-        title.className = 'text-base font-semibold text-apple-orange tracking-tight';
+        title.className = 'text-base font-semibold text-orange-400 tracking-tight';
         subtitle.textContent = 'Covert Camera2 Triggered';
-
         incidentHeader.textContent = 'Silent Camera Shutter';
         incidentBadge.textContent = 'Captured';
-        incidentBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-apple-orange/10 text-apple-orange font-medium';
+        incidentBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-600 font-medium border border-orange-100';
         botMessageLine.innerHTML = '&gt; <b>SNAP:</b> Front camera acquired 1080p forensic mugshot with zero screen wake.';
         botSubLine.innerHTML = '&gt; Anti-tamper Ed25519 signature generated. Encrypted payload delivered to Telegram.';
       }
       if (window.lucide) lucide.createIcons();
     }
 
-    // 2. Checkout Modal Engine
+    // 2. Payment Method Selector
+    function selectPayment(method) {
+      document.querySelectorAll('.payment-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.payment-method-btn').forEach(b => {
+        b.classList.remove('border-apple-blue', 'bg-blue-50');
+        b.classList.add('border-transparent');
+      });
+      document.getElementById('panel-' + method).classList.add('active');
+      document.getElementById('pm' + method.charAt(0).toUpperCase() + method.slice(1)).classList.add('border-apple-blue', 'bg-blue-50');
+      document.getElementById('pm' + method.charAt(0).toUpperCase() + method.slice(1)).classList.remove('border-transparent');
+      document.getElementById('paymentProvider').value = method;
+    }
+
+    // 3. Checkout Modal Engine
     function openCheckout(tier, price) {
       document.getElementById('selectedTier').value = tier;
-      document.getElementById('checkoutPriceTag').textContent = '$' + price.toFixed(2);
+      document.getElementById('selectedPrice').value = price;
+      const priceFormatted = '৳' + price.toLocaleString('en-BD');
+      document.getElementById('checkoutPriceTag').textContent = priceFormatted;
+      document.getElementById('checkoutPriceLine').textContent = priceFormatted;
+      if (document.getElementById('bkashAmount')) document.getElementById('bkashAmount').textContent = priceFormatted;
+      if (document.getElementById('binanceAmount')) document.getElementById('binanceAmount').textContent = priceFormatted;
+
       let title = 'Pro Lifetime License (3 Devices)';
       if (tier === 'PRO_ENTERPRISE') title = 'Fleet / Enterprise License (10 Devices)';
       if (tier === 'COMMUNITY_TRIAL') title = 'Community Trial License (1 Device)';
@@ -1233,6 +1510,9 @@
       document.getElementById('checkoutStepForm').classList.remove('hidden');
       document.getElementById('checkoutStepSuccess').classList.add('hidden');
       document.getElementById('checkoutModal').classList.remove('hidden');
+
+      // Default to bKash
+      selectPayment('bkash');
       if (window.lucide) lucide.createIcons();
     }
 
@@ -1240,12 +1520,31 @@
       document.getElementById('checkoutModal').classList.add('hidden');
     }
 
+    // Close on backdrop click
+    document.getElementById('checkoutModal').addEventListener('click', function(e) {
+      if (e.target === this) closeCheckout();
+    });
+
     async function handlePurchaseSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('customerEmail').value;
       const tier = document.getElementById('selectedTier').value;
+      const price = document.getElementById('selectedPrice').value;
       const provider = document.getElementById('paymentProvider').value;
       const btn = document.getElementById('submitOrderBtn');
+
+      // Collect TxID for manual payment methods
+      let txId = '';
+      if (provider === 'bkash') {
+        txId = (document.getElementById('bkashTxId').value || '').trim();
+        if (!txId) { alert('Please enter your bKash Transaction ID to proceed.'); return; }
+      } else if (provider === 'binance') {
+        txId = (document.getElementById('binanceTxId').value || '').trim();
+        if (!txId) { alert('Please enter your Binance Order/Transaction ID to proceed.'); return; }
+      } else if (provider === 'crypto') {
+        txId = (document.getElementById('cryptoTxId').value || '').trim();
+        if (!txId) { alert('Please enter your Crypto Transaction Hash to proceed.'); return; }
+      }
 
       btn.disabled = true;
       btn.innerHTML = '<span>Issuing cryptographic key...</span>';
@@ -1254,7 +1553,7 @@
         const res = await fetch('/api/license/purchase', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, tier, provider })
+          body: JSON.stringify({ email, tier, provider, txId, price })
         });
         const data = await res.json();
         if (data.ok && data.license) {
@@ -1262,9 +1561,13 @@
           document.getElementById('checkoutStepSuccess').classList.remove('hidden');
           document.getElementById('generatedKeyDisplay').textContent = data.license.key;
           document.getElementById('telegramActivateLink').href = 'https://t.me/Pas_agent_bot?start=' + data.license.key;
+
+          if (provider === 'bkash' || provider === 'binance') {
+            document.getElementById('successSubtext').textContent = 'Your payment is under review. Your license key is pre-issued below. It will be fully activated within 1–2 hours after payment verification.';
+          }
           if (window.lucide) lucide.createIcons();
         } else {
-          alert('License error: ' + (data.description || 'Could not issue license.'));
+          alert('License error: ' + (data.description || 'Could not issue license. Please contact support@izhaanintellect.fun'));
         }
       } catch (err) {
         alert('Network connection error: ' + err.message);
@@ -1293,16 +1596,13 @@
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // 3. Cryptographic Ledger Checker
+    // 4. License Ledger Checker
     async function lookupLicense() {
       const query = document.getElementById('lookupQuery').value.trim();
       const resDiv = document.getElementById('checkerResult');
-      if (!query) {
-        alert('Please enter a license key or purchase email.');
-        return;
-      }
+      if (!query) { alert('Please enter a license key or purchase email.'); return; }
       resDiv.classList.remove('hidden');
-      resDiv.className = 'mt-6 p-5 rounded-2xl text-xs font-mono text-left bg-black/70 border border-white/10 text-neutral-300';
+      resDiv.className = 'mt-6 p-5 rounded-2xl text-xs font-mono text-left bg-black/[0.04] border border-black/[0.08] text-apple-grayText';
       resDiv.innerHTML = '<span>Querying cryptographic ledger...</span>';
 
       try {
@@ -1315,32 +1615,36 @@
         if (data.ok && data.license) {
           const lic = data.license;
           const daysText = lic.daysLeft > 9000 ? 'Perpetual Lifetime' : (lic.daysLeft + ' days remaining');
-          resDiv.className = 'mt-6 p-5 rounded-2xl text-xs font-mono text-left bg-apple-green/10 border border-apple-green/30 text-neutral-200';
+          resDiv.className = 'mt-6 p-5 rounded-2xl text-xs font-mono text-left bg-green-50 border border-green-200 text-apple-black';
           resDiv.innerHTML = `
             <div class="font-semibold text-apple-green mb-2 flex items-center gap-1.5">
               <i data-lucide="check-circle" class="w-4 h-4"></i>
               <span>Active Sovereign License Verified</span>
             </div>
             <div class="space-y-1.5">
-              <div><b>Key:</b> <code class="text-apple-blueLight font-semibold">${lic.key}</code></div>
+              <div><b>Key:</b> <code class="text-apple-blue font-semibold">${lic.key}</code></div>
               <div><b>Tier:</b> ${lic.tier} (${daysText})</div>
               <div><b>Node Allocations:</b> ${lic.activatedCount} of ${lic.maxDevices} devices linked</div>
               <div><b>Status:</b> <span class="text-apple-green font-medium">${lic.status}</span></div>
             </div>
           `;
         } else {
-          resDiv.className = 'mt-6 p-5 rounded-2xl text-xs font-mono text-left bg-apple-red/10 border border-apple-red/30 text-apple-red';
+          resDiv.className = 'mt-6 p-5 rounded-2xl text-xs font-mono text-left bg-red-50 border border-red-200 text-red-700';
           resDiv.innerHTML = `
             <div class="font-semibold mb-1">No Active Record Found</div>
             <div>The query "${query}" did not match any issued license in the ledger.</div>
           `;
         }
       } catch (err) {
-        resDiv.className = 'mt-6 p-5 rounded-2xl text-xs font-mono text-left bg-apple-red/10 border border-apple-red/30 text-apple-red';
+        resDiv.className = 'mt-6 p-5 rounded-2xl text-xs font-mono text-left bg-red-50 border border-red-200 text-red-700';
         resDiv.innerHTML = `<div>Query error: ${err.message}</div>`;
       }
       if (window.lucide) lucide.createIcons();
     }
+
+    // Init default tab
+    triggerScenario('snatch');
+    selectPayment('bkash');
   </script>
 </body>
 </html>
