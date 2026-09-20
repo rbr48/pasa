@@ -53,14 +53,15 @@ object StealthCaptureBridge {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
 
         try {
-            // 1. Wake up hardware PMIC & screen to allow camera sensor activation
+            // 1. Acquire PARTIAL_WAKE_LOCK — keeps camera ISP alive WITHOUT lighting the screen
             try {
                 val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
                 wakeLock = pm?.newWakeLock(
-                    @Suppress("DEPRECATION") PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                    PowerManager.PARTIAL_WAKE_LOCK,
                     "pasa:stealth_capture_wake"
                 )
-                wakeLock?.acquire(timeoutMs + 2000L)
+                wakeLock?.acquire(timeoutMs + 5000L)
+                Log.d(TAG, "Partial wake lock acquired for stealth capture")
             } catch (e: Exception) {
                 Log.w(TAG, "WakeLock acquisition error: ${e.message}")
             }

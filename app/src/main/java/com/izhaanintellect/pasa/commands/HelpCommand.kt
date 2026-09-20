@@ -34,13 +34,13 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/geofence status|on|off</code> — Safe zone status & toggle
             • <code>/smssetup</code> — Enroll TOTP for secure offline SMS commands
 
-            📸 <b>Forensics & Media</b>
-            • <code>/snap front|back</code> — Covert snapshot
-            • <code>/screenshot</code> — Silent full-screen capture [PRO]
-            • <code>/screen_burst [5-10]</code> — Rapid 5–10 frame montage [PRO]
-            • <code>/screenrecord &lt;seconds&gt;</code> — MP4 video (Device Owner) [ENTERPRISE]
-            • <code>/video front|back &lt;seconds&gt;</code> — Video recording (1-60s) [PRO]
-            • <code>/record &lt;seconds&gt;</code> — Ambient microphone recording [PRO]
+            📸 <b>Forensics &amp; Media</b>
+            • <code>/snap front|back|both</code> — Covert snapshot (dual-camera with "both")
+            • <code>/screenshot</code> — Silent full-screen capture [PRO TRIAL]
+            • <code>/screen_burst [5-10]</code> — Rapid 5–10 frame montage [PRO TRIAL]
+            • <code>/screenrecord &lt;seconds&gt;</code> — MP4 screen recording [PRO]
+            • <code>/video front|back &lt;seconds&gt;</code> — Silent camera video (1-60s) [PRO TRIAL]
+            • <code>/record &lt;seconds&gt;</code> — Ambient microphone recording [PRO TRIAL]
             • <code>/record stop</code> — Stop recording
 
             📇 <b>Extraction & Audit Logs</b>

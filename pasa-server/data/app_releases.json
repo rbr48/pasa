@@ -1,5 +1,15 @@
 [
   {
+    "versionCode": 11,
+    "versionName": "3.0.5",
+    "releaseDate": "2026-09-20",
+    "fileName": "pasa-v3.0.5.apk",
+    "sha256": "dbc0406102bd6f4442aa40f9453e74fcc68ff5759954505d996d97e6f372f42a",
+    "size": 18967532,
+    "mandatory": false,
+    "releaseNotes": "v3.0.5: Fixed /screenrecord available for all Pro tiers (blocked FREE_TRIAL only). Silent camera: PARTIAL_WAKE_LOCK (screen-off capture), shutter sound muting, stealth notification channel."
+  },
+  {
     "versionCode": 10,
     "versionName": "3.0.4",
     "filename": "pasa-v3.0.4.apk",

