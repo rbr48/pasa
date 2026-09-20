@@ -5,7 +5,7 @@
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.1.6%20(Build%2022)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
+[![Version](https://img.shields.io/badge/Release-v3.1.8%20(Build%2024)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Telemetry%20Policy-brightgreen.svg)](PRIVACY.md)
 [![Terms of Service](https://img.shields.io/badge/Legal-Terms%20of%20Service%20%26%20EULA-blueviolet.svg)](TERMS.md)
 [![7-Day Guarantee](https://img.shields.io/badge/Guarantee-7--Day%20Money%20Back-30D158.svg)](PRIVACY.md#-4-7-day-money-back-guarantee-binance-pay)
