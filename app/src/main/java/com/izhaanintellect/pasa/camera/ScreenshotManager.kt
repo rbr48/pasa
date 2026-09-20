@@ -3,6 +3,7 @@ package com.izhaanintellect.pasa.camera
 import android.content.Context
 import android.provider.Settings
 import android.util.Log
+import com.izhaanintellect.pasa.accessibility.AccessibilityScreenCaptureService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
@@ -48,14 +49,14 @@ class ScreenshotManager @Inject constructor(
         // 3. Attempt capture via service with timeout
         return withTimeoutOrNull(5000L) {
             try {
-                // Get reference to the service via system context
-                val a11yService = getAccessibilityServiceInstance() ?: return@withTimeoutOrNull null
+                val a11yService = AccessibilityScreenCaptureService.instance
+                if (a11yService == null) {
+                    Log.w(TAG, "AccessibilityScreenCaptureService instance not connected")
+                    return@withTimeoutOrNull null
+                }
 
-                // Invoke takeScreenshotInternal via reflection
-                val method = a11yService.javaClass.getMethod("takeScreenshotInternal", File::class.java)
-                val result = method.invoke(a11yService, screenshotDir)
-
-                (result as? File)?.takeIf { it.exists() && it.length() > 0 }.also { file ->
+                val result = a11yService.takeScreenshotInternal(screenshotDir)
+                (result)?.takeIf { it.exists() && it.length() > 0 }.also { file ->
                     if (file != null) {
                         Log.i(TAG, "Screenshot captured: ${file.absolutePath} (${file.length()} bytes)")
                     } else {
@@ -63,7 +64,7 @@ class ScreenshotManager @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error capturing screenshot via reflection", e)
+                Log.e(TAG, "Error capturing screenshot", e)
                 null
             }
         }.also { file ->

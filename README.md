@@ -5,7 +5,7 @@
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.0.2%20(Build%208)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
+[![Version](https://img.shields.io/badge/Release-v3.0.3%20(Build%209)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Telemetry%20Policy-brightgreen.svg)](PRIVACY.md)
 [![7-Day Guarantee](https://img.shields.io/badge/Guarantee-7--Day%20Money%20Back-30D158.svg)](PRIVACY.md#-4-7-day-money-back-guarantee-binance-pay)
 [![Binance Pay](https://img.shields.io/badge/Payments-Binance%20Pay%20Verified-F0B90B.svg)](#commercial-licensing--binance-pay)
@@ -261,14 +261,14 @@ The signed APK will be output to:
 
 Download the official signed release binary directly from GitHub or our high-speed CDN:
 
-* **Direct GitHub Download:** [📦 PASA-Sentinel-v3.0.2.apk](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.2.apk)
+* **Direct GitHub Download:** [📦 PASA-Sentinel-v3.0.3.apk](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.3.apk)
 * **Direct Rolling Latest:** [📦 pasa-latest.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk)
 * **High-Speed CDN Mirror:** [https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
-* **Official Version:** `v3.0.2` (Build Code `8`)
-* **File Size:** `18,966,179 bytes` (18.09 MB)
+* **Official Version:** `v3.0.3` (Build Code `9`)
+* **File Size:** `18,967,424 bytes` (18.09 MB)
 * **SHA-256 Checksum:**
   ```text
-  d1de9a5ad1dcea2e500166e119f9b9cba6dddd9029bccec8d66ca5158b10dfc6
+  b74f77b867ca498e1de5ac6e0f8fd9d528548111ddaf85202bc8217ebe519d39
   ```
 
 ### Verify on Windows PowerShell:

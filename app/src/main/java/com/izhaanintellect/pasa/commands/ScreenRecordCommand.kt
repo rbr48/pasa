@@ -9,6 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import java.io.File
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 /**
  * `/screenrecord` — Record screen as silent MP4 video (Device Owner mode only).
@@ -126,13 +127,12 @@ class ScreenRecordCommand @Inject constructor(
 
         // Wait for process completion
         val completed = process.waitFor(durationSeconds + 10L, TimeUnit.SECONDS)
-        val exitCode = process.exitValue()
-
         if (!completed) {
             process.destroy()
             throw TimeoutException("screenrecord did not complete within ${durationSeconds + 10} seconds")
         }
 
+        val exitCode = process.exitValue()
         if (exitCode != 0) {
             val errorText = process.errorStream.bufferedReader().readText()
             throw RuntimeException("screenrecord exited with code $exitCode: $errorText")

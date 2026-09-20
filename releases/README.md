@@ -8,32 +8,33 @@ This directory hosts verified release binaries of **PASA Sentinel (Physical Anti
 
 | File | Release | Build | Size | Direct Link |
 |---|---|---|---|---|
-| **`PASA-Sentinel-v3.0.2.apk`** | `v3.0.2` (Latest Stable) | Build 8 | 18.09 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.2.apk) |
-| **`pasa-latest.apk`** | Rolling Latest | Build 8 | 18.09 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
+| **`PASA-Sentinel-v3.0.3.apk`** | `v3.0.3` (Latest Stable) | Build 9 | 18.09 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.3.apk) |
+| **`pasa-latest.apk`** | Rolling Latest | Build 9 | 18.09 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
+| **`PASA-Sentinel-v3.0.2.apk`** | `v3.0.2` (Archive) | Build 8 | 18.09 MB | [Download v3.0.2](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.2.apk) |
 
 Alternative Mirror (Fast CDN): [https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
 
 ---
 
-## 🔐 Cryptographic Integrity (v3.0.2)
+## 🔐 Cryptographic Integrity (v3.0.3)
 
 Always verify the SHA-256 checksum before sideloading onto your phone:
 
-* **File:** `PASA-Sentinel-v3.0.2.apk`
-* **File Size:** `18,966,179 bytes`
+* **File:** `PASA-Sentinel-v3.0.3.apk`
+* **File Size:** `18,967,424 bytes` (18.09 MB)
 * **SHA-256 Checksum:**
   ```text
-  d1de9a5ad1dcea2e500166e119f9b9cba6dddd9029bccec8d66ca5158b10dfc6
+  b74f77b867ca498e1de5ac6e0f8fd9d528548111ddaf85202bc8217ebe519d39
   ```
 
 ### Verify Checksum:
 - **Windows (PowerShell):**
   ```powershell
-  Get-FileHash PASA-Sentinel-v3.0.2.apk -Algorithm SHA256
+  Get-FileHash PASA-Sentinel-v3.0.3.apk -Algorithm SHA256
   ```
 - **Linux / macOS:**
   ```bash
-  sha256sum PASA-Sentinel-v3.0.2.apk
+  sha256sum PASA-Sentinel-v3.0.3.apk
   ```
 
 ---
