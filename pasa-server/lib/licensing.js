@@ -16,8 +16,32 @@ const crypto = require('crypto');
  * @param {function} deps.getDevice    (deviceId) => device | undefined
  * @param {function} deps.persistDevices () => void   (persists the devices map)
  */
-function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, getDevice, persistDevices }) {
+function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, logSecurityEvent, getDevice, persistDevices }) {
   let licenses = loadJson(licensesFile, {});
+  let ed25519Key = ed25519KeyFile ? loadJson(ed25519KeyFile, null) : null;
+
+  function signDeviceCertificate(deviceId, tier, expiresAt, licenseKey) {
+    if (!ed25519Key || !ed25519Key.privPem) return null;
+    try {
+      const payloadObj = {
+        deviceId: String(deviceId).trim(),
+        tier: String(tier).trim().toUpperCase(),
+        expiresAt: Number(expiresAt) || 0,
+        issuedAt: Date.now(),
+        key: licenseKey ? String(licenseKey).trim().toUpperCase() : ''
+      };
+      const payloadStr = Buffer.from(JSON.stringify(payloadObj), 'utf8').toString('base64');
+      const privateKey = crypto.createPrivateKey(ed25519Key.privPem);
+      const sig = crypto.sign(null, Buffer.from(payloadStr, 'utf8'), privateKey);
+      return {
+        payload: payloadStr,
+        signature: sig.toString('hex')
+      };
+    } catch (err) {
+      console.error('[Ed25519 Sign Error]:', err.message);
+      return null;
+    }
+  }
 
   function generateLicenseKey(tier = 'PRO') {
     const cleanTier = tier.toUpperCase().includes('LIFE') ? 'LIFE' : 'PRO';
@@ -91,12 +115,14 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
 
     logSecurityEvent('LICENSE_ACTIVATED', { key: cleanKey, deviceId, tier: lic.tier });
     const daysLeft = lic.expiresAt ? Math.max(0, Math.ceil((lic.expiresAt - Date.now()) / (24 * 60 * 60 * 1000))) : 99999;
+    const cert = signDeviceCertificate(deviceId, lic.tier, lic.expiresAt, cleanKey);
     return {
       ok: true,
       message: `License activated successfully (${lic.tier})`,
       tier: lic.tier,
       daysLeft,
-      expiresAt: lic.expiresAt
+      expiresAt: lic.expiresAt,
+      certificate: cert
     };
   }
 
@@ -127,6 +153,7 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
 
     if (activeLic && activeLic.status === 'ACTIVE' && (!activeLic.expiresAt || activeLic.expiresAt > now)) {
       const daysLeft = activeLic.expiresAt ? Math.max(0, Math.ceil((activeLic.expiresAt - now) / (24 * 60 * 60 * 1000))) : 99999;
+      const cert = signDeviceCertificate(deviceId, activeLic.tier, activeLic.expiresAt, activeLic.key);
       return {
         hasPro: true,
         tier: activeLic.tier,
@@ -134,7 +161,8 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
         isTrial: false,
         daysLeft,
         expiresAt: activeLic.expiresAt,
-        licenseKey: activeLic.key
+        licenseKey: activeLic.key,
+        certificate: cert
       };
     }
 
@@ -145,6 +173,7 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
     const trialDaysLeft = Math.max(0, Math.ceil((trialExpiresAt - now) / (24 * 60 * 60 * 1000)));
 
     if (now < trialExpiresAt) {
+      const trialCert = signDeviceCertificate(deviceId, 'FREE_TRIAL', trialExpiresAt, null);
       return {
         hasPro: true,
         tier: 'FREE_TRIAL',
@@ -152,7 +181,8 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
         isTrial: true,
         daysLeft: trialDaysLeft,
         expiresAt: trialExpiresAt,
-        licenseKey: null
+        licenseKey: null,
+        certificate: trialCert
       };
     }
 
@@ -163,7 +193,8 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
       isTrial: true,
       daysLeft: 0,
       expiresAt: trialExpiresAt,
-      licenseKey: null
+      licenseKey: null,
+      certificate: null
     };
   }
 

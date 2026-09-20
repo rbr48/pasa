@@ -61,6 +61,8 @@ class PreferencesManager @Inject constructor(
         private const val KEY_POCKET_TRAP = "pocket_trap_enabled"
         private const val KEY_LICENSE_KEY = "license_key"
         private const val KEY_LICENSE_TIER = "license_tier"
+        private const val KEY_LICENSE_CERT_PAYLOAD = "license_cert_payload"
+        private const val KEY_LICENSE_CERT_SIGNATURE = "license_cert_signature"
         private const val KEY_RESET_PASSWORD_TOKEN = "reset_password_token"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
@@ -331,6 +333,14 @@ class PreferencesManager @Inject constructor(
     var licenseTier: String
         get() = prefs.getString(KEY_LICENSE_TIER, "FREE_TRIAL") ?: "FREE_TRIAL"
         set(value) = prefs.edit().putString(KEY_LICENSE_TIER, value).apply()
+
+    var licenseCertPayload: String
+        get() = prefs.getString(KEY_LICENSE_CERT_PAYLOAD, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_LICENSE_CERT_PAYLOAD, value).apply()
+
+    var licenseCertSignature: String
+        get() = prefs.getString(KEY_LICENSE_CERT_SIGNATURE, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_LICENSE_CERT_SIGNATURE, value).apply()
 
     /** Returns true if the minimum configuration required to run is present. */
     fun isConfigured(): Boolean {

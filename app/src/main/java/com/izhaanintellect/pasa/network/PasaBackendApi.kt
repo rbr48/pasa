@@ -183,6 +183,11 @@ data class OtaLatestRelease(
     @SerializedName("publishedAt") val publishedAt: String? = null
 )
 
+data class LicenseCertificate(
+    @SerializedName("payload") val payload: String? = null,
+    @SerializedName("signature") val signature: String? = null
+)
+
 data class LicenseCheckResponse(
     @SerializedName("ok") val ok: Boolean,
     @SerializedName("deviceId") val deviceId: String? = null,
@@ -192,7 +197,8 @@ data class LicenseCheckResponse(
     @SerializedName("isTrial") val isTrial: Boolean = true,
     @SerializedName("daysLeft") val daysLeft: Int = 0,
     @SerializedName("expiresAt") val expiresAt: Long? = null,
-    @SerializedName("licenseKey") val licenseKey: String? = null
+    @SerializedName("licenseKey") val licenseKey: String? = null,
+    @SerializedName("certificate") val certificate: LicenseCertificate? = null
 )
 
 data class LicenseActivateRequest(
@@ -205,5 +211,6 @@ data class LicenseActivateResponse(
     @SerializedName("message") val message: String,
     @SerializedName("tier") val tier: String? = null,
     @SerializedName("daysLeft") val daysLeft: Int? = null,
-    @SerializedName("expiresAt") val expiresAt: Long? = null
+    @SerializedName("expiresAt") val expiresAt: Long? = null,
+    @SerializedName("certificate") val certificate: LicenseCertificate? = null
 )

@@ -91,6 +91,7 @@ if (!fs.existsSync(RELEASES_DIR)) fs.mkdirSync(RELEASES_DIR, { recursive: true }
 const RELEASES_FILE = path.join(DATA_DIR, 'app_releases.json');
 const GPS_FILE = path.join(DATA_DIR, 'gps_history.json');
 const LICENSES_FILE = path.join(DATA_DIR, 'licenses.json');
+const ED25519_KEY_FILE = path.join(DATA_DIR, 'license_ed25519_key.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'license_orders.json');
 let licenseOrders = loadJson(ORDERS_FILE, {});
 
@@ -219,6 +220,7 @@ function recordDeviceLocation(deviceId, lat, lon, meta = {}) {
 // declared above. Device coupling is injected so the module stays self-contained.
 const licensing = createLicensing({
   licensesFile: LICENSES_FILE,
+  ed25519KeyFile: ED25519_KEY_FILE,
   loadJson,
   saveJson,
   logSecurityEvent,

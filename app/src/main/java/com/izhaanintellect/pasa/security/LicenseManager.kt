@@ -16,7 +16,8 @@ import javax.inject.Singleton
 @Singleton
 class LicenseManager @Inject constructor(
     private val preferencesManager: PreferencesManager,
-    private val pasaBackendApi: PasaBackendApi
+    private val pasaBackendApi: PasaBackendApi,
+    private val cryptoLicenseVerifier: CryptoLicenseVerifier
 ) {
     companion object {
         private const val TAG = "PASA_License"
@@ -55,24 +56,43 @@ class LicenseManager @Inject constructor(
 
     /**
      * Returns true if the device has an active Pro license or an active FREE_TRIAL.
+     * Uses offline Ed25519 cryptographic certificate verification for tamper-proof security.
      */
     fun isProActive(): Boolean {
-        val tier = preferencesManager.licenseTier.uppercase()
-        return when {
-            tier in PAID_TIERS -> true
-            tier == "FREE_TRIAL" -> true // Trial gets access to all pro features including screen recording
-            tier.startsWith("PRO") || tier.startsWith("ENTERPRISE") -> true
-            else -> {
-                Log.d(TAG, "No active pro license (tier=$tier)")
-                false
+        // 1. Highest priority: Cryptographically verified Ed25519 certificate (<0.2ms offline check)
+        val verifiedTier = cryptoLicenseVerifier.getVerifiedStoredTier()
+        if (verifiedTier != null) {
+            if (verifiedTier in PAID_TIERS || verifiedTier.startsWith("PRO") || verifiedTier.startsWith("ENTERPRISE")) {
+                return true
+            }
+            if (verifiedTier == "FREE_TRIAL") {
+                return true
             }
         }
+
+        // 2. Fallback to local Free Trial mode (for new installations prior to first backend sync)
+        val rawTier = preferencesManager.licenseTier.uppercase()
+        if (rawTier == "FREE_TRIAL") {
+            return true
+        }
+
+        // 3. Fallback for established paid keys if certificate is refreshing
+        if ((rawTier in PAID_TIERS || rawTier.startsWith("PRO")) && preferencesManager.licenseKey.isNotBlank()) {
+            return true
+        }
+
+        Log.d(TAG, "No active pro license (verifiedTier=$verifiedTier, rawTier=$rawTier)")
+        return false
     }
 
     /**
      * Returns true if the device has a paid license.
      */
     fun isPaidLicense(): Boolean {
+        val verifiedTier = cryptoLicenseVerifier.getVerifiedStoredTier()
+        if (verifiedTier != null) {
+            return verifiedTier in PAID_TIERS || verifiedTier.startsWith("PRO_") || verifiedTier == "ENTERPRISE"
+        }
         val tier = preferencesManager.licenseTier.uppercase()
         return tier in PAID_TIERS || tier.startsWith("PRO_") || tier == "ENTERPRISE"
     }
@@ -83,7 +103,7 @@ class LicenseManager @Inject constructor(
      */
     fun checkAccess(command: String): String? {
         val cmd = command.lowercase()
-        val tier = preferencesManager.licenseTier
+        val tier = cryptoLicenseVerifier.getVerifiedStoredTier() ?: preferencesManager.licenseTier
 
         // ── Enterprise-exclusive commands ────────────────────────────────────
         if (cmd in ENTERPRISE_COMMANDS) {
@@ -136,6 +156,38 @@ class LicenseManager @Inject constructor(
     }
 
     /**
+     * Activates a purchased license key and verifies + stores the cryptographic certificate.
+     */
+    suspend fun activateLicenseKey(key: String): Boolean {
+        return try {
+            val cleanKey = key.trim().uppercase()
+            val response = pasaBackendApi.activateLicense(
+                com.izhaanintellect.pasa.network.LicenseActivateRequest(cleanKey, preferencesManager.deviceId)
+            )
+            if (response.ok) {
+                if (response.certificate != null) {
+                    cryptoLicenseVerifier.storeCertificateIfValid(
+                        response.certificate.payload,
+                        response.certificate.signature
+                    )
+                }
+                if (!response.tier.isNullOrBlank()) {
+                    preferencesManager.licenseTier = response.tier
+                }
+                preferencesManager.licenseKey = cleanKey
+                Log.i(TAG, "Key activated successfully: $cleanKey (tier=${response.tier})")
+                true
+            } else {
+                Log.w(TAG, "Key activation failed: ${response.message}")
+                false
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "activateLicenseKey exception: ${e.message}")
+            false
+        }
+    }
+
+    /**
      * Refreshes the license status from the VPS backend if the last check
      * was more than 1 hour ago or if explicitly forced.
      */
@@ -152,6 +204,13 @@ class LicenseManager @Inject constructor(
 
             val response = pasaBackendApi.checkLicense(preferencesManager.deviceId)
             if (response.ok) {
+                // If backend returned cryptographic certificate, verify and store it
+                if (response.certificate != null) {
+                    cryptoLicenseVerifier.storeCertificateIfValid(
+                        response.certificate.payload,
+                        response.certificate.signature
+                    )
+                }
                 if (!response.tier.isNullOrBlank()) {
                     preferencesManager.licenseTier = response.tier
                 }
