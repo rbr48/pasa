@@ -87,11 +87,12 @@ class AlertMessageActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        configureLockScreenFlags()
         super.onCreate(savedInstanceState)
+        try {
+            configureLockScreenFlags()
 
-        binding = ActivityAlertMessageBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+            binding = ActivityAlertMessageBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
         // Prevent back button from dismissing Lost Mode
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -168,6 +169,10 @@ class AlertMessageActivity : AppCompatActivity() {
         }
 
         playAlertChime()
+        } catch (e: Throwable) {
+            Log.e(TAG, "Fatal error in AlertMessageActivity.onCreate", e)
+            finish()
+        }
     }
 
     private fun setupKeypad() {
@@ -394,18 +399,22 @@ class AlertMessageActivity : AppCompatActivity() {
     }
 
     private fun configureLockScreenFlags() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                setShowWhenLocked(true)
+                setTurnScreenOn(true)
+            }
 
-        @Suppress("DEPRECATION")
-        window.addFlags(
-            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-            WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-        )
+            @Suppress("DEPRECATION")
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            )
+        } catch (e: Throwable) {
+            Log.w(TAG, "Error configuring lock screen flags: ${e.message}")
+        }
     }
 
     private fun playAlertChime() {

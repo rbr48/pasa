@@ -77,71 +77,90 @@ class FakeShutdownActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        configureImmersiveBlackout()
         super.onCreate(savedInstanceState)
-
-        binding = ActivityFakeShutdownBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        preferencesManager.isFakeShutdownActive = true
-
-        // Trap back button
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                // Completely ignore back button during fake shutdown
-                Log.d(TAG, "Back button pressed during fake shutdown - ignored")
-            }
-        })
-
-        // Register wake receiver
-        val filter = IntentFilter(ACTION_DISMISS_FAKE_SHUTDOWN)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(wakeReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(wakeReceiver, filter)
-        }
-
-        // Silence ringer and media
         try {
-            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            previousRingerMode = audioManager.ringerMode
-            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-        } catch (e: Exception) {
-            Log.w(TAG, "Could not set silent mode: ${e.message}")
-        }
+            configureImmersiveBlackout()
 
-        // Phase 1: Show authentic Android Shutdown spinner for 2.2 seconds
-        binding.layoutShutdownDialog.visibility = View.VISIBLE
+            binding = ActivityFakeShutdownBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            // Phase 2: Complete Blackout
-            binding.layoutShutdownDialog.visibility = View.GONE
-            dimScreenToBlack()
-            Log.i(TAG, "Fake shutdown blackout sequence initiated")
-        }, 2200)
+            preferencesManager.isFakeShutdownActive = true
 
-        // Touch capture listener on the screen: trigger on any physical touch contact (press, tap, swipe)
-        binding.viewBlackout.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                v.performClick()
-                handleScreenTouchInteraction()
+            // Trap back button
+            onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    // Completely ignore back button during fake shutdown
+                    Log.d(TAG, "Back button pressed during fake shutdown - ignored")
+                }
+            })
+
+            // Register wake receiver
+            val filter = IntentFilter(ACTION_DISMISS_FAKE_SHUTDOWN)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(wakeReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                registerReceiver(wakeReceiver, filter)
             }
-            true
-        }
 
-        // Emergency secret wake zone (4 taps in top right corner within 3 seconds)
-        binding.viewSecretWakeTap.setOnClickListener {
-            val now = System.currentTimeMillis()
-            if (now - lastSecretTapTime > 3000) {
-                secretTapCount = 0
+            // Silence ringer and media (safely without crashing if DND access is not granted)
+            try {
+                val audioManager = getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+                if (audioManager != null) {
+                    val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? android.app.NotificationManager
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || nm?.isNotificationPolicyAccessGranted == true) {
+                        previousRingerMode = audioManager.ringerMode
+                        audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                    } else {
+                        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
+                        audioManager.adjustStreamVolume(AudioManager.STREAM_SYSTEM, AudioManager.ADJUST_MUTE, 0)
+                    }
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "Could not set silent mode: ${e.message}")
             }
-            lastSecretTapTime = now
-            secretTapCount++
 
-            if (secretTapCount >= 4) {
-                Toast.makeText(this, "Emergency Wake Triggered", Toast.LENGTH_SHORT).show()
-                exitFakeShutdown()
+            // Phase 1: Show authentic Android Shutdown spinner for 2.2 seconds
+            binding.layoutShutdownDialog.visibility = View.VISIBLE
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                try {
+                    if (!isFinishing && !isDestroyed) {
+                        // Phase 2: Complete Blackout
+                        binding.layoutShutdownDialog.visibility = View.GONE
+                        dimScreenToBlack()
+                        Log.i(TAG, "Fake shutdown blackout sequence initiated")
+                    }
+                } catch (e: Throwable) {
+                    Log.w(TAG, "Blackout transition warning: ${e.message}")
+                }
+            }, 2200)
+
+            // Touch capture listener on the screen: trigger on any physical touch contact (press, tap, swipe)
+            binding.viewBlackout.setOnTouchListener { v, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    v.performClick()
+                    handleScreenTouchInteraction()
+                }
+                true
             }
+
+            // Emergency secret wake zone (4 taps in top right corner within 3 seconds)
+            binding.viewSecretWakeTap.setOnClickListener {
+                val now = System.currentTimeMillis()
+                if (now - lastSecretTapTime > 3000) {
+                    secretTapCount = 0
+                }
+                lastSecretTapTime = now
+                secretTapCount++
+
+                if (secretTapCount >= 4) {
+                    Toast.makeText(this, "Emergency Wake Triggered", Toast.LENGTH_SHORT).show()
+                    exitFakeShutdown()
+                }
+            }
+        } catch (e: Throwable) {
+            Log.e(TAG, "Fatal error in FakeShutdownActivity.onCreate", e)
+            finish()
         }
     }
 
@@ -257,35 +276,39 @@ class FakeShutdownActivity : AppCompatActivity() {
     }
 
     private fun configureImmersiveBlackout() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        }
-
-        @Suppress("DEPRECATION")
-        window.addFlags(
-            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-        )
-
-        // Hide system bars completely
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false)
-            window.insetsController?.let {
-                it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                setShowWhenLocked(true)
+                setTurnScreenOn(true)
             }
-        } else {
+
             @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                View.SYSTEM_UI_FLAG_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
             )
+
+            // Hide system bars completely
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.setDecorFitsSystemWindows(false)
+                window.insetsController?.let {
+                    it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                    it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                    View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                )
+            }
+        } catch (e: Throwable) {
+            Log.w(TAG, "Error configuring immersive blackout: ${e.message}")
         }
     }
 
