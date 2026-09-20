@@ -149,6 +149,37 @@
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
+                <!-- Method 2: Instant 6-Digit Pairing -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnQuickPair"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="#0284C7"
+                    android:text="@string/btn_quick_pair"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="4dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#1E293B"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="10dp"
+                        android:text="OR (Method 1: Sovereign Private Bot)"
+                        android:textColor="#64748B"
+                        android:textSize="11sp" />
+                    <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#1E293B"/>
+                </LinearLayout>
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilBotToken"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -362,6 +393,44 @@
             android:text="@string/status_admin_required"
             android:textColor="#94A3B8"
             android:textSize="13sp" />
+
+        <!-- Mandatory Terms & Conditions Agreement -->
+        <LinearLayout
+            android:id="@+id/llTermsSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cbAcceptTerms"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:buttonTint="#38BDF8" />
+
+            <TextView
+                android:id="@+id/tvTermsAgreement"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif"
+                android:text="@string/terms_agreement"
+                android:textColor="#CBD5E1"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvReadTermsLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/terms_read_link"
+            android:textColor="#38BDF8"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-bold" />
 
         <!-- Final Activate Button -->
         <Button

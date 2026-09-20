@@ -5,8 +5,9 @@
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.1.5%20(Build%2021)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
+[![Version](https://img.shields.io/badge/Release-v3.1.6%20(Build%2022)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Telemetry%20Policy-brightgreen.svg)](PRIVACY.md)
+[![Terms of Service](https://img.shields.io/badge/Legal-Terms%20of%20Service%20%26%20EULA-blueviolet.svg)](TERMS.md)
 [![7-Day Guarantee](https://img.shields.io/badge/Guarantee-7--Day%20Money%20Back-30D158.svg)](PRIVACY.md#-4-7-day-money-back-guarantee-binance-pay)
 [![Binance Pay](https://img.shields.io/badge/Payments-Binance%20Pay%20Verified-F0B90B.svg)](#commercial-licensing--binance-pay)
 
@@ -26,6 +27,7 @@
 8. [Building from Source](#building-from-source)
 9. [Release Verification & Integrity](#release-verification--integrity)
 10. [Zero-Telemetry Privacy Policy](PRIVACY.md)
+11. [Terms of Service & EULA (Mandatory)](TERMS.md)
 
 ---
 
@@ -121,14 +123,28 @@ PASA only accepts commands from **your specific Telegram account** so no strange
 
 ---
 
-### Method 2: Instant Pairing via @Pas_agent_bot
+### Method 2: Instant 6-Digit Pairing via @Pas_agent_bot
 
-If you prefer not to create a bot via @BotFather:
-1. Open the official PASA Bot: **[@Pas_agent_bot](https://t.me/Pas_agent_bot)**.
-2. Tap **Start**.
-3. In the PASA Android app, tap **"Quick Pair via @Pas_agent_bot"**.
-4. The app displays a 6-digit one-time pairing code (e.g., `839 201`).
-5. Send that code to `@Pas_agent_bot` in Telegram. Your device is now paired!
+If you prefer instant automated onboarding without creating your own bot via @BotFather:
+
+> 🛡️ **Sovereign Security Advisory:**  
+> Method 1 (Private Bot via @BotFather) is **recommended for zero-trust, maximum privacy**. With Method 1, only you possess the bot token.  
+> Method 2 routes commands through the central PASA gateway. While protected by device-binding OTPs and anti-brute-force rate limits (max 3 failed attempts before a 1-hour ban), Method 1 provides true sovereign autonomy.
+
+1. In the PASA Android app setup screen, accept the **Mandatory Terms & Conditions**.
+2. Tap **"⚡ Instant Pair via @Pas_agent_bot"**.
+3. Review the Sovereign Security Advisory and tap **"Proceed with Instant Pair"**.
+4. The app generates a 3-minute ephemeral 6-digit pairing code (e.g. `839 201`).
+5. Open Telegram, start **[@Pas_agent_bot](https://t.me/Pas_agent_bot)**, and send the 6-digit code (or tap the direct link button).
+6. `@Pas_agent_bot` confirms the link, and your Android device auto-configures and activates instantly!
+
+---
+
+### 🔒 Pure Remote Unlock (Impenetrable Lost Mode)
+
+* **Telegram-Only Unlock:** To eliminate vulnerabilities and keypad brute-forcing by thieves, the lock screen has **zero on-screen PIN keypads**.
+* **Impenetrable Lockdown:** When locked via `/lock` or sensor triggers, the screen is locked in Knox Kiosk mode. It can **only be unlocked remotely** by sending `/unlock` from your verified Telegram C2 bot.
+* **Covert Touch Trap:** Any physical touch or swipe on the locked screen silently triggers front-camera mugshots and satellite GPS telemetry dispatched directly to your Telegram chat.
 
 ---
 

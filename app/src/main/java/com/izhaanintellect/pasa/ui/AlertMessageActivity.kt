@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
@@ -58,8 +59,6 @@ class AlertMessageActivity : AppCompatActivity() {
     @Inject lateinit var locationTracker: LocationTracker
     @Inject lateinit var pasaBackendApi: PasaBackendApi
 
-    private var enteredPin: StringBuilder = StringBuilder()
-    private var failedPinAttempts = 0
     private var isKioskActive = false
 
     companion object {
@@ -100,9 +99,8 @@ class AlertMessageActivity : AppCompatActivity() {
         // Prevent back button from dismissing Lost Mode
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // If lost mode is active, prevent back button
                 if (preferencesManager.isLostModeActive) {
-                    Toast.makeText(this@AlertMessageActivity, "Enter PIN to unlock", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AlertMessageActivity, "🔒 Locked: Send /unlock from Telegram to release", Toast.LENGTH_SHORT).show()
                 } else {
                     isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
@@ -134,7 +132,6 @@ class AlertMessageActivity : AppCompatActivity() {
         val messageText = intent.getStringExtra(EXTRA_MESSAGE)
             ?: preferencesManager.lostModeMessage.ifBlank { "Please return this device to its owner." }
         val explicitPhone = intent.getStringExtra(EXTRA_PHONE)
-        val enforcePin = intent.getBooleanExtra(EXTRA_ENFORCE_PIN, false) || preferencesManager.isLostModeActive
 
         binding.tvMessageContent.text = messageText
 
@@ -160,18 +157,6 @@ class AlertMessageActivity : AppCompatActivity() {
             binding.btnCallOwner.visibility = View.GONE
         }
 
-        if (enforcePin || !preferencesManager.activeLockPin.isNullOrBlank()) {
-            binding.llPinSection.visibility = View.VISIBLE
-            binding.btnDismiss.visibility = View.GONE
-            setupKeypad()
-        } else {
-            binding.llPinSection.visibility = View.GONE
-            binding.btnDismiss.visibility = View.VISIBLE
-            binding.btnDismiss.setOnClickListener {
-                exitLostMode()
-            }
-        }
-
         playAlertChime()
         } catch (e: Throwable) {
             Log.e(TAG, "Fatal error in AlertMessageActivity.onCreate", e)
@@ -179,129 +164,41 @@ class AlertMessageActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupKeypad() {
-        updatePinDisplay()
+    private var lastTouchCaptureTime = 0L
 
-        val numButtons = listOf(
-            binding.btnKey0 to "0",
-            binding.btnKey1 to "1",
-            binding.btnKey2 to "2",
-            binding.btnKey3 to "3",
-            binding.btnKey4 to "4",
-            binding.btnKey5 to "5",
-            binding.btnKey6 to "6",
-            binding.btnKey7 to "7",
-            binding.btnKey8 to "8",
-            binding.btnKey9 to "9"
-        )
-
-        for ((btn, digit) in numButtons) {
-            btn.setOnClickListener {
-                if (enteredPin.length < 8) {
-                    enteredPin.append(digit)
-                    updatePinDisplay()
-                    binding.tvPinError.visibility = View.INVISIBLE
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val now = System.currentTimeMillis()
+            if (now - lastTouchCaptureTime > 15000L) { // Debounce 15 seconds to avoid spamming
+                lastTouchCaptureTime = now
+                Log.w(TAG, "Physical screen touch detected during Lost Mode! Triggering covert capture.")
+                CoroutineScope(Dispatchers.IO).launch {
+                    triggerTouchCapture()
                 }
             }
         }
-
-        binding.btnKeyDelete.setOnClickListener {
-            if (enteredPin.isNotEmpty()) {
-                enteredPin.deleteCharAt(enteredPin.length - 1)
-                updatePinDisplay()
-                binding.tvPinError.visibility = View.INVISIBLE
-            }
-        }
-
-        binding.btnKeyUnlock.setOnClickListener {
-            verifyEnteredPin()
-        }
+        return super.dispatchTouchEvent(ev)
     }
 
-    private fun updatePinDisplay() {
-        if (enteredPin.isEmpty()) {
-            binding.tvPinDisplay.text = "• • • •"
-            binding.tvPinDisplay.setTextColor(android.graphics.Color.parseColor("#475569"))
-        } else {
-            val dots = "• ".repeat(enteredPin.length).trim()
-            binding.tvPinDisplay.text = dots
-            binding.tvPinDisplay.setTextColor(android.graphics.Color.parseColor("#38BDF8"))
-        }
-    }
-
-    private fun verifyEnteredPin() {
-        val pin = enteredPin.toString()
-        val activePin = preferencesManager.activeLockPin
-        val duressPin = preferencesManager.duressPin
-
-        // 1. Check Anti-Coercion Duress PIN
-        if (!duressPin.isNullOrBlank() && pin == duressPin) {
-            Log.w(TAG, "DURESS PIN ENTERED! Simulating normal unlock and launching silent SOS beacon.")
-            Toast.makeText(this, "✅ Device Unlocked", Toast.LENGTH_SHORT).show()
-            preferencesManager.isDuressActive = true
-
-            // Trigger Duress SOS in application scope so activity finish does NOT cancel network/camera
-            CoroutineScope(Dispatchers.IO).launch {
-                triggerDuressSos()
-            }
-            exitLostMode()
-            return
-        }
-
-        binding.btnKeyUnlock.isEnabled = false
-
-        lifecycleScope.launch {
-            // 2. Standard Lock PIN or Master Password (run off-thread to avoid ANR from 600k PBKDF2 iterations)
-            val isPinCorrect = (!activePin.isNullOrBlank() && pin == activePin) ||
-                    withContext(Dispatchers.Default) {
-                        authManager.verifyMasterPassword(pin)
-                    }
-
-            binding.btnKeyUnlock.isEnabled = true
-
-            if (isPinCorrect) {
-                Log.i(TAG, "PIN verified successfully. Unlocking Lost Mode.")
-                Toast.makeText(this@AlertMessageActivity, "✅ Device Unlocked", Toast.LENGTH_SHORT).show()
-                preferencesManager.isDuressActive = false
-                exitLostMode()
-            } else {
-                failedPinAttempts++
-                binding.tvPinError.visibility = View.VISIBLE
-                binding.tvPinError.text = "❌ Incorrect PIN ($failedPinAttempts/3 attempts)"
-                enteredPin.clear()
-                updatePinDisplay()
-                playAlertChime()
-
-                if (failedPinAttempts >= 3) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        triggerFailedPinDeterrent()
-                    }
-                    failedPinAttempts = 0
-                }
-            }
-        }
-    }
-
-    private suspend fun triggerFailedPinDeterrent() {
-        Log.w(TAG, "3 failed PIN attempts entered! Triggering stealth front-camera capture.")
+    private suspend fun triggerTouchCapture() {
         try {
             val loc = locationTracker.getCurrentLocation()
             val locMsg = if (loc != null) {
                 "\n📍 <b>Location:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
             } else ""
 
-            val alertText = "An unauthorized user attempted 3 incorrect PINs on the Lost Mode screen.$locMsg"
+            val alertText = "⚠️ <b>Physical Screen Touch Detected on Locked Device!</b>\nAn unauthorized user touched the screen while Lost Mode is active.$locMsg\n\n📸 Covert front-camera photo captured silently."
             val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true, timeoutMs = 8000L)
 
             dispatchSecurityAlert(
-                alertType = "FAILED_PIN_ATTEMPT",
+                alertType = "LOST_MODE_SCREEN_TOUCH",
                 alertMessage = alertText,
                 latVal = loc?.latitude,
                 lngVal = loc?.longitude,
                 photoFile = captureResult.file
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Error handling failed PIN deterrent alert", e)
+            Log.e(TAG, "Error handling screen touch capture", e)
         }
     }
 

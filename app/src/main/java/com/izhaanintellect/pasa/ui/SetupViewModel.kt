@@ -238,4 +238,22 @@ class SetupViewModel @Inject constructor(
         }
         return clean
     }
+
+    suspend fun initPairing(serverUrl: String, deviceId: String, deviceName: String): com.izhaanintellect.pasa.network.PairInitResponse {
+        return withContext(Dispatchers.IO) {
+            preferencesManager.serverUrl = serverUrl
+            pasaBackendApi.initPairing(
+                com.izhaanintellect.pasa.network.PairInitRequest(
+                    deviceId = deviceId,
+                    deviceName = deviceName
+                )
+            )
+        }
+    }
+
+    suspend fun pollPairingStatus(code: String): com.izhaanintellect.pasa.network.PairStatusResponse {
+        return withContext(Dispatchers.IO) {
+            pasaBackendApi.pollPairingStatus(code)
+        }
+    }
 }

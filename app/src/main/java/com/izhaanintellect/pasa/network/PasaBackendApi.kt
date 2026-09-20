@@ -68,9 +68,42 @@ interface PasaBackendApi {
     suspend fun activateLicense(
         @Body request: LicenseActivateRequest
     ): LicenseActivateResponse
+
+    @POST("api/pair/init")
+    suspend fun initPairing(
+        @Body request: PairInitRequest
+    ): PairInitResponse
+
+    @GET("api/pair/status/{code}")
+    suspend fun pollPairingStatus(
+        @retrofit2.http.Path("code") code: String
+    ): PairStatusResponse
 }
 
 // --- Data Models ---
+
+data class PairInitRequest(
+    @SerializedName("deviceId") val deviceId: String,
+    @SerializedName("deviceName") val deviceName: String
+)
+
+data class PairInitResponse(
+    @SerializedName("ok") val ok: Boolean,
+    @SerializedName("code") val code: String?,
+    @SerializedName("formattedCode") val formattedCode: String?,
+    @SerializedName("expiresInSeconds") val expiresInSeconds: Int?,
+    @SerializedName("botUsername") val botUsername: String?,
+    @SerializedName("message") val message: String? = null
+)
+
+data class PairStatusResponse(
+    @SerializedName("ok") val ok: Boolean,
+    @SerializedName("status") val status: String,
+    @SerializedName("deviceId") val deviceId: String? = null,
+    @SerializedName("ownerChatId") val ownerChatId: String? = null,
+    @SerializedName("botToken") val botToken: String? = null,
+    @SerializedName("message") val message: String? = null
+)
 
 data class BackendHealthResponse(
     @SerializedName("status") val status: String,

@@ -46,10 +46,18 @@ const app = express();
 const PORT = process.env.PORT || 8160;
 const commandEmitter = new EventEmitter();
 commandEmitter.setMaxListeners(100);
+const pairingEmitter = new EventEmitter();
+pairingEmitter.setMaxListeners(100);
 
-// Default bot token (optional fallback via environment variable only - never hardcoded in source)
-const DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || '';
-const ADMIN_BOT_TOKEN = process.env.ADMIN_BOT_TOKEN || process.env.BOT_TOKEN || '';
+// In-memory 6-digit OTP pairing store: code -> { deviceId, deviceName, createdAt, expiresAt, status, ownerChatId }
+const activePairings = new Map();
+// Anti-brute-force rate limiting per Telegram chatId: chatId -> { attempts, lockedUntil }
+const telegramPairingAttempts = new Map();
+
+// Official central PASA Bot (@Pas_agent_bot) token for Method 2 instant pairing
+const PASA_CENTRAL_BOT_TOKEN = '8815969412:AAEN_BqiCldZVza93qApCbGn5hTrcAW9HxA';
+const DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || PASA_CENTRAL_BOT_TOKEN;
+const ADMIN_BOT_TOKEN = process.env.ADMIN_BOT_TOKEN || process.env.BOT_TOKEN || PASA_CENTRAL_BOT_TOKEN;
 const ADMIN_CHAT_ID = String(process.env.ADMIN_CHAT_ID || '');
 const BINANCE_PAY_ID = process.env.BINANCE_PAY_ID || '756303714';
 const BINANCE_NICKNAME = process.env.BINANCE_NICKNAME || 'RBR48';
@@ -1418,6 +1426,98 @@ async function handleTelegramUpdate(token, update) {
 
   console.log(`[Telegram Message] Received from chatId ${chatId}: "${rawText}"`);
 
+  // --- Method 2: Instant 6-Digit Pairing Handler (@Pas_agent_bot) ---
+  let possiblePairCode = null;
+  const startPairMatch = rawText.match(/^\/start\s+(?:pair_)?(\d{6})$/i);
+  if (startPairMatch) {
+    possiblePairCode = startPairMatch[1];
+  } else {
+    const directDigits = rawText.replace(/\s+/g, '');
+    if (/^\d{6}$/.test(directDigits)) {
+      possiblePairCode = directDigits;
+    } else {
+      const pairPrefixMatch = rawText.match(/^(?:pair\s+)?(\d{3})\s*(\d{3})$/i);
+      if (pairPrefixMatch) {
+        possiblePairCode = pairPrefixMatch[1] + pairPrefixMatch[2];
+      }
+    }
+  }
+
+  if (possiblePairCode) {
+    const attemptInfo = telegramPairingAttempts.get(chatId) || { attempts: 0, lockedUntil: 0 };
+    if (attemptInfo.lockedUntil > Date.now()) {
+      const waitMin = Math.ceil((attemptInfo.lockedUntil - Date.now()) / (60 * 1000));
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: `⛔ <b>Too Many Failed Attempts:</b> You are temporarily locked from device pairing. Please wait ${waitMin} minutes before trying again.`,
+        parse_mode: 'HTML'
+      });
+      return;
+    }
+
+    const entry = activePairings.get(possiblePairCode);
+    if (entry && entry.status === 'PENDING' && entry.expiresAt > Date.now()) {
+      entry.status = 'CLAIMED';
+      entry.ownerChatId = String(chatId);
+      telegramPairingAttempts.delete(chatId);
+
+      if (devices[entry.deviceId]) {
+        devices[entry.deviceId].ownerChatId = String(chatId);
+        persistDevice(devices[entry.deviceId]);
+      }
+
+      pairingEmitter.emit('paired:' + possiblePairCode, {
+        deviceId: entry.deviceId,
+        ownerChatId: String(chatId)
+      });
+
+      logSecurityEvent('DEVICE_PAIRED_INSTANT_OTP', {
+        deviceId: entry.deviceId,
+        chatId: String(chatId),
+        code: possiblePairCode
+      });
+
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: `🎉 <b>PASA Sentinel Paired Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n` +
+              `📱 <b>Device:</b> ${entry.deviceName || 'Android Device'}\n` +
+              `🆔 <b>ID:</b> <code>${entry.deviceId}</code>\n` +
+              `🛡️ <b>Control Plane:</b> Sovereign Hardware Protection Active\n\n` +
+              `Your Android device is now securely linked to this Telegram account. You can dispatch commands or use the interactive tactical console below:`,
+        parse_mode: 'HTML',
+        reply_markup: PERSISTENT_REPLY_KEYBOARD
+      });
+
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: buildDashboardText(chatId, devices[entry.deviceId] || { deviceName: entry.deviceName, deviceId: entry.deviceId }),
+        parse_mode: 'HTML',
+        reply_markup: DASHBOARD_KEYBOARD
+      });
+      return;
+    } else {
+      attemptInfo.attempts = (attemptInfo.attempts || 0) + 1;
+      if (attemptInfo.attempts >= 3) {
+        attemptInfo.lockedUntil = Date.now() + 60 * 60 * 1000; // 1 hour lockout
+        telegramPairingAttempts.set(chatId, attemptInfo);
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `⛔ <b>Maximum Attempts Exceeded (3/3):</b> Pairing access locked for 1 hour. Please verify the code displayed on your physical phone screen.`,
+          parse_mode: 'HTML'
+        });
+      } else {
+        telegramPairingAttempts.set(chatId, attemptInfo);
+        const remaining = 3 - attemptInfo.attempts;
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `❌ <b>Invalid or Expired Pairing Code:</b> The code <code>${possiblePairCode}</code> was not found or has expired (${attemptInfo.attempts}/3 attempts, ${remaining} remaining). Please check the code on your phone screen.`,
+          parse_mode: 'HTML'
+        });
+      }
+      return;
+    }
+  }
+
   // Check Active Conversational State (Wizard inputs)
   const activeState = getChatState(chatId);
   if (activeState) {
@@ -1967,6 +2067,150 @@ app.get('/health', (req, res) => {
     devicesCount: Object.keys(devices).length,
     activePollersCount: activePollers.size
   });
+});
+
+// --- Method 2: Instant 6-Digit Pairing Endpoints ---
+
+// POST /api/pair/init - Generate 6-digit OTP pairing code for device
+app.post('/api/pair/init', (req, res) => {
+  const { deviceId, deviceName } = req.body || {};
+  if (!deviceId) {
+    return res.status(400).json({ ok: false, message: 'deviceId is required' });
+  }
+
+  const now = Date.now();
+  // Evict expired pairings
+  for (const [c, entry] of activePairings.entries()) {
+    if (entry.expiresAt < now) {
+      activePairings.delete(c);
+    }
+  }
+
+  // Generate 6-digit cryptographic random code (100000 - 999999)
+  let code = '';
+  for (let i = 0; i < 20; i++) {
+    const candidate = crypto.randomInt(100000, 999999).toString();
+    if (!activePairings.has(candidate)) {
+      code = candidate;
+      break;
+    }
+  }
+
+  const expiresAt = now + 3 * 60 * 1000; // 3-minute validity
+  activePairings.set(code, {
+    deviceId: String(deviceId),
+    deviceName: deviceName ? String(deviceName) : 'Android Device',
+    createdAt: now,
+    expiresAt,
+    status: 'PENDING',
+    ownerChatId: null
+  });
+
+  const formattedCode = `${code.substring(0, 3)} ${code.substring(3)}`;
+  console.log(`[Pairing Init] Created pairing code ${formattedCode} for device ${deviceId}`);
+
+  res.json({
+    ok: true,
+    code,
+    formattedCode,
+    expiresInSeconds: 180,
+    botUsername: 'Pas_agent_bot'
+  });
+});
+
+// GET /api/pair/status/:code - Poll pairing status
+app.get('/api/pair/status/:code', (req, res) => {
+  const code = (req.params.code || '').replace(/\s+/g, '');
+  const entry = activePairings.get(code);
+
+  if (!entry) {
+    return res.json({ ok: false, status: 'NOT_FOUND', message: 'Pairing code not found or expired' });
+  }
+
+  if (entry.status === 'CLAIMED') {
+    return res.json({
+      ok: true,
+      status: 'CLAIMED',
+      deviceId: entry.deviceId,
+      ownerChatId: entry.ownerChatId,
+      botToken: DEFAULT_BOT_TOKEN
+    });
+  }
+
+  if (entry.expiresAt < Date.now()) {
+    activePairings.delete(code);
+    return res.json({ ok: false, status: 'EXPIRED', message: 'Pairing code has expired' });
+  }
+
+  res.json({
+    ok: true,
+    status: 'PENDING',
+    remainingSeconds: Math.max(0, Math.floor((entry.expiresAt - Date.now()) / 1000))
+  });
+});
+
+// --- Legal Terms of Service & EULA Endpoints ---
+
+app.get('/terms', (req, res) => {
+  const possiblePaths = [
+    path.join(__dirname, '..', 'TERMS.md'),
+    path.join(__dirname, 'TERMS.md'),
+    '/var/www/pasa-server/TERMS.md'
+  ];
+  let mdContent = '';
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      mdContent = fs.readFileSync(p, 'utf8');
+      break;
+    }
+  }
+  if (!mdContent) {
+    mdContent = '# PASA Sentinel — Terms of Service\nPlease refer to the official documentation on GitHub.';
+  }
+
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service & EULA — PASA Sentinel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0A0E17; color: #E2E8F0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    h1 { font-size: 2rem; font-weight: 800; color: #38BDF8; margin-top: 1.5rem; margin-bottom: 1rem; }
+    h2 { font-size: 1.4rem; font-weight: 700; color: #F8FAFC; margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid #1E293B; padding-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; color: #94A3B8; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+    p, li { color: #CBD5E1; line-height: 1.7; margin-bottom: 0.75rem; font-size: 0.95rem; }
+    ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
+    code { background-color: #1E293B; color: #38BDF8; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.85em; }
+    hr { border-color: #1E293B; margin: 2rem 0; }
+  </style>
+</head>
+<body class="p-6 md:p-12 max-w-4xl mx-auto">
+  <div class="mb-8 flex items-center justify-between border-b border-slate-800 pb-4">
+    <a href="/" class="text-cyan-400 font-bold text-lg hover:underline">← Back to PASA Sentinel</a>
+    <span class="text-xs text-slate-500">Legal Compliance &amp; EULA</span>
+  </div>
+  <pre style="white-space: pre-wrap; font-family: inherit;">${mdContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+</body>
+</html>`);
+});
+
+app.get('/api/terms', (req, res) => {
+  const possiblePaths = [
+    path.join(__dirname, '..', 'TERMS.md'),
+    path.join(__dirname, 'TERMS.md'),
+    '/var/www/pasa-server/TERMS.md'
+  ];
+  let mdContent = '';
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      mdContent = fs.readFileSync(p, 'utf8');
+      break;
+    }
+  }
+  res.json({ ok: true, terms: mdContent });
 });
 
 // 2. Verify Bot Token cleanly
