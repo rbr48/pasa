@@ -45,6 +45,8 @@ if (!fs.existsSync(RELEASES_DIR)) fs.mkdirSync(RELEASES_DIR, { recursive: true }
 const RELEASES_FILE = path.join(DATA_DIR, 'app_releases.json');
 const GPS_FILE = path.join(DATA_DIR, 'gps_history.json');
 const LICENSES_FILE = path.join(DATA_DIR, 'licenses.json');
+const ORDERS_FILE = path.join(DATA_DIR, 'license_orders.json');
+let licenseOrders = loadJson(ORDERS_FILE, {});
 
 // Multer storage for photos/audio/video uploaded from device
 const upload = multer({
@@ -1053,6 +1055,98 @@ async function handleTelegramUpdate(token, update) {
       callback_query_id: query.id,
       text: '⏳ Action processing...'
     });
+
+    // Two-Step Binance Pay Order Approval / Rejection Handlers
+    if (data.startsWith('lic:approve:')) {
+      const orderId = data.substring('lic:approve:'.length);
+      const order = licenseOrders[orderId];
+      if (!order) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `⚠️ Order <code>${orderId}</code> was not found.`,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      if (order.status !== 'PENDING_APPROVAL') {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `ℹ️ Order <code>${orderId}</code> is already marked as <b>${order.status}</b>.`,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+
+      let maxDevices = 1;
+      if (order.tier === 'PRO_LIFETIME') maxDevices = 3;
+      if (order.tier === 'PRO_ENTERPRISE') maxDevices = 10;
+
+      const lic = licensing.createLicense(order.email, order.tier, maxDevices, {
+        paymentMethod: 'BINANCE_PAY',
+        binancePayId: '756303714',
+        binanceTxId: order.binanceTxId,
+        nickname: 'RBR48'
+      });
+
+      order.status = 'APPROVED';
+      order.licenseKey = lic.key;
+      order.approvedAt = Date.now();
+      saveJson(ORDERS_FILE, licenseOrders);
+
+      await callTelegram(token, 'editMessageText', {
+        chat_id: chatId,
+        message_id: messageId,
+        text: `✅ <b>BINANCE PAY ORDER APPROVED!</b>\n` +
+              `━━━━━━━━━━━━━━━━━━━━\n` +
+              `<b>Order ID:</b> <code>${orderId}</code>\n` +
+              `<b>Plan:</b> ${order.tier} ($${order.amountUsdt} USDT)\n` +
+              `<b>Buyer:</b> <code>${order.email}</code>\n` +
+              `<b>Binance TX:</b> <code>${order.binanceTxId || 'N/A'}</code>\n` +
+              `<b>Generated Key:</b> <code>${lic.key}</code>\n\n` +
+              `🛡️ <i>License key is now ACTIVE and delivered to buyer screen!</i>`,
+        parse_mode: 'HTML'
+      });
+      return;
+    }
+
+    if (data.startsWith('lic:reject:')) {
+      const orderId = data.substring('lic:reject:'.length);
+      const order = licenseOrders[orderId];
+      if (!order) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `⚠️ Order <code>${orderId}</code> was not found.`,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      if (order.status !== 'PENDING_APPROVAL') {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `ℹ️ Order <code>${orderId}</code> is already marked as <b>${order.status}</b>.`,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+
+      order.status = 'REJECTED';
+      order.rejectedAt = Date.now();
+      saveJson(ORDERS_FILE, licenseOrders);
+
+      await callTelegram(token, 'editMessageText', {
+        chat_id: chatId,
+        message_id: messageId,
+        text: `❌ <b>ORDER REJECTED (FAKE PAYMENT)</b>\n` +
+              `━━━━━━━━━━━━━━━━━━━━\n` +
+              `<b>Order ID:</b> <code>${orderId}</code>\n` +
+              `<b>Buyer:</b> <code>${order.email}</code>\n` +
+              `<b>Submitted TX:</b> <code>${order.binanceTxId || 'None'}</code>\n` +
+              `<b>Reason:</b> Payment not received on Binance Pay ID 756303714.\n\n` +
+              `🚫 <i>Voided. No license key was issued.</i>`,
+        parse_mode: 'HTML'
+      });
+      return;
+    }
 
     if (data === 'menu:main') {
       clearChatState(chatId);
@@ -2359,18 +2453,23 @@ app.post('/api/license/purchase', licensingGuard, async (req, res) => {
   }
 
   const cleanTier = (tier || 'PRO_LIFETIME').toUpperCase();
-  let maxDevices = 1;
-  if (cleanTier === 'PRO_LIFETIME') maxDevices = 3;
-  if (cleanTier === 'PRO_ENTERPRISE' || cleanTier === 'FAMILY') maxDevices = 10;
+  const amountUsdt = cleanTier === 'PRO_ENTERPRISE' ? '79.99' : '29.99';
+  const orderId = 'ord_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
 
-  const license = licensing.createLicense(email, cleanTier, maxDevices, {
-    paymentMethod: 'BINANCE_PAY',
-    binancePayId: '756303714',
+  licenseOrders[orderId] = {
+    orderId,
+    email: email.trim().toLowerCase(),
+    tier: cleanTier,
+    amountUsdt,
     binanceTxId: (binanceTxId || '').trim(),
-    nickname: 'RBR48'
-  });
+    binancePayId: '756303714',
+    status: 'PENDING_APPROVAL',
+    licenseKey: null,
+    createdAt: Date.now()
+  };
+  saveJson(ORDERS_FILE, licenseOrders);
 
-  // Notify registered administrator on Telegram (deduplicated by botToken + ownerChatId)
+  // Notify registered administrator on Telegram with Approve / Reject buttons
   try {
     const notifiedKeys = new Set();
     for (const dev of Object.values(devices)) {
@@ -2379,21 +2478,30 @@ app.post('/api/license/purchase', licensingGuard, async (req, res) => {
         if (notifiedKeys.has(dedupKey)) continue;
         notifiedKeys.add(dedupKey);
 
-        const amountUsdt = cleanTier === 'PRO_ENTERPRISE' ? '79.99' : '29.99';
-        const txInfo = binanceTxId && binanceTxId.trim() ? `\n<b>Binance Order/TX ID:</b> <code>${binanceTxId.trim()}</code>` : '';
+        const txInfo = binanceTxId && binanceTxId.trim()
+          ? `\n<b>Submitted TX/Order ID:</b> <code>${binanceTxId.trim()}</code>`
+          : '\n<b>Submitted TX/Order ID:</b> <i>None provided</i>';
         const adminAlert =
-          `💰 <b>New Binance Pay License Issued!</b>\n` +
+          `💰 <b>NEW BINANCE PAY ORDER AWAITING APPROVAL</b>\n` +
           `━━━━━━━━━━━━━━━━━━━━\n` +
-          `<b>Tier:</b> ${cleanTier} ($${amountUsdt} USDT)\n` +
+          `<b>Order ID:</b> <code>${orderId}</code>\n` +
+          `<b>Plan:</b> ${cleanTier} ($${amountUsdt} USDT)\n` +
           `<b>Buyer Email:</b> <code>${email.trim()}</code>\n` +
-          `<b>Binance Pay ID:</b> <code>756303714</code> (RBR48)${txInfo}\n` +
-          `<b>Issued License Key:</b> <code>${license.key}</code>\n\n` +
-          `<i>Please check your Binance App to verify receipt of $${amountUsdt} USDT.</i>`;
+          `<b>Binance Pay ID:</b> <code>756303714</code> (RBR48)${txInfo}\n\n` +
+          `<i>👉 Check your Binance App now. Did you receive $${amountUsdt} USDT?</i>`;
 
         callTelegram(dev.botToken, 'sendMessage', {
           chat_id: dev.ownerChatId,
           text: adminAlert,
-          parse_mode: 'HTML'
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: '✅ Approve & Issue Key', callback_data: `lic:approve:${orderId}` },
+                { text: '❌ Reject Fake Payment', callback_data: `lic:reject:${orderId}` }
+              ]
+            ]
+          }
         }).catch(err => console.error('[Binance Alert] Telegram notify failed:', err.message));
       }
     }
@@ -2403,19 +2511,30 @@ app.post('/api/license/purchase', licensingGuard, async (req, res) => {
 
   res.json({
     ok: true,
-    message: 'License key issued successfully via Binance Pay',
-    license: {
-      key: license.key,
-      email: license.email,
-      tier: license.tier,
-      maxDevices: license.maxDevices,
-      expiresAt: license.expiresAt,
-      createdAt: license.createdAt,
-      paymentMethod: 'BINANCE_PAY',
-      binancePayId: '756303714',
-      nickname: 'RBR48'
-    },
-    instructions: 'Activate this key in Telegram with: /license activate ' + license.key
+    pending: true,
+    orderId,
+    amountUsdt,
+    message: 'Binance Pay order submitted. Awaiting operator payment confirmation.'
+  });
+});
+
+// Check status of pending Binance Pay order (polled by browser)
+app.get('/api/license/order-status', (req, res) => {
+  const orderId = req.query.orderId;
+  if (!orderId) {
+    return res.status(400).json({ ok: false, description: 'orderId is required' });
+  }
+  const order = licenseOrders[orderId];
+  if (!order) {
+    return res.status(404).json({ ok: false, description: 'Order not found' });
+  }
+  res.json({
+    ok: true,
+    status: order.status,
+    orderId: order.orderId,
+    tier: order.tier,
+    email: order.email,
+    licenseKey: order.licenseKey
   });
 });
 

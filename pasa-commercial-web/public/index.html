@@ -1183,6 +1183,38 @@
         </form>
       </div>
 
+      <!-- Step 1.5: Awaiting Operator Verification -->
+      <div id="checkoutStepPending" class="hidden text-center py-4">
+        <div class="relative w-16 h-16 mx-auto mb-4">
+          <div class="absolute inset-0 rounded-full border-2 border-[#F0B90B]/30 animate-ping"></div>
+          <div class="w-16 h-16 rounded-full bg-[#F0B90B]/15 border border-[#F0B90B]/40 flex items-center justify-center text-[#F0B90B]">
+            <i data-lucide="clock" class="w-8 h-8 animate-pulse"></i>
+          </div>
+        </div>
+
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0B90B]/15 text-[#F0B90B] text-xs font-semibold uppercase tracking-wider mb-2">
+          <span>Awaiting Operator Confirmation</span>
+        </div>
+        <h3 class="text-xl font-semibold text-white tracking-tight mb-2">Order Submitted to Operator</h3>
+        <p class="text-xs text-apple-grayText max-w-sm mx-auto mb-6 leading-relaxed">
+          Your payment was submitted to the administrator's Telegram console. Once receipt is verified in the Binance App, your license key will automatically unlock here.
+        </p>
+
+        <!-- Order Summary Card -->
+        <div class="p-4 rounded-xl bg-black/80 border border-white/10 text-left text-xs font-mono space-y-2 mb-6 max-w-sm mx-auto">
+          <div class="flex justify-between"><span class="text-apple-grayText">Order ID:</span> <span id="pendingOrderId" class="text-white font-bold">ord_...</span></div>
+          <div class="flex justify-between"><span class="text-apple-grayText">Buyer Email:</span> <span id="pendingEmail" class="text-apple-blueLight">...</span></div>
+          <div class="flex justify-between"><span class="text-apple-grayText">Total Due:</span> <span id="pendingAmount" class="text-[#F0B90B] font-bold">$29.99 USDT</span></div>
+          <div class="flex justify-between"><span class="text-apple-grayText">Pay ID:</span> <span class="text-white">756303714 (RBR48)</span></div>
+          <div class="flex justify-between"><span class="text-apple-grayText">Status:</span> <span class="text-[#F0B90B] font-semibold animate-pulse">Pending Review</span></div>
+        </div>
+
+        <div class="text-[11px] text-apple-grayText flex items-center justify-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-[#F0B90B] animate-ping"></div>
+          <span>Auto-checking approval every 3s...</span>
+        </div>
+      </div>
+
       <!-- Step 2: Key Generated Success Screen -->
       <div id="checkoutStepSuccess" class="hidden text-center">
         <div class="w-12 h-12 rounded-full bg-apple-green/15 border border-apple-green/40 flex items-center justify-center text-apple-green mx-auto mb-4">
@@ -1327,7 +1359,9 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // 3. Binance Pay Checkout Engine
+    // 3. Binance Pay Checkout Engine with Operator Approval
+    let pollInterval = null;
+
     function openCheckout(tier, price) {
       document.getElementById('selectedTier').value = tier;
       document.getElementById('checkoutPriceTag').textContent = '$' + price.toFixed(2) + ' USDT';
@@ -1336,12 +1370,17 @@
       if (tier === 'COMMUNITY_TRIAL') title = 'Community Trial License (1 Device)';
       document.getElementById('checkoutPlanTitle').textContent = title;
       document.getElementById('checkoutStepForm').classList.remove('hidden');
+      document.getElementById('checkoutStepPending').classList.add('hidden');
       document.getElementById('checkoutStepSuccess').classList.add('hidden');
       document.getElementById('checkoutModal').classList.remove('hidden');
       if (window.lucide) lucide.createIcons();
     }
 
     function closeCheckout() {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
       document.getElementById('checkoutModal').classList.add('hidden');
     }
 
@@ -1365,7 +1404,7 @@
       const btn = document.getElementById('submitOrderBtn');
 
       btn.disabled = true;
-      btn.innerHTML = '<span>Verifying payment &amp; issuing key...</span>';
+      btn.innerHTML = '<span>Submitting payment order to operator...</span>';
 
       try {
         const res = await fetch('/api/license/purchase', {
@@ -1374,14 +1413,46 @@
           body: JSON.stringify({ email, tier, binanceTxId })
         });
         const data = await res.json();
-        if (data.ok && data.license) {
+        if (data.ok && data.pending && data.orderId) {
+          // Transition to Step 1.5 Pending Verification screen
           document.getElementById('checkoutStepForm').classList.add('hidden');
-          document.getElementById('checkoutStepSuccess').classList.remove('hidden');
-          document.getElementById('generatedKeyDisplay').textContent = data.license.key;
-          document.getElementById('telegramActivateLink').href = 'https://t.me/Pas_agent_bot?start=' + data.license.key;
+          document.getElementById('checkoutStepPending').classList.remove('hidden');
+          document.getElementById('checkoutStepSuccess').classList.add('hidden');
+
+          document.getElementById('pendingOrderId').textContent = data.orderId;
+          document.getElementById('pendingEmail').textContent = email;
+          document.getElementById('pendingAmount').textContent = `$${data.amountUsdt || '29.99'} USDT`;
           if (window.lucide) lucide.createIcons();
+
+          // Poll order verification status every 3 seconds
+          if (pollInterval) clearInterval(pollInterval);
+          pollInterval = setInterval(async () => {
+            try {
+              const checkRes = await fetch('/api/license/order-status?orderId=' + encodeURIComponent(data.orderId));
+              const checkData = await checkRes.json();
+              if (checkData.ok) {
+                if (checkData.status === 'APPROVED' && checkData.licenseKey) {
+                  clearInterval(pollInterval);
+                  pollInterval = null;
+                  document.getElementById('checkoutStepPending').classList.add('hidden');
+                  document.getElementById('checkoutStepSuccess').classList.remove('hidden');
+                  document.getElementById('generatedKeyDisplay').textContent = checkData.licenseKey;
+                  document.getElementById('telegramActivateLink').href = 'https://t.me/Pas_agent_bot?start=' + checkData.licenseKey;
+                  if (window.lucide) lucide.createIcons();
+                } else if (checkData.status === 'REJECTED') {
+                  clearInterval(pollInterval);
+                  pollInterval = null;
+                  alert('❌ Payment Verification Failed: No matching deposit was received on Binance Pay ID 756303714. If you have sent the funds, please double-check your transaction ID and re-submit.');
+                  closeCheckout();
+                }
+              }
+            } catch (err) {
+              console.warn('Order polling error:', err.message);
+            }
+          }, 3000);
+
         } else {
-          alert('License error: ' + (data.description || 'Could not issue license.'));
+          alert('Submission error: ' + (data.description || 'Could not submit order.'));
         }
       } catch (err) {
         alert('Network connection error: ' + err.message);
