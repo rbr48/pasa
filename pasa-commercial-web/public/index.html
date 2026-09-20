@@ -826,7 +826,7 @@
             </th>
             <th class="py-4 px-5 font-semibold text-apple-blue bg-blue-50 text-center" style="min-width:130px">
               PASA Sentinel
-              <div class="text-[10px] font-normal mt-0.5 text-apple-grayText">v3.1.7 — Free / ৳3,490 Pro</div>
+              <div class="text-[10px] font-normal mt-0.5 text-apple-grayText">v3.1.8 — Free / ৳3,490 Pro</div>
             </th>
             <th class="py-4 px-5 font-medium text-apple-grayText bg-apple-grayLight text-center" style="min-width:130px">
               Google Find My Device
@@ -1136,9 +1136,9 @@
     <div class="apple-card p-8 flex flex-col md:flex-row items-center justify-between gap-6">
       <div>
         <span class="text-xs font-semibold uppercase text-apple-blue tracking-wider mb-1 block">Official Production Release</span>
-        <h3 class="text-xl font-semibold text-apple-black tracking-tight mb-2">PASA Sentinel for Android v3.1.7</h3>
+        <h3 class="text-xl font-semibold text-apple-black tracking-tight mb-2">PASA Sentinel for Android v3.1.8</h3>
         <div class="flex flex-wrap items-center gap-3 text-xs text-apple-grayText font-mono">
-          <span>Build: <b class="text-apple-black">#23 (v3.1.7)</b></span>
+          <span>Build: <b class="text-apple-black">#24 (v3.1.8)</b></span>
           <span>&bull;</span>
           <span>Size: <b class="text-apple-black">19.0 MB</b></span>
           <span>&bull;</span>
@@ -1148,7 +1148,7 @@
         </div>
         <div class="mt-3 flex items-center gap-2">
           <span class="text-xs text-apple-grayText">SHA-256:</span>
-          <code id="sha256Hash" class="text-[11px] font-mono text-apple-grayText bg-black/[0.04] px-2 py-0.5 rounded border border-black/[0.06] break-all">8b5b0857e63a429a3d813fcc351f55de0a5b6ae724f9d7273726355296e0b2da</code>
+          <code id="sha256Hash" class="text-[11px] font-mono text-apple-grayText bg-black/[0.04] px-2 py-0.5 rounded border border-black/[0.06] break-all">5c578b49442b7e90312544a5ded7198e9d5919a7c455761a00ba8f9e2bfce34b</code>
           <button onclick="copySha256()" class="text-xs text-apple-blue hover:underline font-medium">Copy</button>
         </div>
       </div>
@@ -1262,11 +1262,28 @@
           <div>
             <label class="block text-xs font-medium text-apple-black mb-2">Payment Method</label>
             <div class="grid grid-cols-2 gap-2 mb-3">
-              <button type="button" onclick="selectPayment('bkash')" id="pmBkash" class="payment-method-btn flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
-                <span class="text-base">🟣</span> bKash
+              <button type="button" onclick="selectPayment('bkash')" id="pmBkash" class="payment-method-btn flex items-center justify-center gap-2.5 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-semibold text-apple-black">
+                <svg class="w-5 h-5 flex-shrink-0" viewBox="245 10 226 212" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M327.99 110.75l12.99 58.4 85.01-43.04z" fill="#d12053"/>
+                  <path d="M352.16 23.48L328 110.76l98.01 15.35z" fill="#e2136e"/>
+                  <path d="M248.31 10.7l101.38 12.11-23.97 86.76z" fill="#d12053"/>
+                  <path d="M247.52 27.76h11.29l31.67 40.5z" fill="#9e1638"/>
+                  <path d="M428.69 125.55l-29.46-40.77 47.66-8.53z" fill="#d12053"/>
+                  <path d="M423.77 137.5l3.04-9.07-74.39 37.74z" fill="#e2136e"/>
+                  <path d="M325.91 113.05l15.52 69.77-46.06 37.46z" fill="#9e1638"/>
+                  <path d="M442.25 96.97l27.05-.46-19.55-19.89z" fill="#e2136e"/>
+                </svg>
+                <span>bKash</span>
               </button>
-              <button type="button" onclick="selectPayment('binance')" id="pmBinance" class="payment-method-btn flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-medium text-apple-black">
-                <span class="text-base">🟡</span> Binance Pay
+              <button type="button" onclick="selectPayment('binance')" id="pmBinance" class="payment-method-btn flex items-center justify-center gap-2.5 p-3 rounded-xl border-2 border-transparent bg-black/[0.04] hover:bg-black/[0.07] transition-all text-xs font-semibold text-apple-black">
+                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 126.61 126.61" fill="#f3ba2f" xmlns="http://www.w3.org/2000/svg">
+                  <path d="m38.73 53.2 24.59-24.58 24.6 24.6 14.3-14.31-38.9-38.91-38.9 38.9z"/>
+                  <path d="m0 63.31 14.3-14.31 14.31 14.31-14.31 14.3z"/>
+                  <path d="m38.73 73.41 24.59 24.59 24.6-24.6 14.31 14.29-38.9 38.91-38.91-38.88z"/>
+                  <path d="m98 63.31 14.3-14.31 14.31 14.3-14.31 14.32z"/>
+                  <path d="m77.83 63.3-14.51-14.52-10.73 10.73-1.24 1.23-2.54 2.54 14.51 14.5 14.51-14.47z"/>
+                </svg>
+                <span>Binance Pay</span>
               </button>
             </div>
             <input type="hidden" id="paymentProvider" value="bkash">
@@ -1275,8 +1292,17 @@
           <!-- bKash Panel -->
           <div id="panel-bkash" class="payment-panel active bkash-bg p-4">
             <div class="flex items-center gap-2 mb-3">
-              <span class="text-lg">🟣</span>
-              <span class="text-sm font-semibold bkash-pink">bKash Send Money</span>
+              <svg class="w-5 h-5 flex-shrink-0" viewBox="245 10 226 212" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M327.99 110.75l12.99 58.4 85.01-43.04z" fill="#d12053"/>
+                <path d="M352.16 23.48L328 110.76l98.01 15.35z" fill="#e2136e"/>
+                <path d="M248.31 10.7l101.38 12.11-23.97 86.76z" fill="#d12053"/>
+                <path d="M247.52 27.76h11.29l31.67 40.5z" fill="#9e1638"/>
+                <path d="M428.69 125.55l-29.46-40.77 47.66-8.53z" fill="#d12053"/>
+                <path d="M423.77 137.5l3.04-9.07-74.39 37.74z" fill="#e2136e"/>
+                <path d="M325.91 113.05l15.52 69.77-46.06 37.46z" fill="#9e1638"/>
+                <path d="M442.25 96.97l27.05-.46-19.55-19.89z" fill="#e2136e"/>
+              </svg>
+              <span class="text-sm font-bold bkash-pink">bKash Send Money</span>
             </div>
             <div class="space-y-2 text-xs text-apple-black">
               <div class="flex items-center justify-between">
@@ -1305,19 +1331,38 @@
           <!-- Binance Pay Panel -->
           <div id="panel-binance" class="payment-panel binance-bg p-4">
             <div class="flex items-center gap-2 mb-3">
-              <span class="text-lg">🟡</span>
-              <span class="text-sm font-semibold binance-yellow">Binance Pay</span>
+              <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 126.61 126.61" fill="#f3ba2f" xmlns="http://www.w3.org/2000/svg">
+                <path d="m38.73 53.2 24.59-24.58 24.6 24.6 14.3-14.31-38.9-38.91-38.9 38.9z"/>
+                <path d="m0 63.31 14.3-14.31 14.31 14.31-14.31 14.3z"/>
+                <path d="m38.73 73.41 24.59 24.59 24.6-24.6 14.31 14.29-38.9 38.91-38.91-38.88z"/>
+                <path d="m98 63.31 14.3-14.31 14.31 14.3-14.31 14.32z"/>
+                <path d="m77.83 63.3-14.51-14.52-10.73 10.73-1.24 1.23-2.54 2.54 14.51 14.5 14.51-14.47z"/>
+              </svg>
+              <span class="text-sm font-bold binance-yellow">Binance Pay</span>
             </div>
             <div class="space-y-2 text-xs text-apple-black">
               <div class="flex items-center justify-between">
-                <span class="text-apple-grayText">Pay to Binance ID:</span>
-                <span class="font-mono font-bold text-base binance-yellow">986043605</span>
+                <span class="text-apple-grayText">Pay to Binance Pay ID:</span>
+                <span class="font-mono font-bold text-base binance-yellow tracking-wider">756303714</span>
               </div>
+              <div class="flex items-center justify-between">
+                <span class="text-apple-grayText">Recipient Nickname:</span>
+                <span class="font-mono font-bold text-xs text-apple-black bg-white px-2 py-0.5 rounded border border-yellow-200">RBR48</span>
+              </div>
+
+              <!-- Binance Pay QR Code Card -->
+              <div class="my-3 flex flex-col items-center justify-center p-3 bg-white rounded-xl border border-yellow-200 text-center">
+                <p class="text-[11px] text-apple-grayText mb-2">Scan via Binance App to send instantly</p>
+                <div class="w-44 h-auto rounded-lg overflow-hidden border border-yellow-100 shadow-sm bg-black">
+                  <img src="/binance-pay-qr.jpg" alt="Binance Pay QR Code (RBR48)" class="w-full h-auto object-contain">
+                </div>
+              </div>
+
               <div class="mt-3 p-3 bg-white/80 rounded-lg border border-yellow-100 text-[11px] text-apple-grayText leading-relaxed">
                 <b class="text-apple-black">Instructions:</b><br>
-                1. Open Binance &rarr; <b>Pay</b> &rarr; <b>Send</b><br>
-                2. Search Pay ID: <b class="binance-yellow">986043605</b><br>
-                3. Amount: equivalent of <b id="binanceAmount">৳3,490</b> in USDT/BNB/BTC<br>
+                1. Open Binance &rarr; <b>Pay</b> &rarr; <b>Send</b> (or scan QR above)<br>
+                2. Search Pay ID: <b class="binance-yellow">756303714</b> (Nickname: <b>RBR48</b>)<br>
+                3. Amount: <b id="binanceAmount">৳3,490</b> ($29.99 USDT for Pro, $84.99 USDT for Enterprise)<br>
                 4. Note: your email address<br>
                 5. Copy the <b>Order Number / TxID</b> after payment
               </div>
@@ -1463,12 +1508,19 @@
     function selectPayment(method) {
       document.querySelectorAll('.payment-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.payment-method-btn').forEach(b => {
-        b.classList.remove('border-apple-blue', 'bg-blue-50');
+        b.classList.remove('border-pink-500', 'bg-pink-50', 'border-amber-500', 'bg-amber-50', 'border-apple-blue', 'bg-blue-50');
         b.classList.add('border-transparent');
       });
       document.getElementById('panel-' + method).classList.add('active');
-      document.getElementById('pm' + method.charAt(0).toUpperCase() + method.slice(1)).classList.add('border-apple-blue', 'bg-blue-50');
-      document.getElementById('pm' + method.charAt(0).toUpperCase() + method.slice(1)).classList.remove('border-transparent');
+      const btn = document.getElementById('pm' + method.charAt(0).toUpperCase() + method.slice(1));
+      if (btn) {
+        btn.classList.remove('border-transparent');
+        if (method === 'bkash') {
+          btn.classList.add('border-pink-500', 'bg-pink-50');
+        } else {
+          btn.classList.add('border-amber-500', 'bg-amber-50');
+        }
+      }
       document.getElementById('paymentProvider').value = method;
     }
 
@@ -1480,7 +1532,10 @@
       document.getElementById('checkoutPriceTag').textContent = priceFormatted;
       document.getElementById('checkoutPriceLine').textContent = priceFormatted;
       if (document.getElementById('bkashAmount')) document.getElementById('bkashAmount').textContent = priceFormatted;
-      if (document.getElementById('binanceAmount')) document.getElementById('binanceAmount').textContent = priceFormatted;
+      if (document.getElementById('binanceAmount')) {
+        const usdtAmt = (tier === 'PRO_ENTERPRISE') ? '$84.99 USDT' : '$29.99 USDT';
+        document.getElementById('binanceAmount').textContent = `${priceFormatted} (~${usdtAmt})`;
+      }
 
       let title = 'Pro Lifetime License (3 Devices)';
       if (tier === 'PRO_ENTERPRISE') title = 'Fleet / Enterprise License (10 Devices)';
