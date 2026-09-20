@@ -9,17 +9,9 @@ import javax.inject.Singleton
 /**
  * Enforces license-tier feature gating.
  *
- * Tier hierarchy (lowest → highest):
- *   FREE_TRIAL  → 7-day trial, basic commands only
- *   PRO_30      → Paid monthly, unlocks Pro + Pro-Paid features
- *   PRO_LIFETIME→ Paid lifetime, same as PRO_30
- *   ENTERPRISE  → Highest tier, all features
- *
- * Feature sets:
- *   FREE_COMMANDS     → Always allowed (lock, locate, ring, status, etc.)
- *   PRO_COMMANDS      → Requires active Pro OR FREE_TRIAL (trial gets access)
- *   PRO_PAID_COMMANDS → Requires paid Pro (PRO_30/PRO_LIFETIME/ENTERPRISE) — NOT FREE_TRIAL
- *   ENTERPRISE_COMMANDS → Reserved for future Enterprise-exclusive features
+ * All Pro surveillance and containment commands (including /screenrecord)
+ * are accessible during the 7-day FREE_TRIAL and all paid tiers
+ * (PRO_30, PRO_LIFETIME, PRO_ENTERPRISE, ENTERPRISE).
  */
 @Singleton
 class LicenseManager @Inject constructor(
@@ -28,12 +20,12 @@ class LicenseManager @Inject constructor(
 ) {
     companion object {
         private const val TAG = "PASA_License"
-        private const val RECHECK_INTERVAL_MS = 24 * 60 * 60 * 1000L // 24 hours
+        private const val RECHECK_INTERVAL_MS = 60 * 60 * 1000L // 1 hour
         private const val KEY_LAST_LICENSE_CHECK = "last_license_check_ms"
 
         /**
-         * Commands that require an active Pro license OR are allowed during FREE_TRIAL.
-         * Trial users get access to evaluate these features.
+         * Commands that require an active Pro license or active FREE_TRIAL.
+         * /screenrecord is included here so trial and pro users have full evaluation access.
          */
         private val PRO_COMMANDS = setOf(
             "/video", "/videocap", "/vr",
@@ -44,40 +36,32 @@ class LicenseManager @Inject constructor(
             "/trap", "/traps", "/alarm_trap",
             "/geofence", "/fence", "/safezone",
             "/screenshot", "/screen",
-            "/screen_burst", "/burst"
-        )
-
-        /**
-         * Commands that require a PAID Pro license (PRO_30, PRO_LIFETIME, or ENTERPRISE).
-         * FREE_TRIAL does NOT get access to these — they require an actual purchase.
-         * Screen recording is in this tier: it's a core Pro paid feature, not trial-gated.
-         */
-        private val PRO_PAID_COMMANDS = setOf(
+            "/screen_burst", "/burst",
             "/screenrecord", "/record_screen"
         )
 
         /**
-         * Commands reserved exclusively for Enterprise tier.
-         * Currently empty — extend when Enterprise-exclusive features are added.
+         * Reserved for future Enterprise-only MDM/fleet management capabilities.
          */
         private val ENTERPRISE_COMMANDS = emptySet<String>()
 
-        /** All paid tiers (excludes FREE_TRIAL) */
+        /** All recognized paid tiers */
         private val PAID_TIERS = setOf(
-            "PRO_30", "PRO_LIFETIME", "ENTERPRISE", "ENTERPRISE_LIFETIME"
+            "PRO_30", "PRO_LIFETIME", "PRO_ENTERPRISE", "PRO_ANNUAL", "ENTERPRISE", "ENTERPRISE_LIFETIME"
         )
     }
 
     fun isProCommand(command: String): Boolean = command.lowercase() in PRO_COMMANDS
-    fun isProPaidCommand(command: String): Boolean = command.lowercase() in PRO_PAID_COMMANDS
 
     /**
-     * Returns true if the device has an active Pro license (including FREE_TRIAL).
+     * Returns true if the device has an active Pro license or an active FREE_TRIAL.
      */
     fun isProActive(): Boolean {
-        return when (val tier = preferencesManager.licenseTier) {
-            "PRO_LIFETIME", "PRO_30", "ENTERPRISE", "ENTERPRISE_LIFETIME" -> true
-            "FREE_TRIAL" -> true  // Trial gets access to PRO_COMMANDS (not PRO_PAID_COMMANDS)
+        val tier = preferencesManager.licenseTier.uppercase()
+        return when {
+            tier in PAID_TIERS -> true
+            tier == "FREE_TRIAL" -> true // Trial gets access to all pro features including screen recording
+            tier.startsWith("PRO") || tier.startsWith("ENTERPRISE") -> true
             else -> {
                 Log.d(TAG, "No active pro license (tier=$tier)")
                 false
@@ -86,11 +70,11 @@ class LicenseManager @Inject constructor(
     }
 
     /**
-     * Returns true if the device has a PAID license (not just a free trial).
-     * Used to gate PRO_PAID_COMMANDS.
+     * Returns true if the device has a paid license.
      */
     fun isPaidLicense(): Boolean {
-        return preferencesManager.licenseTier in PAID_TIERS
+        val tier = preferencesManager.licenseTier.uppercase()
+        return tier in PAID_TIERS || tier.startsWith("PRO_") || tier == "ENTERPRISE"
     }
 
     /**
@@ -103,57 +87,35 @@ class LicenseManager @Inject constructor(
 
         // ── Enterprise-exclusive commands ────────────────────────────────────
         if (cmd in ENTERPRISE_COMMANDS) {
-            if (tier == "ENTERPRISE" || tier == "ENTERPRISE_LIFETIME") return null
+            val upperTier = tier.uppercase()
+            if (upperTier in setOf("ENTERPRISE", "ENTERPRISE_LIFETIME", "PRO_ENTERPRISE")) return null
             return buildRejectionMessage(
                 command = command,
                 tier = tier,
                 requiredTier = "Enterprise",
-                features = listOf("Enterprise-exclusive capabilities")
+                features = listOf("Enterprise fleet management")
             )
         }
 
-        // ── Pro-Paid commands (paid license required, FREE_TRIAL blocked) ────
-        if (cmd in PRO_PAID_COMMANDS) {
-            if (isPaidLicense()) return null
-            return if (tier == "FREE_TRIAL") {
-                "🔒 <b>Paid License Required</b>\n" +
-                "━━━━━━━━━━━━━━━━━━━━\n" +
-                "The command <code>$command</code> requires a paid PASA Pro license.\n\n" +
-                "Your current tier: <b>FREE_TRIAL</b> (7-day evaluation)\n\n" +
-                "Screen recording is available on <b>Pro</b> and above.\n\n" +
-                "💎 <b>Upgrade to Pro to unlock:</b>\n" +
-                "• Screen recording\n" +
-                "• All surveillance features\n" +
-                "• Priority support\n\n" +
-                "Visit <b>pasa.izhaanintellect.fun</b> to upgrade."
-            } else {
-                buildRejectionMessage(
-                    command = command,
-                    tier = tier,
-                    requiredTier = "Pro",
-                    features = listOf("Screen recording", "All Pro features")
-                )
-            }
-        }
-
-        // ── Pro commands (FREE_TRIAL allowed) ────────────────────────────────
-        if (cmd in PRO_COMMANDS) {
+        // ── Pro & Trial commands (screenrecord, video, screenshot, etc.) ─────
+        if (isProCommand(command)) {
             if (isProActive()) return null
+
             return buildRejectionMessage(
                 command = command,
                 tier = tier,
                 requiredTier = "Pro",
                 features = listOf(
-                    "Video & audio recording",
-                    "Screenshot & screen burst",
-                    "Geofencing & trap system",
-                    "Fake shutdown deception",
-                    "Duress PIN & secure shred"
+                    "Screen recording & screenshot capture",
+                    "Covert video & ambient audio recording",
+                    "Geofencing & automated trap system",
+                    "Fake shutdown deception & blackout mode",
+                    "Duress PIN distress & cryptographic shredding"
                 )
             )
         }
 
-        // ── Free commands — always allowed ────────────────────────────────────
+        // ── Standard commands — always allowed ─────────────────────────────────
         return null
     }
 
@@ -175,22 +137,30 @@ class LicenseManager @Inject constructor(
 
     /**
      * Refreshes the license status from the VPS backend if the last check
-     * was more than 24 hours ago.
+     * was more than 1 hour ago or if explicitly forced.
      */
-    suspend fun refreshIfStale() {
+    suspend fun refreshIfStale(force: Boolean = false) {
         try {
             val lastCheck = preferencesManager.run {
                 val prefs = javaClass.getDeclaredField("prefs").apply { isAccessible = true }.get(this) as android.content.SharedPreferences
                 prefs.getLong(KEY_LAST_LICENSE_CHECK, 0L)
             }
             val now = System.currentTimeMillis()
-            if (now - lastCheck < RECHECK_INTERVAL_MS) return
+            if (!force && (now - lastCheck < RECHECK_INTERVAL_MS) && preferencesManager.licenseTier != "FREE_TRIAL") {
+                return
+            }
 
             val response = pasaBackendApi.checkLicense(preferencesManager.deviceId)
             if (response.ok) {
-                preferencesManager.licenseTier = response.tier
+                if (!response.tier.isNullOrBlank()) {
+                    preferencesManager.licenseTier = response.tier
+                }
                 if (!response.licenseKey.isNullOrBlank()) {
                     preferencesManager.licenseKey = response.licenseKey
+                }
+                preferencesManager.run {
+                    val prefs = javaClass.getDeclaredField("prefs").apply { isAccessible = true }.get(this) as android.content.SharedPreferences
+                    prefs.edit().putLong(KEY_LAST_LICENSE_CHECK, now).apply()
                 }
                 Log.i(TAG, "License refreshed: tier=${response.tier}, daysLeft=${response.daysLeft}")
             }

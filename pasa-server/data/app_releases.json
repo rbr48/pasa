@@ -1,5 +1,15 @@
 [
   {
+    "versionCode": 13,
+    "versionName": "3.0.7",
+    "releaseDate": "2026-09-20",
+    "fileName": "pasa-v3.0.7.apk",
+    "sha256": "5098854e23ba29ce2e79e05746b4f0efceaa91117e0b0ba7fda4a1c2380c0e60",
+    "size": 18983929,
+    "mandatory": false,
+    "releaseNotes": "v3.0.7: Unlocked /screenrecord for 7-day FREE_TRIAL and all Pro/Enterprise tiers. Added PRO_ENTERPRISE licensing recognition and automatic live license synchronization."
+  },
+  {
     "versionCode": 12,
     "versionName": "3.0.6",
     "releaseDate": "2026-09-20",

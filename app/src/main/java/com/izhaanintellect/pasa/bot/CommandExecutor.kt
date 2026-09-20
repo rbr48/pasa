@@ -83,7 +83,12 @@ class CommandExecutor @Inject constructor(
         }
 
         // 2. License Tier Feature Gating
-        val licenseRejection = licenseManager.checkAccess(parsed.command)
+        var licenseRejection = licenseManager.checkAccess(parsed.command)
+        if (licenseRejection != null) {
+            // Attempt an immediate refresh from backend in case the device was recently licensed
+            licenseManager.refreshIfStale(force = true)
+            licenseRejection = licenseManager.checkAccess(parsed.command)
+        }
         if (licenseRejection != null) {
             Log.w(TAG, "Command '${parsed.command}' blocked by license gating")
             sendText(parsed.chatId, licenseRejection)
@@ -197,7 +202,11 @@ class CommandExecutor @Inject constructor(
             return errorMsg
         }
 
-        val licenseRejection = licenseManager.checkAccess(parsed.command)
+        var licenseRejection = licenseManager.checkAccess(parsed.command)
+        if (licenseRejection != null) {
+            licenseManager.refreshIfStale(force = true)
+            licenseRejection = licenseManager.checkAccess(parsed.command)
+        }
         if (licenseRejection != null) {
             Log.w(TAG, "Remote command '${parsed.command}' blocked by license gating")
             sendResponseToBackend(commandId, licenseRejection, null, null, null, null)
