@@ -1,5 +1,6 @@
 package com.izhaanintellect.pasa.update
 
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -7,7 +8,10 @@ import android.content.pm.PackageInstaller
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.core.content.FileProvider
+import com.izhaanintellect.pasa.PasaApp
+import com.izhaanintellect.pasa.R
 import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.network.PasaBackendApi
@@ -115,10 +119,12 @@ class OtaUpdateManager @Inject constructor(
             otaDir.listFiles()?.forEach { it.delete() }
 
             val apkFile = File(otaDir, "pasa-update.apk")
-            val fullUrl = if (downloadUrl.startsWith("http")) {
+            val fullUrl = if (downloadUrl.startsWith("http://", ignoreCase = true) || downloadUrl.startsWith("https://", ignoreCase = true)) {
                 downloadUrl
             } else {
-                "${preferencesManager.serverUrl}$downloadUrl"
+                val base = preferencesManager.serverUrl.trimEnd('/')
+                val path = downloadUrl.trimStart('/')
+                "$base/$path"
             }
 
             Log.i(TAG, "Downloading APK from: $fullUrl")
@@ -184,8 +190,38 @@ class OtaUpdateManager @Inject constructor(
             setDataAndType(apkUri, "application/vnd.android.package-archive")
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
-        context.startActivity(installIntent)
-        Log.i(TAG, "Prompted user for APK installation")
+
+        try {
+            context.startActivity(installIntent)
+            Log.i(TAG, "Prompted user for APK installation directly")
+        } catch (e: Exception) {
+            Log.w(TAG, "Direct activity launch blocked or failed: ${e.message}")
+        }
+
+        // Always also post a high-priority notification with PendingIntent
+        // Ensures user can tap to install even if Android 14-16 Background Activity Launch (BAL)
+        // restrictions intercepted the direct activity launch when screen was locked/off
+        try {
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                2026,
+                installIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val nm = context.getSystemService(NotificationManager::class.java)
+            val notif = NotificationCompat.Builder(context, PasaApp.ALERT_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("📦 PASA Update Ready")
+                .setContentText("Tap here to complete installation of PASA update")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .build()
+            nm?.notify(2026, notif)
+            Log.i(TAG, "Posted high-priority update notification")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to post update notification: ${e.message}")
+        }
     }
 
     private fun silentInstall(apkFile: File) {

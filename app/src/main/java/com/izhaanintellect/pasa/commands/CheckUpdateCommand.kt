@@ -83,7 +83,20 @@ class CheckUpdateCommand @Inject constructor(
             )
         }
 
-        val installResult = otaUpdateManager.downloadAndInstall(update.downloadUrl!!, update.sha256!!)
+        var installResult = otaUpdateManager.downloadAndInstall(update.downloadUrl!!, update.sha256!!)
+
+        // If download failed (e.g. 404 or stale link), invalidate cache and retry ONCE with fresh server metadata
+        if (!installResult.success) {
+            Log.w(TAG, "Install failed with cached URL (${installResult.message}), re-querying latest release...")
+            cachedUpdate = null
+            val freshCheck = otaUpdateManager.checkForUpdate()
+            if (freshCheck.updateAvailable && !freshCheck.downloadUrl.isNullOrBlank() && !freshCheck.sha256.isNullOrBlank()) {
+                update = freshCheck
+                cachedUpdate = freshCheck
+                installResult = otaUpdateManager.downloadAndInstall(freshCheck.downloadUrl, freshCheck.sha256)
+            }
+        }
+
         return if (installResult.success) {
             cachedUpdate = null
             CommandResult(
@@ -94,6 +107,7 @@ class CheckUpdateCommand @Inject constructor(
                         "📲 Package installer triggered on device."
             )
         } else {
+            cachedUpdate = null
             CommandResult(
                 success = false,
                 message = "❌ <b>Installation Failed</b>\n" +
