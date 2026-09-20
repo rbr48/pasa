@@ -2152,6 +2152,18 @@ app.get('/api/pair/status/:code', (req, res) => {
 // --- Legal Terms of Service & EULA Endpoints ---
 
 app.get('/terms', (req, res) => {
+  const possibleHtmlPaths = [
+    path.join(__dirname, 'terms.html'),
+    path.join(__dirname, '..', 'pasa-commercial-web', 'public', 'terms.html'),
+    '/var/www/pasa-server/terms.html',
+    '/var/www/pasa-commercial-web/public/terms.html'
+  ];
+  for (const p of possibleHtmlPaths) {
+    if (fs.existsSync(p)) {
+      return res.sendFile(path.resolve(p));
+    }
+  }
+
   const possiblePaths = [
     path.join(__dirname, '..', 'TERMS.md'),
     path.join(__dirname, 'TERMS.md'),
@@ -2169,32 +2181,7 @@ app.get('/terms', (req, res) => {
   }
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terms of Service & EULA — PASA Sentinel</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { background-color: #0A0E17; color: #E2E8F0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    h1 { font-size: 2rem; font-weight: 800; color: #38BDF8; margin-top: 1.5rem; margin-bottom: 1rem; }
-    h2 { font-size: 1.4rem; font-weight: 700; color: #F8FAFC; margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid #1E293B; padding-bottom: 0.5rem; }
-    h3 { font-size: 1.1rem; font-weight: 600; color: #94A3B8; margin-top: 1.25rem; margin-bottom: 0.5rem; }
-    p, li { color: #CBD5E1; line-height: 1.7; margin-bottom: 0.75rem; font-size: 0.95rem; }
-    ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
-    code { background-color: #1E293B; color: #38BDF8; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.85em; }
-    hr { border-color: #1E293B; margin: 2rem 0; }
-  </style>
-</head>
-<body class="p-6 md:p-12 max-w-4xl mx-auto">
-  <div class="mb-8 flex items-center justify-between border-b border-slate-800 pb-4">
-    <a href="/" class="text-cyan-400 font-bold text-lg hover:underline">← Back to PASA Sentinel</a>
-    <span class="text-xs text-slate-500">Legal Compliance &amp; EULA</span>
-  </div>
-  <pre style="white-space: pre-wrap; font-family: inherit;">${mdContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
-</body>
-</html>`);
+  res.send(`<!DOCTYPE html><html><body style="background:#000;color:#fff;font-family:sans-serif;padding:40px;"><pre>${mdContent}</pre></body></html>`);
 });
 
 app.get('/api/terms', (req, res) => {
