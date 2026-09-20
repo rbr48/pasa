@@ -10,9 +10,7 @@ This directory hosts verified release binaries of **PASA Sentinel (Physical Anti
 |---|---|---|---|---|
 | **`PASA-Sentinel-v3.0.9.apk`** | `v3.0.9` (Latest Stable) | Build 15 | 18.11 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.9.apk) |
 | **`pasa-latest.apk`** | Rolling Latest | Build 15 | 18.11 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
-| **`PASA-Sentinel-v3.0.8.apk`** | `v3.0.8` (Archive) | Build 14 | 18.10 MB | [Download v3.0.8](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.8.apk) |
-| **`PASA-Sentinel-v3.0.7.apk`** | `v3.0.7` (Archive) | Build 13 | 18.10 MB | [Download v3.0.7](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.7.apk) |
-| **`PASA-Sentinel-v3.0.6.apk`** | `v3.0.6` (Archive) | Build 12 | 18.10 MB | [Download v3.0.6](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.6.apk) |
+| **Archive Releases** | `v3.0.0` – `v3.0.8` | Legacy | Various | [GitHub Releases](https://github.com/rbr48/pasa/releases) |
 
 Alternative Mirror (Fast CDN): [https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
 

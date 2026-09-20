@@ -19,6 +19,29 @@ const {
   EvidenceRepo
 } = require('./lib/db');
 
+// Load local .env if present (zero-dependency)
+const envFilePath = path.join(__dirname, '.env');
+if (fs.existsSync(envFilePath)) {
+  try {
+    const envLines = fs.readFileSync(envFilePath, 'utf8').split('\n');
+    for (const line of envLines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const idx = trimmed.indexOf('=');
+      if (idx !== -1) {
+        const key = trimmed.slice(0, idx).trim();
+        let val = trimmed.slice(idx + 1).trim();
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          val = val.slice(1, -1);
+        }
+        if (!process.env[key]) process.env[key] = val;
+      }
+    }
+  } catch (e) {
+    console.warn('[ENV] Warning loading .env file:', e.message);
+  }
+}
+
 const app = express();
 const PORT = process.env.PORT || 8160;
 const commandEmitter = new EventEmitter();
@@ -27,7 +50,7 @@ commandEmitter.setMaxListeners(100);
 // Default bot token (optional fallback via environment variable only - never hardcoded in source)
 const DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || '';
 const ADMIN_BOT_TOKEN = process.env.ADMIN_BOT_TOKEN || process.env.BOT_TOKEN || '';
-const ADMIN_CHAT_ID = String(process.env.ADMIN_CHAT_ID || '5497803807');
+const ADMIN_CHAT_ID = String(process.env.ADMIN_CHAT_ID || '');
 const BINANCE_PAY_ID = process.env.BINANCE_PAY_ID || '756303714';
 const BINANCE_NICKNAME = process.env.BINANCE_NICKNAME || 'RBR48';
 
