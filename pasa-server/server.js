@@ -545,7 +545,23 @@ async function callTelegram(token, method, body = null, isMultipart = false, for
 
     const contentType = res.headers.get('content-type') || '';
     if (contentType.includes('application/json')) {
-      return await res.json();
+      const data = await res.json();
+      if (!data.ok) {
+        console.error(`[Telegram API] Method ${method} failed:`, data.description);
+        // Resilient fallback: If message fails due to entity parsing error, automatically retry without HTML parse_mode
+        if (body && body.parse_mode === 'HTML' && (data.description || '').includes("can't parse entities")) {
+          console.warn(`[Telegram API] Retrying ${method} without HTML parse_mode due to entity error`);
+          const plainBody = { ...body };
+          delete plainBody.parse_mode;
+          const retryRes = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(plainBody)
+          });
+          return await retryRes.json();
+        }
+      }
+      return data;
     }
     const text = await res.text();
     return { ok: false, description: `HTTP ${res.status}: ${text.substring(0, 200)}` };
@@ -965,7 +981,7 @@ Tap a button below to dispatch cryptographically signed commands or access foren
 `.trim();
 }
 
-async function dispatchCommandToDevice(token, chatId, command, args = []) {
+async function dispatchCommandToDevice(token, chatId, command, args = [], notifyTelegram = true) {
   const matchingDeviceIds = Object.keys(devices)
     .filter(id => {
       const d = devices[id];
@@ -974,11 +990,13 @@ async function dispatchCommandToDevice(token, chatId, command, args = []) {
     .sort((a, b) => (devices[b].lastSeen || 0) - (devices[a].lastSeen || 0));
 
   if (matchingDeviceIds.length === 0) {
-    await callTelegram(token, 'sendMessage', {
-      chat_id: chatId,
-      text: '⚠️ No PASA device registered yet. Please complete setup on your phone.',
-      parse_mode: 'HTML'
-    });
+    if (notifyTelegram) {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '⚠️ No PASA device registered yet. Please complete setup on your phone.',
+        parse_mode: 'HTML'
+      });
+    }
     return;
   }
 
@@ -1021,11 +1039,13 @@ async function dispatchCommandToDevice(token, chatId, command, args = []) {
   const lastSeenSec = Math.floor((Date.now() - (activeDevice.lastSeen || 0)) / 1000);
   const statusNote = lastSeenSec < 60 ? `Online (${lastSeenSec}s ago)` : `Last active ${lastSeenSec}s ago`;
 
-  await callTelegram(token, 'sendMessage', {
-    chat_id: chatId,
-    text: `⏳ Command <code>${formattedCmd}</code> signed & dispatched to <b>${activeDevice.deviceName || targetDeviceId}</b> (${statusNote}).\n\nAwaiting telemetry...`,
-    parse_mode: 'HTML'
-  });
+  if (notifyTelegram) {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: `⏳ Command <code>${formattedCmd}</code> signed & dispatched to <b>${activeDevice.deviceName || targetDeviceId}</b> (${statusNote}).\n\nAwaiting telemetry...`,
+      parse_mode: 'HTML'
+    });
+  }
 
   // Safety watchdog: alert Telegram only if the command is STILL pending after its allotted time.
   // Media commands (/record, /snap, /video) are given 300s; everything else 120s.
@@ -1033,6 +1053,7 @@ async function dispatchCommandToDevice(token, chatId, command, args = []) {
   const watchdogMs = MEDIA_COMMANDS.includes(command) ? 300000 : 120000;
   setTimeout(async () => {
     try {
+      if (!notifyTelegram) return;
       // If the command was already completed (removeCommand was called), skip alert entirely.
       if (completedCommandIds.has(cmdId)) {
         completedCommandIds.delete(cmdId); // GC: remove after watchdog window passes
@@ -1067,6 +1088,89 @@ async function dispatchCommandToDevice(token, chatId, command, args = []) {
       console.error('[Command Watchdog] Error in timeout handler:', watchdogErr.message);
     }
   }, watchdogMs);
+}
+
+// Dedicated instant OTA release handler for Telegram
+async function handleCheckUpdateCommand(token, chatId, args = []) {
+  let latest = ReleaseRepo.getLatest();
+  if (!latest) {
+    const releases = loadJson(RELEASES_FILE, []);
+    if (Array.isArray(releases) && releases.length > 0) {
+      latest = releases[0];
+    }
+  }
+
+  if (!latest) {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: '🔄 <b>PASA Sentinel OTA Center</b>\n━━━━━━━━━━━━━━━━━━━━\n⚠️ <i>No published app releases found on server.</i>',
+      parse_mode: 'HTML',
+      reply_markup: DASHBOARD_KEYBOARD
+    });
+    return;
+  }
+
+  const activeDev = getActiveDeviceForChat(token, chatId);
+  const sizeMb = latest.fileSize ? (latest.fileSize / (1024 * 1024)).toFixed(1) + ' MB' : '18.1 MB';
+  const pubDate = latest.publishedAt ? new Date(latest.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Recent';
+  const cleanChangelog = (latest.changelog || 'Performance & security improvements.')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/&amp;lt;/g, '&lt;')
+    .replace(/&amp;gt;/g, '&gt;')
+    .replace(/&amp;amp;/g, '&amp;');
+
+  let deviceStatusStr = '';
+  if (activeDev) {
+    const lastSeenSec = Math.floor((Date.now() - (activeDev.lastSeen || 0)) / 1000);
+    const statusNote = lastSeenSec < 60 ? `Online (${lastSeenSec}s ago)` : `Last active ${lastSeenSec}s ago`;
+    deviceStatusStr = `📱 <b>Linked Device:</b> ${activeDev.deviceName || activeDev.deviceId} (<code>${statusNote}</code>)\n`;
+  }
+
+  const updateCardText =
+    `🔄 <b>PASA Sentinel OTA Release Center</b>\n` +
+    `━━━━━━━━━━━━━━━━━━━━\n` +
+    `📦 <b>Latest Sovereign Build:</b> v${latest.versionName} (Build ${latest.versionCode})\n` +
+    `📅 <b>Release Date:</b> ${pubDate}\n` +
+    `💾 <b>Package Size:</b> ${sizeMb}\n` +
+    `🔒 <b>SHA-256:</b> <code>${(latest.sha256 || '').substring(0, 16)}...</code>\n` +
+    deviceStatusStr +
+    `\n📋 <b>What's New:</b>\n<i>${cleanChangelog}</i>\n\n` +
+    `<i>Tap below to download APK directly or push remote update to your device:</i>`;
+
+  const downloadUrl = latest.downloadUrl || `https://pasa.izhaanintellect.fun/releases/${latest.filename || 'pasa-sentinel-latest.apk'}`;
+
+  const keyboardButtons = [
+    [
+      { text: `⬇️ Download APK (v${latest.versionName})`, url: downloadUrl }
+    ]
+  ];
+
+  if (activeDev) {
+    keyboardButtons.push([
+      { text: '⚡ Install Update on Phone', callback_data: 'dev_cmd:update_confirm' }
+    ]);
+  }
+
+  keyboardButtons.push([
+    { text: '🔄 Refresh', callback_data: 'cmd:check_update' },
+    { text: '🔙 Dashboard', callback_data: 'menu:main' }
+  ]);
+
+  await callTelegram(token, 'sendMessage', {
+    chat_id: chatId,
+    text: updateCardText,
+    parse_mode: 'HTML',
+    reply_markup: {
+      inline_keyboard: keyboardButtons
+    }
+  });
+
+  // Also query the active device in the background silently
+  if (activeDev) {
+    await dispatchCommandToDevice(token, chatId, '/check_update', [], false);
+  }
 }
 
 // Telegram Bot long-poller loop
@@ -1402,6 +1506,16 @@ async function handleTelegramUpdate(token, update) {
         parse_mode: 'HTML',
         reply_markup: DASHBOARD_KEYBOARD
       });
+      return;
+    }
+
+    if (data === 'cmd:check_update') {
+      await handleCheckUpdateCommand(token, chatId);
+      return;
+    }
+
+    if (data === 'dev_cmd:update_confirm') {
+      await dispatchCommandToDevice(token, chatId, '/update_confirm', []);
       return;
     }
 
@@ -1966,16 +2080,36 @@ async function handleTelegramUpdate(token, update) {
       return;
     }
 
+    if (command === '/check_update' || command === '/update') {
+      await handleCheckUpdateCommand(token, chatId, args);
+      return;
+    }
+
+    if (command === '/update_confirm') {
+      await dispatchCommandToDevice(token, chatId, '/update_confirm', args);
+      return;
+    }
+
     // Dispatch standard slash command
     await dispatchCommandToDevice(token, chatId, command, args);
     return;
   }
 
   // If command was written without leading slash (e.g. "locate", "info", "network")
+  if (command === 'check_update' || command === 'update') {
+    await handleCheckUpdateCommand(token, chatId, args);
+    return;
+  }
+
+  if (command === 'update_confirm') {
+    await dispatchCommandToDevice(token, chatId, '/update_confirm', args);
+    return;
+  }
+
   const directCmds = [
     'status', 'locate', 'info', 'network', 'clipboard', 'apps', 'device_owner',
-    'check_update', 'wipe', 'history', 'contacts', 'call_log', 'sms_log',
-    'update_confirm', 'smssetup', 'geofence', 'screenshot', 'screen_burst',
+    'wipe', 'history', 'contacts', 'call_log', 'sms_log',
+    'smssetup', 'geofence', 'screenshot', 'screen_burst',
     'screenrecord', 'burst', 'screen', 'selftest', 'health', 'diagnostics',
     'lock_message', 'lock_pin', 'set_os_pin', 'reset_pin', 'app_uninstall', 'wipe_confirm', 'track_stop',
     'ring_stop', 'shred', 'trap', 'duress_pin', 'stealth', 'hide', 'show'
@@ -2422,11 +2556,19 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
 
     // 1. Deliver text message (only if no media, so media caption carries the message cleanly)
     if (message && chatId && !hasMedia) {
-      await callTelegram(token, 'sendMessage', {
+      const sendOptions = {
         chat_id: chatId,
         text: message,
         parse_mode: 'HTML'
-      });
+      };
+      if (message.includes('/update_confirm')) {
+        sendOptions.reply_markup = {
+          inline_keyboard: [
+            [{ text: '⚡ Install Update Now', callback_data: 'dev_cmd:update_confirm' }]
+          ]
+        };
+      }
+      await callTelegram(token, 'sendMessage', sendOptions);
     }
 
     // 2. Deliver photo if captured (with quick action buttons)

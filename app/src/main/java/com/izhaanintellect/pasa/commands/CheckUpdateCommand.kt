@@ -48,7 +48,14 @@ class CheckUpdateCommand @Inject constructor(
         } ?: "unknown"
 
         val changelogSection = if (!checkResult.changelog.isNullOrBlank()) {
-            "\n📋 <b>Changelog:</b> ${checkResult.changelog}"
+            val safeChangelog = checkResult.changelog
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("&amp;lt;", "&lt;")
+                .replace("&amp;gt;", "&gt;")
+                .replace("&amp;amp;", "&amp;")
+            "\n📋 <b>Changelog:</b> $safeChangelog"
         } else ""
 
         return CommandResult(
