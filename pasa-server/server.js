@@ -1890,17 +1890,22 @@ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
 
     const apiKey = crypto.randomBytes(32).toString('hex');
 
+    const existingDev = devices[deviceId] || {};
     devices[deviceId] = {
+      ...existingDev,
       deviceId,
-      deviceName: deviceName || 'Android Device',
+      deviceName: deviceName || existingDev.deviceName || 'Android Device',
       botToken: botToken.trim(),
-      ownerChatId: ownerChatId || '',
-      email: email || '',
+      ownerChatId: ownerChatId || existingDev.ownerChatId || '',
+      email: email || existingDev.email || '',
       apiKey: apiKey,
-      publicKeyJwk: publicKeyJwk || null,
-      attestationChain: attestationChain || [],
-      lastSequence: devices[deviceId]?.lastSequence || 0,
-      registeredAt: Date.now(),
+      publicKeyJwk: publicKeyJwk || existingDev.publicKeyJwk || null,
+      attestationChain: attestationChain || existingDev.attestationChain || [],
+      lastSequence: existingDev.lastSequence || 0,
+      licenseKey: existingDev.licenseKey,
+      licenseTier: existingDev.licenseTier,
+      licenseExpiresAt: existingDev.licenseExpiresAt,
+      registeredAt: existingDev.registeredAt || Date.now(),
       lastSeen: Date.now()
     };
     persistDevice(deviceId);

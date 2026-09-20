@@ -264,14 +264,14 @@ The signed APK will be output to:
 
 Download the official signed release binary directly from GitHub or our high-speed CDN:
 
-* **Direct GitHub Download:** [📦 PASA-Sentinel-v3.0.3.apk](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.3.apk)
+* **Direct GitHub Download:** [📦 PASA-Sentinel-v3.0.4.apk](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.4.apk)
 * **Direct Rolling Latest:** [📦 pasa-latest.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk)
 * **High-Speed CDN Mirror:** [https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
-* **Official Version:** `v3.0.3` (Build Code `9`)
-* **File Size:** `18,967,424 bytes` (18.09 MB)
+* **Official Version:** `v3.0.4` (Build Code `10`)
+* **File Size:** `18,967,500 bytes` (18.09 MB)
 * **SHA-256 Checksum:**
   ```text
-  b74f77b867ca498e1de5ac6e0f8fd9d528548111ddaf85202bc8217ebe519d39
+  2bb570ed8b1e82da9e2bcab602cca9ee03f0c4f1eacca493933f94238d955003
   ```
 
 ### Verify on Windows PowerShell:

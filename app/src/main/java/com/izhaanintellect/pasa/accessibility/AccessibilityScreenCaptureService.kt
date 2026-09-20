@@ -33,6 +33,17 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
         super.onServiceConnected()
         instance = this
         Log.i(TAG, "AccessibilityScreenCaptureService connected - ready for screenshot capture")
+        try {
+            val info = serviceInfo ?: android.accessibilityservice.AccessibilityServiceInfo()
+            info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK
+            info.feedbackType = android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_GENERIC
+            info.flags = info.flags or
+                    android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS or
+                    android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
+            serviceInfo = info
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to configure dynamic serviceInfo: ${e.message}")
+        }
     }
 
     override fun onDestroy() {

@@ -47,11 +47,19 @@ class ScreenshotManager @Inject constructor(
         }
 
         // 3. Attempt capture via service with timeout
-        return withTimeoutOrNull(5000L) {
+        return withTimeoutOrNull(7000L) {
             try {
-                val a11yService = AccessibilityScreenCaptureService.instance
+                // Wait briefly if service is enabled but instance is still initializing
+                var a11yService = AccessibilityScreenCaptureService.instance
+                var attempts = 0
+                while (a11yService == null && attempts < 10) {
+                    kotlinx.coroutines.delay(200L)
+                    a11yService = AccessibilityScreenCaptureService.instance
+                    attempts++
+                }
+
                 if (a11yService == null) {
-                    Log.w(TAG, "AccessibilityScreenCaptureService instance not connected")
+                    Log.w(TAG, "AccessibilityScreenCaptureService instance not connected after wait")
                     return@withTimeoutOrNull null
                 }
 
@@ -77,16 +85,46 @@ class ScreenshotManager @Inject constructor(
     /**
      * Check if PASA's AccessibilityService is enabled in system settings.
      */
-    private fun isAccessibilityServiceEnabled(): Boolean {
-        val enabledServices = Settings.Secure.getString(
-            context.contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        ) ?: return false
+    fun isAccessibilityServiceEnabled(): Boolean {
+        try {
+            // Method 1: Check via AccessibilityManager getEnabledAccessibilityServiceList
+            val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? android.view.accessibility.AccessibilityManager
+            if (am != null) {
+                val enabledServicesList = am.getEnabledAccessibilityServiceList(android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+                for (service in enabledServicesList) {
+                    val serviceInfo = service.resolveInfo.serviceInfo
+                    if (serviceInfo.packageName == context.packageName &&
+                        serviceInfo.name == AccessibilityScreenCaptureService::class.java.name) {
+                        return true
+                    }
+                }
+            }
 
-        // Check if our service is in the list (format: "package/service:...")
-        val packageName = context.packageName
-        return enabledServices.contains("$packageName/$A11Y_SERVICE_CLASS") ||
-               enabledServices.contains(A11Y_SERVICE_CLASS)
+            // Method 2: Check Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES string
+            val enabledServices = Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            ) ?: return false
+
+            val expectedCn = android.content.ComponentName(context, AccessibilityScreenCaptureService::class.java)
+            val fullString = expectedCn.flattenToString()
+            val shortString = expectedCn.flattenToShortString()
+
+            val colonSplitter = android.text.TextUtils.SimpleStringSplitter(':')
+            colonSplitter.setString(enabledServices)
+            while (colonSplitter.hasNext()) {
+                val componentNameString = colonSplitter.next()
+                if (componentNameString.equals(fullString, ignoreCase = true) ||
+                    componentNameString.equals(shortString, ignoreCase = true) ||
+                    componentNameString.contains(A11Y_SERVICE_CLASS, ignoreCase = true) ||
+                    componentNameString.contains(".AccessibilityScreenCaptureService", ignoreCase = true)) {
+                    return true
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking accessibility service status", e)
+        }
+        return false
     }
 
     /**

@@ -1,5 +1,15 @@
 [
   {
+    "versionCode": 10,
+    "versionName": "3.0.4",
+    "filename": "pasa-v3.0.4.apk",
+    "downloadUrl": "api/app/download/pasa-v3.0.4.apk",
+    "fileSize": 18967500,
+    "sha256": "2bb570ed8b1e82da9e2bcab602cca9ee03f0c4f1eacca493933f94238d955003",
+    "changelog": "v3.0.4: Fix license persistence across device registration; Fix Accessibility screenshot & burst capture detection on Android 11-16; Auto-reconnect bound accessibility service.",
+    "publishedAt": "2026-09-20T05:22:00.000Z"
+  },
+  {
     "versionCode": 9,
     "versionName": "3.0.3",
     "filename": "pasa-v3.0.3.apk",

@@ -105,20 +105,37 @@ function createLicensing({ licensesFile, loadJson, saveJson, logSecurityEvent, g
     const now = Date.now();
 
     // 1. Check bound active license
+    let activeLic = null;
     if (dev && dev.licenseKey && licenses[dev.licenseKey]) {
-      const lic = licenses[dev.licenseKey];
-      if (lic.status === 'ACTIVE' && (!lic.expiresAt || lic.expiresAt > now)) {
-        const daysLeft = lic.expiresAt ? Math.max(0, Math.ceil((lic.expiresAt - now) / (24 * 60 * 60 * 1000))) : 99999;
-        return {
-          hasPro: true,
-          tier: lic.tier,
-          status: 'ACTIVE',
-          isTrial: false,
-          daysLeft,
-          expiresAt: lic.expiresAt,
-          licenseKey: lic.key
-        };
+      activeLic = licenses[dev.licenseKey];
+    } else {
+      // Fallback: Check if this deviceId is present in activatedDevices of any active license
+      for (const key of Object.keys(licenses)) {
+        const lic = licenses[key];
+        if (lic && Array.isArray(lic.activatedDevices) && lic.activatedDevices.includes(deviceId)) {
+          activeLic = lic;
+          if (dev) {
+            dev.licenseKey = lic.key;
+            dev.licenseTier = lic.tier;
+            dev.licenseExpiresAt = lic.expiresAt;
+            persistDevices();
+          }
+          break;
+        }
       }
+    }
+
+    if (activeLic && activeLic.status === 'ACTIVE' && (!activeLic.expiresAt || activeLic.expiresAt > now)) {
+      const daysLeft = activeLic.expiresAt ? Math.max(0, Math.ceil((activeLic.expiresAt - now) / (24 * 60 * 60 * 1000))) : 99999;
+      return {
+        hasPro: true,
+        tier: activeLic.tier,
+        status: 'ACTIVE',
+        isTrial: false,
+        daysLeft,
+        expiresAt: activeLic.expiresAt,
+        licenseKey: activeLic.key
+      };
     }
 
     // 2. Default 7-day trial from registration time
