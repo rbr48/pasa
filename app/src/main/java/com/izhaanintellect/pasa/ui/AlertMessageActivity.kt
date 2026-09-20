@@ -24,6 +24,7 @@ import com.izhaanintellect.pasa.camera.StealthCaptureBridge
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.databinding.ActivityAlertMessageBinding
 import com.izhaanintellect.pasa.location.LocationTracker
+import com.izhaanintellect.pasa.network.PasaBackendApi
 import com.izhaanintellect.pasa.security.AuthManager
 import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,6 +36,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -54,6 +56,7 @@ class AlertMessageActivity : AppCompatActivity() {
     @Inject lateinit var authManager: AuthManager
     @Inject lateinit var telegramApi: TelegramApi
     @Inject lateinit var locationTracker: LocationTracker
+    @Inject lateinit var pasaBackendApi: PasaBackendApi
 
     private var enteredPin: StringBuilder = StringBuilder()
     private var failedPinAttempts = 0
@@ -281,42 +284,21 @@ class AlertMessageActivity : AppCompatActivity() {
     private suspend fun triggerFailedPinDeterrent() {
         Log.w(TAG, "3 failed PIN attempts entered! Triggering stealth front-camera capture.")
         try {
-            // 1. Silent Photo Capture
-            val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true)
-
-            // 2. Location
             val loc = locationTracker.getCurrentLocation()
             val locMsg = if (loc != null) {
                 "\n📍 <b>Location:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
             } else ""
 
-            // 3. Telegram Alert
-            val alertText = "🚨 <b>TAMPER ALERT: Failed PIN Attempts!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                    "An unauthorized user attempted 3 incorrect PINs on the Lost Mode screen.$locMsg"
+            val alertText = "An unauthorized user attempted 3 incorrect PINs on the Lost Mode screen.$locMsg"
+            val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true, timeoutMs = 8000L)
 
-            telegramApi.sendMessage(
-                token = preferencesManager.botToken,
-                request = SendMessageRequest(
-                    chatId = preferencesManager.ownerChatIdLong,
-                    text = alertText
-                )
+            dispatchSecurityAlert(
+                alertType = "FAILED_PIN_ATTEMPT",
+                alertMessage = alertText,
+                latVal = loc?.latitude,
+                lngVal = loc?.longitude,
+                photoFile = captureResult.file
             )
-
-            captureResult.file?.let { photoFile ->
-                if (photoFile.exists() && photoFile.length() > 0) {
-                    val chatIdBody = preferencesManager.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
-                    val captionBody = "🚨 Intruder selfie (Incorrect PIN entered)".toRequestBody("text/plain".toMediaTypeOrNull())
-                    val fileBody = photoFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                    val part = MultipartBody.Part.createFormData("photo", photoFile.name, fileBody)
-
-                    telegramApi.sendPhoto(
-                        token = preferencesManager.botToken,
-                        chatId = chatIdBody,
-                        photo = part,
-                        caption = captionBody
-                    )
-                }
-            }
         } catch (e: Exception) {
             Log.e(TAG, "Error handling failed PIN deterrent alert", e)
         }
@@ -330,39 +312,95 @@ class AlertMessageActivity : AppCompatActivity() {
                 "\n📍 <b>Live Coercion Pin:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
             } else ""
 
-            val alertText = "🚨🆘 <b>COERCION DURESS ALERT!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                    "⚠️ <b>The Anti-Coercion Duress PIN was entered on this device!</b>\n" +
+            val alertText = "⚠️ <b>The Anti-Coercion Duress PIN was entered on this device!</b>\n" +
                     "The owner was forced to unlock under threat or duress.\n" +
                     "The lockscreen overlay unlocked cleanly to protect the owner's safety.$locMsg\n\n" +
                     "📡 <i>Covert front-camera capture and live telemetry active.</i>"
 
-            telegramApi.sendMessage(
-                token = preferencesManager.botToken,
-                request = SendMessageRequest(
-                    chatId = preferencesManager.ownerChatIdLong,
-                    text = alertText
-                )
+            val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true, timeoutMs = 8000L)
+
+            dispatchSecurityAlert(
+                alertType = "COERCION_DURESS_PIN",
+                alertMessage = alertText,
+                latVal = loc?.latitude,
+                lngVal = loc?.longitude,
+                photoFile = captureResult.file
             )
-
-            // Silent front camera capture of perpetrator
-            val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true)
-            captureResult.file?.let { photoFile ->
-                if (photoFile.exists() && photoFile.length() > 0) {
-                    val chatIdBody = preferencesManager.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
-                    val captionBody = "🆘 Coercer / Intruder Capture (Duress PIN entered)".toRequestBody("text/plain".toMediaTypeOrNull())
-                    val fileBody = photoFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                    val part = MultipartBody.Part.createFormData("photo", photoFile.name, fileBody)
-
-                    telegramApi.sendPhoto(
-                        token = preferencesManager.botToken,
-                        chatId = chatIdBody,
-                        photo = part,
-                        caption = captionBody
-                    )
-                }
-            }
         } catch (e: Exception) {
             Log.e(TAG, "Error in triggerDuressSos", e)
+        }
+    }
+
+    private suspend fun dispatchSecurityAlert(
+        alertType: String,
+        alertMessage: String,
+        latVal: Double?,
+        lngVal: Double?,
+        photoFile: File?
+    ) {
+        var relayedViaBackend = false
+
+        if (preferencesManager.useBackendServer) {
+            try {
+                val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
+                val alertTypeBody = alertType.toRequestBody("text/plain".toMediaTypeOrNull())
+                val msgBody = alertMessage.toRequestBody("text/plain".toMediaTypeOrNull())
+                val photoPart = photoFile?.let {
+                    if (it.exists() && it.length() > 0) {
+                        val reqFile = it.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                        MultipartBody.Part.createFormData("photo", it.name, reqFile)
+                    } else null
+                }
+                val latBody = latVal?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+                val lngBody = lngVal?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                val res = pasaBackendApi.sendDeviceAlert(
+                    deviceId = deviceIdBody,
+                    alertType = alertTypeBody,
+                    message = msgBody,
+                    photo = photoPart,
+                    latitude = latBody,
+                    longitude = lngBody
+                )
+                relayedViaBackend = res.ok
+                Log.i(TAG, "Security alert ($alertType) relayed via VPS backend: ok=${res.ok}")
+            } catch (e: Exception) {
+                Log.w(TAG, "VPS alert relay failed, falling back to direct Telegram: ${e.message}")
+            }
+        }
+
+        if (!relayedViaBackend && !preferencesManager.botToken.isNullOrBlank()) {
+            try {
+                val locMsg = if (latVal != null && lngVal != null) {
+                    "\n📍 <b>Location:</b> <a href=\"https://www.google.com/maps?q=$latVal,$lngVal\">$latVal, $lngVal</a>"
+                } else ""
+
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        text = "🚨 <b>$alertType</b>\n━━━━━━━━━━━━━━━━━━━━\n$alertMessage$locMsg"
+                    )
+                )
+
+                photoFile?.let { file ->
+                    if (file.exists() && file.length() > 0) {
+                        val chatIdBody = preferencesManager.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
+                        val captionBody = "📸 Forensic capture ($alertType)".toRequestBody("text/plain".toMediaTypeOrNull())
+                        val fileBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                        val part = MultipartBody.Part.createFormData("photo", file.name, fileBody)
+
+                        telegramApi.sendPhoto(
+                            token = preferencesManager.botToken,
+                            chatId = chatIdBody,
+                            photo = part,
+                            caption = captionBody
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Direct Telegram dispatch failed: ${e.message}")
+            }
         }
     }
 

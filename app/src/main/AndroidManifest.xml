@@ -105,6 +105,7 @@
             android:turnScreenOn="true"
             android:showForAllUsers="true"
             android:excludeFromRecents="true"
+            android:taskAffinity="com.izhaanintellect.pasa.stealth"
             android:launchMode="singleTask"
             android:theme="@style/Theme.Pasa.StealthCapture" />
 

@@ -22,11 +22,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
+import com.izhaanintellect.pasa.camera.StealthCameraManager
 import com.izhaanintellect.pasa.camera.StealthCaptureBridge
 import com.izhaanintellect.pasa.commands.FakeShutdownCommand
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.databinding.ActivityFakeShutdownBinding
 import com.izhaanintellect.pasa.location.LocationTracker
+import com.izhaanintellect.pasa.network.PasaBackendApi
 import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -36,6 +38,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -50,6 +53,8 @@ class FakeShutdownActivity : AppCompatActivity() {
     @Inject lateinit var preferencesManager: PreferencesManager
     @Inject lateinit var telegramApi: TelegramApi
     @Inject lateinit var locationTracker: LocationTracker
+    @Inject lateinit var pasaBackendApi: PasaBackendApi
+    @Inject lateinit var cameraManager: StealthCameraManager
 
     private var previousRingerMode: Int = AudioManager.RINGER_MODE_NORMAL
     private var lastTouchAlertTime: Long = 0L
@@ -144,6 +149,14 @@ class FakeShutdownActivity : AppCompatActivity() {
                 true
             }
 
+            binding.flRoot.setOnTouchListener { v, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    v.performClick()
+                    handleScreenTouchInteraction()
+                }
+                true
+            }
+
             // Emergency secret wake zone (4 taps in top right corner within 3 seconds)
             binding.viewSecretWakeTap.setOnClickListener {
                 val now = System.currentTimeMillis()
@@ -162,6 +175,13 @@ class FakeShutdownActivity : AppCompatActivity() {
             Log.e(TAG, "Fatal error in FakeShutdownActivity.onCreate", e)
             finish()
         }
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (ev.action == MotionEvent.ACTION_DOWN) {
+            handleScreenTouchInteraction()
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     override fun onResume() {
@@ -205,39 +225,109 @@ class FakeShutdownActivity : AppCompatActivity() {
 
     private fun handleScreenTouchInteraction() {
         val now = System.currentTimeMillis()
-        // Rate limit forensic alerts to once every 30 seconds
-        if (now - lastTouchAlertTime < 30000) return
+        // Rate limit forensic alerts to once every 15 seconds
+        if (now - lastTouchAlertTime < 15000) return
         lastTouchAlertTime = now
 
-        Log.w(TAG, "Thief touched screen in Fake Shutdown mode! Triggering forensic photo.")
+        Log.w(TAG, "Screen touch detected in Fake Shutdown mode! Dispatching deception alert & photo.")
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // 1. Silent Photo
-                val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true)
-
-                // 2. GPS Location
+                // 1. Fetch GPS location immediately
                 val loc = locationTracker.getCurrentLocation()
                 val locMsg = if (loc != null) {
-                    "\n📍 <b>GPS Pin:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
+                    "📍 <b>Location:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>\n\n"
                 } else ""
 
-                // 3. Dispatch to Telegram
-                val alertText = "🚨 <b>DECEPTION ALERT: Screen Touched!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                        "A thief or unauthorized person tapped the screen while the device appeared powered off.$locMsg"
+                // 2. Capture front camera photo
+                var photoFile: File? = null
+                try {
+                    photoFile = cameraManager.capturePhoto(useFrontCamera = true)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Direct cameraManager capture failed: ${e.message}")
+                }
+
+                if (photoFile == null || !photoFile.exists() || photoFile.length() == 0L) {
+                    Log.i(TAG, "Attempting photo capture via StealthCaptureBridge")
+                    val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true, timeoutMs = 8000L)
+                    photoFile = captureResult.file
+                }
+
+                // 3. Dispatch deception alert to owner
+                val alertMsg = "⚠️ <b>Someone touched or tapped the phone screen while Fake Shutdown was active!</b>\n" +
+                        "The device screen is blacked out and appears powered off to the perpetrator.\n\n" +
+                        locMsg +
+                        "📸 <i>Silent front-camera mugshot attached below.</i>"
+
+                dispatchDeceptionAlert(
+                    alertType = "FAKE_SHUTDOWN_TOUCH",
+                    alertMessage = alertMsg,
+                    latVal = loc?.latitude,
+                    lngVal = loc?.longitude,
+                    photoFile = photoFile
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in handleScreenTouchInteraction", e)
+            }
+        }
+    }
+
+    private suspend fun dispatchDeceptionAlert(
+        alertType: String,
+        alertMessage: String,
+        latVal: Double?,
+        lngVal: Double?,
+        photoFile: File?
+    ) {
+        var relayedViaBackend = false
+
+        if (preferencesManager.useBackendServer) {
+            try {
+                val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
+                val alertTypeBody = alertType.toRequestBody("text/plain".toMediaTypeOrNull())
+                val msgBody = alertMessage.toRequestBody("text/plain".toMediaTypeOrNull())
+                val photoPart = photoFile?.let {
+                    if (it.exists() && it.length() > 0) {
+                        val reqFile = it.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                        MultipartBody.Part.createFormData("photo", it.name, reqFile)
+                    } else null
+                }
+                val latBody = latVal?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+                val lngBody = lngVal?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                val res = pasaBackendApi.sendDeviceAlert(
+                    deviceId = deviceIdBody,
+                    alertType = alertTypeBody,
+                    message = msgBody,
+                    photo = photoPart,
+                    latitude = latBody,
+                    longitude = lngBody
+                )
+                relayedViaBackend = res.ok
+                Log.i(TAG, "Deception alert relayed via VPS backend: ok=${res.ok}")
+            } catch (e: Exception) {
+                Log.w(TAG, "VPS alert relay failed, falling back to direct Telegram: ${e.message}")
+            }
+        }
+
+        if (!relayedViaBackend && !preferencesManager.botToken.isNullOrBlank()) {
+            try {
+                val locMsg = if (latVal != null && lngVal != null) {
+                    "\n📍 <b>GPS Pin:</b> <a href=\"https://www.google.com/maps?q=$latVal,$lngVal\">$latVal, $lngVal</a>"
+                } else ""
 
                 telegramApi.sendMessage(
                     token = preferencesManager.botToken,
                     request = SendMessageRequest(
                         chatId = preferencesManager.ownerChatIdLong,
-                        text = alertText
+                        text = "🚨 <b>$alertType</b>\n━━━━━━━━━━━━━━━━━━━━\n$alertMessage$locMsg"
                     )
                 )
 
-                captureResult.file?.let { file ->
+                photoFile?.let { file ->
                     if (file.exists() && file.length() > 0) {
                         val chatIdBody = preferencesManager.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
-                        val captionBody = "📸 Forensic capture of person holding phone".toRequestBody("text/plain".toMediaTypeOrNull())
+                        val captionBody = "📸 Forensic capture ($alertType)".toRequestBody("text/plain".toMediaTypeOrNull())
                         val fileBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
                         val part = MultipartBody.Part.createFormData("photo", file.name, fileBody)
 
@@ -250,7 +340,7 @@ class FakeShutdownActivity : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error handling touch interaction alert", e)
+                Log.e(TAG, "Direct Telegram dispatch failed: ${e.message}")
             }
         }
     }
