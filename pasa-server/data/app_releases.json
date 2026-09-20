@@ -1,5 +1,15 @@
 [
   {
+    "versionCode": 12,
+    "versionName": "3.0.6",
+    "releaseDate": "2026-09-20",
+    "fileName": "pasa-v3.0.6.apk",
+    "sha256": "294d6e6e1cb94ce8ee6d6b24bd63b7101d4f94c58c8c087b16cd2e2bd0fe4960",
+    "size": 18983943,
+    "mandatory": false,
+    "releaseNotes": "v3.0.6: Fixed Android 14+ FGS microphone crash, eliminated battery drain/memory leaks, moved PBKDF2 hashing off main thread, added AOSP location fallback, and hardened server security."
+  },
+  {
     "versionCode": 11,
     "versionName": "3.0.5",
     "releaseDate": "2026-09-20",
