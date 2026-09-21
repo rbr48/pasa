@@ -44,7 +44,7 @@ PASA Sentinel requests elevated operating system permissions solely for defensiv
 
 ## 💰 4. 7-Day Money-Back Guarantee (Binance Pay)
 
-We stand 100% behind our software. Every commercial license purchase (**Pro Lifetime $29.99 USDT** or **Fleet Enterprise $79.99 USDT**) is protected by an unconditional **7-day money-back guarantee**.
+We stand 100% behind our software. Every commercial license purchase (**Pro Lifetime $29 USD / $29 USDT** or **Fleet Enterprise $84 USD / $84 USDT**) is protected by an unconditional **7-day money-back guarantee**.
 
 ### Refund Terms:
 * **Duration:** 7 full calendar days from the moment your license key is issued.

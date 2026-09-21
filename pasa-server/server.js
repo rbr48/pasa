@@ -2014,7 +2014,7 @@ async function handleTelegramUpdate(token, update) {
     if (subCmd === 'buy' || subCmd === 'pricing') {
       await callTelegram(token, 'sendMessage', {
         chat_id: chatId,
-        text: `💎 <b>PASA Sovereign Pro Licensing</b>\n━━━━━━━━━━━━━━━━━━━━\n• <b>Pro Annual ($14.99/yr):</b> 1 Device, continuous updates & priority C2\n• <b>Pro Lifetime ($29.99):</b> 3 Devices, Lifetime updates & VIP support\n• <b>Family Fleet ($49.99):</b> Up to 10 Devices\n\n👉 <b>Instant Web Checkout & Key Delivery:</b>\nhttps://pasa.izhaanintellect.fun/#pricing`,
+        text: `💎 <b>PASA Sovereign Pro Licensing</b>\n━━━━━━━━━━━━━━━━━━━━\n• <b>Pro Lifetime ($29 USD / ৳3,490):</b> 3 Devices, Lifetime updates & VIP support\n• <b>Fleet Enterprise ($84 USD / ৳9,990):</b> Up to 10 Devices\n\n👉 <b>Instant Web Checkout & Key Delivery:</b>\nhttps://pasa.izhaanintellect.fun/#pricing`,
         parse_mode: 'HTML',
         reply_markup: {
           inline_keyboard: [

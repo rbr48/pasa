@@ -1426,7 +1426,7 @@
             <td class="py-4 px-5 text-center bg-blue-50/60 font-bold text-apple-blue">
               Free (Trial)<br>
               <span class="font-semibold text-sm">৳3,490 / $29 Pro</span><br>
-              <span class="text-xs font-normal text-apple-grayText">৳9,990 / $83 Enterprise</span>
+              <span class="text-xs font-normal text-apple-grayText">৳9,990 / $84 Enterprise</span>
             </td>
             <td class="py-4 px-5 text-center font-semibold text-apple-green">Free</td>
             <td class="py-4 px-5 text-center font-semibold text-apple-green">Free</td>
@@ -1714,7 +1714,7 @@
           <!-- Dual Price Tag -->
           <div class="flex items-baseline gap-2 mb-1 flex-wrap">
             <span id="fleetPriceBdt" class="text-3xl sm:text-4xl font-bold text-apple-black dark:text-white font-mono">৳9,990</span>
-            <span id="fleetPriceUsd" class="text-lg sm:text-xl font-bold text-apple-grayText font-mono">/ $83 USD</span>
+            <span id="fleetPriceUsd" class="text-lg sm:text-xl font-bold text-apple-grayText font-mono">/ $84 USD</span>
           </div>
           <div id="fleetPriceSub" class="text-xs text-apple-grayText mb-3 font-medium">one-time payment &bull; 10 hardware device nodes lifetime</div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
@@ -1728,7 +1728,7 @@
           </ul>
         </div>
         <button onclick="handleFleetCheckoutClick()" id="fleetBuyBtn" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium">
-          <span id="fleetBuyBtnText">Deploy Fleet License — ৳9,990 / $83 USD</span>
+          <span id="fleetBuyBtnText">Deploy Fleet License — ৳9,990 / $84 USD</span>
         </button>
       </div>
 
@@ -2257,7 +2257,7 @@
                 <b class="text-apple-black">Instructions:</b><br>
                 1. Open Binance &rarr; <b>Pay</b> &rarr; <b>Send</b> (or scan QR above)<br>
                 2. Search Pay ID: <b class="binance-yellow">756303714</b> (Nickname: <b>RBR48</b>)<br>
-                3. Amount: <b id="binanceAmount">৳3,490</b> ($29.00 USDT for Pro, $83.00 USDT for Fleet)<br>
+                3. Amount: <b id="binanceAmount">৳3,490 (~$29 USDT)</b> ($29 USDT for Pro, $84 USDT for Fleet)<br>
                 4. Note: your email address<br>
                 5. Copy the <b>Order Number / TxID</b> after payment
               </div>
@@ -2606,7 +2606,7 @@
       document.getElementById('selectedTier').value = tier;
       document.getElementById('selectedPrice').value = price;
       const bdtFormatted = '৳' + price.toLocaleString('en-BD');
-      const usdFormatted = (tier === 'PRO_ENTERPRISE') ? '$83 USD' : '$29 USD';
+      const usdFormatted = (tier === 'PRO_ENTERPRISE') ? '$84 USD' : '$29 USD';
       const dualPriceFormatted = `${bdtFormatted} / ${usdFormatted}`;
       document.getElementById('checkoutPriceTag').textContent = dualPriceFormatted;
       document.getElementById('checkoutPriceLine').textContent = dualPriceFormatted;
@@ -2614,7 +2614,7 @@
       const ussdLink = document.getElementById('bkashUssdLink');
       if (ussdLink) ussdLink.href = 'tel:*247*1*2*01737910040*' + price + '*PASA%23';
       if (document.getElementById('binanceAmount')) {
-        const usdtAmt = (tier === 'PRO_ENTERPRISE') ? '$83.00 USDT' : '$29.00 USDT';
+        const usdtAmt = (tier === 'PRO_ENTERPRISE') ? '$84 USDT' : '$29 USDT';
         document.getElementById('binanceAmount').textContent = `${bdtFormatted} (~${usdtAmt})`;
       }
 
@@ -2874,7 +2874,7 @@
         if (fleetUsd) fleetUsd.className = 'text-2xl sm:text-3xl font-bold text-apple-blue font-mono';
         if (fleetBdt) fleetBdt.className = 'text-xl sm:text-2xl font-semibold text-apple-grayText font-mono';
         if (proBuyText) proBuyText.textContent = 'Buy Pro Lifetime — $29 USD (৳3,490)';
-        if (fleetBuyText) fleetBuyText.textContent = 'Deploy Fleet License — $83 USD (৳9,990)';
+        if (fleetBuyText) fleetBuyText.textContent = 'Deploy Fleet License — $84 USD (৳9,990)';
         if (mobileBuyText) mobileBuyText.textContent = 'Buy Pro ($29 / ৳3,490)';
       } else {
         if (bdtBtn) bdtBtn.className = 'px-4 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-neutral-800 text-apple-black dark:text-white shadow-sm transition-all flex items-center gap-1.5';
@@ -2884,7 +2884,7 @@
         if (fleetBdt) fleetBdt.className = 'text-3xl sm:text-4xl font-bold text-apple-black dark:text-white font-mono';
         if (fleetUsd) fleetUsd.className = 'text-lg sm:text-xl font-bold text-apple-grayText font-mono';
         if (proBuyText) proBuyText.textContent = 'Buy Pro Lifetime — ৳3,490 / $29 USD';
-        if (fleetBuyText) fleetBuyText.textContent = 'Deploy Fleet License — ৳9,990 / $83 USD';
+        if (fleetBuyText) fleetBuyText.textContent = 'Deploy Fleet License — ৳9,990 / $84 USD';
         if (mobileBuyText) mobileBuyText.textContent = 'Buy Pro (৳3,490 / $29)';
       }
     }

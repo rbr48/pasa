@@ -262,11 +262,11 @@ PASA operates on a sovereign, one-time payment model — **no recurrent monthly 
 * **Accepted Currency:** `USDT / BUSD`
 
 ### License Tiers
-| Tier | Pricing | Devices Armed | Capabilities |
-|---|:---:|:---:|---|
-| **Community Trial** | **$0** (7 Days) | 1 Device | Basic Telegram C2, Camera snap, Siren test |
-| **Pro Lifetime** | **$29.99 USDT** (One-time) | 3 Devices | Full Airgap SMS, Fake Shutdown, Anti-Snatch, Lifetime OTA Updates |
-| **Fleet / Enterprise**| **$79.99 USDT** (One-time) | 10 Devices | Dedicated deployment engineering, ADB automation scripts |
+| Tier | Price | Devices | Features |
+|---|---|---|---|
+| **Community Trial** | Free (7 Days) | 1 Device | Core Telegram C2, Camera & Siren triggers, Manual backups |
+| **Pro Lifetime** | **৳3,490 / $29 USD** ($29 USDT) | 3 Devices | Full Airgap SMS, Fake Shutdown, Anti-Snatch, Lifetime OTA Updates |
+| **Fleet / Enterprise**| **৳9,990 / $84 USD** ($84 USDT) | 10 Devices | Dedicated deployment engineering, ADB automation scripts |
 
 ### Anti-Fraud Two-Step Approval Workflow:
 1. Buyer selects plan on [https://pasa.izhaanintellect.fun](https://pasa.izhaanintellect.fun) and sends USDT via Binance Pay.
