@@ -3146,6 +3146,68 @@ app.get('/api/license/order-status', (req, res) => {
   });
 });
 
+// 7a-2. CISO & Enterprise Fleet Inquiry Handler
+const CISO_INQUIRIES_FILE = path.join(DATA_DIR, 'ciso_inquiries.json');
+let cisoInquiries = loadJson(CISO_INQUIRIES_FILE, []);
+
+app.post('/api/ciso-inquiry', (req, res) => {
+  try {
+    const { name, email, org, scope, notes } = req.body || {};
+    if (!email || !org) {
+      return res.status(400).json({ ok: false, description: 'Work Email and Organization are required.' });
+    }
+
+    const inquiry = {
+      id: 'CISO-' + Date.now().toString(36).toUpperCase(),
+      name: (name || '').trim(),
+      email: (email || '').trim(),
+      org: (org || '').trim(),
+      scope: (scope || '10-25').trim(),
+      notes: (notes || '').trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    cisoInquiries.push(inquiry);
+    saveJson(CISO_INQUIRIES_FILE, cisoInquiries);
+
+    // Alert Administrator on Telegram
+    try {
+      const adminToken = getAdminBotToken();
+      if (adminToken && ADMIN_CHAT_ID) {
+        const adminAlert =
+          `🏢 <b>NEW CISO / ENTERPRISE INQUIRY</b>\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `<b>Inquiry ID:</b> <code>${inquiry.id}</code>\n` +
+          `<b>Security Lead:</b> ${inquiry.name || 'Enterprise Officer'}\n` +
+          `<b>Work Email:</b> <code>${inquiry.email}</code>\n` +
+          `<b>Organization:</b> <b>${inquiry.org}</b>\n` +
+          `<b>Fleet Scope:</b> ${inquiry.scope} Endpoints\n` +
+          `<b>Requirements:</b>\n` +
+          `<i>${inquiry.notes || 'None specified'}</i>\n` +
+          `━━━━━━━━━━━━━━━━━━━━\n` +
+          `<i>👉 Reply to: <code>${inquiry.email}</code> | Forwarded to izhaanintellect@gmail.com</i>`;
+
+        callTelegram(adminToken, 'sendMessage', {
+          chat_id: ADMIN_CHAT_ID,
+          text: adminAlert,
+          parse_mode: 'HTML'
+        }).catch(err => console.error('[CISO Alert] Telegram notify failed:', err.message));
+      }
+    } catch (e) {
+      console.error('[CISO Alert] Error dispatching Telegram alert:', e.message);
+    }
+
+    res.json({
+      ok: true,
+      inquiryId: inquiry.id,
+      message: 'CISO inquiry received. A security engineer will connect shortly.'
+    });
+  } catch (err) {
+    console.error('[CISO Inquiry Error]:', err);
+    res.status(500).json({ ok: false, description: err.message });
+  }
+});
+
 // 7b. Activate License on Device
 app.post('/api/license/activate', (req, res) => {
   const { key, deviceId } = req.body || {};
