@@ -353,6 +353,149 @@
       box-shadow: 0 0 40px rgba(0,113,227,0.12);
       overflow: visible !important;
     }
+
+    /* ==========================================================
+       PASA SENTINEL — TACTICAL DARK MODE STYLING
+       ========================================================== */
+    html.dark {
+      --apple-bg: #0b0c10;
+      --apple-card: #14151b;
+      --apple-text: #f5f5f7;
+      --apple-text-gray: #9ba1a6;
+      --apple-border: rgba(255, 255, 255, 0.1);
+    }
+    html.dark body {
+      background-color: #0b0c10;
+      color: #f5f5f7;
+    }
+    html.dark .apple-nav {
+      background: rgba(11, 12, 16, 0.88);
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+    html.dark .apple-card {
+      background-color: #14151b;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #f5f5f7;
+    }
+    html.dark .apple-card:hover {
+      border-color: rgba(0, 113, 227, 0.4);
+      box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+    }
+    html.dark .apple-btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f5f5f7;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    html.dark .apple-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    html.dark .code-block {
+      background: #181a22;
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+    }
+    html.dark .tier-hero {
+      background: linear-gradient(145deg, #101c2e 0%, #14151b 100%);
+      border: 2px solid #0071e3 !important;
+      box-shadow: 0 0 40px rgba(0, 113, 227, 0.25);
+    }
+    html.dark .text-apple-black {
+      color: #f5f5f7 !important;
+    }
+    html.dark .text-apple-grayText {
+      color: #9ba1a6 !important;
+    }
+    html.dark .bg-white {
+      background-color: #14151b !important;
+    }
+    html.dark .bg-apple-bg {
+      background-color: #0b0c10 !important;
+    }
+    html.dark .border-black\/\[0\.06\],
+    html.dark .border-black\/\[0\.08\],
+    html.dark .border-black\/\[0\.1\] {
+      border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* FAQ Accordion Transitions */
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      opacity: 0;
+    }
+    .faq-answer.open {
+      max-height: 500px;
+      opacity: 1;
+    }
+    .faq-icon {
+      transition: transform 0.3s ease;
+    }
+    .faq-icon.open {
+      transform: rotate(180deg);
+    }
+
+    /* Floating WhatsApp Widget */
+    .wa-floating-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 40;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #25d366;
+      box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .wa-floating-btn:hover {
+      transform: scale(1.08) translateY(-2px);
+      box-shadow: 0 12px 30px rgba(37, 211, 102, 0.55);
+    }
+    .wa-floating-btn .wa-pulse {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 14px;
+      height: 14px;
+      background: #10b981;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+    }
+
+    /* Sticky Mobile Bar */
+    .sticky-mobile-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 45;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    html.dark .sticky-mobile-bar {
+      background: rgba(15, 17, 23, 0.94);
+      border-top-color: rgba(255, 255, 255, 0.1);
+    }
+    .sticky-mobile-bar.visible {
+      transform: translateY(0);
+    }
   </style>
 
 </head>
@@ -360,32 +503,55 @@
 
   <!-- ================= APPLE TRANSLUCENT TOP NAVIGATION ================= -->
   <header class="sticky top-0 z-50 apple-nav h-12 flex items-center">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full flex items-center justify-between gap-4">
       
       <!-- Logo -->
-      <a href="#" class="flex items-center gap-2 text-apple-black hover:opacity-70 transition-opacity">
+      <a href="#" class="flex items-center gap-2 text-apple-black hover:opacity-70 transition-opacity flex-shrink-0">
         <i data-lucide="shield" class="w-4 h-4 text-apple-blue"></i>
-        <span class="text-sm font-semibold tracking-tight">PASA Sentinel <span class="hidden sm:inline font-normal text-xs text-apple-grayText">(Private Android Security Agent)</span></span>
+        <span class="text-sm font-semibold tracking-tight">PASA Sentinel <span class="hidden md:inline font-normal text-xs text-apple-grayText">(Private Android Security Agent)</span></span>
       </a>
 
       <!-- Center Links (Desktop) -->
-      <nav class="hidden md:flex items-center gap-7 text-[12px] text-apple-grayText font-normal">
+      <nav class="hidden lg:flex items-center gap-6 text-[12px] text-apple-grayText font-normal">
         <a href="#overview" class="hover:text-apple-black transition-colors">Overview</a>
-        <a href="#hardware-showcase" class="hover:text-apple-black transition-colors">Tactical Console</a>
-        <a href="#features" class="hover:text-apple-black transition-colors">Security Features</a>
+        <a href="#simulator" class="hover:text-apple-blue text-apple-blue font-medium transition-colors flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-apple-blue"></span><span>C2 Simulator</span></a>
+        <a href="#hardware-showcase" class="hover:text-apple-black transition-colors">Threat Matrix</a>
+        <a href="#features" class="hover:text-apple-black transition-colors">Features</a>
+        <a href="#sideload" class="hover:text-apple-black transition-colors">ADB Setup</a>
         <a href="#compare" class="hover:text-apple-black transition-colors">Compare</a>
         <a href="#pricing" class="hover:text-apple-black transition-colors">Pricing</a>
-        <a href="/privacy.html" class="hover:text-apple-black transition-colors">Privacy</a>
-        <a href="/terms" class="hover:text-apple-black transition-colors">Terms</a>
+        <a href="#faq" class="hover:text-apple-black transition-colors">FAQ</a>
       </nav>
 
-      <!-- Right Action -->
-      <div class="flex items-center gap-3">
-        <button onclick="scrollToLedger()" class="text-[12px] text-apple-grayText hover:text-apple-black transition-colors hidden sm:inline-block">
-          Verify Key
+      <!-- Right Action Toolbar -->
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <!-- Live Telemetry Heartbeat -->
+        <div class="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[11px] text-green-700 dark:text-green-400 font-mono" title="Live Ed25519 C2 Gateway Telemetry">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+          <span>C2: 14ms</span>
+        </div>
+
+        <!-- Language Switcher -->
+        <button onclick="toggleLanguage()" class="px-2 py-1 rounded-full border border-black/10 dark:border-white/10 text-[11px] text-apple-grayText hover:text-apple-black dark:hover:text-white transition-colors flex items-center gap-1 font-medium" title="Switch Language (EN / বাংলা)">
+          <i data-lucide="globe" class="w-3 h-3"></i>
+          <span id="langBtnText">বাংলা</span>
         </button>
-        <a href="/releases/pasa-latest.apk" class="apple-btn-pill text-xs px-3.5 py-1.5 flex items-center gap-1.5">
-          <span>Download APK</span>
+
+        <!-- Dark Mode Toggle -->
+        <button onclick="toggleTheme()" class="p-1.5 rounded-full border border-black/10 dark:border-white/10 text-apple-grayText hover:text-apple-black dark:hover:text-white transition-colors flex items-center justify-center" title="Toggle Dark/Light Mode">
+          <i data-lucide="moon" id="themeToggleIcon" class="w-3.5 h-3.5"></i>
+        </button>
+
+        <!-- Scan QR Modal Trigger -->
+        <button onclick="openQrModal()" class="apple-btn-secondary text-xs px-2.5 py-1.5 hidden sm:flex items-center gap-1.5" title="Scan QR Code to install directly">
+          <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
+          <span>Scan QR</span>
+        </button>
+
+        <!-- Direct Download Button -->
+        <a href="/releases/pasa-latest.apk" class="apple-btn-pill text-xs px-3.5 py-1.5 flex items-center gap-1.5 flex-shrink-0">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span id="navDownloadBtnText">Download APK</span>
         </a>
       </div>
 
@@ -417,22 +583,26 @@
           </span>
         </div>
 
-        <h1 class="hero-reveal hero-reveal-2 text-5xl sm:text-6xl lg:text-7xl xl:text-[80px] font-bold tracking-tight text-apple-black leading-[1.05] mb-5">
+        <h1 id="heroHeadline" class="hero-reveal hero-reveal-2 text-5xl sm:text-6xl lg:text-7xl xl:text-[80px] font-bold tracking-tight text-apple-black leading-[1.05] mb-5">
           Your phone<br>fights back.
         </h1>
 
-        <p class="hero-reveal hero-reveal-3 text-lg sm:text-xl text-apple-grayText max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed mb-8">
+        <p id="heroSubline" class="hero-reveal hero-reveal-3 text-lg sm:text-xl text-apple-grayText max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed mb-8">
           When thieves cut Wi-Fi, pull the SIM, and hit airplane mode — PASA Sentinel keeps working. Air-gapped SMS commands, silent mugshots, fake shutdowns, and a fortress-grade lock they can't uninstall.
         </p>
 
         <div class="hero-reveal hero-reveal-4 flex flex-col sm:flex-row items-center lg:items-start gap-3.5 mb-10">
           <a href="/releases/pasa-latest.apk" class="apple-btn-pill px-7 py-3.5 text-sm flex items-center justify-center gap-2.5 shadow-[0_4px_18px_rgba(0,113,227,0.3)] w-full sm:w-auto">
             <i data-lucide="download" class="w-4 h-4"></i>
-            <span>Download APK — Free</span>
+            <span id="heroDownloadBtn">Download APK — Free</span>
           </a>
           <button onclick="openCheckout('PRO_LIFETIME', 3490)" class="apple-btn-secondary px-6 py-3.5 text-sm flex items-center justify-center gap-2 w-full sm:w-auto">
-            <span>Unlock Pro &bull; ৳3,490</span>
+            <span id="heroProBtn">Unlock Pro &bull; ৳3,490</span>
           </button>
+          <a href="#simulator" class="apple-btn-secondary px-5 py-3.5 text-sm flex items-center justify-center gap-2 w-full sm:w-auto hover:text-apple-blue transition-colors">
+            <i data-lucide="play" class="w-4 h-4 text-apple-blue"></i>
+            <span>Test Drive C2</span>
+          </a>
         </div>
 
         <div class="hero-reveal hero-reveal-5 flex items-center justify-center lg:justify-start gap-6 text-xs text-apple-grayText">
@@ -626,6 +796,131 @@
     </div>
   </section>
 
+  <!-- ================= INTERACTIVE TELEGRAM C2 WEB SIMULATOR ================= -->
+  <section id="simulator" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Live Web Sandbox</p>
+      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight text-apple-black">
+        Test Drive the Telegram C2 Bot
+      </h2>
+      <p class="text-base text-apple-grayText mt-3 max-w-2xl mx-auto">
+        Experience zero-latency defense directly in your browser. Click any command button below to dispatch live instructions to the virtual smartphone:
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto">
+      
+      <!-- Left: Telegram Bot Simulation Window -->
+      <div class="lg:col-span-6 apple-card p-5 sm:p-6 flex flex-col justify-between min-h-[580px] shadow-sm">
+        <div>
+          <!-- Bot Header -->
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-apple-blue font-bold text-sm">
+                🛡️
+              </div>
+              <div>
+                <div class="text-xs font-semibold text-apple-black flex items-center gap-1.5">
+                  <span>PASA Sentinel Bot</span>
+                  <span class="text-[10px] px-1.5 py-0.2 rounded bg-blue-100 dark:bg-blue-900/40 text-apple-blue font-mono font-normal">bot</span>
+                </div>
+                <div class="text-[10px] text-green-600 dark:text-green-400 font-mono">● active session (@Pas_agent_bot)</div>
+              </div>
+            </div>
+            <button onclick="simReset()" class="text-[11px] text-apple-grayText hover:text-apple-blue transition-colors flex items-center gap-1 font-mono" title="Clear and restart simulator">
+              <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+              <span>Reset</span>
+            </button>
+          </div>
+
+          <!-- Chat Feed -->
+          <div id="simChatFeed" class="space-y-3 overflow-y-auto max-h-[340px] pr-1 scroll-smooth text-xs">
+            <!-- Initial Bot Message -->
+            <div class="flex flex-col items-start">
+              <div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[92%] text-apple-black">
+                <div class="font-semibold text-apple-blue text-[11px] mb-1">🛡️ PASA Sentinel Control Plane v3.1.8</div>
+                <div class="text-[11px] text-apple-grayText mb-1.5">Connected: <code class="font-mono text-[10px]">pasa_a8cdfe29 (Moto Edge 70)</code></div>
+                <p class="text-[11px] leading-relaxed">System is armed and listening. Tap an inline command button below to transmit an authenticated instruction:</p>
+              </div>
+              <span class="text-[9px] text-apple-grayText mt-1 ml-1 font-mono">14:02</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulated Inline Keyboard Buttons -->
+        <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] mt-4">
+          <div class="text-[10px] font-mono text-apple-grayText uppercase tracking-wider mb-2">Remote Telegram Command Buttons:</div>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="simDispatch('locate')" class="sim-btn px-2.5 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-apple-blue text-[11px] font-medium transition-all flex items-center justify-center gap-1 shadow-sm active:scale-95">
+              <span>📍</span> <span>Locate</span>
+            </button>
+            <button onclick="simDispatch('photo')" class="sim-btn px-2.5 py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[11px] font-medium transition-all flex items-center justify-center gap-1 shadow-sm active:scale-95">
+              <span>📸</span> <span>Mugshot</span>
+            </button>
+            <button onclick="simDispatch('lock')" class="sim-btn px-2.5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 text-[11px] font-medium transition-all flex items-center justify-center gap-1 shadow-sm active:scale-95">
+              <span>🔒</span> <span>Knox Lock</span>
+            </button>
+            <button onclick="simDispatch('shutdown')" class="sim-btn px-2.5 py-2.5 rounded-xl bg-neutral-500/10 hover:bg-neutral-500/20 text-neutral-700 dark:text-neutral-300 text-[11px] font-medium transition-all flex items-center justify-center gap-1 shadow-sm active:scale-95">
+              <span>🕶️</span> <span>Blackout</span>
+            </button>
+            <button onclick="simDispatch('siren')" class="sim-btn px-2.5 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[11px] font-medium transition-all flex items-center justify-center gap-1 shadow-sm active:scale-95">
+              <span>🚨</span> <span>Siren</span>
+            </button>
+            <button onclick="simDispatch('clipboard')" class="sim-btn px-2.5 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-medium transition-all flex items-center justify-center gap-1 shadow-sm active:scale-95">
+              <span>📋</span> <span>Clipboard</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Virtual Phone Screen Reaction -->
+      <div class="lg:col-span-6 flex flex-col items-center justify-center">
+        <div class="w-[280px] sm:w-[300px] h-[580px] apple-titanium-device">
+          <div id="simPhoneScreen" class="w-full h-full rounded-[44px] bg-[#000000] overflow-hidden relative border border-white/10 flex flex-col justify-between p-5 transition-all duration-500">
+            
+            <!-- Phone Status Bar -->
+            <div>
+              <div class="flex items-center justify-between text-[11px] font-mono text-gray-400 mb-4">
+                <span id="simPhoneTime">14:02</span>
+                <div class="w-14 h-3.5 bg-neutral-900 rounded-full mx-auto"></div>
+                <div class="flex items-center gap-1">
+                  <span class="text-[9px] text-green-400 font-semibold">5G</span>
+                  <span>92%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Phone Dynamic Body Display -->
+            <div id="simPhoneBody" class="my-auto flex flex-col items-center justify-center text-center px-2 transition-all">
+              <!-- Default Normal State -->
+              <div id="simPhoneIconContainer" class="w-16 h-16 rounded-full bg-blue-900/30 border border-blue-500/30 flex items-center justify-center mb-3 transition-all">
+                <i id="simPhoneIcon" data-lucide="shield" class="w-8 h-8 text-blue-400"></i>
+              </div>
+              <h5 id="simPhoneTitle" class="text-sm font-semibold text-white">PASA Sentinel Armed</h5>
+              <p id="simPhoneSubtitle" class="text-[11px] text-gray-400 mt-1">Listening on C2 Gateway</p>
+              <div id="simPhoneBadge" class="mt-4 px-3 py-1 rounded-full bg-neutral-900 border border-white/10 text-[10px] text-green-400 font-mono">
+                ● Ed25519 Verified
+              </div>
+            </div>
+
+            <!-- Shutter Flash Overlay for camera -->
+            <div id="simShutterFlash" class="absolute inset-0 bg-white opacity-0 pointer-events-none transition-opacity duration-150 z-20"></div>
+
+            <!-- Bottom Home Pill -->
+            <div class="text-center pt-2">
+              <div class="w-20 h-1 bg-neutral-700 rounded-full mx-auto"></div>
+            </div>
+
+          </div>
+        </div>
+        <p class="text-xs text-apple-grayText mt-4 font-mono text-center">
+          ⚡ Latency: <span id="simLatency" class="text-apple-blue font-semibold">14ms</span> &bull; Status: <span id="simStatusText" class="text-green-600 dark:text-green-400">C2 Connected</span>
+        </p>
+      </div>
+
+    </div>
+  </section>
+
   <!-- ================= SECURITY FEATURES BENTO ================= -->
   <section id="features" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
 
@@ -796,7 +1091,60 @@
           </p>
         </div>
         <div class="code-block text-apple-blue break-all">
-          adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
+          adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdminReceiver
+        </div>
+      </div>
+
+      <!-- Interactive ADB Command Generator Card -->
+      <div class="md:col-span-3 apple-card p-6 sm:p-8 mt-2">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 rounded-full bg-apple-blue animate-pulse"></span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-apple-blue font-mono">Interactive Setup Assistant</span>
+            </div>
+            <h4 class="text-xl font-semibold text-apple-black tracking-tight">Knox-Grade ADB Device Owner Generator</h4>
+            <p class="text-xs text-apple-grayText mt-1">Select your smartphone manufacturer to view tailored ADB commands and pre-flight requirements:</p>
+          </div>
+          <!-- Brand Selector Pills -->
+          <div class="flex flex-wrap items-center gap-1 bg-black/[0.04] dark:bg-white/[0.06] p-1 rounded-2xl border border-black/[0.08] dark:border-white/[0.08]">
+            <button onclick="selectAdbBrand('samsung')" id="adbBrand-samsung" class="adb-brand-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-neutral-800 text-apple-black dark:text-white shadow-sm transition-all">Samsung</button>
+            <button onclick="selectAdbBrand('xiaomi')" id="adbBrand-xiaomi" class="adb-brand-btn px-3 py-1.5 rounded-xl text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all">Xiaomi/HyperOS</button>
+            <button onclick="selectAdbBrand('pixel')" id="adbBrand-pixel" class="adb-brand-btn px-3 py-1.5 rounded-xl text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all">Pixel</button>
+            <button onclick="selectAdbBrand('motorola')" id="adbBrand-motorola" class="adb-brand-btn px-3 py-1.5 rounded-xl text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all">Motorola</button>
+            <button onclick="selectAdbBrand('oneplus')" id="adbBrand-oneplus" class="adb-brand-btn px-3 py-1.5 rounded-xl text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all">OnePlus/Oppo</button>
+            <button onclick="selectAdbBrand('generic')" id="adbBrand-generic" class="adb-brand-btn px-3 py-1.5 rounded-xl text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all">Generic</button>
+          </div>
+        </div>
+
+        <!-- Terminal Output Box -->
+        <div class="bg-[#121318] text-gray-200 rounded-2xl p-4 sm:p-5 border border-white/10 font-mono text-xs shadow-inner">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-white/10 text-gray-400 text-[11px]">
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-green-500/80"></span>
+              </div>
+              <span class="ml-2 font-semibold text-gray-300">Terminal (bash / cmd / powershell)</span>
+            </div>
+            <button onclick="copyAdbCommand()" class="text-xs text-apple-blue hover:text-blue-400 flex items-center gap-1 bg-blue-500/10 px-2.5 py-1 rounded-lg border border-blue-500/20 transition-colors">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span id="adbCopyBtnText">Copy Command</span>
+            </button>
+          </div>
+          <p class="text-gray-400 text-[11px] mb-1"># 1. Connect phone via USB &amp; verify connection:</p>
+          <div class="text-green-400 mb-3">adb devices</div>
+          <p class="text-gray-400 text-[11px] mb-1"># 2. Grant Device Owner (Knox-grade unremovable privilege):</p>
+          <div id="adbCommandText" class="text-blue-400 break-all select-all font-semibold">adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdminReceiver</div>
+        </div>
+
+        <!-- Manufacturer Specific Note -->
+        <div id="adbBrandNote" class="mt-4 p-3.5 rounded-xl bg-blue-500/5 border border-blue-500/15 text-xs text-apple-grayText flex items-start gap-2.5">
+          <i data-lucide="info" class="w-4 h-4 text-apple-blue flex-shrink-0 mt-0.5"></i>
+          <div id="adbBrandNoteText">
+            <span class="font-semibold text-apple-black dark:text-white">Samsung One UI Guide:</span> Ensure USB debugging is enabled in Developer Options. Samsung Knox automatically enforces hardware policy without needing to remove personal accounts.
+          </div>
         </div>
       </div>
 
@@ -1012,7 +1360,7 @@
   <!-- ================= PRICING TIERS ================= -->
   <section id="pricing" class="py-24 px-4 sm:px-6 max-w-6xl mx-auto">
     
-    <div class="text-center mb-16">
+    <div class="text-center mb-10">
       <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Sovereign Licenses</p>
       <h2 class="text-4xl sm:text-6xl font-semibold tracking-tight text-apple-black">
         Simple, transparent pricing.
@@ -1020,6 +1368,18 @@
       <p class="text-base text-apple-grayText mt-4 max-w-xl mx-auto">
         No recurring monthly subscriptions. Immediate automated license generation.
       </p>
+
+      <!-- Currency Switcher Toggle -->
+      <div class="mt-8 flex items-center justify-center">
+        <div class="p-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] border border-black/[0.08] dark:border-white/[0.1] inline-flex">
+          <button onclick="switchCurrency('BDT')" id="currencyBdtBtn" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-neutral-800 text-apple-black dark:text-white shadow-sm transition-all flex items-center gap-1.5">
+            <span>🇧🇩</span> <span>BDT (৳)</span>
+          </button>
+          <button onclick="switchCurrency('USD')" id="currencyUsdBtn" class="px-4 py-1.5 rounded-full text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all flex items-center gap-1.5">
+            <span>🌐</span> <span>USD ($)</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch pt-4">
@@ -1029,7 +1389,7 @@
         <div>
           <div class="flex items-center justify-between mb-4">
             <span class="text-xs font-semibold uppercase text-apple-grayText">Community Trial</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-black/[0.05] text-apple-grayText">1 Device</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-apple-grayText">1 Device</span>
           </div>
           <div class="flex items-baseline gap-1 mb-3">
             <span class="text-4xl font-bold text-apple-black">Free</span>
@@ -1058,12 +1418,12 @@
         <div>
           <div class="flex items-center justify-between mb-4 mt-2">
             <span class="text-xs font-semibold uppercase text-apple-blue">Pro Lifetime</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-apple-blue font-medium">3 Devices</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-apple-blue font-medium">3 Devices</span>
           </div>
           <div class="flex items-baseline gap-1 mb-1">
-            <span class="text-5xl font-bold text-apple-black">৳3,490</span>
+            <span id="proPriceDisplay" class="text-5xl font-bold text-apple-black">৳3,490</span>
           </div>
-          <div class="text-xs text-apple-grayText mb-3">one-time payment · ~\$29 USD</div>
+          <div id="proPriceSub" class="text-xs text-apple-grayText mb-3">one-time payment &bull; ~$29 USD</div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
             Perpetual sovereign defense. Protect your primary phone and family devices forever with all future updates.
           </p>
@@ -1075,8 +1435,8 @@
             <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-blue"></i> <b>Lifetime OTA updates</b> &amp; priority routing</li>
           </ul>
         </div>
-        <button onclick="openCheckout('PRO_LIFETIME', 3490)" class="apple-btn-pill w-full py-3.5 text-xs text-center font-medium shadow-[0_4px_18px_rgba(0,113,227,0.35)]">
-          Buy Pro Lifetime — ৳3,490
+        <button onclick="handleProCheckoutClick()" id="proBuyBtn" class="apple-btn-pill w-full py-3.5 text-xs text-center font-medium shadow-[0_4px_18px_rgba(0,113,227,0.35)]">
+          <span id="proBuyBtnText">Buy Pro Lifetime — ৳3,490</span>
         </button>
       </div>
 
@@ -1085,12 +1445,12 @@
         <div>
           <div class="flex items-center justify-between mb-4">
             <span class="text-xs font-semibold uppercase text-apple-grayText">Fleet / Enterprise</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-black/[0.05] text-apple-grayText">10 Devices</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-apple-grayText">10 Devices</span>
           </div>
           <div class="flex items-baseline gap-1 mb-1">
-            <span class="text-4xl font-bold text-apple-black">৳9,990</span>
+            <span id="fleetPriceDisplay" class="text-4xl font-bold text-apple-black">৳9,990</span>
           </div>
-          <div class="text-xs text-apple-grayText mb-3">one-time payment · ~\$83 USD</div>
+          <div id="fleetPriceSub" class="text-xs text-apple-grayText mb-3">one-time payment &bull; ~$83 USD</div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
             For executive teams, secure facilities, and multi-device fleet deployments requiring Knox-grade ADB provisioning.
           </p>
@@ -1101,9 +1461,104 @@
             <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-apple-black"></i> Dedicated deployment engineering</li>
           </ul>
         </div>
-        <button onclick="openCheckout('PRO_ENTERPRISE', 9990)" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium">
-          Deploy Fleet License — ৳9,990
+        <button onclick="handleFleetCheckoutClick()" id="fleetBuyBtn" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium">
+          <span id="fleetBuyBtnText">Deploy Fleet License — ৳9,990</span>
         </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= INTERACTIVE ACCORDION FAQ ================= -->
+  <section id="faq" class="py-24 px-4 sm:px-6 max-w-4xl mx-auto">
+    <div class="text-center mb-14">
+      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Frequently Asked Questions</p>
+      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight text-apple-black">
+        Everything you need to know.
+      </h2>
+      <p class="text-base text-apple-grayText mt-3 max-w-xl mx-auto">
+        Clear answers on device persistence, offline SMS, privacy architecture, and guarantees.
+      </p>
+    </div>
+
+    <div class="space-y-3.5">
+      
+      <!-- FAQ Item 1 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(1)">
+        <div class="flex items-center justify-between gap-4">
+          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Can a thief bypass PASA Sentinel by factory resetting from Recovery Mode?</h4>
+          <i data-lucide="chevron-down" id="faqIcon-1" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-1" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            <b>No.</b> When provisioned as Android Device Owner via ADB, PASA enforces hardware-level Enterprise Device Policies. USB debugging remains armed, ADB wipe commands are rejected without cryptographic authentication, and Android Factory Reset Protection (FRP) permanently ties hardware partition access to your credentials. Even if wiped via custom hardware boxes, the IMEI and carrier locks remain active.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 2 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(2)">
+        <div class="flex items-center justify-between gap-4">
+          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">How does offline defense work if the thief removes my SIM card?</h4>
+          <i data-lucide="chevron-down" id="faqIcon-2" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-2" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            PASA Sentinel includes a dedicated hardware SIM State Broadcast Receiver. As soon as the tray is ejected, the phone locks down, silences notification sounds, and caches GPS fixes. Whenever any new SIM card is inserted by the thief or resale shop, PASA automatically and silently transmits an encrypted SMS containing the new IMSI, phone number, and GPS coordinates to your predefined trusted emergency contact.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 3 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(3)">
+        <div class="flex items-center justify-between gap-4">
+          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Will background motion sensors and Telegram long-polling drain my battery?</h4>
+          <i data-lucide="chevron-down" id="faqIcon-3" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-3" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            Battery impact is negligible — typically <b>less than 1.2% over a 24-hour cycle</b>. PASA utilizes Android hardware sensor batching (low-power DSP) and event-driven C2 sockets rather than continuous CPU wake-locks. The kinetic snatch trigger uses a low-frequency hardware accelerometer interrupt that only wakes the main processor when a high-G acceleration delta is verified.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 4 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(4)">
+        <div class="flex items-center justify-between gap-4">
+          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">How does the 7-Day Money-Back Guarantee work?</h4>
+          <i data-lucide="chevron-down" id="faqIcon-4" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-4" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            We offer an unconditional 7-day refund guarantee. If PASA Sentinel does not perform as described on your specific Android device, simply send your License Key to our support team on WhatsApp (<b>+880 1762-033445</b>) or Telegram. For bKash/Nagad purchases, funds are refunded to your account within 24 hours. For Binance Pay purchases, USDT is refunded directly to your Binance Pay ID.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 5 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(5)">
+        <div class="flex items-center justify-between gap-4">
+          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Is my location, camera, or audio evidence stored on any company server?</h4>
+          <i data-lucide="chevron-down" id="faqIcon-5" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-5" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            <b>Never.</b> PASA Sentinel is engineered from day one as a Zero-Telemetry, sovereign system. No analytics libraries (Firebase, Google Play, Facebook SDK) exist in the APK. Evidence (mugshots, audio recordings, GPS coordinates) is encrypted on the device and streamed directly and exclusively to your private Telegram Bot chat. Nobody else can ever access your telemetry.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 6 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(6)">
+        <div class="flex items-center justify-between gap-4">
+          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Can I transfer my Pro Lifetime license if I switch or upgrade phones?</h4>
+          <i data-lucide="chevron-down" id="faqIcon-6" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-6" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            <b>Yes!</b> Pro Lifetime licenses support 3 simultaneous hardware devices. When retiring an old smartphone, you can instantly unbind it via Telegram command (<code>/license unbind &lt;deviceId&gt;</code>) or through the Cryptographic Ledger tool on this site, freeing the slot to activate on your new Android phone immediately.
+          </p>
+        </div>
       </div>
 
     </div>
@@ -1419,6 +1874,71 @@
     </div>
   </div>
 
+  <!-- ================= QUICK QR CODE SIDELOAD MODAL ================= -->
+  <div id="qrModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xl bg-black/40 transition-opacity">
+    <div class="apple-card max-w-sm w-full p-6 sm:p-8 shadow-2xl relative text-center">
+      <button onclick="closeQrModal()" class="absolute top-4 right-4 text-apple-grayText hover:text-apple-black dark:hover:text-white p-1 rounded-full hover:bg-black/[0.06] dark:hover:bg-white/[0.06] transition-colors">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      
+      <div class="w-12 h-12 rounded-2xl bg-blue-500/10 text-apple-blue flex items-center justify-center mx-auto mb-3">
+        <i data-lucide="qr-code" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-apple-black tracking-tight mb-1">Scan to Install on Phone</h3>
+      <p class="text-xs text-apple-grayText mb-5">Open your smartphone camera to download the official PASA Sentinel binary directly:</p>
+
+      <!-- QR Code Container -->
+      <div class="p-4 bg-white rounded-2xl border border-black/[0.08] inline-block shadow-inner mb-4">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https%3A%2F%2Fpasa.izhaanintellect.fun%2Freleases%2Fpasa-latest.apk" alt="PASA Sentinel APK QR Code" class="w-48 h-48 mx-auto rounded-lg" loading="lazy">
+      </div>
+
+      <div class="space-y-2.5">
+        <a href="/releases/pasa-latest.apk" class="apple-btn-pill w-full py-2.5 text-xs font-medium flex items-center justify-center gap-2">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span>Direct APK Download (v3.1.8)</span>
+        </a>
+        <button onclick="copyDownloadLink()" class="apple-btn-secondary w-full py-2.5 text-xs font-medium flex items-center justify-center gap-1.5">
+          <i data-lucide="link" class="w-3.5 h-3.5"></i>
+          <span id="copyLinkBtnText">Copy Download Link</span>
+        </button>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-black/[0.06] dark:border-white/[0.08] text-[10px] text-apple-grayText font-mono break-all">
+        SHA-256: 5c578b49...bfce34b &bull; Signed Ed25519
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= FLOATING WHATSAPP SUPPORT WIDGET ================= -->
+  <a id="whatsappWidget" href="https://wa.me/8801762033445?text=Hello%20PASA%20Sentinel%20Support,%20I%20have%20a%20question%20about%20the%20app." target="_blank" rel="noopener noreferrer" class="wa-floating-btn group" title="Chat with PASA Support on WhatsApp (+880 1762-033445)">
+    <div class="wa-pulse"></div>
+    <i data-lucide="message-circle" class="w-7 h-7 fill-white"></i>
+    <!-- Hover Tooltip -->
+    <span class="absolute right-16 px-3 py-1.5 rounded-xl bg-neutral-900 text-white text-xs font-sans whitespace-nowrap shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none hidden sm:block">
+      Questions? Chat on WhatsApp
+    </span>
+  </a>
+
+  <!-- ================= STICKY MOBILE ACTION BAR ================= -->
+  <div id="mobileStickyBar" class="sticky-mobile-bar md:hidden">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 rounded-full bg-apple-green animate-pulse"></div>
+      <div class="text-[11px] font-semibold text-apple-black dark:text-white leading-tight">
+        PASA Sentinel
+        <span class="block text-[9px] text-apple-grayText font-normal">v3.1.8 &bull; Knox-Grade</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="/releases/pasa-latest.apk" class="apple-btn-secondary px-3 py-1.5 text-[11px] font-medium flex items-center gap-1">
+        <i data-lucide="download" class="w-3 h-3"></i>
+        <span>Free APK</span>
+      </a>
+      <button onclick="handleProCheckoutClick()" class="apple-btn-pill px-3.5 py-1.5 text-[11px] font-medium">
+        <span id="mobileBarBuyText">Buy Pro (৳3,490)</span>
+      </button>
+    </div>
+  </div>
+
   <!-- ================= SCRIPTS ================= -->
   <script>
     if (window.lucide) lucide.createIcons();
@@ -1704,7 +2224,380 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    // Init default tab & stats
+    // ==========================================
+    // TACTICAL THEME ENGINE (DARK / LIGHT)
+    // ==========================================
+    function initTheme() {
+      const saved = localStorage.getItem('pasa_theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.documentElement.classList.add('dark');
+        updateThemeIcon(true);
+      } else {
+        document.documentElement.classList.remove('dark');
+        updateThemeIcon(false);
+      }
+    }
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('pasa_theme', isDark ? 'dark' : 'light');
+      updateThemeIcon(isDark);
+    }
+    function updateThemeIcon(isDark) {
+      const icon = document.getElementById('themeToggleIcon');
+      if (icon) {
+        icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
+    // ==========================================
+    // MULTI-LANGUAGE ENGINE (EN / বাংলা)
+    // ==========================================
+    let currentLang = localStorage.getItem('pasa_lang') || 'EN';
+    const langData = {
+      EN: {
+        btn: 'বাংলা',
+        headline: 'Your phone<br>fights back.',
+        subline: 'When thieves cut Wi-Fi, pull the SIM, and hit airplane mode — PASA Sentinel keeps working. Air-gapped SMS commands, silent mugshots, fake shutdowns, and a fortress-grade lock they can\'t uninstall.',
+        downloadBtn: 'Download APK — Free',
+        proBtn: 'Unlock Pro • ৳3,490'
+      },
+      BN: {
+        btn: 'English',
+        headline: 'আপনার ফোন<br>নিজেই লড়বে।',
+        subline: 'চোর যখন ওয়াই-ফাই কেটে দেয়, সিম খুলে ফেলে কিংবা ফোন বন্ধ করতে যায় — তখনো PASA Sentinel সক্রিয় থাকে। অফলাইন SMS কমান্ড, ফ্রন্ট ক্যামেরায় গোপন সেলফি, ফেক শাটডাউন ও আনইনস্টল-অসম্ভব নকস-গ্রেড লক।',
+        downloadBtn: 'ফ্রি APK ডাউনলোড করুন',
+        proBtn: 'প্রো আনলক করুন • ৳৩,৪৯০'
+      }
+    };
+    function applyLanguage(lang) {
+      currentLang = lang;
+      const t = langData[lang] || langData.EN;
+      const btn = document.getElementById('langBtnText');
+      if (btn) btn.textContent = t.btn;
+      const h = document.getElementById('heroHeadline');
+      if (h) h.innerHTML = t.headline;
+      const s = document.getElementById('heroSubline');
+      if (s) s.textContent = t.subline;
+      const d = document.getElementById('heroDownloadBtn');
+      if (d) d.textContent = t.downloadBtn;
+      const p = document.getElementById('heroProBtn');
+      if (p) p.textContent = t.proBtn;
+      localStorage.setItem('pasa_lang', lang);
+    }
+    function toggleLanguage() {
+      applyLanguage(currentLang === 'EN' ? 'BN' : 'EN');
+    }
+
+    // ==========================================
+    // DUAL CURRENCY ENGINE (BDT ৳ / USD $)
+    // ==========================================
+    let activeCurrency = 'BDT';
+    function switchCurrency(curr) {
+      activeCurrency = curr;
+      const bdtBtn = document.getElementById('currencyBdtBtn');
+      const usdBtn = document.getElementById('currencyUsdBtn');
+      const proDisplay = document.getElementById('proPriceDisplay');
+      const proSub = document.getElementById('proPriceSub');
+      const proBuyText = document.getElementById('proBuyBtnText');
+      const fleetDisplay = document.getElementById('fleetPriceDisplay');
+      const fleetSub = document.getElementById('fleetPriceSub');
+      const fleetBuyText = document.getElementById('fleetBuyBtnText');
+      const mobileBuyText = document.getElementById('mobileBarBuyText');
+
+      if (curr === 'USD') {
+        if (bdtBtn) bdtBtn.className = 'px-4 py-1.5 rounded-full text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all flex items-center gap-1.5';
+        if (usdBtn) usdBtn.className = 'px-4 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-neutral-800 text-apple-black dark:text-white shadow-sm transition-all flex items-center gap-1.5';
+        if (proDisplay) proDisplay.textContent = '$29';
+        if (proSub) proSub.textContent = 'one-time payment • ~৳3,490 BDT';
+        if (proBuyText) proBuyText.textContent = 'Buy Pro Lifetime — $29';
+        if (fleetDisplay) fleetDisplay.textContent = '$83';
+        if (fleetSub) fleetSub.textContent = 'one-time payment • ~৳9,990 BDT';
+        if (fleetBuyText) fleetBuyText.textContent = 'Deploy Fleet License — $83';
+        if (mobileBuyText) mobileBuyText.textContent = 'Buy Pro ($29)';
+      } else {
+        if (bdtBtn) bdtBtn.className = 'px-4 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-neutral-800 text-apple-black dark:text-white shadow-sm transition-all flex items-center gap-1.5';
+        if (usdBtn) usdBtn.className = 'px-4 py-1.5 rounded-full text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all flex items-center gap-1.5';
+        if (proDisplay) proDisplay.textContent = '৳3,490';
+        if (proSub) proSub.textContent = 'one-time payment • ~$29 USD';
+        if (proBuyText) proBuyText.textContent = 'Buy Pro Lifetime — ৳3,490';
+        if (fleetDisplay) fleetDisplay.textContent = '৳9,990';
+        if (fleetSub) fleetSub.textContent = 'one-time payment • ~$83 USD';
+        if (fleetBuyText) fleetBuyText.textContent = 'Deploy Fleet License — ৳9,990';
+        if (mobileBuyText) mobileBuyText.textContent = 'Buy Pro (৳3,490)';
+      }
+    }
+    function handleProCheckoutClick() {
+      openCheckout('PRO_LIFETIME', 3490);
+      if (activeCurrency === 'USD') selectPayment('binance');
+    }
+    function handleFleetCheckoutClick() {
+      openCheckout('PRO_ENTERPRISE', 9990);
+      if (activeCurrency === 'USD') selectPayment('binance');
+    }
+
+    // ==========================================
+    // INTERACTIVE TELEGRAM C2 SIMULATOR ENGINE
+    // ==========================================
+    function simDispatch(cmd) {
+      const feed = document.getElementById('simChatFeed');
+      const body = document.getElementById('simPhoneBody');
+      const flash = document.getElementById('simShutterFlash');
+      const latencyEl = document.getElementById('simLatency');
+      const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+
+      const rndLatency = Math.floor(Math.random() * 10) + 12;
+      if (latencyEl) latencyEl.textContent = rndLatency + 'ms';
+
+      if (cmd === 'locate') {
+        feed.innerHTML += `
+          <div class="flex justify-end"><div class="bg-apple-blue text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/locate</div></div>
+          <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
+            <div class="font-semibold text-apple-blue mb-1">📍 High-Precision GNSS Fix Acquired</div>
+            <div class="text-[10px] text-apple-grayText mb-1">Coordinates: <b>23.777176° N, 90.399452° E</b> (±3.2m)</div>
+            <div class="text-[10px] text-apple-grayText mb-2">Location: Tejgaon Industrial Area, Dhaka 1208</div>
+            <a href="https://maps.google.com/?q=23.777176,90.399452" target="_blank" class="text-apple-blue text-[10px] underline flex items-center gap-1">Open in Google Maps &rarr;</a>
+          </div><span class="text-[9px] text-apple-grayText mt-1 ml-1 font-mono">${now}</span></div>
+        `;
+        body.innerHTML = `
+          <div class="w-16 h-16 rounded-full bg-green-900/40 border border-green-500/50 flex items-center justify-center mb-3 animate-pulse">
+            <i data-lucide="map-pin" class="w-8 h-8 text-green-400"></i>
+          </div>
+          <h5 class="text-sm font-semibold text-white">Hardware GNSS Broadcast</h5>
+          <p class="text-[10px] text-green-400 mt-1">23.7771° N, 90.3994° E</p>
+          <div class="mt-3 px-3 py-1 rounded-full bg-neutral-900 text-[10px] text-gray-400 font-mono">Accuracy: ±3.2m</div>
+        `;
+      } else if (cmd === 'photo') {
+        if (flash) {
+          flash.style.opacity = '1';
+          setTimeout(() => { flash.style.opacity = '0'; }, 180);
+        }
+        feed.innerHTML += `
+          <div class="flex justify-end"><div class="bg-purple-600 text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/snap</div></div>
+          <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
+            <div class="font-semibold text-purple-600 dark:text-purple-400 mb-1">📸 Stealth Forensic Mugshot Captured</div>
+            <div class="w-full h-24 rounded-lg bg-neutral-900 border border-white/10 flex flex-col items-center justify-center text-gray-400 text-[10px] mb-2">
+              <span class="text-base mb-0.5">👤</span>
+              <span>Covert Front Camera Photo (1080p)</span>
+              <span class="text-[9px] text-gray-500 font-mono">Zero screen wake &bull; Silent shutter</span>
+            </div>
+            <div class="text-[10px] text-apple-grayText font-mono">Battery: 92% &bull; Light: 45 Lux</div>
+          </div><span class="text-[9px] text-apple-grayText mt-1 ml-1 font-mono">${now}</span></div>
+        `;
+        body.innerHTML = `
+          <div class="w-16 h-16 rounded-full bg-purple-900/40 border border-purple-500/50 flex items-center justify-center mb-3">
+            <i data-lucide="camera" class="w-8 h-8 text-purple-400"></i>
+          </div>
+          <h5 class="text-sm font-semibold text-white">Covert Camera Triggered</h5>
+          <p class="text-[10px] text-gray-400 mt-1">Screen wake suppressed</p>
+          <div class="mt-3 px-3 py-1 rounded-full bg-neutral-900 text-[10px] text-purple-400 font-mono">1080p RAW Captured</div>
+        `;
+      } else if (cmd === 'lock') {
+        feed.innerHTML += `
+          <div class="flex justify-end"><div class="bg-red-600 text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/lock</div></div>
+          <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
+            <div class="font-semibold text-red-600 dark:text-red-400 mb-1">🔒 Knox Lockscreen Engaged</div>
+            <p class="text-[11px] text-apple-grayText">Status bar and navigation pill frozen. Emergency owner banner displayed on screen.</p>
+          </div><span class="text-[9px] text-apple-grayText mt-1 ml-1 font-mono">${now}</span></div>
+        `;
+        body.innerHTML = `
+          <div class="w-14 h-14 rounded-full bg-red-900/40 border border-red-500/50 flex items-center justify-center mb-3">
+            <i data-lucide="lock" class="w-7 h-7 text-red-400"></i>
+          </div>
+          <h5 class="text-sm font-semibold text-red-400 uppercase tracking-wider">Device Secured</h5>
+          <p class="text-[10px] text-gray-300 mt-1 px-2">This phone is reported stolen. Call owner: +880 1762-033445</p>
+          <div class="mt-4 px-4 py-1.5 rounded-lg bg-neutral-900 border border-white/10 text-[10px] text-gray-400 font-mono">PIN: [ • • • • ]</div>
+        `;
+      } else if (cmd === 'shutdown') {
+        feed.innerHTML += `
+          <div class="flex justify-end"><div class="bg-neutral-700 text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/fakeshutdown</div></div>
+          <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
+            <div class="font-semibold text-neutral-700 dark:text-neutral-300 mb-1">🕶️ Blackout Mode Active</div>
+            <p class="text-[11px] text-apple-grayText">Display brightness: 0 nits. Power animation spoofed. Ambient microphone buffer and background tracking remain live.</p>
+          </div><span class="text-[9px] text-apple-grayText mt-1 ml-1 font-mono">${now}</span></div>
+        `;
+        body.innerHTML = `
+          <div class="w-12 h-12 rounded-full bg-transparent flex items-center justify-center mb-2">
+            <span class="w-2 h-2 rounded-full bg-green-500/80 animate-ping"></span>
+          </div>
+          <h5 class="text-xs font-mono text-neutral-800">0 NITS BLACKOUT</h5>
+          <p class="text-[9px] text-neutral-800 mt-1">Screen off to thief &bull; C2 listening</p>
+        `;
+      } else if (cmd === 'siren') {
+        feed.innerHTML += `
+          <div class="flex justify-end"><div class="bg-amber-600 text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/siren</div></div>
+          <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
+            <div class="font-semibold text-amber-600 dark:text-amber-400 mb-1">🚨 Emergency Police Siren Dispatched</div>
+            <p class="text-[11px] text-apple-grayText">Media volume forced to 100% SPL. Hardware speaker override active.</p>
+          </div><span class="text-[9px] text-apple-grayText mt-1 ml-1 font-mono">${now}</span></div>
+        `;
+        body.innerHTML = `
+          <div class="w-16 h-16 rounded-full bg-amber-900/40 border border-amber-500/50 flex items-center justify-center mb-3 animate-bounce">
+            <i data-lucide="bell-ring" class="w-8 h-8 text-amber-400"></i>
+          </div>
+          <h5 class="text-sm font-semibold text-amber-400 uppercase tracking-widest animate-pulse">100% SPL Siren</h5>
+          <p class="text-[10px] text-gray-400 mt-1">Strobe &amp; Max Sound Active</p>
+          <div class="mt-3 px-3 py-1 rounded-full bg-red-900/40 text-[10px] text-red-400 font-mono">Volume Locked: 100%</div>
+        `;
+      } else if (cmd === 'clipboard') {
+        feed.innerHTML += `
+          <div class="flex justify-end"><div class="bg-emerald-600 text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/clipboard</div></div>
+          <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
+            <div class="font-semibold text-emerald-600 dark:text-emerald-400 mb-1">📋 Clipboard Buffer Captured</div>
+            <div class="bg-black/[0.04] dark:bg-white/[0.08] p-2 rounded text-[10px] font-mono text-apple-black break-all mb-1">
+              "01762033445"
+            </div>
+            <div class="text-[9px] text-apple-grayText font-mono">Retrieved via Accessibility Service</div>
+          </div><span class="text-[9px] text-apple-grayText mt-1 ml-1 font-mono">${now}</span></div>
+        `;
+        body.innerHTML = `
+          <div class="w-16 h-16 rounded-full bg-emerald-900/40 border border-emerald-500/50 flex items-center justify-center mb-3">
+            <i data-lucide="clipboard-copy" class="w-8 h-8 text-emerald-400"></i>
+          </div>
+          <h5 class="text-sm font-semibold text-white">Clipboard Inspected</h5>
+          <p class="text-[10px] text-emerald-400 mt-1">Buffer Transmitted</p>
+        `;
+      }
+
+      feed.scrollTop = feed.scrollHeight;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function simReset() {
+      const feed = document.getElementById('simChatFeed');
+      const body = document.getElementById('simPhoneBody');
+      feed.innerHTML = `
+        <div class="flex flex-col items-start">
+          <div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[92%] text-apple-black">
+            <div class="font-semibold text-apple-blue text-[11px] mb-1">🛡️ PASA Sentinel Control Plane v3.1.8</div>
+            <div class="text-[11px] text-apple-grayText mb-1.5">Connected: <code class="font-mono text-[10px]">pasa_a8cdfe29 (Moto Edge 70)</code></div>
+            <p class="text-[11px] leading-relaxed">System is armed and listening. Tap an inline command button below to transmit an authenticated instruction:</p>
+          </div>
+          <span class="text-[9px] text-apple-grayText mt-1 ml-1 font-mono">14:02</span>
+        </div>
+      `;
+      body.innerHTML = `
+        <div class="w-16 h-16 rounded-full bg-blue-900/30 border border-blue-500/30 flex items-center justify-center mb-3">
+          <i data-lucide="shield" class="w-8 h-8 text-blue-400"></i>
+        </div>
+        <h5 class="text-sm font-semibold text-white">PASA Sentinel Armed</h5>
+        <p class="text-[11px] text-gray-400 mt-1">Listening on C2 Gateway</p>
+        <div class="mt-4 px-3 py-1 rounded-full bg-neutral-900 border border-white/10 text-[10px] text-green-400 font-mono">
+          ● Ed25519 Verified
+        </div>
+      `;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ==========================================
+    // INTERACTIVE ADB GENERATOR
+    // ==========================================
+    const adbBrands = {
+      samsung: {
+        cmd: 'adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdminReceiver',
+        note: '<span class="font-semibold text-apple-black dark:text-white">Samsung One UI Guide:</span> Enable USB debugging in Developer Options. Knox automatically enforces policies without requiring Google Account deletion on One UI 5/6/7.'
+      },
+      xiaomi: {
+        cmd: 'adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdminReceiver',
+        note: '<span class="font-semibold text-apple-black dark:text-white">Xiaomi / HyperOS Guide:</span> In Developer Options, enable both <b>USB debugging</b> and <b>USB debugging (Security Settings)</b>. Temporarily log out of your Mi Account before provisioning.'
+      },
+      pixel: {
+        cmd: 'adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdminReceiver',
+        note: '<span class="font-semibold text-apple-black dark:text-white">Google Pixel Guide:</span> Stock Android requires all personal Google accounts to be removed under Settings &rarr; Passwords &amp; Accounts before running the ADB command.'
+      },
+      motorola: {
+        cmd: 'adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdminReceiver',
+        note: '<span class="font-semibold text-apple-black dark:text-white">Motorola Guide:</span> Near-stock Hello UI/MyUX. Remove secondary accounts in Settings, run the command, and re-add accounts immediately.'
+      },
+      oneplus: {
+        cmd: 'adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdminReceiver',
+        note: '<span class="font-semibold text-apple-black dark:text-white">OnePlus / Oppo (OxygenOS/ColorOS):</span> Ensure "Disable Permission Monitoring" is turned on in Developer Options. Remove RedCable/HeyTap accounts before provisioning.'
+      },
+      generic: {
+        cmd: 'adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdminReceiver',
+        note: '<span class="font-semibold text-apple-black dark:text-white">Generic Android 8–16:</span> Connect via USB with Developer Options &rarr; USB Debugging enabled. Ensure device has no multiple users or work profile setup.'
+      }
+    };
+    function selectAdbBrand(brand) {
+      document.querySelectorAll('.adb-brand-btn').forEach(b => {
+        b.className = 'adb-brand-btn px-3 py-1.5 rounded-xl text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all';
+      });
+      const btn = document.getElementById('adbBrand-' + brand);
+      if (btn) btn.className = 'adb-brand-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-neutral-800 text-apple-black dark:text-white shadow-sm transition-all';
+      const data = adbBrands[brand] || adbBrands.generic;
+      document.getElementById('adbCommandText').textContent = data.cmd;
+      document.getElementById('adbBrandNoteText').innerHTML = data.note;
+    }
+    function copyAdbCommand() {
+      const cmd = document.getElementById('adbCommandText').textContent.trim();
+      navigator.clipboard.writeText(cmd).then(() => {
+        const btn = document.getElementById('adbCopyBtnText');
+        if (btn) {
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy Command'; }, 2000);
+        }
+      });
+    }
+
+    // ==========================================
+    // INTERACTIVE ACCORDION FAQ
+    // ==========================================
+    function toggleFaq(id) {
+      const ans = document.getElementById('faqAnswer-' + id);
+      const icon = document.getElementById('faqIcon-' + id);
+      if (!ans) return;
+      const isOpen = ans.classList.contains('open');
+      document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+      document.querySelectorAll('.faq-icon').forEach(i => i.classList.remove('open'));
+      if (!isOpen) {
+        ans.classList.add('open');
+        if (icon) icon.classList.add('open');
+      }
+    }
+
+    // ==========================================
+    // QUICK QR MODAL & COPY ENGINE
+    // ==========================================
+    function openQrModal() {
+      document.getElementById('qrModal').classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+    function closeQrModal() {
+      document.getElementById('qrModal').classList.add('hidden');
+    }
+    document.getElementById('qrModal').addEventListener('click', function(e) {
+      if (e.target === this) closeQrModal();
+    });
+    function copyDownloadLink() {
+      const url = 'https://pasa.izhaanintellect.fun/releases/pasa-latest.apk';
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('copyLinkBtnText');
+        if (btn) {
+          btn.textContent = 'Link Copied!';
+          setTimeout(() => { btn.textContent = 'Copy Download Link'; }, 2000);
+        }
+      });
+    }
+
+    // ==========================================
+    // STICKY MOBILE BAR SCROLL WATCHER
+    // ==========================================
+    window.addEventListener('scroll', () => {
+      const bar = document.getElementById('mobileStickyBar');
+      if (!bar) return;
+      if (window.scrollY > 450) {
+        bar.classList.add('visible');
+      } else {
+        bar.classList.remove('visible');
+      }
+    });
+
+    // ==========================================
+    // INITIALIZATION SEQUENCE
+    // ==========================================
+    initTheme();
+    if (currentLang !== 'EN') applyLanguage(currentLang);
     triggerScenario('snatch');
     selectPayment('bkash');
     initVisitorCount();
