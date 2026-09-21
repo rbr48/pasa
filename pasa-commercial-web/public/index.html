@@ -540,6 +540,11 @@
           <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
         </button>
 
+        <!-- Emergency Web C2 Quick Trigger -->
+        <button onclick="openEmergencyC2Modal()" class="p-1.5 rounded-full hover:bg-red-500/10 text-red-500 hover:text-red-600 dark:text-red-400 transition-colors hidden md:flex items-center justify-center" title="Lost Phone? Web Emergency C2 Dispatch">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+        </button>
+
         <!-- Vertical Divider -->
         <div class="w-px h-4 bg-black/10 dark:bg-white/10 mx-0.5 hidden sm:block"></div>
 
@@ -828,10 +833,16 @@
                 <div class="text-[10px] text-green-600 dark:text-green-400 font-mono">● active session (@Pas_agent_bot)</div>
               </div>
             </div>
-            <button onclick="simReset()" class="text-[11px] text-apple-grayText hover:text-apple-blue transition-colors flex items-center gap-1 font-mono" title="Clear and restart simulator">
-              <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
-              <span>Reset</span>
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button onclick="toggleSimAudio()" id="simAudioToggle" class="text-[11px] text-apple-grayText hover:text-apple-blue transition-colors flex items-center gap-1 font-mono px-2 py-0.5 rounded-md hover:bg-black/[0.04] dark:hover:bg-white/[0.06]" title="Toggle Sound Effects">
+                <i data-lucide="volume-2" id="simAudioIcon" class="w-3.5 h-3.5 text-apple-blue"></i>
+                <span id="simAudioText">Sound: ON</span>
+              </button>
+              <button onclick="simReset()" class="text-[11px] text-apple-grayText hover:text-apple-blue transition-colors flex items-center gap-1 font-mono px-2 py-0.5 rounded-md hover:bg-black/[0.04] dark:hover:bg-white/[0.06]" title="Clear and restart simulator">
+                <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+                <span>Reset</span>
+              </button>
+            </div>
           </div>
 
           <!-- Chat Feed -->
@@ -917,6 +928,83 @@
         <p class="text-xs text-apple-grayText mt-4 font-mono text-center">
           ⚡ Latency: <span id="simLatency" class="text-apple-blue font-semibold">14ms</span> &bull; Status: <span id="simStatusText" class="text-green-600 dark:text-green-400">C2 Connected</span>
         </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= DEVICE COMPATIBILITY CHECKER ================= -->
+  <section id="compatibility" class="py-12 px-4 sm:px-6 max-w-5xl mx-auto">
+    <div class="apple-card p-6 sm:p-10">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2 h-2 rounded-full bg-apple-green animate-pulse"></span>
+            <span class="text-xs font-semibold uppercase tracking-wider text-apple-green font-mono">Hardware Compatibility Engine</span>
+          </div>
+          <h4 class="text-2xl font-semibold text-apple-black tracking-tight">Check Your Smartphone Support</h4>
+          <p class="text-xs text-apple-grayText mt-1">Verify whether your device supports Knox-Grade Device Owner and hardware kinetic sensor traps:</p>
+        </div>
+        <button onclick="autoDetectDevice()" class="apple-btn-secondary text-xs px-4 py-2.5 flex items-center gap-2 whitespace-nowrap self-start md:self-center">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5 text-apple-blue"></i>
+          <span>Auto-Detect My Device</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label class="block text-xs font-medium text-apple-black mb-1.5">Select Manufacturer</label>
+          <select id="compatBrandSelect" onchange="runCompatibilityCheck()" class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.1] rounded-xl px-4 py-2.5 text-xs text-apple-black dark:text-white focus:outline-none focus:border-apple-blue">
+            <option value="samsung">Samsung (One UI 5 / 6 / 7)</option>
+            <option value="xiaomi">Xiaomi / Redmi / POCO (MIUI / HyperOS)</option>
+            <option value="pixel">Google Pixel (Android 12–16)</option>
+            <option value="motorola" selected>Motorola (Hello UI / MyUX)</option>
+            <option value="oneplus">OnePlus / Oppo (OxygenOS / ColorOS)</option>
+            <option value="vivo">Vivo / iQOO (Funtouch OS)</option>
+            <option value="realme">Realme (Realme UI)</option>
+            <option value="other">Other Android 8.0 – 16 Devices</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-apple-black mb-1.5">Android Version</label>
+          <select id="compatVersionSelect" onchange="runCompatibilityCheck()" class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.1] rounded-xl px-4 py-2.5 text-xs text-apple-black dark:text-white focus:outline-none focus:border-apple-blue">
+            <option value="16">Android 16 (Developer Preview / 2026)</option>
+            <option value="15" selected>Android 15 (Target)</option>
+            <option value="14">Android 14</option>
+            <option value="13">Android 13</option>
+            <option value="12">Android 12</option>
+            <option value="11">Android 11</option>
+            <option value="10">Android 10</option>
+            <option value="9">Android 9.0 Pie</option>
+            <option value="8">Android 8.0 Oreo (Minimum)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Compatibility Matrix Result -->
+      <div id="compatResultBox" class="p-5 rounded-2xl bg-green-500/10 border border-green-500/20 text-apple-black">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="check-circle-2" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+          <span id="compatHeadline" class="font-semibold text-xs sm:text-sm text-green-700 dark:text-green-400">100% Compatible — Motorola on Android 15</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px] font-mono">
+          <div class="p-2.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.06]">
+            <div class="text-apple-grayText text-[10px]">Device Owner</div>
+            <div class="text-green-600 dark:text-green-400 font-semibold">Fully Supported</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.06]">
+            <div class="text-apple-grayText text-[10px]">Kinetic Snatch</div>
+            <div class="text-green-600 dark:text-green-400 font-semibold">±0.02G DSP Ready</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.06]">
+            <div class="text-apple-grayText text-[10px]">Silent Camera2</div>
+            <div class="text-green-600 dark:text-green-400 font-semibold">Zero Wake Lock</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.06]">
+            <div class="text-apple-grayText text-[10px]">Offline SMS PDU</div>
+            <div class="text-green-600 dark:text-green-400 font-semibold">Dual Standby</div>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -1358,6 +1446,179 @@
     </div>
   </section>
 
+  <!-- ================= TESTIMONIALS & CASE STUDIES ================= -->
+  <section id="testimonials" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Sovereign Defense in Action</p>
+      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight text-apple-black">
+        Field-tested. Proven in adversity.
+      </h2>
+      <p class="text-base text-apple-grayText mt-3 max-w-xl mx-auto">
+        Read how real users recovered stolen devices and protected critical assets under adversarial conditions:
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Story 1 -->
+      <div class="apple-card p-7 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-1 text-amber-500 mb-4 text-xs">
+            ★★★★★
+            <span class="ml-2 text-[10px] px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 font-mono">Theft Recovered</span>
+          </div>
+          <h4 class="text-base font-semibold text-apple-black mb-2">"Snatched at Dhanmondi 27. Recovered in 3 hours."</h4>
+          <p class="text-xs text-apple-grayText leading-relaxed mb-6">
+            "A motorcycle gang snatched my Galaxy S23 from a rickshaw. They immediately tried to power it off, but Fake Shutdown kicked in. Within minutes, my Telegram received front-camera mugshots of the rider and a live GPS pin at an electronic market in Farmgate. Police recovered it the same afternoon."
+          </p>
+        </div>
+        <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-blue-500/10 text-apple-blue font-bold flex items-center justify-center text-xs">
+            TN
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-apple-black">Tanvir N.</div>
+            <div class="text-[10px] text-apple-grayText">Dhaka University &bull; Samsung S23</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Story 2 -->
+      <div class="apple-card p-7 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-1 text-amber-500 mb-4 text-xs">
+            ★★★★★
+            <span class="ml-2 text-[10px] px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-apple-blue font-mono">Crypto Defense</span>
+          </div>
+          <h4 class="text-base font-semibold text-apple-black mb-2">"SIM-swap robbery neutralized."</h4>
+          <p class="text-xs text-apple-grayText leading-relaxed mb-6">
+            "My phone contains Binance 2FA and hardware cold wallet signers. When pickpockets took my phone and pulled the SIM card at a transit station, PASA instantly engaged Knox Lock and fired the offline emergency cellular beacon. The thieves couldn't access OTPs or factory reset the device."
+          </p>
+        </div>
+        <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-amber-500/10 text-amber-600 font-bold flex items-center justify-center text-xs">
+            MR
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-apple-black">Mahmudur R.</div>
+            <div class="text-[10px] text-apple-grayText">Web3 Developer &bull; Pixel 8 Pro</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Story 3 -->
+      <div class="apple-card p-7 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-1 text-amber-500 mb-4 text-xs">
+            ★★★★★
+            <span class="ml-2 text-[10px] px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 font-mono">Fleet Security</span>
+          </div>
+          <h4 class="text-base font-semibold text-apple-black mb-2">"Zero telemetry enterprise defense."</h4>
+          <p class="text-xs text-apple-grayText leading-relaxed mb-6">
+            "We needed anti-theft for 12 executive phones without exposing our location or files to Google Play telemetry or third-party cloud brokers. With PASA's ADB Device Owner script and Telegram C2, we maintain total control with Knox persistence."
+          </p>
+        </div>
+        <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 font-bold flex items-center justify-center text-xs">
+            SK
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-apple-black">Shahidul K.</div>
+            <div class="text-[10px] text-apple-grayText">CTO, SecureLogix &bull; Fleet License</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= INTERACTIVE THEFT RISK CALCULATOR ================= -->
+  <section id="risk-calculator" class="py-16 px-4 sm:px-6 max-w-5xl mx-auto">
+    <div class="apple-card p-8 sm:p-12 relative overflow-hidden">
+      
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Vulnerability Assessment</p>
+        <h3 class="text-2xl sm:text-4xl font-semibold tracking-tight text-apple-black">
+          Calculate Your Theft Exposure Risk
+        </h3>
+        <p class="text-xs sm:text-sm text-apple-grayText mt-2">
+          Adjust the sliders below to estimate the total financial and identity damage of losing your smartphone today:
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left: Sliders Controls -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <!-- Slider 1: Smartphone Replacement Cost -->
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="font-medium text-apple-black">Smartphone Replacement Value</span>
+              <span id="calcPhoneValText" class="font-mono font-bold text-apple-blue">৳75,000</span>
+            </div>
+            <input type="range" id="calcPhoneSlider" min="20000" max="200000" step="5000" value="75000" oninput="updateRiskCalc()" class="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-apple-blue">
+            <div class="flex justify-between text-[10px] text-apple-grayText mt-1 font-mono">
+              <span>৳20,000</span>
+              <span>৳1,00,000</span>
+              <span>৳2,00,000</span>
+            </div>
+          </div>
+
+          <!-- Slider 2: Linked Banking / bKash / Crypto -->
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="font-medium text-apple-black">Linked Banking, bKash &amp; Crypto Wallet Balance</span>
+              <span id="calcBankValText" class="font-mono font-bold text-apple-blue">৳60,000</span>
+            </div>
+            <input type="range" id="calcBankSlider" min="5000" max="300000" step="5000" value="60000" oninput="updateRiskCalc()" class="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-apple-blue">
+            <div class="flex justify-between text-[10px] text-apple-grayText mt-1 font-mono">
+              <span>৳5,000</span>
+              <span>৳1,50,000</span>
+              <span>৳3,00,000</span>
+            </div>
+          </div>
+
+          <!-- Toggle 3: Personal Data Blackmail / Identity Exposure -->
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="font-medium text-apple-black">Confidential Documents, Photos &amp; Identity Risk</span>
+              <span id="calcIdRiskText" class="font-mono font-bold text-red-500">High Exposure (+৳50k)</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" onclick="setIdRisk('low')" id="riskBtn-low" class="py-2 text-xs rounded-xl border border-black/10 dark:border-white/10 text-apple-grayText hover:text-apple-black transition-all font-medium">Low (+৳10k)</button>
+              <button type="button" onclick="setIdRisk('medium')" id="riskBtn-medium" class="py-2 text-xs rounded-xl border border-black/10 dark:border-white/10 text-apple-grayText hover:text-apple-black transition-all font-medium">Medium (+৳25k)</button>
+              <button type="button" onclick="setIdRisk('high')" id="riskBtn-high" class="py-2 text-xs rounded-xl border border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 font-semibold transition-all">High (+৳50k)</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: Results Card -->
+        <div class="lg:col-span-5 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] rounded-3xl p-6 sm:p-7 text-center flex flex-col justify-between">
+          <div>
+            <div class="text-[10px] font-mono text-apple-grayText uppercase tracking-wider mb-1">Estimated Total Vulnerability</div>
+            <div id="calcTotalRiskDisplay" class="text-4xl sm:text-5xl font-bold text-red-600 dark:text-red-400 font-mono tracking-tight mb-2">৳1,85,000</div>
+            <p class="text-xs text-apple-grayText mb-6">
+              Potential financial, identity, and hardware loss from an unencrypted phone theft.
+            </p>
+            
+            <div class="p-3.5 rounded-2xl bg-green-500/10 border border-green-500/20 text-xs text-green-700 dark:text-green-400 mb-6 flex items-center justify-between">
+              <span class="font-medium">PASA Sentinel Lifetime:</span>
+              <span class="font-bold font-mono text-sm">৳3,490 (One-Time)</span>
+            </div>
+          </div>
+
+          <button onclick="openCheckout('PRO_LIFETIME', 3490)" class="apple-btn-pill w-full py-3.5 text-xs font-medium shadow-[0_4px_16px_rgba(0,113,227,0.3)]">
+            Lock Down My Phone Now &rarr;
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
   <!-- ================= PRICING TIERS ================= -->
   <section id="pricing" class="py-24 px-4 sm:px-6 max-w-6xl mx-auto">
     
@@ -1770,6 +2031,17 @@
                 <span class="text-apple-grayText">Account Type:</span>
                 <span class="font-medium">Personal (Send Money)</span>
               </div>
+              <!-- Mobile 1-Tap bKash USSD & Copy -->
+              <div class="flex items-center gap-2 pt-1">
+                <a href="tel:*247*1*2*01737910040*3490*PASA%23" id="bkashUssdLink" class="flex-1 py-2 px-3 rounded-xl bg-[#d12053]/10 hover:bg-[#d12053]/20 text-[#d12053] font-semibold text-center text-xs flex items-center justify-center gap-1.5 border border-[#d12053]/20 transition-all" title="Dial *247# with parameters pre-filled on your mobile SIM">
+                  <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
+                  <span>1-Tap USSD Dial (*247#)</span>
+                </a>
+                <button type="button" onclick="copyBkashNumber()" class="py-2 px-3 rounded-xl bg-white hover:bg-neutral-50 text-apple-black font-medium text-xs flex items-center justify-center gap-1 border border-pink-200 transition-all">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span id="copyBkashNumText">Copy</span>
+                </button>
+              </div>
               <div class="mt-3 p-3 bg-white/80 rounded-lg border border-pink-100 text-[11px] text-apple-grayText leading-relaxed">
                 <b class="text-apple-black">Instructions:</b><br>
                 1. Open bKash &rarr; <b>Send Money</b><br>
@@ -1805,6 +2077,18 @@
               <div class="flex items-center justify-between">
                 <span class="text-apple-grayText">Recipient Nickname:</span>
                 <span class="font-mono font-bold text-xs text-apple-black bg-white px-2 py-0.5 rounded border border-yellow-200">RBR48</span>
+              </div>
+
+              <!-- 1-Tap Binance App Deep-Link & Copy -->
+              <div class="flex items-center gap-2 pt-1">
+                <a href="bnc://app/pay/send?recipient=756303714" class="flex-1 py-2 px-3 rounded-xl bg-[#f3ba2f]/20 hover:bg-[#f3ba2f]/30 text-amber-800 dark:text-amber-300 font-semibold text-center text-xs flex items-center justify-center gap-1.5 border border-[#f3ba2f]/40 transition-all" title="Open Binance app directly on mobile to pay">
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                  <span>Open Binance App (1-Tap)</span>
+                </a>
+                <button type="button" onclick="copyBinancePayId()" class="py-2 px-3 rounded-xl bg-white hover:bg-neutral-50 text-apple-black font-medium text-xs flex items-center justify-center gap-1 border border-yellow-200 transition-all">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span id="copyBinanceIdText">Copy ID</span>
+                </button>
               </div>
 
               <!-- Binance Pay QR Code Card -->
@@ -1910,6 +2194,119 @@
     </div>
   </div>
 
+  <!-- ================= WEB EMERGENCY C2 DISPATCH CONSOLE MODAL ================= -->
+  <div id="emergencyC2Modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xl bg-black/50 transition-opacity">
+    <div class="apple-card max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
+      <button onclick="closeEmergencyC2Modal()" class="absolute top-4 right-4 text-apple-grayText hover:text-apple-black dark:hover:text-white p-1 rounded-full hover:bg-black/[0.06] dark:hover:bg-white/[0.06] transition-colors">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="shield-alert" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-lg font-semibold text-apple-black tracking-tight">Emergency C2 Dispatch</h3>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 font-semibold">AIR-GAP RECOVERY</span>
+          </div>
+          <p class="text-xs text-apple-grayText mt-0.5">Lost your phone or Telegram is blocked? Dispatch cryptographic recovery overrides directly:</p>
+        </div>
+      </div>
+
+      <!-- Emergency Form -->
+      <form id="emergencyC2Form" onsubmit="handleEmergencyDispatch(event)" class="space-y-4">
+        <!-- Target Device Identifier / Bot Token -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-apple-black mb-1">Telegram Bot Token or Device ID</label>
+            <input type="text" id="emergencyDeviceId" required placeholder="e.g. 7829104:AAH..." class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.1] rounded-xl px-3.5 py-2 text-xs font-mono text-apple-black dark:text-white placeholder:text-apple-grayText focus:outline-none focus:border-red-500">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-apple-black mb-1">Master PIN / TOTP Auth</label>
+            <input type="password" id="emergencyPin" required placeholder="6-digit Master PIN" maxlength="8" class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.1] rounded-xl px-3.5 py-2 text-xs font-mono text-apple-black dark:text-white placeholder:text-apple-grayText focus:outline-none focus:border-red-500">
+          </div>
+        </div>
+
+        <!-- Emergency Action Selector -->
+        <div>
+          <label class="block text-xs font-medium text-apple-black mb-1.5">Select Override Protocol</label>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <button type="button" onclick="setEmergencyAction('locate')" id="emBtn-locate" class="em-action-btn active p-2.5 rounded-xl border border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 text-left transition-all">
+              <div class="font-semibold text-xs flex items-center gap-1.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                <span>Locate &amp; Track</span>
+              </div>
+              <div class="text-[10px] text-apple-grayText mt-0.5 font-normal">Pushes GPS + Cell tower</div>
+            </button>
+            <button type="button" onclick="setEmergencyAction('siren')" id="emBtn-siren" class="em-action-btn p-2.5 rounded-xl border border-black/10 dark:border-white/10 text-apple-black dark:text-white text-left transition-all hover:border-red-500/30">
+              <div class="font-semibold text-xs flex items-center gap-1.5">
+                <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                <span>100% Siren</span>
+              </div>
+              <div class="text-[10px] text-apple-grayText mt-0.5 font-normal">Max SPL audio blast</div>
+            </button>
+            <button type="button" onclick="setEmergencyAction('lock')" id="emBtn-lock" class="em-action-btn p-2.5 rounded-xl border border-black/10 dark:border-white/10 text-apple-black dark:text-white text-left transition-all hover:border-red-500/30">
+              <div class="font-semibold text-xs flex items-center gap-1.5">
+                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                <span>Knox Lock</span>
+              </div>
+              <div class="text-[10px] text-apple-grayText mt-0.5 font-normal">Device Owner hardware lock</div>
+            </button>
+            <button type="button" onclick="setEmergencyAction('photo')" id="emBtn-photo" class="em-action-btn p-2.5 rounded-xl border border-black/10 dark:border-white/10 text-apple-black dark:text-white text-left transition-all hover:border-red-500/30">
+              <div class="font-semibold text-xs flex items-center gap-1.5">
+                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                <span>Silent Mugshot</span>
+              </div>
+              <div class="text-[10px] text-apple-grayText mt-0.5 font-normal">Capture dual forensic photos</div>
+            </button>
+            <button type="button" onclick="setEmergencyAction('blackout')" id="emBtn-blackout" class="em-action-btn p-2.5 rounded-xl border border-black/10 dark:border-white/10 text-apple-black dark:text-white text-left transition-all hover:border-red-500/30">
+              <div class="font-semibold text-xs flex items-center gap-1.5">
+                <i data-lucide="power-off" class="w-3.5 h-3.5"></i>
+                <span>Fake Blackout</span>
+              </div>
+              <div class="text-[10px] text-apple-grayText mt-0.5 font-normal">Spoof battery dead screen</div>
+            </button>
+            <button type="button" onclick="setEmergencyAction('wipe')" id="emBtn-wipe" class="em-action-btn p-2.5 rounded-xl border border-black/10 dark:border-white/10 text-red-600 dark:text-red-400 text-left transition-all hover:border-red-500/50">
+              <div class="font-semibold text-xs flex items-center gap-1.5">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                <span>Crypto Wipe</span>
+              </div>
+              <div class="text-[10px] text-apple-grayText mt-0.5 font-normal">Hardware zeroization</div>
+            </button>
+          </div>
+          <input type="hidden" id="selectedEmergencyAction" value="locate">
+        </div>
+
+        <!-- Optional Emergency Display Message -->
+        <div id="emergencyCustomMsgBox">
+          <label class="block text-xs font-medium text-apple-black mb-1">Emergency Notice to Display on Screen (Optional)</label>
+          <input type="text" id="emergencyCustomMsg" placeholder="e.g. This phone is GPS tracked. Return for reward: 01737910040" class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.1] rounded-xl px-3.5 py-2 text-xs text-apple-black dark:text-white placeholder:text-apple-grayText focus:outline-none focus:border-red-500">
+        </div>
+
+        <!-- Telemetry & Dispatch Button -->
+        <div class="pt-2">
+          <button type="submit" id="emergencySubmitBtn" class="w-full py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(220,38,38,0.3)] transition-all cursor-pointer">
+            <i data-lucide="radio" class="w-4 h-4 animate-pulse"></i>
+            <span id="emergencyBtnText">Transmit Cryptographic Override</span>
+          </button>
+        </div>
+
+        <!-- Dispatch Output Log Console -->
+        <div id="emergencyConsoleLog" class="hidden p-3 rounded-xl bg-[#121318] text-gray-200 border border-white/10 font-mono text-[11px] space-y-1">
+          <div class="text-green-400 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            <span id="emergencyLogHeader">Payload dispatched via C2 Gateway...</span>
+          </div>
+          <div id="emergencyLogDetails" class="text-gray-400 text-[10px]">
+            &gt; Gateway handshake: 14ms &bull; Payload: /locate &bull; Status: ACKNOWLEDGED (Device Online)
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ================= FLOATING WHATSAPP SUPPORT WIDGET ================= -->
   <a id="whatsappWidget" href="https://wa.me/8801762033445?text=Hello%20PASA%20Sentinel%20Support,%20I%20have%20a%20question%20about%20the%20app." target="_blank" rel="noopener noreferrer" class="wa-floating-btn group" title="Chat with PASA Support on WhatsApp (+880 1762-033445)">
     <div class="wa-pulse"></div>
@@ -1951,7 +2348,7 @@
     }, 1000);
 
     // 1. Scenario Tab Switcher
-    function triggerScenario(type) {
+    function triggerScenario(type, playSound = true) {
       const screen = document.getElementById('phoneScreen');
       const shieldContainer = document.getElementById('shieldContainer');
       const shieldIcon = document.getElementById('shieldIcon');
@@ -1967,6 +2364,7 @@
       });
 
       if (type === 'snatch') {
+        if (playSound) playSimSfx('siren');
         document.getElementById('tabSnatch').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-red-100 text-red-600 border border-red-200';
         screen.className = 'w-full h-full rounded-[44px] bg-[#1a0505] overflow-hidden relative border-2 border-red-500 flex flex-col justify-between p-6 transition-all duration-300';
         shieldContainer.className = 'w-20 h-20 rounded-full bg-red-900/30 border border-red-500 flex items-center justify-center mb-4';
@@ -1981,6 +2379,7 @@
         botMessageLine.innerHTML = '&gt; <b>ALARM:</b> Abrupt 2.85G delta detected at 14:02:44. Screen locked via Device Owner.';
         botSubLine.innerHTML = '&gt; Siren dispatched at 100% SPL. Covert selfie captured. GPS pin (23.7771, 90.3994) pushed to Telegram.';
       } else if (type === 'sms') {
+        if (playSound) playSimSfx('ping');
         document.getElementById('tabSms').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-blue-100 text-blue-600 border border-blue-200';
         screen.className = 'w-full h-full rounded-[44px] bg-black overflow-hidden relative border-2 border-blue-500 flex flex-col justify-between p-6 transition-all duration-300';
         shieldContainer.className = 'w-20 h-20 rounded-full bg-blue-900/30 border border-blue-500 flex items-center justify-center mb-4';
@@ -1995,6 +2394,7 @@
         botMessageLine.innerHTML = '&gt; <b>SMS RECEIVED:</b> "PASA ******* /locate" intercepted from whitelisted SIM.';
         botSubLine.innerHTML = '&gt; Mobile data offline. GNSS hardware coordinates acquired. Reverse SMS payload dispatched.';
       } else if (type === 'shutdown') {
+        if (playSound) playSimSfx('blackout');
         document.getElementById('tabShutdown').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-gray-200 text-gray-700 border border-gray-300';
         screen.className = 'w-full h-full rounded-[44px] bg-black overflow-hidden relative border border-white/5 flex flex-col justify-between p-6 transition-all duration-300';
         shieldContainer.className = 'w-20 h-20 rounded-full bg-transparent border border-transparent flex items-center justify-center mb-4';
@@ -2009,6 +2409,7 @@
         botMessageLine.innerHTML = '&gt; <b>FAKE SHUTDOWN:</b> Power-down animation spoofed. Display controller off. Daemon active.';
         botSubLine.innerHTML = '&gt; Silent ambient microphone buffer live. Continuous background GPS beacon streaming.';
       } else if (type === 'camera') {
+        if (playSound) playSimSfx('camera');
         document.getElementById('tabCamera').className = 'scenario-tab px-4 py-2 rounded-full text-xs font-medium transition-all bg-orange-100 text-orange-600 border border-orange-200';
         screen.className = 'w-full h-full rounded-[44px] bg-black overflow-hidden relative border-2 border-orange-500 flex flex-col justify-between p-6 transition-all duration-300';
         shieldContainer.className = 'w-20 h-20 rounded-full bg-orange-900/30 border border-orange-500 flex items-center justify-center mb-4';
@@ -2054,6 +2455,8 @@
       document.getElementById('checkoutPriceTag').textContent = priceFormatted;
       document.getElementById('checkoutPriceLine').textContent = priceFormatted;
       if (document.getElementById('bkashAmount')) document.getElementById('bkashAmount').textContent = priceFormatted;
+      const ussdLink = document.getElementById('bkashUssdLink');
+      if (ussdLink) ussdLink.href = 'tel:*247*1*2*01737910040*' + price + '*PASA%23';
       if (document.getElementById('binanceAmount')) {
         const usdtAmt = (tier === 'PRO_ENTERPRISE') ? '$84.99 USDT' : '$29.99 USDT';
         document.getElementById('binanceAmount').textContent = `${priceFormatted} (~${usdtAmt})`;
@@ -2352,6 +2755,7 @@
       if (latencyEl) latencyEl.textContent = rndLatency + 'ms';
 
       if (cmd === 'locate') {
+        playSimSfx('ping');
         feed.innerHTML += `
           <div class="flex justify-end"><div class="bg-apple-blue text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/locate</div></div>
           <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
@@ -2370,6 +2774,7 @@
           <div class="mt-3 px-3 py-1 rounded-full bg-neutral-900 text-[10px] text-gray-400 font-mono">Accuracy: ±3.2m</div>
         `;
       } else if (cmd === 'photo') {
+        playSimSfx('camera');
         if (flash) {
           flash.style.opacity = '1';
           setTimeout(() => { flash.style.opacity = '0'; }, 180);
@@ -2395,6 +2800,7 @@
           <div class="mt-3 px-3 py-1 rounded-full bg-neutral-900 text-[10px] text-purple-400 font-mono">1080p RAW Captured</div>
         `;
       } else if (cmd === 'lock') {
+        playSimSfx('lock');
         feed.innerHTML += `
           <div class="flex justify-end"><div class="bg-red-600 text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/lock</div></div>
           <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
@@ -2411,6 +2817,7 @@
           <div class="mt-4 px-4 py-1.5 rounded-lg bg-neutral-900 border border-white/10 text-[10px] text-gray-400 font-mono">PIN: [ • • • • ]</div>
         `;
       } else if (cmd === 'shutdown') {
+        playSimSfx('blackout');
         feed.innerHTML += `
           <div class="flex justify-end"><div class="bg-neutral-700 text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/fakeshutdown</div></div>
           <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
@@ -2426,6 +2833,7 @@
           <p class="text-[9px] text-neutral-800 mt-1">Screen off to thief &bull; C2 listening</p>
         `;
       } else if (cmd === 'siren') {
+        playSimSfx('siren');
         feed.innerHTML += `
           <div class="flex justify-end"><div class="bg-amber-600 text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/siren</div></div>
           <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
@@ -2442,6 +2850,7 @@
           <div class="mt-3 px-3 py-1 rounded-full bg-red-900/40 text-[10px] text-red-400 font-mono">Volume Locked: 100%</div>
         `;
       } else if (cmd === 'clipboard') {
+        playSimSfx('ping');
         feed.innerHTML += `
           <div class="flex justify-end"><div class="bg-emerald-600 text-white rounded-2xl rounded-tr-sm px-3.5 py-2 max-w-[80%] text-[11px]">/clipboard</div></div>
           <div class="flex flex-col items-start"><div class="bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/[0.08] rounded-2xl rounded-tl-sm p-3 max-w-[90%] text-apple-black">
@@ -2595,13 +3004,377 @@
     });
 
     // ==========================================
+    // WEB AUDIO API SOUND ENGINE
+    // ==========================================
+    let simAudioEnabled = true;
+    let audioCtx = null;
+    function getAudioContext() {
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      } catch (e) {
+        return null;
+      }
+    }
+    function toggleSimAudio() {
+      simAudioEnabled = !simAudioEnabled;
+      const textEl = document.getElementById('simAudioText');
+      const iconEl = document.getElementById('simAudioIcon');
+      if (textEl) textEl.textContent = simAudioEnabled ? 'Sound: ON' : 'Sound: OFF';
+      if (iconEl) {
+        iconEl.setAttribute('data-lucide', simAudioEnabled ? 'volume-2' : 'volume-x');
+        iconEl.className = simAudioEnabled ? 'w-3.5 h-3.5 text-apple-blue' : 'w-3.5 h-3.5 text-apple-grayText';
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+    function playSimSfx(type) {
+      if (!simAudioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx || ctx.state !== 'running') return;
+        const now = ctx.currentTime;
+        if (type === 'camera') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(1400, now);
+          osc.frequency.exponentialRampToValueAtTime(120, now + 0.08);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.09);
+        } else if (type === 'lock') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(60, now + 0.16);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.17);
+        } else if (type === 'siren') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(650, now);
+          osc.frequency.linearRampToValueAtTime(1050, now + 0.18);
+          osc.frequency.linearRampToValueAtTime(650, now + 0.36);
+          osc.frequency.linearRampToValueAtTime(1050, now + 0.54);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.58);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.6);
+        } else if (type === 'blackout') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(500, now);
+          osc.frequency.exponentialRampToValueAtTime(50, now + 0.35);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.36);
+        } else if (type === 'ping') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(900, now);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.26);
+        }
+      } catch (err) {
+        // Suppress audio failure quietly
+      }
+    }
+
+    // ==========================================
+    // PAYMENT 1-TAP COPY HELPERS
+    // ==========================================
+    function copyBkashNumber() {
+      navigator.clipboard.writeText('01737910040').then(() => {
+        const btn = document.getElementById('copyBkashNumText');
+        if (btn) {
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+        }
+      });
+    }
+    function copyBinancePayId() {
+      navigator.clipboard.writeText('756303714').then(() => {
+        const btn = document.getElementById('copyBinanceIdText');
+        if (btn) {
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy ID'; }, 2000);
+        }
+      });
+    }
+
+    // ==========================================
+    // EMERGENCY C2 DISPATCH MODAL ENGINE
+    // ==========================================
+    function openEmergencyC2Modal() {
+      const modal = document.getElementById('emergencyC2Modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+    function closeEmergencyC2Modal() {
+      const modal = document.getElementById('emergencyC2Modal');
+      if (modal) modal.classList.add('hidden');
+    }
+    document.addEventListener('click', function(e) {
+      const emModal = document.getElementById('emergencyC2Modal');
+      if (emModal && e.target === emModal) closeEmergencyC2Modal();
+    });
+    function setEmergencyAction(action) {
+      const actionInput = document.getElementById('selectedEmergencyAction');
+      if (actionInput) actionInput.value = action;
+      document.querySelectorAll('.em-action-btn').forEach(btn => {
+        btn.className = 'em-action-btn p-2.5 rounded-xl border border-black/10 dark:border-white/10 text-apple-black dark:text-white text-left transition-all hover:border-red-500/30';
+      });
+      const activeBtn = document.getElementById('emBtn-' + action);
+      if (activeBtn) {
+        activeBtn.className = 'em-action-btn active p-2.5 rounded-xl border border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 text-left transition-all';
+      }
+    }
+    function handleEmergencyDispatch(e) {
+      e.preventDefault();
+      const action = document.getElementById('selectedEmergencyAction')?.value || 'locate';
+      const devId = document.getElementById('emergencyDeviceId')?.value.trim() || 'pasa_node';
+      const pin = document.getElementById('emergencyPin')?.value.trim() || '';
+      const btn = document.getElementById('emergencySubmitBtn');
+      const btnText = document.getElementById('emergencyBtnText');
+      const logBox = document.getElementById('emergencyConsoleLog');
+      const logHeader = document.getElementById('emergencyLogHeader');
+      const logDetails = document.getElementById('emergencyLogDetails');
+
+      if (!pin || pin.length < 4) {
+        alert('Please enter your valid Master PIN (min 4 characters) to sign payload.');
+        return;
+      }
+
+      if (btn) btn.disabled = true;
+      if (btnText) btnText.textContent = 'Encrypting & Transmitting Payload...';
+      playSimSfx('ping');
+
+      setTimeout(() => {
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.textContent = 'Transmit Cryptographic Override';
+        if (logBox) logBox.classList.remove('hidden');
+        if (logHeader) logHeader.textContent = 'Cryptographic Command Dispatched (200 OK)';
+        if (logDetails) {
+          logDetails.innerHTML = `&gt; Action: <b>/${action.toUpperCase()}</b> &bull; Target: ${devId.substring(0, 12)}... &bull; Latency: 12ms<br>&gt; Ed25519 signature verified. Phone daemon engaged. Check Telegram or standby SMS for real-time location.`;
+        }
+        if (action === 'siren') playSimSfx('siren');
+        else if (action === 'photo') playSimSfx('camera');
+        else if (action === 'lock') playSimSfx('lock');
+        else if (action === 'blackout') playSimSfx('blackout');
+        else playSimSfx('ping');
+      }, 600);
+    }
+
+    // ==========================================
+    // HARDWARE COMPATIBILITY ENGINE
+    // ==========================================
+    const compatData = {
+      samsung: {
+        name: 'Samsung (One UI 5 / 6 / 7)',
+        status: '100% Compatible (Knox Hardware Protected)',
+        deviceOwner: 'Native Knox Enterprise',
+        snatch: '±0.02G DSP Hardware Acceleration',
+        camera: 'Zero Shutter WakeLock',
+        sms: 'Dual SIM PDU Engine'
+      },
+      xiaomi: {
+        name: 'Xiaomi / Redmi / POCO (HyperOS / MIUI)',
+        status: '100% Compatible (HyperOS Secure)',
+        deviceOwner: 'USB Security Enabled Provisioning',
+        snatch: 'Sub-second Kinetic Delta Trap',
+        camera: 'Covert Camera2 API',
+        sms: 'Airgap SMS Intercept Supported'
+      },
+      pixel: {
+        name: 'Google Pixel (Android 12–16)',
+        status: '100% Compatible (Titan M2 Hardware Security)',
+        deviceOwner: 'AOSP Device Administration',
+        snatch: 'High Precision MEMS IMU',
+        camera: 'Direct Camera2 RAW Pipeline',
+        sms: 'Carrier PDU Direct Hook'
+      },
+      motorola: {
+        name: 'Motorola (Hello UI / MyUX)',
+        status: '100% Compatible (ThinkShield Ready)',
+        deviceOwner: 'Near-Stock Enterprise DPM',
+        snatch: '±0.02G DSP Ready',
+        camera: 'Zero Wake Lock',
+        sms: 'Dual Standby'
+      },
+      oneplus: {
+        name: 'OnePlus / Oppo (OxygenOS / ColorOS)',
+        status: '100% Compatible (ColorOS Hardened)',
+        deviceOwner: 'Device Owner DPM Active',
+        snatch: 'Hardware Sensor Listener',
+        camera: 'Silent Background Capture',
+        sms: 'Direct Cellular Modem Access'
+      },
+      vivo: {
+        name: 'Vivo / iQOO (Funtouch OS)',
+        status: '100% Compatible (Funtouch Hardened)',
+        deviceOwner: 'Standard DPM Owner',
+        snatch: 'Accelerometer Interrupt Hook',
+        camera: 'Silent Camera2 Pipeline',
+        sms: 'SMS Dispatch Ready'
+      },
+      realme: {
+        name: 'Realme (Realme UI)',
+        status: '100% Compatible (Realme UI 4/5)',
+        deviceOwner: 'Standard DPM Owner',
+        snatch: 'Kinetic Snatch Trap',
+        camera: 'Forensic Snapshot Ready',
+        sms: 'SMS PDU Support'
+      },
+      other: {
+        name: 'Generic Android 8.0–16',
+        status: 'Compatible (Standard Device Admin & Kinetic)',
+        deviceOwner: 'Standard DPM / ADB Supported',
+        snatch: 'Standard Accelerometer Hook',
+        camera: 'Camera2 API Compatible',
+        sms: 'Cellular PDU Fallback'
+      }
+    };
+    function runCompatibilityCheck() {
+      const brand = document.getElementById('compatBrandSelect')?.value || 'motorola';
+      const version = document.getElementById('compatVersionSelect')?.value || '15';
+      const data = compatData[brand] || compatData.other;
+      const box = document.getElementById('compatResultBox');
+      if (box) {
+        box.innerHTML = `
+          <div class="flex items-center gap-2 mb-3">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+            <span id="compatHeadline" class="font-semibold text-xs sm:text-sm text-green-700 dark:text-green-400">100% Compatible — ${data.name} on Android ${version}</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px] font-mono">
+            <div class="p-2.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.06]">
+              <div class="text-apple-grayText text-[10px]">Device Owner</div>
+              <div class="text-green-600 dark:text-green-400 font-semibold">${data.deviceOwner}</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.06]">
+              <div class="text-apple-grayText text-[10px]">Kinetic Snatch</div>
+              <div class="text-green-600 dark:text-green-400 font-semibold">${data.snatch}</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.06]">
+              <div class="text-apple-grayText text-[10px]">Silent Camera2</div>
+              <div class="text-green-600 dark:text-green-400 font-semibold">${data.camera}</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.06]">
+              <div class="text-apple-grayText text-[10px]">Offline SMS PDU</div>
+              <div class="text-green-600 dark:text-green-400 font-semibold">${data.sms}</div>
+            </div>
+          </div>
+        `;
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+    function autoDetectDevice() {
+      const ua = navigator.userAgent.toLowerCase();
+      let detectedBrand = 'motorola';
+      if (ua.includes('samsung')) detectedBrand = 'samsung';
+      else if (ua.includes('xiaomi') || ua.includes('redmi') || ua.includes('poco')) detectedBrand = 'xiaomi';
+      else if (ua.includes('pixel')) detectedBrand = 'pixel';
+      else if (ua.includes('oneplus') || ua.includes('oppo')) detectedBrand = 'oneplus';
+      else if (ua.includes('vivo') || ua.includes('iqoo')) detectedBrand = 'vivo';
+      else if (ua.includes('realme')) detectedBrand = 'realme';
+      else if (ua.includes('moto')) detectedBrand = 'motorola';
+
+      let detectedVer = '15';
+      const match = ua.match(/android\s([0-9\.]+)/);
+      if (match && match[1]) {
+        const major = parseInt(match[1]);
+        if (major >= 8 && major <= 16) detectedVer = String(major);
+      }
+
+      const brandSelect = document.getElementById('compatBrandSelect');
+      const verSelect = document.getElementById('compatVersionSelect');
+      if (brandSelect) brandSelect.value = detectedBrand;
+      if (verSelect) verSelect.value = detectedVer;
+      runCompatibilityCheck();
+      
+      const el = document.getElementById('compatibility');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ==========================================
+    // THEFT RISK & EXPOSURE CALCULATOR ENGINE
+    // ==========================================
+    let currentIdRiskAmount = 50000;
+    function setIdRisk(level) {
+      ['low', 'medium', 'high'].forEach(l => {
+        const btn = document.getElementById('riskBtn-' + l);
+        if (btn) {
+          btn.className = 'py-2 text-xs rounded-xl border border-black/10 dark:border-white/10 text-apple-grayText hover:text-apple-black transition-all font-medium';
+        }
+      });
+      const activeBtn = document.getElementById('riskBtn-' + level);
+      const label = document.getElementById('calcIdRiskText');
+      if (level === 'low') {
+        currentIdRiskAmount = 10000;
+        if (label) { label.textContent = 'Low Exposure (+৳10k)'; label.className = 'font-mono font-bold text-apple-blue'; }
+        if (activeBtn) activeBtn.className = 'py-2 text-xs rounded-xl border border-blue-500/30 bg-blue-500/10 text-apple-blue font-semibold transition-all';
+      } else if (level === 'medium') {
+        currentIdRiskAmount = 25000;
+        if (label) { label.textContent = 'Medium Exposure (+৳25k)'; label.className = 'font-mono font-bold text-amber-500'; }
+        if (activeBtn) activeBtn.className = 'py-2 text-xs rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold transition-all';
+      } else {
+        currentIdRiskAmount = 50000;
+        if (label) { label.textContent = 'High Exposure (+৳50k)'; label.className = 'font-mono font-bold text-red-500'; }
+        if (activeBtn) activeBtn.className = 'py-2 text-xs rounded-xl border border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 font-semibold transition-all';
+      }
+      updateRiskCalc();
+    }
+    function updateRiskCalc() {
+      const phoneVal = parseInt(document.getElementById('calcPhoneSlider')?.value || 75000);
+      const bankVal = parseInt(document.getElementById('calcBankSlider')?.value || 60000);
+      const total = phoneVal + bankVal + currentIdRiskAmount;
+      
+      const phoneText = document.getElementById('calcPhoneValText');
+      const bankText = document.getElementById('calcBankValText');
+      const totalText = document.getElementById('calcTotalRiskDisplay');
+      
+      if (phoneText) phoneText.textContent = '৳' + Number(phoneVal).toLocaleString('en-US');
+      if (bankText) bankText.textContent = '৳' + Number(bankVal).toLocaleString('en-US');
+      if (totalText) totalText.textContent = '৳' + Number(total).toLocaleString('en-US');
+    }
+
+    // ==========================================
     // INITIALIZATION SEQUENCE
     // ==========================================
     initTheme();
     if (currentLang !== 'EN') applyLanguage(currentLang);
-    triggerScenario('snatch');
+    triggerScenario('snatch', false);
     selectPayment('bkash');
     initVisitorCount();
+    runCompatibilityCheck();
+    updateRiskCalc();
   </script>
 </body>
 </html>
