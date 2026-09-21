@@ -58,6 +58,25 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             } else false
         }
 
+        fun rebootDevice(context: Context): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                return Pair(false, "❌ Remote reboot requires Android Device Owner permissions.\nCheck status with /device_owner.")
+            }
+            return try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    dpm.reboot(component)
+                    Pair(true, "🔄 Device reboot initiated.")
+                } else {
+                    Pair(false, "❌ Hardware reboot requires Android 7.0+ (API 24+).")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to reboot device", e)
+                Pair(false, "❌ Hardware reboot failed: ${e.message}")
+            }
+        }
+
         fun configureLockTask(context: Context): Boolean {
             val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
             val component = getComponentName(context)
@@ -130,14 +149,20 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                     Log.d(TAG, "Reset password token is already active")
                     return true
                 }
-                var tokenBytes = prefs.resetPasswordToken?.let {
-                    try { android.util.Base64.decode(it, android.util.Base64.NO_WRAP) } catch (_: Exception) { null }
+
+                // If token is already enrolled in Keyguard, DO NOT call setResetPasswordToken again!
+                // Calling setResetPasswordToken again resets the pending activation state.
+                if (!prefs.resetPasswordToken.isNullOrBlank()) {
+                    Log.d(TAG, "Reset password token is already enrolled, waiting for user credential unlock")
+                    return false
                 }
-                if (tokenBytes == null || tokenBytes.size != 32) {
-                    tokenBytes = ByteArray(32).apply { java.security.SecureRandom().nextBytes(this) }
-                    prefs.resetPasswordToken = android.util.Base64.encodeToString(tokenBytes, android.util.Base64.NO_WRAP)
-                }
+
+                val tokenBytes = ByteArray(32).apply { java.security.SecureRandom().nextBytes(this) }
+                val encoded = android.util.Base64.encodeToString(tokenBytes, android.util.Base64.NO_WRAP)
                 val setSuccess = dpm.setResetPasswordToken(component, tokenBytes)
+                if (setSuccess) {
+                    prefs.resetPasswordToken = encoded
+                }
                 Log.i(TAG, "setResetPasswordToken result: $setSuccess, active: ${dpm.isResetPasswordTokenActive(component)}")
                 setSuccess
             } catch (e: Exception) {
@@ -166,7 +191,8 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                 if (!dpm.isResetPasswordTokenActive(component)) {
                     return Pair(
                         false,
-                        "Escrow token is enrolled but waiting for phone activation. Unlock the phone once using your current lockscreen PIN to activate the escrow token."
+                        "Hardware escrow token enrolled, but waiting for one-time lockscreen activation.\n\n" +
+                        "📱 <b>Action needed:</b> Press the power button to lock your phone screen, then unlock it once using your current lockscreen PIN/password. Android Keyguard will instantly arm the escrow token, enabling remote password resets anytime."
                     )
                 }
 
@@ -174,7 +200,7 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                 if (success) {
                     Pair(true, "Android OS lockscreen PIN successfully changed.")
                 } else {
-                    Pair(false, "Android OS rejected password reset (does not meet system complexity requirements).")
+                    Pair(false, "dpm.resetPasswordWithToken returned false. Verify PIN meets device password quality requirements.")
                 }
             } catch (e: SecurityException) {
                 Log.e(TAG, "SecurityException resetting password", e)

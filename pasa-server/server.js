@@ -606,7 +606,10 @@ async function registerTelegramBotCommands(token) {
     { command: "trap", description: "🛡️ Arm sensor traps (snatch, charger, pocket)" },
     { command: "shred", description: "🗑️ Cryptographically shred sensitive files" },
     { command: "device_owner", description: "👑 Check Device Owner & Kiosk hardware lock" },
+    { command: "reboot", description: "🔄 Remotely restart phone hardware (Device Owner)" },
     { command: "stealth", description: "👁️ Toggle PASA app icon in launcher" },
+    { command: "hide", description: "🔇 Hide PASA app icon from phone launcher" },
+    { command: "show", description: "👁️ Restore PASA app icon to phone launcher" },
     { command: "contacts", description: "👥 Search device address book contacts" },
     { command: "call_log", description: "📞 View incoming and outgoing call history" },
     { command: "sms_log", description: "💬 View recent SMS inbox messages" },
@@ -742,6 +745,24 @@ const SUBMENUS = {
       ]
     }
   },
+  'menu:stealth': {
+    text: '👁️ <b>App Icon Stealth & Launcher Cloaking</b>\n━━━━━━━━━━━━━━━━━━━━\nControl whether PASA Sentinel is visible in the phone’s app drawer:\n\n• <b>Hide Icon</b>: Strips the app icon from the launcher & app drawer completely. All background monitoring remains 100% active.\n• <b>Show Icon</b>: Restores the app icon back to the launcher & app drawer.\n• <b>Toggle</b>: Reverses current visibility.\n\n<i>Choose stealth action below:</i>',
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '🔇 Hide App Icon', callback_data: 'cmd:stealth:hide' },
+          { text: '👁️ Show App Icon', callback_data: 'cmd:stealth:show' }
+        ],
+        [
+          { text: '🔄 Toggle Visibility', callback_data: 'cmd:stealth' }
+        ],
+        [
+          { text: '🔙 Back to Tools', callback_data: 'menu:tools' },
+          { text: '🏠 Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
   'menu:tools': {
     text: '⚙️ <b>Advanced Security & Defense Tools</b>\n━━━━━━━━━━━━━━━━━━━━\nSpecialized counter-measures, stealth options, and emergency utilities:\n\n• <b>Duress Mode</b>: Set an emergency decoy PIN that unlocks to safe screen while triggering silent SOS.\n• <b>File Shredder</b>: Multi-pass cryptographic sanitization with PRNG + zero-fill.\n• <b>Device Owner</b>: Enterprise hardware lock task mode & kiosk protection.\n• <b>Stealth Mode</b>: Hide or reveal PASA app icon in launcher.\n• <b>Remote Wipe</b>: Irreversible factory reset.',
     keyboard: {
@@ -752,7 +773,7 @@ const SUBMENUS = {
         ],
         [
           { text: '🛡️ Device Owner Check', callback_data: 'cmd:device_owner' },
-          { text: '👁️ Toggle Stealth Icon', callback_data: 'cmd:stealth' }
+          { text: '👁️ Stealth & Cloak Menu', callback_data: 'menu:stealth' }
         ],
         [
           { text: '⚠️ Remote Factory Wipe', callback_data: 'menu:wipe' }
@@ -1895,7 +1916,7 @@ async function handleTelegramUpdate(token, update) {
     return;
   }
 
-  if (lowerText.includes('shred')) {
+  if (lowerText === '🗑️ shred' || lowerText === 'shred' || lowerText === '/shred') {
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
       text: SUBMENUS['menu:shred'].text,
@@ -1905,7 +1926,7 @@ async function handleTelegramUpdate(token, update) {
     return;
   }
 
-  if (lowerText.includes('duress')) {
+  if (lowerText === '🔑 duress' || lowerText === 'duress' || lowerText === '/duress' || lowerText === '/duress_pin') {
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
       text: SUBMENUS['menu:duress'].text,
@@ -2117,9 +2138,9 @@ async function handleTelegramUpdate(token, update) {
     'wipe', 'history', 'contacts', 'call_log', 'sms_log',
     'smssetup', 'geofence', 'screenshot', 'screen_burst',
     'screenrecord', 'burst', 'screen', 'selftest', 'health', 'diagnostics',
-    'lock_message', 'lock_pin', 'set_os_pin', 'reset_pin', 'app_uninstall', 'wipe_confirm', 'track_stop',
+    'lock_message', 'lock_pin', 'set_os_pin', 'reset_pin', 'app_uninstall', 'wipe_confirm', 'track', 'track_stop',
     'ring_stop', 'shred', 'trap', 'duress_pin', 'stealth', 'hide', 'show',
-    'livestream', 'stopstream', 'stream'
+    'livestream', 'stopstream', 'stream', 'reboot', 'restart'
   ];
   if (directCmds.includes(command)) {
     await dispatchCommandToDevice(token, chatId, '/' + command, args);
