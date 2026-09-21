@@ -14,12 +14,14 @@ import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.camera.StealthCaptureBridge
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.location.LocationTracker
+import com.izhaanintellect.pasa.network.PasaBackendApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
@@ -36,6 +38,7 @@ class SIMChangeReceiver : BroadcastReceiver() {
     @Inject lateinit var preferencesManager: PreferencesManager
     @Inject lateinit var telegramApi: TelegramApi
     @Inject lateinit var locationTracker: LocationTracker
+    @Inject lateinit var pasaBackendApi: PasaBackendApi
 
     companion object {
         private const val TAG = "PASA_SIM"
@@ -151,38 +154,23 @@ class SIMChangeReceiver : BroadcastReceiver() {
             "\n📍 Location: Unavailable"
         }
 
-        // 4. Dispatch enhanced alert to owner via Telegram
-        telegramApi.sendMessage(
-            token = preferencesManager.botToken,
-            request = SendMessageRequest(
-                chatId = preferencesManager.ownerChatIdLong,
-                text = """
-                    🚨 <b>TAMPER ALERT: SIM CARD EJECTED!</b>
-                    ━━━━━━━━━━━━━━━━━━━━
-                    The physical SIM card was just removed from your device.$imeiStr
-                    
-                    📸 Front-camera mugshot capture initiated.
-                    $locationStr
-                    
-                    ⚠️ <i>If you did not eject your SIM, your phone has been stolen!</i>
-                    Lock immediately using <code>/lock</code> or blackout with <code>/fakeshutdown</code>.
-                """.trimIndent()
-            )
-        )
+        val locPair = try {
+            locationTracker.getCurrentLocation()?.let { Pair(it.latitude, it.longitude) }
+        } catch (_: Exception) { null }
 
-        // 5. Send photo if captured
-        if (mugshot != null && mugshot.exists() && mugshot.length() > 0) {
-            try {
-                val mediaType = "image/jpeg".toMediaTypeOrNull()
-                val requestBody = mugshot.asRequestBody(mediaType)
-                val photoPart = okhttp3.MultipartBody.Part.createFormData("photo", mugshot.name, requestBody)
-                val chatIdPart = preferencesManager.ownerChatIdLong.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-                val captionPart = "📸 Thief mugshot captured upon SIM ejection".toRequestBody("text/plain".toMediaTypeOrNull())
-                telegramApi.sendPhoto(preferencesManager.botToken, chatIdPart, photoPart, captionPart)
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed sending mugshot photo: ${e.message}")
-            }
-        }
+        val alertText = """
+            🚨 <b>TAMPER ALERT: SIM CARD EJECTED!</b>
+            ━━━━━━━━━━━━━━━━━━━━
+            The physical SIM card was just removed from your device.$imeiStr
+            
+            📸 Front-camera mugshot capture initiated.
+            $locationStr
+            
+            ⚠️ <i>If you did not eject your SIM, your phone has been stolen!</i>
+            Lock immediately using <code>/lock</code> or blackout with <code>/fakeshutdown</code>.
+        """.trimIndent()
+
+        dispatchSimAlert(alertText, mugshot, locPair)
     }
 
     private suspend fun handleSimLoaded(context: Context) {
@@ -249,35 +237,78 @@ class SIMChangeReceiver : BroadcastReceiver() {
             "\n📍 Location: Error"
         }
 
-        telegramApi.sendMessage(
-            token = preferencesManager.botToken,
-            request = SendMessageRequest(
-                chatId = preferencesManager.ownerChatIdLong,
-                text = """
-                    🚨 <b>TAMPER ALERT: NEW SIM CARD DETECTED!</b>
-                    ━━━━━━━━━━━━━━━━━━━━$imeiStr$phoneStr
-                    🏢 <b>New Carrier:</b> $operatorName ($countryCode)
-                    📱 <b>Provider:</b> $simOperator
-                    📸 Front-camera mugshot capture initiated.
-                    $locationStr
-                    
-                    ⚠️ <i>A foreign SIM card has been inserted into your device. If you did not do this, your phone has been compromised!</i>
-                    Lock immediately: <code>/lock</code> | Blackout: <code>/fakeshutdown</code> | Wipe: <code>/wipe</code>
-                """.trimIndent()
-            )
-        )
+        val locPair = try {
+            locationTracker.getCurrentLocation()?.let { Pair(it.latitude, it.longitude) }
+        } catch (_: Exception) { null }
 
-        // Send mugshot if captured
-        if (mugshot != null && mugshot.exists() && mugshot.length() > 0) {
+        val alertText = """
+            🚨 <b>TAMPER ALERT: NEW SIM CARD DETECTED!</b>
+            ━━━━━━━━━━━━━━━━━━━━$imeiStr$phoneStr
+            🏢 <b>New Carrier:</b> $operatorName ($countryCode)
+            📱 <b>Provider:</b> $simOperator
+            📸 Front-camera mugshot capture initiated.
+            $locationStr
+            
+            ⚠️ <i>A foreign SIM card has been inserted into your device. If you did not do this, your phone has been compromised!</i>
+            Lock immediately: <code>/lock</code> | Blackout: <code>/fakeshutdown</code> | Wipe: <code>/wipe</code>
+        """.trimIndent()
+
+        dispatchSimAlert(alertText, mugshot, locPair)
+    }
+
+    private suspend fun dispatchSimAlert(
+        message: String,
+        photo: java.io.File? = null,
+        location: Pair<Double, Double>? = null
+    ) {
+        if (preferencesManager.useBackendServer) {
             try {
-                val mediaType = "image/jpeg".toMediaTypeOrNull()
-                val requestBody = mugshot.asRequestBody(mediaType)
-                val photoPart = okhttp3.MultipartBody.Part.createFormData("photo", mugshot.name, requestBody)
-                val chatIdPart = preferencesManager.ownerChatIdLong.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-                val captionPart = "📸 Mugshot captured upon foreign SIM insertion".toRequestBody("text/plain".toMediaTypeOrNull())
-                telegramApi.sendPhoto(preferencesManager.botToken, chatIdPart, photoPart, captionPart)
+                val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
+                val msgBody = message.toRequestBody("text/plain".toMediaTypeOrNull())
+                val photoPart = photo?.takeIf { it.exists() && it.length() > 0 }?.let {
+                    val req = it.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                    MultipartBody.Part.createFormData("photo", it.name, req)
+                }
+                val latBody = location?.first?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+                val lngBody = location?.second?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+                val resp = pasaBackendApi.sendDeviceResponse(
+                    deviceId = deviceIdBody,
+                    commandId = null,
+                    message = msgBody,
+                    photo = photoPart,
+                    audio = null,
+                    video = null,
+                    evidence = null,
+                    latitude = latBody,
+                    longitude = lngBody
+                )
+                Log.i(TAG, "SIM alert dispatched via backend API: ${resp.ok}")
+                return
             } catch (e: Exception) {
-                Log.w(TAG, "Failed sending SIM swap mugshot: ${e.message}")
+                Log.e(TAG, "Failed to dispatch SIM alert via backend: ${e.message}")
+            }
+        }
+
+        // Direct Telegram fallback
+        if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
+            try {
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        text = message
+                    )
+                )
+                if (photo != null && photo.exists() && photo.length() > 0) {
+                    val mediaType = "image/jpeg".toMediaTypeOrNull()
+                    val requestBody = photo.asRequestBody(mediaType)
+                    val photoPart = MultipartBody.Part.createFormData("photo", photo.name, requestBody)
+                    val chatIdPart = preferencesManager.ownerChatIdLong.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+                    val captionPart = "📸 Thief mugshot captured upon SIM event".toRequestBody("text/plain".toMediaTypeOrNull())
+                    telegramApi.sendPhoto(preferencesManager.botToken, chatIdPart, photoPart, captionPart)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to dispatch SIM alert via Telegram: ${e.message}")
             }
         }
     }

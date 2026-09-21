@@ -33,6 +33,11 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
             private set
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        instance = this
+    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
@@ -122,49 +127,61 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
             val latch = CountDownLatch(1)
             var capturedBitmap: Bitmap? = null
 
-            val mainHandler = Handler(Looper.getMainLooper())
-            val executor = java.util.concurrent.Executor { command -> mainHandler.post(command) }
+            // Use dedicated background executor to prevent main thread looper deadlocks
+            val executor = java.util.concurrent.Executors.newSingleThreadExecutor()
+            try {
+                // Post takeScreenshot to Main Thread to guarantee thread safety across Android 11-16
+                val mainHandler = Handler(Looper.getMainLooper())
+                mainHandler.post {
+                    try {
+                        takeScreenshot(
+                            Display.DEFAULT_DISPLAY,
+                            executor,
+                            object : TakeScreenshotCallback {
+                                override fun onSuccess(screenshotResult: ScreenshotResult) {
+                                    try {
+                                        val hardwareBuffer = screenshotResult.hardwareBuffer
+                                        val colorSpace = screenshotResult.colorSpace
+                                        val hwBitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)
+                                        if (hwBitmap != null) {
+                                            capturedBitmap = hwBitmap.copy(Bitmap.Config.ARGB_8888, false)
+                                            hwBitmap.recycle()
+                                        }
+                                        hardwareBuffer.close()
+                                    } catch (e: Exception) {
+                                        Log.e(TAG, "Error decoding hardware buffer to bitmap", e)
+                                    } finally {
+                                        latch.countDown()
+                                    }
+                                }
 
-            takeScreenshot(
-                Display.DEFAULT_DISPLAY,
-                executor,
-                object : TakeScreenshotCallback {
-                    override fun onSuccess(screenshotResult: ScreenshotResult) {
-                        try {
-                            val hardwareBuffer = screenshotResult.hardwareBuffer
-                            val colorSpace = screenshotResult.colorSpace
-                            val hwBitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)
-                            if (hwBitmap != null) {
-                                capturedBitmap = hwBitmap.copy(Bitmap.Config.ARGB_8888, false)
-                                hwBitmap.recycle()
+                                override fun onFailure(errorCode: Int) {
+                                    Log.e(TAG, "Accessibility takeScreenshot failed with error code: $errorCode")
+                                    latch.countDown()
+                                }
                             }
-                            hardwareBuffer.close()
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Error decoding hardware buffer to bitmap", e)
-                        } finally {
-                            latch.countDown()
-                        }
-                    }
-
-                    override fun onFailure(errorCode: Int) {
-                        Log.e(TAG, "Accessibility takeScreenshot failed with error code: $errorCode")
+                        )
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to invoke takeScreenshot on main thread", e)
                         latch.countDown()
                     }
                 }
-            )
 
-            val awaited = latch.await(4, TimeUnit.SECONDS)
-            if (!awaited) {
-                Log.w(TAG, "Accessibility takeScreenshot timed out waiting for callback")
-                return null
+                val awaited = latch.await(5, TimeUnit.SECONDS)
+                if (!awaited) {
+                    Log.w(TAG, "Accessibility takeScreenshot timed out waiting for callback")
+                    return null
+                }
+            } finally {
+                executor.shutdown()
             }
 
             val bitmap = capturedBitmap ?: return null
             val timestamp = System.currentTimeMillis()
-            val outputFile = File(outputDir, "screenshot_$timestamp.png")
+            val outputFile = File(outputDir, "screenshot_$timestamp.jpg")
 
             FileOutputStream(outputFile).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out)
             }
             bitmap.recycle()
 

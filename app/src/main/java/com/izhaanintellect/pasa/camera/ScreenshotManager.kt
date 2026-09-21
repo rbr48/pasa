@@ -35,8 +35,8 @@ class ScreenshotManager @Inject constructor(
      * - Timeout occurs (5 seconds)
      */
     suspend fun captureScreenshot(): File? {
-        // 1. Check if AccessibilityService is enabled
-        if (!isAccessibilityServiceEnabled()) {
+        // 1. Check if AccessibilityService is enabled or instance is active
+        if (AccessibilityScreenCaptureService.instance == null && !isAccessibilityServiceEnabled()) {
             Log.w(TAG, "Screenshot failed: AccessibilityService not enabled")
             return null
         }
@@ -86,15 +86,22 @@ class ScreenshotManager @Inject constructor(
      * Check if PASA's AccessibilityService is enabled in system settings.
      */
     fun isAccessibilityServiceEnabled(): Boolean {
+        // Direct instance check - if service is running in memory, it's definitely enabled!
+        if (AccessibilityScreenCaptureService.instance != null) {
+            return true
+        }
+
         try {
             // Method 1: Check via AccessibilityManager getEnabledAccessibilityServiceList
             val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? android.view.accessibility.AccessibilityManager
             if (am != null) {
                 val enabledServicesList = am.getEnabledAccessibilityServiceList(android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
                 for (service in enabledServicesList) {
-                    val serviceInfo = service.resolveInfo.serviceInfo
-                    if (serviceInfo.packageName == context.packageName &&
-                        serviceInfo.name == AccessibilityScreenCaptureService::class.java.name) {
+                    val serviceInfo = service.resolveInfo?.serviceInfo
+                    if (serviceInfo != null &&
+                        serviceInfo.packageName == context.packageName &&
+                        (serviceInfo.name == AccessibilityScreenCaptureService::class.java.name ||
+                         serviceInfo.name.contains("AccessibilityScreenCaptureService"))) {
                         return true
                     }
                 }
@@ -104,21 +111,22 @@ class ScreenshotManager @Inject constructor(
             val enabledServices = Settings.Secure.getString(
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-            ) ?: return false
+            )
+            if (!enabledServices.isNullOrBlank()) {
+                val expectedCn = android.content.ComponentName(context, AccessibilityScreenCaptureService::class.java)
+                val fullString = expectedCn.flattenToString()
+                val shortString = expectedCn.flattenToShortString()
 
-            val expectedCn = android.content.ComponentName(context, AccessibilityScreenCaptureService::class.java)
-            val fullString = expectedCn.flattenToString()
-            val shortString = expectedCn.flattenToShortString()
-
-            val colonSplitter = android.text.TextUtils.SimpleStringSplitter(':')
-            colonSplitter.setString(enabledServices)
-            while (colonSplitter.hasNext()) {
-                val componentNameString = colonSplitter.next()
-                if (componentNameString.equals(fullString, ignoreCase = true) ||
-                    componentNameString.equals(shortString, ignoreCase = true) ||
-                    componentNameString.contains(A11Y_SERVICE_CLASS, ignoreCase = true) ||
-                    componentNameString.contains(".AccessibilityScreenCaptureService", ignoreCase = true)) {
-                    return true
+                val colonSplitter = android.text.TextUtils.SimpleStringSplitter(':')
+                colonSplitter.setString(enabledServices)
+                while (colonSplitter.hasNext()) {
+                    val componentNameString = colonSplitter.next()
+                    if (componentNameString.equals(fullString, ignoreCase = true) ||
+                        componentNameString.equals(shortString, ignoreCase = true) ||
+                        componentNameString.contains(A11Y_SERVICE_CLASS, ignoreCase = true) ||
+                        componentNameString.contains("AccessibilityScreenCaptureService", ignoreCase = true)) {
+                        return true
+                    }
                 }
             }
         } catch (e: Exception) {

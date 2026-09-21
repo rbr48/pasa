@@ -49,9 +49,11 @@ class ScreenRecordCommand @Inject constructor(
 
         Log.i(TAG, "Requesting screen recording for ${durationSeconds}s")
 
+        val isOwner = isDeviceOwner()
+
         // ── Engine 1: Device Owner Hardware Recording (60fps) ──────────────────
-        if (isDeviceOwner()) {
-            Log.i(TAG, "Device Owner active — attempting hardware screenrecord")
+        if (isOwner || android.os.Process.myUid() == 2000 || android.os.Process.myUid() == 0) {
+            Log.i(TAG, "Attempting hardware screenrecord")
             val hwSuccess = tryHardwareScreenRecord(outputFile, durationSeconds)
             if (hwSuccess && outputFile.exists() && outputFile.length() > 0) {
                 val sizeMB = String.format("%.1f", outputFile.length() / 1024.0 / 1024.0)
@@ -74,16 +76,27 @@ class ScreenRecordCommand @Inject constructor(
         }
 
         // ── Engine 3: Neither engine available — guide user ────────────────────
+        val guidance = if (isOwner) {
+            "👑 <b>Device Owner is ACTIVE</b>\n" +
+            "━━━━━━━━━━━━━━━━━━━━\n" +
+            "To record the screen silently without an active PC/ADB session:\n\n" +
+            "1. Open Android <b>Settings > Accessibility</b>\n" +
+            "2. Find <b>PASA Sentinel</b> and toggle <b>ON</b>\n\n" +
+            "<i>Once enabled, screen recording and silent screenshots execute 100% autonomously on-device!</i>"
+        } else {
+            "❌ <b>Screen recording requires Accessibility Service or Device Owner</b>\n" +
+            "━━━━━━━━━━━━━━━━━━━━\n\n" +
+            "👉 <b>Recommended (No PC required):</b>\n" +
+            "1. Open Android <b>Settings > Accessibility</b>.\n" +
+            "2. Select <b>PASA Sentinel</b> and toggle <b>ON</b>.\n" +
+            "<i>(This enables silent screen recording & screenshots instantly)</i>\n\n" +
+            "👉 <b>Alternative (60 FPS Hardware Engine):</b>\n" +
+            "Provision Device Owner via ADB using <code>/device_owner</code>."
+        }
+
         return CommandResult(
             success = false,
-            message = "❌ <b>Screen recording requires Accessibility Service or Device Owner</b>\n" +
-                    "━━━━━━━━━━━━━━━━━━━━\n\n" +
-                    "👉 <b>Recommended (No PC required):</b>\n" +
-                    "1. Open Android <b>Settings > Accessibility</b>.\n" +
-                    "2. Select <b>PASA Sentinel</b> and toggle <b>ON</b>.\n" +
-                    "<i>(This enables silent screen recording & screenshots instantly)</i>\n\n" +
-                    "👉 <b>Alternative (60 FPS Hardware Engine):</b>\n" +
-                    "Provision Device Owner via ADB using <code>/device_owner</code>."
+            message = guidance
         )
     }
 
@@ -172,7 +185,6 @@ class ScreenRecordCommand @Inject constructor(
     }
 
     private fun isDeviceOwner(): Boolean {
-        // Only attempt hardware screenrecord if process has shell or root UID
-        return android.os.Process.myUid() == 2000 /* SHELL_UID */ || android.os.Process.myUid() == 0 /* ROOT */
+        return com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)
     }
 }

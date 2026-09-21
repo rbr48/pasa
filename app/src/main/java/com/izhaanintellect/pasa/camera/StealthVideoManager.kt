@@ -31,7 +31,7 @@ class StealthVideoManager @Inject constructor(
 
     private val isRecording = AtomicBoolean(false)
 
-    suspend fun recordVideo(useFrontCamera: Boolean = true, durationSeconds: Int = 30): File? {
+    suspend fun recordVideo(useFrontCamera: Boolean = true, durationSeconds: Int = 30, lowRes: Boolean = false): File? {
         if (!hasCameraPermission()) {
             Log.w(TAG, "Camera permission not granted")
             return null
@@ -67,10 +67,17 @@ class StealthVideoManager @Inject constructor(
                             return@addListener
                         }
 
-                        val qualitySelector = QualitySelector.from(
-                            Quality.HD,
-                            FallbackStrategy.lowerQualityOrHigherThan(Quality.HD)
-                        )
+                        val qualitySelector = if (lowRes) {
+                            QualitySelector.fromOrderedList(
+                                listOf(Quality.SD, Quality.LOWEST),
+                                FallbackStrategy.lowerQualityOrHigherThan(Quality.SD)
+                            )
+                        } else {
+                            QualitySelector.from(
+                                Quality.HD,
+                                FallbackStrategy.lowerQualityOrHigherThan(Quality.HD)
+                            )
+                        }
                         val recorder = Recorder.Builder()
                             .setQualitySelector(qualitySelector)
                             .build()
