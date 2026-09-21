@@ -17,11 +17,14 @@ import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.databinding.ActivityEscrowActivationBinding
+import com.izhaanintellect.pasa.network.PasaBackendApi
 import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 /**
@@ -33,6 +36,7 @@ class EscrowActivationActivity : AppCompatActivity() {
 
     @Inject lateinit var preferencesManager: PreferencesManager
     @Inject lateinit var telegramApi: TelegramApi
+    @Inject lateinit var pasaBackendApi: PasaBackendApi
 
     private lateinit var binding: ActivityEscrowActivationBinding
     private var pendingPin: String? = null
@@ -46,6 +50,45 @@ class EscrowActivationActivity : AppCompatActivity() {
             return Intent(context, EscrowActivationActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 pendingPin?.let { putExtra(EXTRA_PENDING_PIN, it) }
+            }
+        }
+    }
+
+    private suspend fun dispatchTelegramNotification(message: String) {
+        var relayed = false
+        if (preferencesManager.useBackendServer) {
+            try {
+                val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
+                val msgBody = message.toRequestBody("text/plain".toMediaTypeOrNull())
+                val resp = pasaBackendApi.sendDeviceResponse(
+                    deviceId = deviceIdBody,
+                    commandId = null,
+                    message = msgBody,
+                    photo = null,
+                    audio = null,
+                    video = null,
+                    evidence = null,
+                    latitude = null,
+                    longitude = null
+                )
+                relayed = resp.ok
+                Log.i(TAG, "Escrow status notification relayed via backend: ${resp.ok}")
+            } catch (e: Exception) {
+                Log.w(TAG, "Backend relay failed, falling back to direct bot: ${e.message}")
+            }
+        }
+
+        if (!relayed && preferencesManager.botToken.isNotBlank()) {
+            try {
+                telegramApi.sendMessage(
+                    preferencesManager.botToken,
+                    SendMessageRequest(
+                        preferencesManager.ownerChatIdLong,
+                        message
+                    )
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Direct Telegram notification failed: ${e.message}")
             }
         }
     }
@@ -69,34 +112,22 @@ class EscrowActivationActivity : AppCompatActivity() {
                     if (!pending.isNullOrBlank()) {
                         val (success, msg) = PasaDeviceAdmin.resetDevicePassword(this@EscrowActivationActivity, pending, preferencesManager)
                         if (success) {
-                            telegramApi.sendMessage(
-                                preferencesManager.botToken,
-                                SendMessageRequest(
-                                    preferencesManager.ownerChatIdLong,
-                                    "🔐 <b>OS Lockscreen PIN Updated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                                            "✅ Hardware escrow token verified and armed.\n" +
-                                            "🔑 <b>New Hardware PIN:</b> <code>$pending</code>\n\n" +
-                                            "<i>Your phone's lockscreen PIN has been permanently updated. Future PIN resets can now be executed 100% remotely!</i>"
-                                )
+                            dispatchTelegramNotification(
+                                "🔐 <b>OS Lockscreen PIN Updated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                                        "✅ Hardware escrow token verified and armed.\n" +
+                                        "🔑 <b>New Hardware PIN:</b> <code>$pending</code>\n\n" +
+                                        "<i>Your phone's lockscreen PIN has been permanently updated. Future PIN resets can now be executed 100% remotely!</i>"
                             )
                         } else {
-                            telegramApi.sendMessage(
-                                preferencesManager.botToken,
-                                SendMessageRequest(
-                                    preferencesManager.ownerChatIdLong,
-                                    "⚠️ <b>Token Armed, but applying new PIN returned:</b> $msg"
-                                )
+                            dispatchTelegramNotification(
+                                "⚠️ <b>Token Armed, but applying new PIN returned:</b> $msg"
                             )
                         }
                     } else {
-                        telegramApi.sendMessage(
-                            preferencesManager.botToken,
-                            SendMessageRequest(
-                                preferencesManager.ownerChatIdLong,
-                                "✅ <b>Hardware Escrow Token Successfully Armed!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                                        "Android Keyguard has authorized remote password management.\n\n" +
-                                        "You can now remotely change your device lockscreen PIN anytime by sending <code>/set_os_pin &lt;pin&gt;</code>."
-                            )
+                        dispatchTelegramNotification(
+                            "✅ <b>Hardware Escrow Token Successfully Armed!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                                    "Android Keyguard has authorized remote password management.\n\n" +
+                                    "You can now remotely change your device lockscreen PIN anytime by sending <code>/set_os_pin &lt;pin&gt;</code>."
                         )
                     }
                 } catch (e: Exception) {
@@ -150,16 +181,10 @@ class EscrowActivationActivity : AppCompatActivity() {
             if (!pending.isNullOrBlank()) {
                 val (success, msg) = PasaDeviceAdmin.resetDevicePassword(this, pending, preferencesManager)
                 CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        telegramApi.sendMessage(
-                            preferencesManager.botToken,
-                            SendMessageRequest(
-                                preferencesManager.ownerChatIdLong,
-                                if (success) "🔐 <b>OS Lockscreen PIN Updated!</b>\nNew PIN: <code>$pending</code>"
-                                else "❌ <b>OS Password Reset Failed:</b> $msg"
-                            )
-                        )
-                    } catch (_: Exception) {}
+                    dispatchTelegramNotification(
+                        if (success) "🔐 <b>OS Lockscreen PIN Updated!</b>\nNew PIN: <code>$pending</code>"
+                        else "❌ <b>OS Password Reset Failed:</b> $msg"
+                    )
                 }
             }
             SecurityActivityLauncher.dismissNotification(this, NOTIFICATION_ID)

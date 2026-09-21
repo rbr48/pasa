@@ -26,4 +26,12 @@
         <item name="android:navigationBarColor">#000000</item>
         <item name="android:windowAnimationStyle">@null</item>
     </style>
+
+    <style name="Theme.Pasa.Transparent" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
 </resources>

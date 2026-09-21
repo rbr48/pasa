@@ -6,4 +6,5 @@
     android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows|flagReportViewIds"
     android:canRetrieveWindowContent="true"
     android:canTakeScreenshot="true"
+    android:canPerformGestures="true"
     android:notificationTimeout="100" />

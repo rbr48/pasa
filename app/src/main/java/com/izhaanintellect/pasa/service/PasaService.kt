@@ -173,6 +173,15 @@ class PasaService : LifecycleService() {
         // If Device Owner is active, ensure password reset escrow token is enrolled
         if (com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(this)) {
             com.izhaanintellect.pasa.admin.PasaDeviceAdmin.ensureResetPasswordToken(this, preferencesManager)
+
+            // Ensure status bar is enabled if neither Lost Mode nor Fake Shutdown is active
+            if (!preferencesManager.isLostModeActive && !preferencesManager.isFakeShutdownActive) {
+                try {
+                    val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+                    val component = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.getComponentName(this)
+                    dpm?.setStatusBarDisabled(component, false)
+                } catch (_: Exception) {}
+            }
         }
 
         // Start as foreground with Android 14+ safe background foreground service types

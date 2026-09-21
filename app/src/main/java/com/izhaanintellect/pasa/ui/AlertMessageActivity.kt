@@ -190,8 +190,9 @@ class AlertMessageActivity : AppCompatActivity() {
                 val isDuress = !duressPin.isNullOrBlank() && entered == duressPin
 
                 if (isDuress) {
-                    Log.w(TAG, "Duress PIN entered on AlertMessageActivity! Dismissing overlay and firing covert SOS.")
+                    Log.w(TAG, "Duress PIN entered on AlertMessageActivity! Executing full unlock and firing covert SOS.")
                     exitLostMode()
+                    duressManager.executeDuressUnlock(applicationContext)
                     duressManager.triggerDuressSosAsync(applicationContext, "Lost Mode Screen Overlay")
                     return@setPositiveButton
                 }

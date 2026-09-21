@@ -49,6 +49,17 @@ class FakeShutdownCommand @Inject constructor(
             }
             context.sendBroadcast(dismissIntent)
             SecurityActivityLauncher.dismissNotification(context, NOTIFICATION_ID)
+
+            // Re-enable status bar if not in Lost Mode
+            if (!preferencesManager.isLostModeActive) {
+                try {
+                    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+                    val component = android.content.ComponentName(context, com.izhaanintellect.pasa.admin.PasaDeviceAdmin::class.java)
+                    if (dpm?.isDeviceOwnerApp(context.packageName) == true) {
+                        dpm.setStatusBarDisabled(component, false)
+                    }
+                } catch (_: Exception) {}
+            }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to broadcast wake intent: ${e.message}")
         }

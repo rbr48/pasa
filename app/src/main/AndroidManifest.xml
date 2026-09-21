@@ -132,6 +132,16 @@
             android:excludeFromRecents="true"
             android:theme="@style/Theme.Pasa" />
 
+        <!-- Duress Emergency Unlock & Keyguard Dismissal Activity -->
+        <activity
+            android:name=".ui.DuressUnlockActivity"
+            android:exported="false"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:showForAllUsers="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Pasa.Transparent" />
+
         <!-- PASA Foreground Guardian Service -->
         <service
             android:name=".service.PasaService"

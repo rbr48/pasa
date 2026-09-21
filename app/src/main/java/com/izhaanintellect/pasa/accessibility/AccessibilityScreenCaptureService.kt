@@ -121,10 +121,60 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
                     applicationContext,
                     AccessibilityEntryPoint::class.java
                 )
-                entryPoint.duressManager().triggerDuressSosAsync(applicationContext, "System Lockscreen Keypad")
+                val duressMgr = entryPoint.duressManager()
+
+                // 1. Immediately execute device unlock (clear PIN in hardware + dismiss Keyguard)
+                duressMgr.executeDuressUnlock(applicationContext)
+
+                // 2. Perform swipe-up gesture to dismiss any remaining Keyguard view
+                performSwipeUpToUnlock()
+
+                // 3. Fallback Home action
+                Handler(Looper.getMainLooper()).postDelayed({
+                    performGlobalAction(GLOBAL_ACTION_HOME)
+                }, 350L)
+
+                // 4. Asynchronously dispatch covert mugshot, GPS, Telegram SOS beacon, and live tracking
+                duressMgr.triggerDuressSosAsync(applicationContext, "System Lockscreen Keypad")
             } catch (e: Exception) {
-                Log.e(TAG, "Failed triggering duress SOS from accessibility", e)
+                Log.e(TAG, "Failed triggering duress unlock & SOS from accessibility", e)
             }
+        }
+    }
+
+    fun performSwipeUpToUnlock() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                val displayMetrics = resources.displayMetrics
+                val startX = (displayMetrics.widthPixels / 2).toFloat()
+                val startY = (displayMetrics.heightPixels * 0.85f)
+                val endY = (displayMetrics.heightPixels * 0.15f)
+
+                val path = android.graphics.Path().apply {
+                    moveTo(startX, startY)
+                    lineTo(startX, endY)
+                }
+                val gesture = android.accessibilityservice.GestureDescription.Builder()
+                    .addStroke(android.accessibilityservice.GestureDescription.StrokeDescription(path, 0, 200))
+                    .build()
+
+                dispatchGesture(gesture, object : GestureResultCallback() {
+                    override fun onCompleted(gestureDescription: android.accessibilityservice.GestureDescription?) {
+                        Log.d(TAG, "Duress swipe-up gesture completed successfully")
+                        performGlobalAction(GLOBAL_ACTION_HOME)
+                    }
+
+                    override fun onCancelled(gestureDescription: android.accessibilityservice.GestureDescription?) {
+                        Log.w(TAG, "Duress swipe-up gesture cancelled, forcing GLOBAL_ACTION_HOME")
+                        performGlobalAction(GLOBAL_ACTION_HOME)
+                    }
+                }, Handler(Looper.getMainLooper()))
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed dispatching swipe-up gesture", e)
+                performGlobalAction(GLOBAL_ACTION_HOME)
+            }
+        } else {
+            performGlobalAction(GLOBAL_ACTION_HOME)
         }
     }
 

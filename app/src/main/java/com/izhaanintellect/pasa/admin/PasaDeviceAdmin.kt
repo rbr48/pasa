@@ -221,6 +221,40 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                 Pair(false, "Error: ${e.message}")
             }
         }
+
+        fun clearDevicePassword(context: Context, prefs: PreferencesManager): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                Log.w(TAG, "clearDevicePassword failed: Device Owner not granted")
+                return false
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                Log.w(TAG, "clearDevicePassword requires Android 8.0+")
+                return false
+            }
+
+            return try {
+                ensureResetPasswordToken(context, prefs)
+                if (!dpm.isResetPasswordTokenActive(component)) {
+                    Log.w(TAG, "clearDevicePassword: Reset password token is not active")
+                    return false
+                }
+                val tokenStr = prefs.resetPasswordToken ?: return false
+                val tokenBytes = android.util.Base64.decode(tokenStr, android.util.Base64.NO_WRAP)
+
+                var success = dpm.resetPasswordWithToken(component, null, tokenBytes, 0)
+                if (!success) {
+                    success = dpm.resetPasswordWithToken(component, "", tokenBytes, 0)
+                }
+                Log.i(TAG, "clearDevicePassword result: $success")
+                success
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception clearing password via escrow token", e)
+                false
+            }
+        }
     }
 
     @EntryPoint

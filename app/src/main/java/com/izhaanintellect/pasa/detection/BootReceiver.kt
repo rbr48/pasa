@@ -55,8 +55,9 @@ class BootReceiver : BroadcastReceiver() {
                     val component = android.content.ComponentName(context, com.izhaanintellect.pasa.admin.PasaDeviceAdmin::class.java)
                     if (dpm?.isDeviceOwnerApp(context.packageName) == true) {
                         dpm.setLockTaskPackages(component, arrayOf(context.packageName))
-                        dpm.setStatusBarDisabled(component, true)
-                        Log.i(TAG, "Device Owner policies re-applied after boot")
+                        val shouldDisable = preferencesManager.isLostModeActive || preferencesManager.isFakeShutdownActive
+                        dpm.setStatusBarDisabled(component, shouldDisable)
+                        Log.i(TAG, "Device Owner policies re-applied after boot (statusBarDisabled=$shouldDisable)")
                     }
                 } catch (e: Exception) {
                     Log.w(TAG, "Could not re-apply Device Owner policies: ${e.message}")

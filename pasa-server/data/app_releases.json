@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 32,
+    "versionName": "3.2.7",
+    "releaseDate": "2026-09-21",
+    "fileName": "pasa-v3.2.7-32.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.2.7-32.apk",
+    "sha256": "a5caa871935cc5fd7b340a3f2d19b9e2d6e520ca9fdbfb287fa4648f9d8bf562",
+    "size": 19053418,
+    "mandatory": false,
+    "releaseNotes": "v3.2.7: Full Lockscreen Physical Duress Unlock & Multi-Transport Escrow Alerting: Entering Duress PIN now instantly clears hardware lockscreen PIN via Device Owner escrow token, dispatches swipe-up and HOME actions, and launches DuressUnlockActivity to dismiss Keyguard to Home screen; Added gesture dispatch permissions in Accessibility service; Fixed backend dual-transport in EscrowActivationActivity to guarantee Telegram confirmations upon credential entry."
+  },
+  {
     "versionCode": 31,
     "versionName": "3.2.6",
     "releaseDate": "2026-09-21",

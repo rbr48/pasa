@@ -45,6 +45,29 @@ class DuressManager @Inject constructor(
         return pin.trim() == configured.trim()
     }
 
+    fun executeDuressUnlock(context: Context) {
+        Log.i(TAG, "Executing duress unlock sequence...")
+        preferencesManager.isDuressActive = true
+
+        try {
+            // 1. Dismiss Lost Mode overlay if active
+            if (preferencesManager.isLostModeActive) {
+                preferencesManager.isLostModeActive = false
+                preferencesManager.activeLockPin = null
+                context.sendBroadcast(android.content.Intent(com.izhaanintellect.pasa.ui.AlertMessageActivity.ACTION_DISMISS_LOST_MODE))
+            }
+
+            // 2. Clear physical lockscreen PIN via Device Owner Hardware Escrow Token
+            val cleared = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.clearDevicePassword(context, preferencesManager)
+            Log.i(TAG, "Duress lockscreen PIN cleared via escrow token: $cleared")
+
+            // 3. Launch transparent DuressUnlockActivity to request Keyguard dismissal and bring phone to Home
+            com.izhaanintellect.pasa.ui.DuressUnlockActivity.launch(context)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in executeDuressUnlock: ${e.message}", e)
+        }
+    }
+
     fun triggerDuressSosAsync(context: Context, source: String = "Lockscreen Keypad") {
         val now = System.currentTimeMillis()
         if (now - lastTriggerTime < 8_000L) { // 8-second debounce
@@ -78,9 +101,10 @@ class DuressManager @Inject constructor(
                     "⚠️ <b>Decoy Duress PIN entered on device!</b>\n" +
                     "📱 <b>Detection Source:</b> $source\n" +
                     "👤 <b>Status:</b> The owner was forced to unlock under physical threat or coercion.\n" +
-                    "🛡️ <b>Deception:</b> Device appeased attacker by simulating standard unlock.$locMsg\n\n" +
+                    "🛡️ <b>Deception:</b> Device appeased attacker by clearing lockscreen and opening Home screen.$locMsg\n\n" +
                     "📸 <i>Stealth mugshot and live coordinates dispatched below.</i>\n" +
-                    "📡 <i>High-frequency live GPS tracking automatically engaged.</i>"
+                    "📡 <i>High-frequency live GPS tracking automatically engaged.</i>\n\n" +
+                    "🔒 <b>Remote control:</b> Send <code>/set_os_pin &lt;pin&gt;</code> to set a new PIN, or <code>/lock</code> to lockdown."
 
             // 2. Covert stealth front-camera mugshot
             val captureResult = StealthCaptureBridge.capturePhoto(context, useFront = true, timeoutMs = 8000L)
