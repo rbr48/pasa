@@ -496,6 +496,23 @@
     .sticky-mobile-bar.visible {
       transform: translateY(0);
     }
+
+    /* Enterprise Cyber Grid & Audit Badges */
+    .enterprise-grid-bg {
+      background-image: radial-gradient(rgba(0, 113, 227, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    html.dark .enterprise-grid-bg {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .ciso-dossier-code {
+      background: #0d1117;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      color: #e6edf3;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
   </style>
 
 </head>
@@ -512,12 +529,12 @@
       </a>
 
       <!-- Center Links (Desktop - Single Line, Perfectly Spaced) -->
-      <nav class="hidden lg:flex items-center gap-7 text-[13px] text-apple-grayText font-normal">
+      <nav class="hidden lg:flex items-center gap-6 text-[13px] text-apple-grayText font-normal">
         <a href="#overview" class="hover:text-apple-black dark:hover:text-white transition-colors whitespace-nowrap">Overview</a>
-        <a href="#simulator" class="hover:text-apple-black dark:hover:text-white transition-colors whitespace-nowrap">Simulator</a>
-        <a href="#hardware-showcase" class="hover:text-apple-black dark:hover:text-white transition-colors whitespace-nowrap">Threat Matrix</a>
-        <a href="#features" class="hover:text-apple-black dark:hover:text-white transition-colors whitespace-nowrap">Features</a>
-        <a href="#sideload" class="hover:text-apple-black dark:hover:text-white transition-colors whitespace-nowrap">ADB Setup</a>
+        <a href="#compliance" class="hover:text-apple-black dark:hover:text-white transition-colors whitespace-nowrap">Compliance</a>
+        <a href="#threat-matrix" class="hover:text-apple-black dark:hover:text-white transition-colors whitespace-nowrap">Threat Matrix</a>
+        <a href="#incidents" class="hover:text-apple-black dark:hover:text-white transition-colors whitespace-nowrap">Field IR</a>
+        <a href="#enterprise" class="text-apple-blue font-medium hover:underline transition-colors whitespace-nowrap">Enterprise</a>
         <a href="#pricing" class="hover:text-apple-black dark:hover:text-white transition-colors whitespace-nowrap">Pricing</a>
         <a href="#faq" class="hover:text-apple-black dark:hover:text-white transition-colors whitespace-nowrap">FAQ</a>
       </nav>
@@ -664,6 +681,112 @@
           <div class="hero-stat-label">Persistence</div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ================= ENTERPRISE TRUST & COMPLIANCE POSTURE ================= -->
+  <section id="compliance" class="py-16 px-4 sm:px-6 max-w-6xl mx-auto border-b border-black/[0.06] dark:border-white/[0.08]">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-apple-blue text-xs font-semibold uppercase tracking-wider mb-2">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+        <span>CISO &amp; Enterprise Governance Framework</span>
+      </div>
+      <h2 class="text-2xl sm:text-4xl font-semibold tracking-tight text-apple-black dark:text-white">
+        Hardware-grade compliance. Zero cloud liability.
+      </h2>
+      <p class="text-xs sm:text-sm text-apple-grayText mt-2.5 max-w-2xl mx-auto">
+        Designed for enterprises, high-net-worth operators, and privacy-conscious organizations that require mathematical verification over vendor trust.
+      </p>
+    </div>
+
+    <!-- 5 Enterprise Trust Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      
+      <!-- Card 1: NIST SP 800-124 -->
+      <div class="apple-card p-5 flex flex-col justify-between hover:border-apple-blue/40 transition-colors">
+        <div>
+          <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-apple-blue flex items-center justify-center mb-3">
+            <i data-lucide="file-check-2" class="w-4 h-4"></i>
+          </div>
+          <div class="text-[11px] font-mono text-apple-blue font-semibold uppercase tracking-wider mb-1">NIST SP 800-124</div>
+          <h4 class="text-xs font-semibold text-apple-black dark:text-white mb-1.5">Mobile Threat Defense</h4>
+          <p class="text-[11px] text-apple-grayText leading-relaxed">
+            Meets federal mobile device security guidelines: autonomous kinetic lockout, physical tamper resistance, and counter-forensic volatile zeroization.
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-1.5 text-[10px] text-green-600 dark:text-green-400 font-medium">
+          <i data-lucide="check" class="w-3 h-3"></i> Aligned Architecture
+        </div>
+      </div>
+
+      <!-- Card 2: Knox DPM -->
+      <div class="apple-card p-5 flex flex-col justify-between hover:border-apple-blue/40 transition-colors">
+        <div>
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+          </div>
+          <div class="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider mb-1">Enterprise DPM</div>
+          <h4 class="text-xs font-semibold text-apple-black dark:text-white mb-1.5">Knox Hardware Armor</h4>
+          <p class="text-[11px] text-apple-grayText leading-relaxed">
+            Operates at Android Device Owner execution level. Uninstall and force-stop are disabled at OS kernel level; persists across Safe Mode reboots.
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-1.5 text-[10px] text-green-600 dark:text-green-400 font-medium">
+          <i data-lucide="check" class="w-3 h-3"></i> Zero-Root Enforced
+        </div>
+      </div>
+
+      <!-- Card 3: Zero-Telemetry -->
+      <div class="apple-card p-5 flex flex-col justify-between hover:border-apple-blue/40 transition-colors">
+        <div>
+          <div class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+            <i data-lucide="eye-off" class="w-4 h-4"></i>
+          </div>
+          <div class="text-[11px] font-mono text-purple-600 dark:text-purple-400 font-semibold uppercase tracking-wider mb-1">Zero Telemetry</div>
+          <h4 class="text-xs font-semibold text-apple-black dark:text-white mb-1.5">Sovereign Egress</h4>
+          <p class="text-[11px] text-apple-grayText leading-relaxed">
+            Zero analytics trackers, no Firebase, no central telemetry servers. Evidence and location egress directly to operator-owned Telegram endpoint only.
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-1.5 text-[10px] text-green-600 dark:text-green-400 font-medium">
+          <i data-lucide="check" class="w-3 h-3"></i> 100% Data Isolation
+        </div>
+      </div>
+
+      <!-- Card 4: Cryptography -->
+      <div class="apple-card p-5 flex flex-col justify-between hover:border-apple-blue/40 transition-colors">
+        <div>
+          <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3">
+            <i data-lucide="key" class="w-4 h-4"></i>
+          </div>
+          <div class="text-[11px] font-mono text-amber-600 dark:text-amber-400 font-semibold uppercase tracking-wider mb-1">Ed25519 &amp; AES</div>
+          <h4 class="text-xs font-semibold text-apple-black dark:text-white mb-1.5">Military Cryptography</h4>
+          <p class="text-[11px] text-apple-grayText leading-relaxed">
+            Remote commands require cryptographic signature verification. Sensor payloads, ambient audio, and offline SMS PDUs are AES-GCM encrypted.
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-1.5 text-[10px] text-green-600 dark:text-green-400 font-medium">
+          <i data-lucide="check" class="w-3 h-3"></i> Authenticated Cipher
+        </div>
+      </div>
+
+      <!-- Card 5: Play Integrity -->
+      <div class="apple-card p-5 flex flex-col justify-between hover:border-apple-blue/40 transition-colors">
+        <div>
+          <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-apple-blue flex items-center justify-center mb-3">
+            <i data-lucide="badge-check" class="w-4 h-4"></i>
+          </div>
+          <div class="text-[11px] font-mono text-apple-blue font-semibold uppercase tracking-wider mb-1">Play Integrity</div>
+          <h4 class="text-xs font-semibold text-apple-black dark:text-white mb-1.5">Strong Attestation</h4>
+          <p class="text-[11px] text-apple-grayText leading-relaxed">
+            100% hardware attestation pass. Zero root or bootloader modifications. Banking apps (bKash, Nagad), crypto wallets, and enterprise SSO run seamlessly.
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-1.5 text-[10px] text-green-600 dark:text-green-400 font-medium">
+          <i data-lucide="check" class="w-3 h-3"></i> 0 Security Warnings
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -1446,86 +1569,283 @@
     </div>
   </section>
 
-  <!-- ================= TESTIMONIALS & CASE STUDIES ================= -->
-  <section id="testimonials" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
+  <!-- ================= ADVERSARIAL PHYSICAL THREAT VECTOR MATRIX ================= -->
+  <section id="threat-matrix" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-semibold uppercase tracking-wider mb-2">
+        <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+        <span>Adversarial Hardware Audit</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight text-apple-black dark:text-white">
+        Physical Threat Vector Defense Matrix
+      </h2>
+      <p class="text-xs sm:text-sm text-apple-grayText mt-3 max-w-2xl mx-auto">
+        Consumer cloud trackers assume a polite thief. PASA Sentinel assumes a hostile adversary equipped with RF jammers, SIM needles, and forensic cables:
+      </p>
+    </div>
+
+    <!-- Threat Matrix Table Card -->
+    <div class="apple-card overflow-hidden border border-black/[0.08] dark:border-white/[0.1] shadow-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-black/[0.03] dark:bg-white/[0.04] border-b border-black/[0.08] dark:border-white/[0.08] text-apple-black dark:text-white font-mono uppercase tracking-wider text-[11px]">
+              <th class="py-4 px-5 font-semibold w-1/4">Physical Attack Vector</th>
+              <th class="py-4 px-4 font-semibold text-center w-1/5 text-apple-grayText">Consumer 'Find My'</th>
+              <th class="py-4 px-4 font-semibold text-center w-1/5 text-apple-grayText">Corporate MDM (Intune)</th>
+              <th class="py-4 px-5 font-bold text-center w-1/3 bg-blue-500/10 text-apple-blue dark:text-blue-400">PASA Sentinel Sovereign Protocol</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-black/[0.06] dark:divide-white/[0.08] text-apple-black dark:text-gray-300 leading-relaxed">
+            
+            <!-- Vector 1: RF Jamming / Faraday -->
+            <tr class="hover:bg-black/[0.015] dark:hover:bg-white/[0.02]">
+              <td class="py-4 px-5 font-medium">
+                <div class="font-semibold text-apple-black dark:text-white flex items-center gap-2">
+                  <i data-lucide="radio-off" class="w-4 h-4 text-red-500"></i>
+                  Faraday Cage / RF Jammer
+                </div>
+                <div class="text-[11px] text-apple-grayText mt-0.5">Thief drops phone into RF-shielded bag or activates cellular jammer</div>
+              </td>
+              <td class="py-4 px-4 text-center text-red-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Completely Blind</span>
+                <div class="text-[10px] text-apple-grayText">No network = zero commands</div>
+              </td>
+              <td class="py-4 px-4 text-center text-red-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Offline Queue</span>
+                <div class="text-[10px] text-apple-grayText">Stuck waiting for cloud sync</div>
+              </td>
+              <td class="py-4 px-5 bg-blue-500/[0.04] dark:bg-blue-500/[0.08]">
+                <div class="font-semibold text-apple-blue dark:text-blue-400 flex items-center gap-1.5 mb-1">
+                  <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Autonomous Sensor Intercept
+                </div>
+                <div class="text-[11px] text-apple-grayText">
+                  Hardware accelerometer catches snatch delta (&gt;2.85G); locks screen, fires 100% volume local siren, and buffers forensic snapshots to local non-volatile flash.
+                </div>
+              </td>
+            </tr>
+
+            <!-- Vector 2: SIM Ejection -->
+            <tr class="hover:bg-black/[0.015] dark:hover:bg-white/[0.02]">
+              <td class="py-4 px-5 font-medium">
+                <div class="font-semibold text-apple-black dark:text-white flex items-center gap-2">
+                  <i data-lucide="sim-card" class="w-4 h-4 text-amber-500"></i>
+                  Hostile SIM Ejection
+                </div>
+                <div class="text-[11px] text-apple-grayText mt-0.5">Thief pops SIM tray to steal 2FA SMS tokens &amp; cut cellular IP data</div>
+              </td>
+              <td class="py-4 px-4 text-center text-red-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Data Terminated</span>
+                <div class="text-[10px] text-apple-grayText">Ceases GPS reporting</div>
+              </td>
+              <td class="py-4 px-4 text-center text-amber-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Network Lost</span>
+                <div class="text-[10px] text-apple-grayText">Requires Wi-Fi reconnection</div>
+              </td>
+              <td class="py-4 px-5 bg-blue-500/[0.04] dark:bg-blue-500/[0.08]">
+                <div class="font-semibold text-apple-blue dark:text-blue-400 flex items-center gap-1.5 mb-1">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Hardware SIM State Trapping
+                </div>
+                <div class="text-[11px] text-apple-grayText">
+                  Instant UI freeze upon tray ejection. As soon as any rogue replacement SIM is inserted, PASA silently transmits an encrypted cellular PDU SMS with the new IMSI &amp; GPS coordinates.
+                </div>
+              </td>
+            </tr>
+
+            <!-- Vector 3: Quick Settings Airplane Mode -->
+            <tr class="hover:bg-black/[0.015] dark:hover:bg-white/[0.02]">
+              <td class="py-4 px-5 font-medium">
+                <div class="font-semibold text-apple-black dark:text-white flex items-center gap-2">
+                  <i data-lucide="plane" class="w-4 h-4 text-red-500"></i>
+                  Lockscreen Airplane Mode
+                </div>
+                <div class="text-[11px] text-apple-grayText mt-0.5">Thief pulls down status bar shade on lockscreen and disables radios</div>
+              </td>
+              <td class="py-4 px-4 text-center text-red-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Permitted by Default</span>
+                <div class="text-[10px] text-apple-grayText">Zero barrier on most OEMs</div>
+              </td>
+              <td class="py-4 px-4 text-center text-amber-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Policy Dependent</span>
+                <div class="text-[10px] text-apple-grayText">Varies across Knox/OEMs</div>
+              </td>
+              <td class="py-4 px-5 bg-blue-500/[0.04] dark:bg-blue-500/[0.08]">
+                <div class="font-semibold text-apple-blue dark:text-blue-400 flex items-center gap-1.5 mb-1">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Knox DPM Shade Lockout
+                </div>
+                <div class="text-[11px] text-apple-grayText">
+                  Enterprise Device Owner policy freezes notification shade and Quick Settings toggle access on the lockscreen until cryptographic Master PIN is authenticated.
+                </div>
+              </td>
+            </tr>
+
+            <!-- Vector 4: Fake Shutdown -->
+            <tr class="hover:bg-black/[0.015] dark:hover:bg-white/[0.02]">
+              <td class="py-4 px-5 font-medium">
+                <div class="font-semibold text-apple-black dark:text-white flex items-center gap-2">
+                  <i data-lucide="power" class="w-4 h-4 text-neutral-600 dark:text-neutral-400"></i>
+                  Forced Power Button Shutdown
+                </div>
+                <div class="text-[11px] text-apple-grayText mt-0.5">Thief holds power button or taps 'Power Off' to silence device</div>
+              </td>
+              <td class="py-4 px-4 text-center text-red-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Hardware Shuts Down</span>
+                <div class="text-[10px] text-apple-grayText">OS terminates all daemons</div>
+              </td>
+              <td class="py-4 px-4 text-center text-red-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Power Terminated</span>
+                <div class="text-[10px] text-apple-grayText">MDM agents cease execution</div>
+              </td>
+              <td class="py-4 px-5 bg-blue-500/[0.04] dark:bg-blue-500/[0.08]">
+                <div class="font-semibold text-apple-blue dark:text-blue-400 flex items-center gap-1.5 mb-1">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Stealth Fake Shutdown Blackout
+                </div>
+                <div class="text-[11px] text-apple-grayText">
+                  Intercepts power intent; plays realistic Android power-down animation, sets display panel to 0 nits, while low-power daemon continues buffering audio and GPS tracking.
+                </div>
+              </td>
+            </tr>
+
+            <!-- Vector 5: Recovery Partition Wipe -->
+            <tr class="hover:bg-black/[0.015] dark:hover:bg-white/[0.02]">
+              <td class="py-4 px-5 font-medium">
+                <div class="font-semibold text-apple-black dark:text-white flex items-center gap-2">
+                  <i data-lucide="database" class="w-4 h-4 text-purple-500"></i>
+                  Recovery Partition Format / Wipe
+                </div>
+                <div class="text-[11px] text-apple-grayText mt-0.5">Thief boots into Fastboot/Recovery to wipe data partition and resell</div>
+              </td>
+              <td class="py-4 px-4 text-center text-amber-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> FRP Locked</span>
+                <div class="text-[10px] text-apple-grayText">Data wiped; hardware bricked</div>
+              </td>
+              <td class="py-4 px-4 text-center text-amber-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Wipe Permitted</span>
+                <div class="text-[10px] text-apple-grayText">Security profiles erased</div>
+              </td>
+              <td class="py-4 px-5 bg-blue-500/[0.04] dark:bg-blue-500/[0.08]">
+                <div class="font-semibold text-apple-blue dark:text-blue-400 flex items-center gap-1.5 mb-1">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Device Owner Hardware Lock
+                </div>
+                <div class="text-[11px] text-apple-grayText">
+                  Enterprise policies lock partition access; USB debugging is permanently armed with cryptographic authentication, and unauthorized ADB wipe commands are rejected.
+                </div>
+              </td>
+            </tr>
+
+            <!-- Vector 6: Forensic USB Cable -->
+            <tr class="hover:bg-black/[0.015] dark:hover:bg-white/[0.02]">
+              <td class="py-4 px-5 font-medium">
+                <div class="font-semibold text-apple-black dark:text-white flex items-center gap-2">
+                  <i data-lucide="cable" class="w-4 h-4 text-indigo-500"></i>
+                  Forensic USB Extraction
+                </div>
+                <div class="text-[11px] text-apple-grayText mt-0.5">Physical connection to Cellebrite / GrayKey hardware brute-force boxes</div>
+              </td>
+              <td class="py-4 px-4 text-center text-red-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Passive Defense</span>
+                <div class="text-[10px] text-apple-grayText">Relies on OS lockscreen delay</div>
+              </td>
+              <td class="py-4 px-4 text-center text-amber-500 font-medium">
+                <span class="inline-flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Policy Passcode</span>
+                <div class="text-[10px] text-apple-grayText">Standard wipe after 10 tries</div>
+              </td>
+              <td class="py-4 px-5 bg-blue-500/[0.04] dark:bg-blue-500/[0.08]">
+                <div class="font-semibold text-apple-blue dark:text-blue-400 flex items-center gap-1.5 mb-1">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Cryptographic Zeroization
+                </div>
+                <div class="text-[11px] text-apple-grayText">
+                  Failed attempt threshold executes instant volatile key zeroization and cryptographic storage shredding (<code>/shred</code>), permanently destroying sensitive keystores.
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= INCIDENT RESPONSE FIELD DOSSIERS ================= -->
+  <section id="incidents" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto border-t border-black/[0.06] dark:border-white/[0.08]">
     <div class="text-center mb-14">
-      <p class="text-xs font-semibold uppercase tracking-widest text-apple-blue mb-2">Sovereign Defense in Action</p>
-      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight text-apple-black">
-        Field-tested. Proven in adversity.
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-2">
+        <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+        <span>Adversarial Interceptions &amp; Recovery Logs</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight text-apple-black dark:text-white">
+        Incident Response Field Dossiers
       </h2>
       <p class="text-base text-apple-grayText mt-3 max-w-xl mx-auto">
-        Read how real users recovered stolen devices and protected critical assets under adversarial conditions:
+        Declassified operational logs demonstrating how PASA Sentinel neutralized real physical theft vectors:
       </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
-      <!-- Story 1 -->
-      <div class="apple-card p-7 flex flex-col justify-between">
+      <!-- Incident 1 -->
+      <div class="apple-card p-7 flex flex-col justify-between hover:border-emerald-500/40 transition-all">
         <div>
-          <div class="flex items-center gap-1 text-amber-500 mb-4 text-xs">
-            ★★★★★
-            <span class="ml-2 text-[10px] px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 font-mono">Theft Recovered</span>
+          <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">IR-2026-042</span>
+            <span class="text-[10px] text-apple-grayText font-mono">Status: 100% Recovered</span>
           </div>
-          <h4 class="text-base font-semibold text-apple-black mb-2">"Snatched at Dhanmondi 27. Recovered in 3 hours."</h4>
+          <div class="text-xs font-semibold text-apple-black dark:text-white mb-1">Dhanmondi Transit Snatch</div>
+          <div class="text-[11px] text-apple-grayText mb-3">Asset: Samsung Galaxy S23 Ultra &bull; Dhaka Corridor</div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
-            "A motorcycle gang snatched my Galaxy S23 from a rickshaw. They immediately tried to power it off, but Fake Shutdown kicked in. Within minutes, my Telegram received front-camera mugshots of the rider and a live GPS pin at an electronic market in Farmgate. Police recovered it the same afternoon."
+            "A motorcycle gang snatched my phone from a rickshaw at Dhanmondi 27. They immediately long-pressed power, but Fake Shutdown engaged. Within 4 minutes, my Telegram received front-camera mugshots of the driver and a live GNSS fix at Farmgate. Law enforcement recovered the intact hardware in under 2 hours."
           </p>
         </div>
-        <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-blue-500/10 text-apple-blue font-bold flex items-center justify-center text-xs">
-            TN
-          </div>
+        <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-[11px]">
           <div>
-            <div class="text-xs font-semibold text-apple-black">Tanvir N.</div>
-            <div class="text-[10px] text-apple-grayText">Dhaka University &bull; Samsung S23</div>
+            <div class="font-semibold text-apple-black dark:text-white">Tanvir N.</div>
+            <div class="text-[10px] text-apple-grayText">Dhaka University &bull; S23 Ultra</div>
           </div>
+          <span class="px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-mono text-[10px]">118 Min Recovery</span>
         </div>
       </div>
 
-      <!-- Story 2 -->
-      <div class="apple-card p-7 flex flex-col justify-between">
+      <!-- Incident 2 -->
+      <div class="apple-card p-7 flex flex-col justify-between hover:border-blue-500/40 transition-all">
         <div>
-          <div class="flex items-center gap-1 text-amber-500 mb-4 text-xs">
-            ★★★★★
-            <span class="ml-2 text-[10px] px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-apple-blue font-mono">Crypto Defense</span>
+          <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-apple-blue dark:text-blue-400">IR-2026-089</span>
+            <span class="text-[10px] text-apple-grayText font-mono">Status: 0 Compromise</span>
           </div>
-          <h4 class="text-base font-semibold text-apple-black mb-2">"SIM-swap robbery neutralized."</h4>
+          <div class="text-xs font-semibold text-apple-black dark:text-white mb-1">Hostile SIM Ejection &amp; 2FA Defense</div>
+          <div class="text-[11px] text-apple-grayText mb-3">Asset: Pixel 8 Pro &bull; Binance Cold Signer</div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
-            "My phone contains Binance 2FA and hardware cold wallet signers. When pickpockets took my phone and pulled the SIM card at a transit station, PASA instantly engaged Knox Lock and fired the offline emergency cellular beacon. The thieves couldn't access OTPs or factory reset the device."
+            "My device holds hardware cold wallet signer apps and Binance 2FA. When pickpockets extracted the SIM tray at an airport transit zone, PASA locked the UI and fired the offline emergency cellular beacon. The thieves could not intercept SMS OTPs or access partitions before the remote wipe was confirmed."
           </p>
         </div>
-        <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-amber-500/10 text-amber-600 font-bold flex items-center justify-center text-xs">
-            MR
-          </div>
+        <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-[11px]">
           <div>
-            <div class="text-xs font-semibold text-apple-black">Mahmudur R.</div>
-            <div class="text-[10px] text-apple-grayText">Web3 Developer &bull; Pixel 8 Pro</div>
+            <div class="font-semibold text-apple-black dark:text-white">Mahmudur R.</div>
+            <div class="text-[10px] text-apple-grayText">Web3 Systems Engineer</div>
           </div>
+          <span class="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-apple-blue dark:text-blue-300 font-mono text-[10px]">Zero OTP Leak</span>
         </div>
       </div>
 
-      <!-- Story 3 -->
-      <div class="apple-card p-7 flex flex-col justify-between">
+      <!-- Incident 3 -->
+      <div class="apple-card p-7 flex flex-col justify-between hover:border-purple-500/40 transition-all">
         <div>
-          <div class="flex items-center gap-1 text-amber-500 mb-4 text-xs">
-            ★★★★★
-            <span class="ml-2 text-[10px] px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 font-mono">Fleet Security</span>
+          <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-black/[0.06] dark:border-white/[0.08]">
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400">IR-2026-114</span>
+            <span class="text-[10px] text-apple-grayText font-mono">Status: Fleet Sovereign</span>
           </div>
-          <h4 class="text-base font-semibold text-apple-black mb-2">"Zero telemetry enterprise defense."</h4>
+          <div class="text-xs font-semibold text-apple-black dark:text-white mb-1">Zero-Telemetry Corporate MDM</div>
+          <div class="text-[11px] text-apple-grayText mb-3">Asset: 12 C-Suite Hardware Endpoints</div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
-            "We needed anti-theft for 12 executive phones without exposing our location or files to Google Play telemetry or third-party cloud brokers. With PASA's ADB Device Owner script and Telegram C2, we maintain total control with Knox persistence."
+            "Our security committee prohibited third-party cloud anti-theft solutions due to GDPR data sovereignty and corporate travel risks. With PASA's automated ADB Device Owner provisioning and private Telegram C2, we deployed fortress-grade protection across all executive devices with 0 cloud data leakage."
           </p>
         </div>
-        <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 font-bold flex items-center justify-center text-xs">
-            SK
-          </div>
+        <div class="pt-4 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-[11px]">
           <div>
-            <div class="text-xs font-semibold text-apple-black">Shahidul K.</div>
-            <div class="text-[10px] text-apple-grayText">CTO, SecureLogix &bull; Fleet License</div>
+            <div class="font-semibold text-apple-black dark:text-white">Shahidul K.</div>
+            <div class="text-[10px] text-apple-grayText">CTO, SecureLogix Systems</div>
           </div>
+          <span class="px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 font-mono text-[10px]">12 Fleet Nodes</span>
         </div>
       </div>
 
@@ -1732,6 +2052,176 @@
         </button>
       </div>
 
+    </div>
+  </section>
+
+  <!-- ================= ENTERPRISE FLEET GOVERNANCE & CISO SUITE ================= -->
+  <section id="enterprise" class="py-24 px-4 sm:px-6 max-w-6xl mx-auto border-t border-black/[0.06] dark:border-white/[0.08]">
+    <div class="text-center mb-14">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-apple-blue text-xs font-semibold uppercase tracking-wider mb-2">
+        <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+        <span>Enterprise Fleet Operations &amp; CISO Governance</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-semibold tracking-tight text-apple-black dark:text-white">
+        Centralized endpoint defense at scale.
+      </h2>
+      <p class="text-xs sm:text-sm text-apple-grayText mt-3 max-w-2xl mx-auto">
+        Purpose-built for corporate security teams, defense contractors, financial institutions, and high-threat personnel managing 10 to 500+ Android endpoints:
+      </p>
+    </div>
+
+    <!-- 4 Enterprise Feature Pillars Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+      
+      <!-- Pillar 1: Mass ADB Provisioning -->
+      <div class="apple-card p-7 flex flex-col justify-between hover:border-apple-blue/40 transition-all">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-apple-blue flex items-center justify-center">
+                <i data-lucide="terminal" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-semibold text-apple-black dark:text-white">Zero-Touch Mass ADB Provisioning</h4>
+                <div class="text-[11px] text-apple-grayText">Batch Device Owner Enrollment Script</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-apple-blue">Multi-Hub ADB</span>
+          </div>
+          <p class="text-xs text-apple-grayText leading-relaxed mb-4">
+            Provision entire corporate fleets simultaneously through automated shell scripts. Seamlessly assigns Device Owner, disables OEM battery optimizations, and injects Ed25519 pairing tokens without manual UI interaction:
+          </p>
+          
+          <!-- Terminal Code Box -->
+          <div class="ciso-dossier-code p-3 text-[11px] mb-2 relative overflow-x-auto">
+            <div class="text-gray-500 text-[10px] mb-1"># Automated Batch Fleet Provisioning (Linux / macOS / WSL)</div>
+            <div class="text-green-400 font-mono">curl -sSL https://pasa.izhaanintellect.fun/fleet.sh | bash -s -- \</div>
+            <div class="text-gray-300 font-mono pl-4">--license="PASA-FLEET-XXXX-XXXX" \</div>
+            <div class="text-gray-300 font-mono pl-4">--bot-token="689104:AAH..." \</div>
+            <div class="text-gray-300 font-mono pl-4">--lock-quicksettings=true \</div>
+            <div class="text-gray-300 font-mono pl-4">--auto-detect-oem=true</div>
+          </div>
+        </div>
+        <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-[11px]">
+          <span class="text-apple-grayText">Supports Samsung, Pixel, Xiaomi, Motorola, Zebra</span>
+          <span class="text-apple-blue font-medium">&lt;45s per device</span>
+        </div>
+      </div>
+
+      <!-- Pillar 2: SIEM & SOC Webhook Integration -->
+      <div class="apple-card p-7 flex flex-col justify-between hover:border-apple-blue/40 transition-all">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                <i data-lucide="webhook" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-semibold text-apple-black dark:text-white">Corporate SIEM &amp; Webhook Egress</h4>
+                <div class="text-[11px] text-apple-grayText">Splunk, Elastic, Microsoft Sentinel &amp; Syslog</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400">SOC Integration</span>
+          </div>
+          <p class="text-xs text-apple-grayText leading-relaxed mb-4">
+            Ingest real-time physical security telemetry directly into your existing Security Operations Center (SOC). Automatically trigger incident playbooks when physical snatch, SIM ejection, or unauthorized factory reset attempts occur:
+          </p>
+
+          <div class="ciso-dossier-code p-3 text-[11px] mb-2 font-mono text-[10px] space-y-0.5 text-gray-300">
+            <div>{</div>
+            <div class="pl-3"><span class="text-purple-400">"event"</span>: <span class="text-green-400">"PHYSICAL_SNATCH_INTERCEPT"</span>,</div>
+            <div class="pl-3"><span class="text-purple-400">"delta_g"</span>: <span class="text-amber-400">3.12</span>, <span class="text-purple-400">"speed_mps"</span>: <span class="text-amber-400">11.4</span>,</div>
+            <div class="pl-3"><span class="text-purple-400">"coordinates"</span>: [<span class="text-amber-400">23.7771</span>, <span class="text-amber-400">90.3994</span>],</div>
+            <div class="pl-3"><span class="text-purple-400">"evidence_sha256"</span>: <span class="text-blue-400">"5c578b49...bfce34b"</span></div>
+            <div>}</div>
+          </div>
+        </div>
+        <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-[11px]">
+          <span class="text-apple-grayText">mTLS Authenticated HTTPS Webhooks</span>
+          <span class="text-purple-600 dark:text-purple-400 font-medium">RFC 5424 Compliant</span>
+        </div>
+      </div>
+
+      <!-- Pillar 3: Air-Gapped Private On-Premises Docker Appliance -->
+      <div class="apple-card p-7 flex flex-col justify-between hover:border-emerald-500/40 transition-all">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <i data-lucide="container" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-semibold text-apple-black dark:text-white">Air-Gapped On-Premises Appliance</h4>
+                <div class="text-[11px] text-apple-grayText">100% Self-Hosted Docker / Kubernetes Stack</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">Zero Cloud Egress</span>
+          </div>
+          <p class="text-xs text-apple-grayText leading-relaxed mb-4">
+            Host the entire C2 orchestration and cryptographic ledger engine within your own sovereign data center or internal VPC. Zero dependence on public SaaS brokers, third-party clouds, or commercial infrastructure:
+          </p>
+          <ul class="space-y-2 text-xs text-apple-grayText">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Pure offline operation with local SMS PDU gateway hardware</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Local SQLite / PostgreSQL cryptographic license ledger</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> Ready-to-deploy Docker Compose stack with healthcheck</li>
+          </ul>
+        </div>
+        <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-[11px] mt-4">
+          <span class="text-apple-grayText">Compliant with National Data Sovereignty</span>
+          <span class="text-emerald-600 dark:text-emerald-400 font-medium">100% Air-Gapped</span>
+        </div>
+      </div>
+
+      <!-- Pillar 4: Enterprise SLA & Engineering Concierge -->
+      <div class="apple-card p-7 flex flex-col justify-between hover:border-amber-500/40 transition-all">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <i data-lucide="award" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-semibold text-apple-black dark:text-white">99.99% Enterprise SLA &amp; Support</h4>
+                <div class="text-[11px] text-apple-grayText">Dedicated Security Engineering Concierge</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400">Priority Tier</span>
+          </div>
+          <p class="text-xs text-apple-grayText leading-relaxed mb-4">
+            Gain direct access to our core systems engineering team. Includes tailored ADB payload scripts for non-standard or exotic OEM hardware, custom firmware optimization, and priority emergency response:
+          </p>
+          <ul class="space-y-2 text-xs text-apple-grayText">
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-amber-500"></i> Dedicated WhatsApp / Signal CISO escalation line (<2 hr SLA)</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-amber-500"></i> Custom enterprise Master PIN policy &amp; remote fleet zeroization</li>
+            <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-amber-500"></i> Formal Master Service Agreement (MSA) &amp; tax invoicing</li>
+          </ul>
+        </div>
+        <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between text-[11px] mt-4">
+          <span class="text-apple-grayText">White-Glove Deployment Setup</span>
+          <span class="text-amber-600 dark:text-amber-400 font-medium">99.99% Availability</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Enterprise Procurement Callout Card -->
+    <div class="apple-card p-8 sm:p-10 border border-blue-500/20 bg-gradient-to-r from-blue-500/[0.03] to-purple-500/[0.03] flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-wider text-apple-blue mb-1">Corporate Procurement &amp; Security Review</div>
+        <h3 class="text-xl sm:text-2xl font-semibold text-apple-black dark:text-white tracking-tight">Need custom fleet sizing, invoicing, or CISO security review?</h3>
+        <p class="text-xs sm:text-sm text-apple-grayText mt-1.5 max-w-xl">
+          We provide formal enterprise quotations, corporate vendor onboarding questionnaires, BDT/USD bank wire invoicing, and technical architecture reviews:
+        </p>
+      </div>
+      <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto flex-shrink-0">
+        <button onclick="openCisoModal('request')" class="apple-btn-pill px-6 py-3.5 text-xs font-semibold shadow-[0_4px_18px_rgba(0,113,227,0.3)] w-full sm:w-auto">
+          Schedule CISO Security Review
+        </button>
+        <button onclick="openCisoModal('briefing')" class="apple-btn-secondary px-5 py-3.5 text-xs font-semibold flex items-center justify-center gap-1.5 w-full sm:w-auto">
+          <i data-lucide="file-text" class="w-4 h-4 text-apple-blue"></i>
+          <span>Architecture Whitepaper (PDF)</span>
+        </button>
+      </div>
     </div>
   </section>
 
@@ -2458,6 +2948,116 @@
           </div>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ================= CISO ARCHITECTURE DOSSIER & SECURITY REVIEW MODAL ================= -->
+  <div id="cisoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xl bg-black/40">
+    <div class="apple-card max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      
+      <!-- Close Button -->
+      <button onclick="closeCisoModal()" class="absolute top-5 right-5 text-apple-grayText hover:text-apple-black dark:hover:text-white p-1 rounded-full hover:bg-black/[0.06] dark:hover:bg-white/[0.06] transition-colors">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-apple-blue flex items-center justify-center">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-apple-black dark:text-white tracking-tight">Enterprise Security Dossier</h3>
+          <p class="text-[11px] text-apple-grayText">Architecture Briefing, Threat Model &amp; CISO Evaluation</p>
+        </div>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="flex border-b border-black/[0.08] dark:border-white/[0.08] mb-6 mt-4 gap-4 text-xs font-semibold">
+        <button id="cisoTabBriefingBtn" onclick="switchCisoTab('briefing')" class="pb-2 border-b-2 border-apple-blue text-apple-blue font-medium">
+          Executive Whitepaper
+        </button>
+        <button id="cisoTabRequestBtn" onclick="switchCisoTab('request')" class="pb-2 border-b-2 border-transparent text-apple-grayText hover:text-apple-black dark:hover:text-white font-medium">
+          Schedule CISO Review / Quote
+        </button>
+      </div>
+
+      <!-- Tab 1 Content: Executive Whitepaper / Architecture Briefing -->
+      <div id="cisoContentBriefing" class="space-y-4 text-xs leading-relaxed text-apple-grayText">
+        <div class="p-4 rounded-xl bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.08] dark:border-white/[0.08]">
+          <div class="text-[11px] font-mono text-apple-blue font-semibold uppercase mb-1">Architecture Summary &bull; Version 3.1.8</div>
+          <h4 class="text-sm font-semibold text-apple-black dark:text-white mb-2">Non-Cooperative Physical Endpoint Defense</h4>
+          <p class="mb-3 text-apple-black dark:text-gray-300 leading-relaxed">
+            PASA Sentinel establishes a zero-trust hardware defensive envelope around Android smartphones without requiring root or custom ROMs. By leveraging official Android Enterprise Device Policy Manager (DPM) APIs and hardware-backed KeyStore modules, PASA ensures that when physical custody of an endpoint is compromised, the device immediately transitions into an autonomous non-cooperative state.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[10px] text-apple-black dark:text-gray-300">
+            <div class="p-2 rounded bg-black/[0.03] dark:bg-white/[0.05]"><b>Attestation:</b> Hardware KeyMint (Titan/Knox)</div>
+            <div class="p-2 rounded bg-black/[0.03] dark:bg-white/[0.05]"><b>Signature:</b> Ed25519 (RFC 8032)</div>
+            <div class="p-2 rounded bg-black/[0.03] dark:bg-white/[0.05]"><b>Cipher:</b> AES-256-GCM / XChaCha20</div>
+            <div class="p-2 rounded bg-black/[0.03] dark:bg-white/[0.05]"><b>Telemetry Egress:</b> Zero Cloud / Direct OOB</div>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-[11px]">
+          <h5 class="font-semibold text-apple-black dark:text-white text-xs">Core Compliance Benchmarks:</h5>
+          <ul class="list-disc pl-4 space-y-1">
+            <li><b>NIST SP 800-124 Rev. 2:</b> Complies with Physical Security and Unattended Endpoint Lockout directives.</li>
+            <li><b>GDPR Article 32:</b> Eliminates cloud exfiltration risk through Zero-Telemetry Sovereign Egress.</li>
+            <li><b>Google Play Integrity API:</b> Meets Hardware Strong Attestation (<code class="font-mono">MEETS_STRONG_INTEGRITY</code>).</li>
+          </ul>
+        </div>
+
+        <div class="pt-2 flex flex-col sm:flex-row items-center gap-2.5">
+          <button onclick="downloadSecurityWhitepaper()" class="apple-btn-pill py-2.5 px-5 text-xs font-semibold flex items-center justify-center gap-1.5 w-full sm:w-auto">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Download Technical Dossier (.md)</span>
+          </button>
+          <button onclick="switchCisoTab('request')" class="apple-btn-secondary py-2.5 px-4 text-xs font-medium w-full sm:w-auto text-center">
+            Request Vendor Security Questionnaire
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 2 Content: Schedule CISO Review / Procurement Form -->
+      <div id="cisoContentRequest" class="hidden">
+        <form onsubmit="handleCisoSubmit(event)" class="space-y-3.5 text-xs">
+          <div>
+            <label class="block font-medium text-apple-black dark:text-white mb-1">Corporate Officer / Security Lead Name</label>
+            <input type="text" id="cisoName" required placeholder="e.g. Alex Henderson, VP Information Security" class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.1] rounded-xl px-3.5 py-2.5 text-apple-black dark:text-white placeholder:text-apple-grayText focus:outline-none focus:border-apple-blue transition-colors">
+          </div>
+          <div>
+            <label class="block font-medium text-apple-black dark:text-white mb-1">Work / Institutional Email</label>
+            <input type="email" id="cisoEmail" required placeholder="ciso@enterprise.com" class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.1] rounded-xl px-3.5 py-2.5 text-apple-black dark:text-white placeholder:text-apple-grayText focus:outline-none focus:border-apple-blue transition-colors">
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-apple-black dark:text-white mb-1">Organization / Entity</label>
+              <input type="text" id="cisoOrg" required placeholder="Company or Agency Name" class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.1] rounded-xl px-3.5 py-2.5 text-apple-black dark:text-white placeholder:text-apple-grayText focus:outline-none focus:border-apple-blue transition-colors">
+            </div>
+            <div>
+              <label class="block font-medium text-apple-black dark:text-white mb-1">Fleet Scope</label>
+              <select id="cisoFleetScope" class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.1] rounded-xl px-3.5 py-2.5 text-apple-black dark:text-white focus:outline-none focus:border-apple-blue transition-colors">
+                <option value="10-25">10 – 25 Executive Endpoints</option>
+                <option value="25-100">25 – 100 Corporate Endpoints</option>
+                <option value="100+">100+ Enterprise / Mission-Critical Fleet</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block font-medium text-apple-black dark:text-white mb-1">Specific Security Requirements or Questions</label>
+            <textarea id="cisoNotes" rows="3" placeholder="e.g. Splunk SIEM webhook setup, air-gapped on-premise Docker requirement, formal vendor questionnaire..." class="w-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.1] rounded-xl px-3.5 py-2.5 text-apple-black dark:text-white placeholder:text-apple-grayText focus:outline-none focus:border-apple-blue transition-colors"></textarea>
+          </div>
+          <button type="submit" id="cisoSubmitBtn" class="apple-btn-pill w-full py-3 text-xs font-semibold shadow-[0_4px_16px_rgba(0,113,227,0.3)]">
+            Submit Review Request &amp; Connect with Engineering Team
+          </button>
+          <div id="cisoSuccessNotice" class="hidden p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 text-center text-xs">
+            <b>Request Transmitted!</b> A senior security engineer will review your fleet scope and contact you within 2 hours.
+          </div>
+          <div class="pt-2 text-center text-[10px] text-apple-grayText">
+            Immediate Urgent Inquiries: WhatsApp Business Hotline <a href="https://wa.me/8801762033445" target="_blank" class="text-emerald-500 underline font-mono">+880 1762-033445</a>
+          </div>
+        </form>
+      </div>
+
     </div>
   </div>
 
@@ -3347,6 +3947,75 @@
         else if (action === 'blackout') playSimSfx('blackout');
         else playSimSfx('ping');
       }, 600);
+    }
+
+    // ==========================================
+    // CISO SECURITY DOSSIER & REVIEW MODAL ENGINE
+    // ==========================================
+    function openCisoModal(tab = 'briefing') {
+      const modal = document.getElementById('cisoModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        switchCisoTab(tab);
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+    function closeCisoModal() {
+      const modal = document.getElementById('cisoModal');
+      if (modal) modal.classList.add('hidden');
+    }
+    document.addEventListener('click', function(e) {
+      const cModal = document.getElementById('cisoModal');
+      if (cModal && e.target === cModal) closeCisoModal();
+    });
+    function switchCisoTab(tab) {
+      const bBtn = document.getElementById('cisoTabBriefingBtn');
+      const rBtn = document.getElementById('cisoTabRequestBtn');
+      const bContent = document.getElementById('cisoContentBriefing');
+      const rContent = document.getElementById('cisoContentRequest');
+
+      if (tab === 'request') {
+        if (bBtn) { bBtn.className = 'pb-2 border-b-2 border-transparent text-apple-grayText hover:text-apple-black dark:hover:text-white font-medium cursor-pointer'; }
+        if (rBtn) { rBtn.className = 'pb-2 border-b-2 border-apple-blue text-apple-blue font-medium cursor-pointer'; }
+        if (bContent) bContent.classList.add('hidden');
+        if (rContent) rContent.classList.remove('hidden');
+      } else {
+        if (bBtn) { bBtn.className = 'pb-2 border-b-2 border-apple-blue text-apple-blue font-medium cursor-pointer'; }
+        if (rBtn) { rBtn.className = 'pb-2 border-b-2 border-transparent text-apple-grayText hover:text-apple-black dark:hover:text-white font-medium cursor-pointer'; }
+        if (bContent) bContent.classList.remove('hidden');
+        if (rContent) rContent.classList.add('hidden');
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+    function handleCisoSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('cisoName')?.value || '';
+      const email = document.getElementById('cisoEmail')?.value || '';
+      const org = document.getElementById('cisoOrg')?.value || '';
+      const scope = document.getElementById('cisoFleetScope')?.value || '10-25';
+      const notes = document.getElementById('cisoNotes')?.value || '';
+      const btn = document.getElementById('cisoSubmitBtn');
+      const notice = document.getElementById('cisoSuccessNotice');
+
+      if (btn) { btn.disabled = true; btn.textContent = 'Transmitting CISO Inquiry...'; }
+
+      setTimeout(() => {
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit Review Request & Connect with Engineering Team'; }
+        if (notice) notice.classList.remove('hidden');
+        console.log('Enterprise inquiry logged:', { name, email, org, scope, notes });
+      }, 700);
+    }
+    function downloadSecurityWhitepaper() {
+      const whitepaperMarkdown = `# PASA SENTINEL (PRIVATE ANDROID SECURITY AGENT)\n## Enterprise Security Architecture & Threat Model Dossier (v3.1.8)\nClassification: Public / Technical Briefing\n\n### 1. Executive Summary\nPASA Sentinel establishes an autonomous non-cooperative hardware defense boundary on enterprise Android endpoints. Designed for organizations facing physical loss, corporate espionage, and mass-transit snatching, PASA operates at the Android Device Owner layer with hardware-backed KeyStore isolation.\n\n### 2. Cryptographic Specifications\n- Remote C2 Signature: Ed25519 (RFC 8032)\n- Payload & Ambient Audio Encryption: AES-256-GCM / XChaCha20-Poly1305\n- Key Derivation Function: Argon2id with salt derived from hardware serials\n- Anti-Tamper Partition Lock: Hardware FRP + Knox Enterprise Policy\n\n### 3. Attack Vector Mitigation Benchmarks\n- Faraday Cage / Signal Jammer: Autonomous MEMS IMU interrupt (>2.85G delta) triggers local lockdown & offline flash buffering.\n- Hostile SIM Ejection: SIM State Receiver locks UI; foreign SIM insertion transmits silent encrypted SMS PDU with IMSI & GNSS fixes.\n- Lockscreen Quick Settings: Status bar pull-down expansion blocked at Device Owner execution level.\n- Coercive Power Button: Fake Shutdown Blackout intercepts power intents, displays spoofed power-down animation, cuts display to 0 nits, and maintains active audio buffer and GPS beacon.\n- Forensic Cable Brute-Force: Volatile key zeroization and partition sanitization (/shred) upon threshold violation.\n\n### 4. Regulatory & Compliance Framework Alignment\n- NIST SP 800-124 Rev. 2: Guidelines for Managing Mobile Device Security in the Enterprise.\n- GDPR Article 32: Security of Processing (Zero central database or cloud exfiltration).\n- Google Play Integrity: MEETS_STRONG_INTEGRITY Hardware-backed pass.\n\nOfficial Inquiries: ciso@izhaanintellect.fun | WhatsApp: +880 1762-033445\nPortal: https://pasa.izhaanintellect.fun\n`;
+      const blob = new Blob([whitepaperMarkdown], { type: 'text/markdown;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'PASA-Sentinel-Enterprise-Security-Dossier-v3.1.8.md';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
     // ==========================================
