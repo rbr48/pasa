@@ -603,7 +603,7 @@
             <span id="heroDownloadBtn">Download APK — Free</span>
           </a>
           <button onclick="openCheckout('PRO_LIFETIME', 3490)" class="apple-btn-secondary px-6 py-3.5 text-sm flex items-center justify-center gap-2 w-full sm:w-auto">
-            <span id="heroProBtn">Unlock Pro &bull; ৳3,490</span>
+            <span id="heroProBtn">Unlock Pro &bull; ৳3,490 / $29</span>
           </button>
           <a href="#simulator" class="apple-btn-secondary px-5 py-3.5 text-sm flex items-center justify-center gap-2 w-full sm:w-auto hover:text-apple-blue transition-colors">
             <i data-lucide="play" class="w-4 h-4 text-apple-blue"></i>
@@ -1425,8 +1425,8 @@
             </td>
             <td class="py-4 px-5 text-center bg-blue-50/60 font-bold text-apple-blue">
               Free (Trial)<br>
-              <span class="font-semibold text-sm">৳3,490 Pro</span><br>
-              <span class="text-xs font-normal text-apple-grayText">৳9,990 Enterprise</span>
+              <span class="font-semibold text-sm">৳3,490 / $29 Pro</span><br>
+              <span class="text-xs font-normal text-apple-grayText">৳9,990 / $83 Enterprise</span>
             </td>
             <td class="py-4 px-5 text-center font-semibold text-apple-green">Free</td>
             <td class="py-4 px-5 text-center font-semibold text-apple-green">Free</td>
@@ -2118,7 +2118,7 @@
       <div id="checkoutStepForm">
         <div class="text-xs font-semibold uppercase tracking-wider text-apple-blue mb-1">Instant Activation</div>
         <h3 id="checkoutPlanTitle" class="text-2xl font-semibold text-apple-black tracking-tight mb-1">Pro Lifetime License</h3>
-        <p id="checkoutPriceLine" class="text-xl font-bold text-apple-blue mb-4">৳3,490</p>
+        <p id="checkoutPriceLine" class="text-xl font-bold text-apple-blue mb-4">৳3,490 / $29 USD</p>
         <p class="text-xs text-apple-grayText mb-6">Select your payment method and enter your email to receive your cryptographically signed license key:</p>
 
         <form id="purchaseForm" onsubmit="handlePurchaseSubmit(event)" class="space-y-4">
@@ -2257,7 +2257,7 @@
                 <b class="text-apple-black">Instructions:</b><br>
                 1. Open Binance &rarr; <b>Pay</b> &rarr; <b>Send</b> (or scan QR above)<br>
                 2. Search Pay ID: <b class="binance-yellow">756303714</b> (Nickname: <b>RBR48</b>)<br>
-                3. Amount: <b id="binanceAmount">৳3,490</b> ($29.99 USDT for Pro, $84.99 USDT for Enterprise)<br>
+                3. Amount: <b id="binanceAmount">৳3,490</b> ($29.00 USDT for Pro, $83.00 USDT for Fleet)<br>
                 4. Note: your email address<br>
                 5. Copy the <b>Order Number / TxID</b> after payment
               </div>
@@ -2271,7 +2271,7 @@
           <!-- Total -->
           <div class="pt-3 flex items-center justify-between text-xs border-t border-black/[0.07]">
             <span class="text-apple-grayText">Total Due (One-Time):</span>
-            <span id="checkoutPriceTag" class="text-2xl font-bold text-apple-black font-mono">৳3,490</span>
+            <span id="checkoutPriceTag" class="text-2xl font-bold text-apple-black font-mono">৳3,490 / $29 USD</span>
           </div>
 
           <button type="submit" id="submitOrderBtn" class="apple-btn-pill w-full py-3.5 text-xs font-medium shadow-[0_4px_16px_rgba(0,113,227,0.3)]">
@@ -2486,7 +2486,7 @@
         <span>Free APK</span>
       </a>
       <button onclick="handleProCheckoutClick()" class="apple-btn-pill px-3.5 py-1.5 text-[11px] font-medium">
-        <span id="mobileBarBuyText">Buy Pro (৳3,490)</span>
+        <span id="mobileBarBuyText">Buy Pro (৳3,490 / $29)</span>
       </button>
     </div>
   </div>
@@ -2821,14 +2821,14 @@
         headline: 'Your phone<br>fights back.',
         subline: 'When thieves cut Wi-Fi, pull the SIM, and hit airplane mode — PASA Sentinel keeps working. Air-gapped SMS commands, silent mugshots, fake shutdowns, and a fortress-grade lock they can\'t uninstall.',
         downloadBtn: 'Download APK — Free',
-        proBtn: 'Unlock Pro • ৳3,490'
+        proBtn: 'Unlock Pro • ৳3,490 / $29'
       },
       BN: {
         btn: 'English',
         headline: 'আপনার ফোন<br>নিজেই লড়বে।',
         subline: 'চোর যখন ওয়াই-ফাই কেটে দেয়, সিম খুলে ফেলে কিংবা ফোন বন্ধ করতে যায় — তখনো PASA Sentinel সক্রিয় থাকে। অফলাইন SMS কমান্ড, ফ্রন্ট ক্যামেরায় গোপন সেলফি, ফেক শাটডাউন ও আনইনস্টল-অসম্ভব নকস-গ্রেড লক।',
         downloadBtn: 'ফ্রি APK ডাউনলোড করুন',
-        proBtn: 'প্রো আনলক করুন • ৳৩,৪৯০'
+        proBtn: 'প্রো আনলক করুন • ৳৩,৪৯০ ($২৯)'
       }
     };
     function applyLanguage(lang) {
