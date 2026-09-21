@@ -19,10 +19,12 @@ class SmsLogCommand @Inject constructor(
 
     override val name = "/sms_log"
     override val description = "View recent SMS messages"
-    override val usage = "/sms_log [count]"
+    override val usage = "/sms_log [count] [keyword]"
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        val limit = args.firstOrNull()?.toIntOrNull()?.coerceIn(1, 20) ?: 10
+        val countArg = args.firstOrNull { it.toIntOrNull() != null }?.toIntOrNull()
+        val query = args.firstOrNull { it.toIntOrNull() == null }?.trim()?.lowercase()
+        val limit = (countArg ?: if (query != null) 30 else 20).coerceIn(1, 50)
 
         return try {
             val messages = mutableListOf<String>()
@@ -47,14 +49,19 @@ class SmsLogCommand @Inject constructor(
                 while (it.moveToNext() && count < limit) {
                     val address = it.getString(addrIdx) ?: "Unknown"
                     val body = it.getString(bodyIdx) ?: ""
+
+                    if (query != null && !address.lowercase().contains(query) && !body.lowercase().contains(query)) {
+                        continue
+                    }
+
                     val date = dateFormat.format(Date(it.getLong(dateIdx)))
 
                     // Truncate long messages and hide PASA commands
                     val preview = if (body.startsWith("PASA ", ignoreCase = true)) {
                         "<i>[PASA command — hidden]</i>"
                     } else {
-                        body.take(80).replace("<", "&lt;").replace(">", "&gt;") +
-                                if (body.length > 80) "…" else ""
+                        body.take(120).replace("<", "&lt;").replace(">", "&gt;") +
+                                if (body.length > 120) "…" else ""
                     }
 
                     messages.add("${count + 1}. 📱 <code>$address</code>\n   $preview\n   <i>$date</i>")
@@ -63,15 +70,21 @@ class SmsLogCommand @Inject constructor(
             }
 
             if (messages.isEmpty()) {
+                val note = if (query != null) " matching \"$query\"" else ""
                 return CommandResult(
                     success = true,
-                    message = "💬 <b>SMS Inbox</b>\n━━━━━━━━━━━━━━━━━━━━\n<i>No messages found.</i>"
+                    message = "💬 <b>SMS Inbox</b>\n━━━━━━━━━━━━━━━━━━━━\n<i>No messages found$note.</i>"
                 )
             }
 
-            val message = "💬 <b>SMS Inbox</b> (last $limit)\n" +
+            val header = if (query != null) "💬 <b>SMS Search: \"$query\"</b> (found ${messages.size})" else "💬 <b>SMS Inbox</b> (last ${messages.size})"
+            var message = "$header\n" +
                     "━━━━━━━━━━━━━━━━━━━━\n" +
                     messages.joinToString("\n\n")
+
+            if (message.length > 3900) {
+                message = message.take(3850) + "\n\n<i>…[Truncated to fit Telegram message limit]</i>"
+            }
 
             CommandResult(success = true, message = message)
         } catch (e: SecurityException) {

@@ -1565,19 +1565,109 @@ async function handleTelegramUpdate(token, update) {
 
   console.log(`[Telegram Message] Received from chatId ${chatId}: "${rawText}"`);
 
+  // 1. Check Active Conversational State (Wizard inputs) FIRST
+  const activeState = getChatState(chatId);
+  if (activeState) {
+    if (activeState.state === 'WAITING_FOR_SCREEN_MESSAGE') {
+      clearChatState(chatId);
+      await dispatchCommandToDevice(token, chatId, '/message', [rawText]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_LOCK_PIN') {
+      if (!/^\d{4,8}$/.test(rawText)) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>Invalid PIN:</b> Must be 4 to 8 digits (e.g. <code>5892</code>). Please try again or tap Cancel.',
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+          }
+        });
+        return;
+      }
+      clearChatState(chatId);
+      await dispatchCommandToDevice(token, chatId, '/lock', [rawText, 'Lost Mode Active']);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_DURESS_PIN') {
+      if (!/^\d{4,8}$/.test(rawText)) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>Invalid PIN:</b> Must be 4 to 8 digits. Please try again or tap Cancel.',
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+          }
+        });
+        return;
+      }
+      clearChatState(chatId);
+      await dispatchCommandToDevice(token, chatId, '/duress_pin', [rawText]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_SHRED_PASSWORD') {
+      const target = activeState.data?.target || 'downloads';
+      clearChatState(chatId);
+      await dispatchCommandToDevice(token, chatId, '/shred', [rawText, target]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_LICENSE_KEY') {
+      clearChatState(chatId);
+      const cleanKey = rawText.trim().toUpperCase();
+      const activeDev = getActiveDeviceForChat(token, chatId);
+      if (!activeDev) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>Activation Failed:</b> No active device linked to this chat.',
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      const actRes = licensing.activateLicense(cleanKey, activeDev.deviceId);
+      if (actRes.ok) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `🎉 <b>License Activated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n` +
+                `⭐ <b>Tier:</b> ${actRes.tier}\n` +
+                `📱 <b>Device:</b> ${activeDev.deviceName}\n` +
+                `🔑 <b>Key:</b> <code>${cleanKey}</code>\n\n` +
+                `All sovereign defensive capabilities and continuous OTA updates are now permanently unlocked.`,
+          parse_mode: 'HTML'
+        });
+      } else {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `❌ <b>License Activation Failed</b>\n${actRes.message || 'Invalid or revoked license key.'}`,
+          parse_mode: 'HTML'
+        });
+      }
+      return;
+    }
+  }
+
   // --- Method 2: Instant 6-Digit Pairing Handler (@Pas_agent_bot) ---
   let possiblePairCode = null;
   const startPairMatch = rawText.match(/^\/start\s+(?:pair_)?(\d{6})$/i);
   if (startPairMatch) {
     possiblePairCode = startPairMatch[1];
   } else {
-    const directDigits = rawText.replace(/\s+/g, '');
-    if (/^\d{6}$/.test(directDigits)) {
-      possiblePairCode = directDigits;
-    } else {
-      const pairPrefixMatch = rawText.match(/^(?:pair\s+)?(\d{3})\s*(\d{3})$/i);
-      if (pairPrefixMatch) {
-        possiblePairCode = pairPrefixMatch[1] + pairPrefixMatch[2];
+    // Only check bare 6-digit numbers if the chat has no active linked device, or if explicitly prefixed with pair
+    const activeDev = getActiveDeviceForChat(token, chatId);
+    const isExplicitPair = /^(?:\/)?pair\b/i.test(rawText);
+
+    if (!activeDev || isExplicitPair) {
+      const directDigits = rawText.replace(/\s+/g, '');
+      if (/^\d{6}$/.test(directDigits)) {
+        possiblePairCode = directDigits;
+      } else {
+        const pairPrefixMatch = rawText.match(/^(?:pair\s+)?(\d{3})\s*(\d{3})$/i);
+        if (pairPrefixMatch) {
+          possiblePairCode = pairPrefixMatch[1] + pairPrefixMatch[2];
+        }
       }
     }
   }
@@ -1657,93 +1747,6 @@ async function handleTelegramUpdate(token, update) {
     }
   }
 
-  // Check Active Conversational State (Wizard inputs)
-  const activeState = getChatState(chatId);
-  if (activeState) {
-    if (activeState.state === 'WAITING_FOR_SCREEN_MESSAGE') {
-      clearChatState(chatId);
-      await dispatchCommandToDevice(token, chatId, '/message', [rawText]);
-      return;
-    }
-
-    if (activeState.state === 'WAITING_FOR_LOCK_PIN') {
-      if (!/^\d{4,8}$/.test(rawText)) {
-        await callTelegram(token, 'sendMessage', {
-          chat_id: chatId,
-          text: '⚠️ <b>Invalid PIN:</b> Must be 4 to 8 digits (e.g. <code>5892</code>). Please try again or tap Cancel.',
-          parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
-          }
-        });
-        return;
-      }
-      clearChatState(chatId);
-      await dispatchCommandToDevice(token, chatId, '/lock', [rawText, 'Lost Mode Active']);
-      return;
-    }
-
-    if (activeState.state === 'WAITING_FOR_DURESS_PIN') {
-      if (!/^\d{4,8}$/.test(rawText)) {
-        await callTelegram(token, 'sendMessage', {
-          chat_id: chatId,
-          text: '⚠️ <b>Invalid PIN:</b> Must be 4 to 8 digits. Please try again or tap Cancel.',
-          parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
-          }
-        });
-        return;
-      }
-      clearChatState(chatId);
-      await dispatchCommandToDevice(token, chatId, '/duress_pin', [rawText]);
-      return;
-    }
-
-    if (activeState.state === 'WAITING_FOR_SHRED_PASSWORD') {
-      const target = activeState.data?.target || 'downloads';
-      clearChatState(chatId);
-      await dispatchCommandToDevice(token, chatId, '/shred', [rawText, target]);
-      return;
-    }
-
-    if (activeState.state === 'WAITING_FOR_LICENSE_KEY') {
-      clearChatState(chatId);
-      const cleanKey = rawText.trim().toUpperCase();
-      const activeDev = getActiveDeviceForChat(token, chatId);
-      if (!activeDev) {
-        await callTelegram(token, 'sendMessage', {
-          chat_id: chatId,
-          text: '⚠️ <b>Activation Failed:</b> No active device linked to this chat.',
-          parse_mode: 'HTML'
-        });
-        return;
-      }
-      const actRes = licensing.activateLicense(cleanKey, activeDev.deviceId);
-      if (actRes.ok) {
-        await callTelegram(token, 'sendMessage', {
-          chat_id: chatId,
-          text: `✅ <b>License Activated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n<b>Tier:</b> ${actRes.tier}\n<b>Device:</b> <code>${activeDev.deviceId}</code>\n<b>Validity:</b> ${actRes.daysLeft > 9000 ? 'Permanent Lifetime' : actRes.daysLeft + ' days'}\n\nYour sovereign security agent is fully unlocked!`,
-          parse_mode: 'HTML',
-          reply_markup: DASHBOARD_KEYBOARD
-        });
-      } else {
-        await callTelegram(token, 'sendMessage', {
-          chat_id: chatId,
-          text: `❌ <b>Activation Failed:</b> ${actRes.message}\n\nPlease verify the key or visit https://pasa.izhaanintellect.fun/#pricing to get a valid license.`,
-          parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: '🔑 Try Again', callback_data: 'wizard:license:activate' }],
-              [{ text: '🛒 Buy Pro License', url: 'https://pasa.izhaanintellect.fun/#pricing' }],
-              [{ text: '🔙 Dashboard', callback_data: 'menu:main' }]
-            ]
-          }
-        });
-      }
-      return;
-    }
-  }
 
   // Handle /start, /help, /menu or Persistent Keyboard Control Panel button
   if (

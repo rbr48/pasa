@@ -328,11 +328,22 @@ class PasaService : LifecycleService() {
                                             senderName = if (envelope.isNullOrBlank()) "VPS Gateway" else "VPS Signed (${remoteCmd.id.take(6)})",
                                             rawText = "$commandToExecute ${argsToExecute.joinToString(" ")}"
                                         )
-                                        withTimeoutOrNull(45_000L) {
+                                        val cmdLower = commandToExecute.lowercase()
+                                        val commandTimeoutMs = when (cmdLower) {
+                                            "/video", "/videocap", "/vr" -> 120_000L
+                                            "/screenrecord", "/record_screen" -> 120_000L
+                                            "/record", "/audio", "/mic" -> 150_000L
+                                            "/livestream", "/stream" -> 360_000L
+                                            "/shred" -> 120_000L
+                                            "/screen_burst", "/burst" -> 90_000L
+                                            else -> 60_000L
+                                        }
+                                        withTimeoutOrNull(commandTimeoutMs) {
                                             commandExecutor.executeRemoteCommand(parsed, remoteCmd.id)
                                         } ?: run {
-                                            Log.e(TAG, "Command ${remoteCmd.id} exceeded 45s execution deadline!")
-                                            commandExecutor.sendResponseToBackend(remoteCmd.id, "❌ Execution Timeout (45s exceeded)", null, null, null, null)
+                                            val deadlineSec = commandTimeoutMs / 1000
+                                            Log.e(TAG, "Command ${remoteCmd.id} exceeded ${deadlineSec}s execution deadline!")
+                                            commandExecutor.sendResponseToBackend(remoteCmd.id, "❌ Execution Timeout (${deadlineSec}s exceeded)", null, null, null, null)
                                         }
                                     } catch (e: Exception) {
                                         Log.e(TAG, "Error executing remote command ${remoteCmd.id}", e)

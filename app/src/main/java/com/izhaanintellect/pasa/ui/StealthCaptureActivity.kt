@@ -100,21 +100,21 @@ class StealthCaptureActivity : AppCompatActivity() {
 
     private fun configureWindow() {
         try {
-            // Use setShowWhenLocked API (does not forcibly wake the screen)
+            // Use setShowWhenLocked and setTurnScreenOn so Activity moves to RESUMED state on Android 14-16
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 setShowWhenLocked(true)
-                // Do NOT call setTurnScreenOn(true) — we use PARTIAL_WAKE_LOCK instead
+                setTurnScreenOn(true)
             }
 
             @Suppress("DEPRECATION")
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
                 WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                // FLAG_TURN_SCREEN_ON intentionally omitted — PARTIAL_WAKE_LOCK is sufficient
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
             )
 
-            // Dim screen to nearly black in case it does illuminate
+            // Dim screen to nearly black (imperceptible)
             val lp = window.attributes
             lp.screenBrightness = 0.01f
             window.attributes = lp
@@ -327,11 +327,11 @@ class StealthCaptureActivity : AppCompatActivity() {
                         }, durationSeconds * 1000L)
                     }
                     is VideoRecordEvent.Finalize -> {
-                        if (event.hasError()) {
+                        if (event.hasError() && (!videoFile.exists() || videoFile.length() < 1024L)) {
                             Log.e(TAG, "Video recording finalized with error: ${event.error}")
                             finishWithResult(null, "VideoCapture error code ${event.error}")
                         } else {
-                            Log.i(TAG, "Video recording complete: ${videoFile.absolutePath}")
+                            Log.i(TAG, "Video recording complete: ${videoFile.absolutePath} (${videoFile.length()} bytes)")
                             finishWithResult(videoFile, null)
                         }
                     }

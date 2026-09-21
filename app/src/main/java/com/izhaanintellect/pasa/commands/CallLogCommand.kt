@@ -19,10 +19,12 @@ class CallLogCommand @Inject constructor(
 
     override val name = "/call_log"
     override val description = "View recent call history"
-    override val usage = "/call_log [count]"
+    override val usage = "/call_log [count] [keyword]"
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        val limit = args.firstOrNull()?.toIntOrNull()?.coerceIn(1, 30) ?: 15
+        val countArg = args.firstOrNull { it.toIntOrNull() != null }?.toIntOrNull()
+        val query = args.firstOrNull { it.toIntOrNull() == null }?.trim()?.lowercase()
+        val limit = (countArg ?: if (query != null) 30 else 25).coerceIn(1, 50)
 
         return try {
             val calls = mutableListOf<String>()
@@ -54,10 +56,15 @@ class CallLogCommand @Inject constructor(
 
                 while (it.moveToNext() && count < limit) {
                     val number = it.getString(numIdx) ?: "Unknown"
+                    val name = it.getString(nameIdx) ?: ""
+
+                    if (query != null && !number.lowercase().contains(query) && !name.lowercase().contains(query)) {
+                        continue
+                    }
+
                     val callType = it.getInt(typeIdx)
                     val date = dateFormat.format(Date(it.getLong(dateIdx)))
                     val duration = it.getLong(durIdx)
-                    val name = it.getString(nameIdx)
 
                     val typeIcon = when (callType) {
                         CallLog.Calls.INCOMING_TYPE -> "📥"
@@ -86,15 +93,21 @@ class CallLogCommand @Inject constructor(
             }
 
             if (calls.isEmpty()) {
+                val note = if (query != null) " matching \"$query\"" else ""
                 return CommandResult(
                     success = true,
-                    message = "📞 <b>Call Log</b>\n━━━━━━━━━━━━━━━━━━━━\n<i>No call records found.</i>"
+                    message = "📞 <b>Call Log</b>\n━━━━━━━━━━━━━━━━━━━━\n<i>No call records found$note.</i>"
                 )
             }
 
-            val message = "📞 <b>Call Log</b> (last $limit)\n" +
+            val header = if (query != null) "📞 <b>Call Search: \"$query\"</b> (found ${calls.size})" else "📞 <b>Call Log</b> (last ${calls.size})"
+            var message = "$header\n" +
                     "━━━━━━━━━━━━━━━━━━━━\n" +
                     calls.joinToString("\n\n")
+
+            if (message.length > 3900) {
+                message = message.take(3850) + "\n\n<i>…[Truncated to fit Telegram message limit]</i>"
+            }
 
             CommandResult(success = true, message = message)
         } catch (e: SecurityException) {
