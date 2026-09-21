@@ -122,6 +122,16 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.Pasa.Alert" />
 
+        <!-- Hardware Escrow Token Activation Activity -->
+        <activity
+            android:name=".ui.EscrowActivationActivity"
+            android:exported="false"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:showForAllUsers="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.Pasa" />
+
         <!-- PASA Foreground Guardian Service -->
         <service
             android:name=".service.PasaService"

@@ -474,7 +474,14 @@ class SetupActivity : AppCompatActivity() {
 
         val isOwner = viewModel.isDeviceOwner()
         if (isOwner) {
-            binding.tvDashOwnerStatus.text = "👑 Device Owner: Active (Hardware Lockdown / Anti-Uninstall Active)"
+            val isTokenActive = PasaDeviceAdmin.isResetPasswordTokenActive(this)
+            val tokenStatus = if (isTokenActive) "✅ Remote OS PIN Reset: Armed & Ready" else "⚠️ Remote OS PIN Reset: Pending (Tap to Arm)"
+            binding.tvDashOwnerStatus.text = "👑 Device Owner: Active (Hardware Lockdown Active)\n$tokenStatus"
+            binding.tvDashOwnerStatus.setOnClickListener {
+                if (!isTokenActive) {
+                    startActivity(EscrowActivationActivity.createIntent(this))
+                }
+            }
         } else {
             binding.tvDashOwnerStatus.text = "ℹ️ Device Owner: Standard Admin (Elevate via ADB: dpm set-device-owner ...)"
         }

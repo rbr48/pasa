@@ -58,6 +58,7 @@ class AlertMessageActivity : AppCompatActivity() {
     @Inject lateinit var telegramApi: TelegramApi
     @Inject lateinit var locationTracker: LocationTracker
     @Inject lateinit var pasaBackendApi: PasaBackendApi
+    @Inject lateinit var duressManager: com.izhaanintellect.pasa.detection.DuressManager
 
     private var isKioskActive = false
 
@@ -157,11 +158,62 @@ class AlertMessageActivity : AppCompatActivity() {
             binding.btnCallOwner.visibility = View.GONE
         }
 
+        binding.btnUnlockWithPin.setOnClickListener {
+            showPinUnlockDialog()
+        }
+
         playAlertChime()
         } catch (e: Throwable) {
             Log.e(TAG, "Fatal error in AlertMessageActivity.onCreate", e)
             finish()
         }
+    }
+
+    private fun showPinUnlockDialog() {
+        val input = android.widget.EditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            hint = "Enter PIN"
+            setPadding(50, 40, 50, 40)
+            setTextColor(android.graphics.Color.WHITE)
+            setHintTextColor(android.graphics.Color.GRAY)
+        }
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Unlock Device")
+            .setMessage("Enter your authorization PIN to dismiss this lock overlay:")
+            .setView(input)
+            .setPositiveButton("Unlock") { _, _ ->
+                val entered = input.text.toString().trim()
+                if (entered.isBlank()) return@setPositiveButton
+
+                val duressPin = preferencesManager.duressPin
+                val isDuress = !duressPin.isNullOrBlank() && entered == duressPin
+
+                if (isDuress) {
+                    Log.w(TAG, "Duress PIN entered on AlertMessageActivity! Dismissing overlay and firing covert SOS.")
+                    exitLostMode()
+                    duressManager.triggerDuressSosAsync(applicationContext, "Lost Mode Screen Overlay")
+                    return@setPositiveButton
+                }
+
+                val activeLockPin = preferencesManager.activeLockPin
+                val isMaster = authManager.hasMasterPassword() && authManager.verifyMasterPassword(entered)
+                val isLockPin = !activeLockPin.isNullOrBlank() && entered == activeLockPin
+
+                if (isMaster || isLockPin) {
+                    Log.i(TAG, "Valid unlock PIN entered. Exiting Lost Mode.")
+                    android.widget.Toast.makeText(this, "✅ Device Unlocked", android.widget.Toast.LENGTH_SHORT).show()
+                    exitLostMode()
+                } else {
+                    Log.w(TAG, "Invalid PIN entered on unlock dialog! Capturing forensic selfie.")
+                    android.widget.Toast.makeText(this, "❌ Incorrect PIN", android.widget.Toast.LENGTH_SHORT).show()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        triggerTouchCapture()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private var lastTouchCaptureTime = 0L
@@ -203,30 +255,7 @@ class AlertMessageActivity : AppCompatActivity() {
     }
 
     private suspend fun triggerDuressSos() {
-        Log.w(TAG, "Triggering Duress SOS beacon in background")
-        try {
-            val loc = locationTracker.getCurrentLocation()
-            val locMsg = if (loc != null) {
-                "\n📍 <b>Live Coercion Pin:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
-            } else ""
-
-            val alertText = "⚠️ <b>The Anti-Coercion Duress PIN was entered on this device!</b>\n" +
-                    "The owner was forced to unlock under threat or duress.\n" +
-                    "The lockscreen overlay unlocked cleanly to protect the owner's safety.$locMsg\n\n" +
-                    "📡 <i>Covert front-camera capture and live telemetry active.</i>"
-
-            val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true, timeoutMs = 8000L)
-
-            dispatchSecurityAlert(
-                alertType = "COERCION_DURESS_PIN",
-                alertMessage = alertText,
-                latVal = loc?.latitude,
-                lngVal = loc?.longitude,
-                photoFile = captureResult.file
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in triggerDuressSos", e)
-        }
+        duressManager.triggerDuressSos(applicationContext, "Lost Mode Screen")
     }
 
     private suspend fun dispatchSecurityAlert(

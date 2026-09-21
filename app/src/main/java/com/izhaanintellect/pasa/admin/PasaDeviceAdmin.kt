@@ -138,6 +138,14 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             } else false
         }
 
+        fun isResetPasswordTokenActive(context: Context): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            return try {
+                dpm.isResetPasswordTokenActive(component)
+            } catch (_: Exception) { false }
+        }
+
         fun ensureResetPasswordToken(context: Context, prefs: PreferencesManager): Boolean {
             val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
             val component = getComponentName(context)
@@ -150,19 +158,22 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                     return true
                 }
 
-                // If token is already enrolled in Keyguard, DO NOT call setResetPasswordToken again!
-                // Calling setResetPasswordToken again resets the pending activation state.
-                if (!prefs.resetPasswordToken.isNullOrBlank()) {
-                    Log.d(TAG, "Reset password token is already enrolled, waiting for user credential unlock")
-                    return false
+                // Retrieve persistent token or generate new 32-byte token
+                val existingBytes = if (!prefs.resetPasswordToken.isNullOrBlank()) {
+                    try {
+                        android.util.Base64.decode(prefs.resetPasswordToken, android.util.Base64.NO_WRAP)
+                    } catch (_: Exception) { null }
+                } else null
+
+                val tokenBytes = if (existingBytes != null && existingBytes.size >= 32) {
+                    existingBytes
+                } else {
+                    ByteArray(32).apply { java.security.SecureRandom().nextBytes(this) }.also {
+                        prefs.resetPasswordToken = android.util.Base64.encodeToString(it, android.util.Base64.NO_WRAP)
+                    }
                 }
 
-                val tokenBytes = ByteArray(32).apply { java.security.SecureRandom().nextBytes(this) }
-                val encoded = android.util.Base64.encodeToString(tokenBytes, android.util.Base64.NO_WRAP)
                 val setSuccess = dpm.setResetPasswordToken(component, tokenBytes)
-                if (setSuccess) {
-                    prefs.resetPasswordToken = encoded
-                }
                 Log.i(TAG, "setResetPasswordToken result: $setSuccess, active: ${dpm.isResetPasswordTokenActive(component)}")
                 setSuccess
             } catch (e: Exception) {

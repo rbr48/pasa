@@ -65,6 +65,27 @@ class SetOsPinCommand @Inject constructor(
 
         val (success, message) = PasaDeviceAdmin.resetDevicePassword(context, newPin, preferencesManager)
 
+        if (!success && !PasaDeviceAdmin.isResetPasswordTokenActive(context)) {
+            val actIntent = com.izhaanintellect.pasa.ui.EscrowActivationActivity.createIntent(context, newPin)
+            com.izhaanintellect.pasa.util.SecurityActivityLauncher.launch(
+                context = context,
+                intent = actIntent,
+                notificationId = com.izhaanintellect.pasa.ui.EscrowActivationActivity.NOTIFICATION_ID,
+                notificationTitle = "🔑 Authorize Remote Lockscreen Reset",
+                notificationText = "Confirm your current lockscreen PIN to authorize remote PIN changes.",
+                wakeScreen = true,
+                ongoing = false
+            )
+
+            return CommandResult(
+                success = false,
+                message = "🔑 <b>One-Time Authorization Prompt Sent to Phone Screen</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                        "📱 <b>Action needed on device:</b> Your phone screen has just illuminated with the system credential prompt.\n\n" +
+                        "👉 <b>Enter your current lockscreen PIN on the phone screen now.</b>\n\n" +
+                        "⚡ <i>Once verified, Android Keyguard will instantly arm the escrow token, apply the new PIN (<code>$newPin</code>), and notify you here!</i>"
+            )
+        }
+
         return if (success) {
             CommandResult(
                 success = true,

@@ -62,13 +62,86 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
         }
     }
 
+    @dagger.hilt.EntryPoint
+    @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
+    interface AccessibilityEntryPoint {
+        fun duressManager(): com.izhaanintellect.pasa.detection.DuressManager
+    }
+
+    private val keyBuffer = StringBuilder()
+    private var lastKeypadTime = 0L
+
+    private fun handleKeypadClickEvent(event: AccessibilityEvent?, prefs: com.izhaanintellect.pasa.data.PreferencesManager) {
+        val duressPin = prefs.duressPin
+        if (duressPin.isNullOrBlank()) return
+
+        val pkg = event?.packageName?.toString() ?: ""
+        if (!pkg.contains("systemui", ignoreCase = true) &&
+            !pkg.contains("keyguard", ignoreCase = true) &&
+            !pkg.contains("inputmethod", ignoreCase = true) &&
+            !pkg.contains("keyboard", ignoreCase = true)
+        ) {
+            return
+        }
+
+        val text = event?.text?.joinToString("") ?: ""
+        val desc = event?.contentDescription?.toString() ?: ""
+        val viewId = event?.source?.viewIdResourceName ?: ""
+
+        if (viewId.contains("delete", ignoreCase = true) || desc.contains("delete", ignoreCase = true) || text.contains("delete", ignoreCase = true)) {
+            if (keyBuffer.isNotEmpty()) {
+                keyBuffer.deleteCharAt(keyBuffer.length - 1)
+            }
+            return
+        }
+
+        val digit = when {
+            text.length == 1 && text[0].isDigit() -> text[0]
+            desc.length == 1 && desc[0].isDigit() -> desc[0]
+            desc.contains(Regex("\\b[0-9]\\b")) -> desc.first { it.isDigit() }
+            text.contains(Regex("\\b[0-9]\\b")) -> text.first { it.isDigit() }
+            viewId.contains("key", ignoreCase = true) && viewId.takeLast(1).firstOrNull()?.isDigit() == true -> viewId.takeLast(1)[0]
+            else -> null
+        } ?: return
+
+        val now = System.currentTimeMillis()
+        if (now - lastKeypadTime > 10_000L) {
+            keyBuffer.clear()
+        }
+        lastKeypadTime = now
+        keyBuffer.append(digit)
+
+        Log.d(TAG, "Keypad digit captured: $digit (buffer: ${keyBuffer.length} digits)")
+
+        if (keyBuffer.endsWith(duressPin)) {
+            Log.w(TAG, "🚨 MATCHED DECOY DURESS PIN ON SYSTEM KEYPAD!")
+            keyBuffer.clear()
+            try {
+                val entryPoint = dagger.hilt.android.EntryPointAccessors.fromApplication(
+                    applicationContext,
+                    AccessibilityEntryPoint::class.java
+                )
+                entryPoint.duressManager().triggerDuressSosAsync(applicationContext, "System Lockscreen Keypad")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed triggering duress SOS from accessibility", e)
+            }
+        }
+    }
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         try {
             val prefs = com.izhaanintellect.pasa.data.PreferencesManager(applicationContext)
+
+            // 1. Detect Duress PIN keypresses from lockscreen keypad
+            val eventType = event?.eventType ?: 0
+            if (eventType == AccessibilityEvent.TYPE_VIEW_CLICKED) {
+                handleKeypadClickEvent(event, prefs)
+            }
+
+            // 2. Intercept SystemUI / notification panel / launcher during Lost Mode
             if (prefs.isLostModeActive) {
                 val pkg = event?.packageName?.toString() ?: ""
                 val cls = event?.className?.toString() ?: ""
-                // Intercept SystemUI / notification panel / launcher during Lost Mode
                 if (pkg == "com.android.systemui" || pkg.contains("launcher") ||
                     cls.contains("NotificationShade") || cls.contains("QuickSettings") ||
                     cls.contains("StatusBar") || cls.contains("Recents")

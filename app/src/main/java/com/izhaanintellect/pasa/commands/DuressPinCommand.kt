@@ -62,11 +62,19 @@ class DuressPinCommand @Inject constructor(
         preferencesManager.duressPin = target
         Log.i(TAG, "Duress PIN successfully configured")
 
+        val a11yActive = com.izhaanintellect.pasa.accessibility.AccessibilityScreenCaptureService.instance != null
+        val a11yNotice = if (!a11yActive) {
+            "\n\n⚠️ <b>Important:</b> Enable PASA in <b>Phone Settings &gt; Accessibility</b> so PASA can detect keypad taps on your native lockscreen."
+        } else {
+            "\n\n✅ <i>Accessibility Service is active and monitoring keypad distress triggers.</i>"
+        }
+
         return CommandResult(
             success = true,
             message = "🆘 <b>Duress Coercion PIN Configured!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
                     "🔑 <b>Duress PIN:</b> <code>$target</code>\n\n" +
-                    "🛡️ <i>If you are ever forced to unlock your phone under coercion, enter <code>$target</code>. The phone will appease the attacker by unlocking normally while triggering an emergency silent SOS beacon to this Telegram bot.</i>"
+                    "🛡️ <i>If forced to unlock your phone under threat or coercion, enter <code>$target</code> on your lockscreen keypad or PASA overlay. The phone will appease the intruder while silently dispatching front-camera mugshots, live GPS, and an emergency SOS beacon to Telegram!</i>" +
+                    a11yNotice
         )
     }
 }

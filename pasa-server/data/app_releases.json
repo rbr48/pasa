@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 31,
+    "versionName": "3.2.6",
+    "releaseDate": "2026-09-21",
+    "fileName": "pasa-v3.2.6-31.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.2.6-31.apk",
+    "sha256": "fad4f7d203a50b95218f95e1443f5c7bd14b0863272987d67dd331ad622e9557",
+    "size": 19053225,
+    "mandatory": false,
+    "releaseNotes": "v3.2.6: Native Lockscreen Duress PIN Detection & System Escrow Prompt: Automated hardware token arming via Android Keyguard ConfirmDeviceCredential (EscrowActivationActivity); Native lockscreen keypad digit capture via Accessibility for instant Duress PIN SOS beacons, covert attacker selfies, and 2-minute live GPS tracking; In-app PIN unlock dialog with duress decoy support on Lost Mode overlay."
+  },
+  {
     "versionCode": 30,
     "versionName": "3.2.5",
     "releaseDate": "2026-09-21",
