@@ -584,6 +584,8 @@ async function registerTelegramBotCommands(token) {
     { command: "track_stop", description: "🛑 Stop continuous GPS tracking" },
     { command: "geofence", description: "🌐 Configure safe zone radius & breach alerts" },
     { command: "snap", description: "📸 Capture stealth photo (front, rear, or both)" },
+    { command: "livestream", description: "🔴 Stream near-live camera video to Telegram" },
+    { command: "stopstream", description: "⏹️ Stop active camera live stream" },
     { command: "screenshot", description: "📱 Silent full-screen capture via Accessibility" },
     { command: "screen_burst", description: "🎞️ Rapid 5-10 frame montage of intruder activity" },
     { command: "screenrecord", description: "🎥 Covert HD MP4 screen recording (5-60s)" },
