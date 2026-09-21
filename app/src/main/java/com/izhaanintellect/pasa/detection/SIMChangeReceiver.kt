@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import android.util.Log
+import com.izhaanintellect.pasa.bot.SendLocationRequest
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.camera.StealthCaptureBridge
@@ -261,35 +262,7 @@ class SIMChangeReceiver : BroadcastReceiver() {
         photo: java.io.File? = null,
         location: Pair<Double, Double>? = null
     ) {
-        if (preferencesManager.useBackendServer) {
-            try {
-                val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
-                val msgBody = message.toRequestBody("text/plain".toMediaTypeOrNull())
-                val photoPart = photo?.takeIf { it.exists() && it.length() > 0 }?.let {
-                    val req = it.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData("photo", it.name, req)
-                }
-                val latBody = location?.first?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-                val lngBody = location?.second?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-                val resp = pasaBackendApi.sendDeviceResponse(
-                    deviceId = deviceIdBody,
-                    commandId = null,
-                    message = msgBody,
-                    photo = photoPart,
-                    audio = null,
-                    video = null,
-                    evidence = null,
-                    latitude = latBody,
-                    longitude = lngBody
-                )
-                Log.i(TAG, "SIM alert dispatched via backend API: ${resp.ok}")
-                return
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to dispatch SIM alert via backend: ${e.message}")
-            }
-        }
-
-        // Direct Telegram fallback
+        // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
         if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
             try {
                 telegramApi.sendMessage(
@@ -307,8 +280,27 @@ class SIMChangeReceiver : BroadcastReceiver() {
                     val captionPart = "📸 Thief mugshot captured upon SIM event".toRequestBody("text/plain".toMediaTypeOrNull())
                     telegramApi.sendPhoto(preferencesManager.botToken, chatIdPart, photoPart, captionPart)
                 }
+                if (location != null) {
+                    try {
+                        telegramApi.sendLocation(
+                            token = preferencesManager.botToken,
+                            request = SendLocationRequest(
+                                chatId = preferencesManager.ownerChatIdLong,
+                                latitude = location.first,
+                                longitude = location.second
+                            )
+                        )
+                    } catch (locErr: Exception) {
+                        Log.w(TAG, "Failed to send SIM location pin: ${locErr.message}")
+                    }
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to dispatch SIM alert via Telegram: ${e.message}")
+            } finally {
+                // Immediately shred local mugshot photo
+                try {
+                    photo?.let { if (it.exists()) it.delete() }
+                } catch (_: Exception) {}
             }
         }
     }

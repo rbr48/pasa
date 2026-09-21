@@ -95,10 +95,10 @@ const ED25519_KEY_FILE = path.join(DATA_DIR, 'license_ed25519_key.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'license_orders.json');
 let licenseOrders = loadJson(ORDERS_FILE, {});
 
-// Multer storage for photos/audio/video uploaded from device
+// Strategy 1 Zero-Storage: Ephemeral RAM buffer only, zero disk writes for user media
 const upload = multer({
-  dest: UPLOADS_DIR,
-  limits: { fileSize: 100 * 1024 * 1024 } // 100MB max (for videos)
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 } // 25MB max memory buffer
 });
 
 const apkUpload = multer({
@@ -190,29 +190,9 @@ function removeCommand(devId, cmdId, response = '') {
 }
 
 function recordDeviceLocation(deviceId, lat, lon, meta = {}) {
-  const latitude = parseFloat(lat);
-  const longitude = parseFloat(lon);
-  if (isNaN(latitude) || isNaN(longitude)) return null;
-
-  if (!gpsHistory[deviceId]) gpsHistory[deviceId] = [];
-  const point = {
-    lat: latitude,
-    lon: longitude,
-    timestamp: Date.now(),
-    iso: new Date().toISOString(),
-    ...meta
-  };
-  gpsHistory[deviceId].unshift(point);
-  if (gpsHistory[deviceId].length > 500) {
-    gpsHistory[deviceId] = gpsHistory[deviceId].slice(0, 500);
-  }
-  saveJson(GPS_FILE, gpsHistory);
-
-  if (devices[deviceId]) {
-    devices[deviceId].lastLocation = point;
-    persistDevice(deviceId);
-  }
-  return point;
+  // Strategy 1 Zero-Storage: Zero GPS coordinates or historical tracks are ever saved.
+  // Device coordinates are transmitted directly to the user's private Telegram bot.
+  return null;
 }
 
 // --- Commercial Licensing & Subscription Engine (see ./lib/licensing.js) ---
@@ -2548,29 +2528,8 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       removeCommand(deviceId, commandId, message || 'COMPLETED');
     }
 
-    // Record encrypted evidence in Evidence Vault (7-day retention)
-    if (files.evidence && files.evidence.length > 0) {
-      for (const ev of files.evidence) {
-        const destName = 'ev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7) + '_' + path.basename(ev.path);
-        const destPath = path.join(EVIDENCE_DIR, destName);
-        try {
-          fs.copyFileSync(ev.path, destPath);
-        } catch (copyErr) {
-          console.error('Failed to copy evidence file to vault:', copyErr);
-        }
-        EvidenceRepo.recordEvidence({
-          id: 'ev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-          commandId: commandId || '',
-          deviceId,
-          type: 'ENCRYPTED_MEDIA',
-          filename: destName,
-          fileSize: ev.size,
-          sha256: '',
-          isEncrypted: 1,
-          mimeType: ev.mimetype || 'application/octet-stream'
-        });
-      }
-    }
+    // Strategy 1 Zero-Storage: Zero evidence files or media are persisted on server disk.
+    // Evidence is routed directly to Telegram with zero server retention.
 
     logSecurityEvent('DEVICE_RESPONSE', {
       deviceId,
@@ -2603,90 +2562,97 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
     }
 
     // 2. Deliver photo if captured (with quick action buttons)
+    // 2. Deliver photo if captured (with quick action buttons)
     if (files.photo && files.photo.length > 0 && chatId) {
       const photoFile = files.photo[0];
-      const formData = new FormData();
-      formData.append('chat_id', chatId);
-      const fileBuffer = fs.readFileSync(photoFile.path);
-      const blob = new Blob([fileBuffer], { type: photoFile.mimetype || 'image/jpeg' });
-      formData.append('photo', blob, 'photo.jpg');
-      formData.append('caption', message || '📸 Captured photo');
+      const fileBuffer = photoFile.buffer || (photoFile.path && fs.existsSync(photoFile.path) ? fs.readFileSync(photoFile.path) : null);
+      if (fileBuffer) {
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        const blob = new Blob([fileBuffer], { type: photoFile.mimetype || 'image/jpeg' });
+        formData.append('photo', blob, 'photo.jpg');
+        formData.append('caption', message || '📸 Captured photo');
 
-      const photoActionKeyboard = {
-        inline_keyboard: [
-          [
-            { text: '🤳 Snap Front', callback_data: 'cmd:snap:front' },
-            { text: '📷 Snap Back', callback_data: 'cmd:snap:back' }
-          ],
-          [
-            { text: '🎥 Video (15s)', callback_data: 'cmd:video:front:15' },
-            { text: '🔒 Lock Device', callback_data: 'cmd:lock' }
+        const photoActionKeyboard = {
+          inline_keyboard: [
+            [
+              { text: '🤳 Snap Front', callback_data: 'cmd:snap:front' },
+              { text: '📷 Snap Back', callback_data: 'cmd:snap:back' }
+            ],
+            [
+              { text: '🎥 Video (15s)', callback_data: 'cmd:video:front:15' },
+              { text: '🔒 Lock Device', callback_data: 'cmd:lock' }
+            ]
           ]
-        ]
-      };
-      formData.append('reply_markup', JSON.stringify(photoActionKeyboard));
+        };
+        formData.append('reply_markup', JSON.stringify(photoActionKeyboard));
 
-      await callTelegram(token, 'sendPhoto', null, true, formData);
+        await callTelegram(token, 'sendPhoto', null, true, formData);
+      }
     }
 
     // 3. Deliver audio if recorded (with quick action buttons)
     if (files.audio && files.audio.length > 0 && chatId) {
       const audioFile = files.audio[0];
-      const formData = new FormData();
-      formData.append('chat_id', chatId);
-      const fileBuffer = fs.readFileSync(audioFile.path);
-      const blob = new Blob([fileBuffer], { type: audioFile.mimetype || 'audio/m4a' });
-      formData.append('audio', blob, 'recording.m4a');
-      formData.append('caption', message || '🎙️ Audio recording');
+      const fileBuffer = audioFile.buffer || (audioFile.path && fs.existsSync(audioFile.path) ? fs.readFileSync(audioFile.path) : null);
+      if (fileBuffer) {
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        const blob = new Blob([fileBuffer], { type: audioFile.mimetype || 'audio/m4a' });
+        formData.append('audio', blob, 'recording.m4a');
+        formData.append('caption', message || '🎙️ Audio recording');
 
-      const audioActionKeyboard = {
-        inline_keyboard: [
-          [
-            { text: '🎙️ Record 30s', callback_data: 'cmd:record:30' },
-            { text: '🎙️ Record 60s', callback_data: 'cmd:record:60' }
-          ],
-          [
-            { text: '📍 Instant GPS', callback_data: 'cmd:locate' }
+        const audioActionKeyboard = {
+          inline_keyboard: [
+            [
+              { text: '🎙️ Record 30s', callback_data: 'cmd:record:30' },
+              { text: '🎙️ Record 60s', callback_data: 'cmd:record:60' }
+            ],
+            [
+              { text: '📍 Instant GPS', callback_data: 'cmd:locate' }
+            ]
           ]
-        ]
-      };
-      formData.append('reply_markup', JSON.stringify(audioActionKeyboard));
+        };
+        formData.append('reply_markup', JSON.stringify(audioActionKeyboard));
 
-      await callTelegram(token, 'sendAudio', null, true, formData);
+        await callTelegram(token, 'sendAudio', null, true, formData);
+      }
     }
 
     // 4. Deliver video if recorded (with quick action buttons)
     if (files.video && files.video.length > 0 && chatId) {
       const videoFile = files.video[0];
-      const formData = new FormData();
-      formData.append('chat_id', chatId);
-      const fileBuffer = fs.readFileSync(videoFile.path);
-      const blob = new Blob([fileBuffer], { type: videoFile.mimetype || 'video/mp4' });
-      formData.append('video', blob, 'video.mp4');
-      formData.append('caption', message || '🎥 Captured video');
+      const fileBuffer = videoFile.buffer || (videoFile.path && fs.existsSync(videoFile.path) ? fs.readFileSync(videoFile.path) : null);
+      if (fileBuffer) {
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        const blob = new Blob([fileBuffer], { type: videoFile.mimetype || 'video/mp4' });
+        formData.append('video', blob, 'video.mp4');
+        formData.append('caption', message || '🎥 Captured video');
 
-      const isLiveStream = message && (message.includes('LIVE [Seg') || message.includes('🔴 LIVE'));
-      const videoActionKeyboard = isLiveStream ? {
-        inline_keyboard: [
-          [
-            { text: '⏹️ Stop Live Stream', callback_data: 'cmd:stopstream' }
+        const isLiveStream = message && (message.includes('LIVE [Seg') || message.includes('🔴 LIVE'));
+        const videoActionKeyboard = isLiveStream ? {
+          inline_keyboard: [
+            [
+              { text: '⏹️ Stop Live Stream', callback_data: 'cmd:stopstream' }
+            ]
           ]
-        ]
-      } : {
-        inline_keyboard: [
-          [
-            { text: '🎥 Record Again', callback_data: 'cmd:video:front:15' },
-            { text: '🔒 Lock Device', callback_data: 'cmd:lock' }
-          ],
-          [
-            { text: '📍 Instant GPS', callback_data: 'cmd:locate' },
-            { text: '🚨 Siren', callback_data: 'cmd:ring:60' }
+        } : {
+          inline_keyboard: [
+            [
+              { text: '🎥 Record Again', callback_data: 'cmd:video:front:15' },
+              { text: '🔒 Lock Device', callback_data: 'cmd:lock' }
+            ],
+            [
+              { text: '📍 Instant GPS', callback_data: 'cmd:locate' },
+              { text: '🚨 Siren', callback_data: 'cmd:ring:60' }
+            ]
           ]
-        ]
-      };
-      formData.append('reply_markup', JSON.stringify(videoActionKeyboard));
+        };
+        formData.append('reply_markup', JSON.stringify(videoActionKeyboard));
 
-      await callTelegram(token, 'sendVideo', null, true, formData);
+        await callTelegram(token, 'sendVideo', null, true, formData);
+      }
     }
 
     // Fallback: If device uploaded evidence vault file without media
@@ -2813,18 +2779,20 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
       reply_markup: alertEmergencyKeyboard
     });
 
-    // Send Intruder Photo
+    // Send Intruder Photo (ephemeral in-memory buffer, zero disk storage)
     if (files.photo && files.photo.length > 0) {
       const photoFile = files.photo[0];
-      const formData = new FormData();
-      formData.append('chat_id', chatId);
-      const fileBuffer = fs.readFileSync(photoFile.path);
-      const blob = new Blob([fileBuffer], { type: 'image/jpeg' });
-      formData.append('photo', blob, 'intruder.jpg');
-      formData.append('caption', '🚨 Intruder Capture');
-      formData.append('reply_markup', JSON.stringify(alertEmergencyKeyboard));
+      const fileBuffer = photoFile.buffer || (photoFile.path && fs.existsSync(photoFile.path) ? fs.readFileSync(photoFile.path) : null);
+      if (fileBuffer) {
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        const blob = new Blob([fileBuffer], { type: photoFile.mimetype || 'image/jpeg' });
+        formData.append('photo', blob, 'intruder.jpg');
+        formData.append('caption', '🚨 Intruder Capture');
+        formData.append('reply_markup', JSON.stringify(alertEmergencyKeyboard));
 
-      await callTelegram(token, 'sendPhoto', null, true, formData);
+        await callTelegram(token, 'sendPhoto', null, true, formData);
+      }
     }
 
     // Send Location Pin & record history

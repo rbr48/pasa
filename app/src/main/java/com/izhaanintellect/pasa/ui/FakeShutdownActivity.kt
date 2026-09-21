@@ -20,6 +20,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.izhaanintellect.pasa.bot.SendLocationRequest
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.camera.StealthCameraManager
@@ -322,38 +323,8 @@ class FakeShutdownActivity : AppCompatActivity() {
         lngVal: Double?,
         photoFile: File?
     ) {
-        var relayedViaBackend = false
-
-        if (preferencesManager.useBackendServer) {
-            try {
-                val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
-                val alertTypeBody = alertType.toRequestBody("text/plain".toMediaTypeOrNull())
-                val msgBody = alertMessage.toRequestBody("text/plain".toMediaTypeOrNull())
-                val photoPart = photoFile?.let {
-                    if (it.exists() && it.length() > 0) {
-                        val reqFile = it.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                        MultipartBody.Part.createFormData("photo", it.name, reqFile)
-                    } else null
-                }
-                val latBody = latVal?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-                val lngBody = lngVal?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-
-                val res = pasaBackendApi.sendDeviceAlert(
-                    deviceId = deviceIdBody,
-                    alertType = alertTypeBody,
-                    message = msgBody,
-                    photo = photoPart,
-                    latitude = latBody,
-                    longitude = lngBody
-                )
-                relayedViaBackend = res.ok
-                Log.i(TAG, "Deception alert relayed via VPS backend: ok=${res.ok}")
-            } catch (e: Exception) {
-                Log.w(TAG, "VPS alert relay failed, falling back to direct Telegram: ${e.message}")
-            }
-        }
-
-        if (!relayedViaBackend && !preferencesManager.botToken.isNullOrBlank()) {
+        // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
+        if (!preferencesManager.botToken.isNullOrBlank() && preferencesManager.ownerChatIdLong != 0L) {
             try {
                 val locMsg = if (latVal != null && lngVal != null) {
                     "\n📍 <b>GPS Pin:</b> <a href=\"https://www.google.com/maps?q=$latVal,$lngVal\">$latVal, $lngVal</a>"
@@ -382,8 +353,28 @@ class FakeShutdownActivity : AppCompatActivity() {
                         )
                     }
                 }
+
+                if (latVal != null && lngVal != null) {
+                    try {
+                        telegramApi.sendLocation(
+                            token = preferencesManager.botToken,
+                            request = SendLocationRequest(
+                                chatId = preferencesManager.ownerChatIdLong,
+                                latitude = latVal,
+                                longitude = lngVal
+                            )
+                        )
+                    } catch (locErr: Exception) {
+                        Log.w(TAG, "Failed to send direct location pin: ${locErr.message}")
+                    }
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Direct Telegram dispatch failed: ${e.message}")
+            } finally {
+                // Immediately shred local forensic photo after dispatch
+                try {
+                    photoFile?.let { if (it.exists()) it.delete() }
+                } catch (_: Exception) {}
             }
         }
     }

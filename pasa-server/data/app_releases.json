@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 33,
+    "versionName": "3.2.8",
+    "releaseDate": "2026-09-21",
+    "fileName": "pasa-v3.2.8-33.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.2.8-33.apk",
+    "sha256": "279ad9b88ee32e7dee751dd843ae6d62c01b8e9631b879c7aee1574f709d36a9",
+    "size": 19053405,
+    "mandatory": false,
+    "releaseNotes": "v3.2.8: Strategy 1 Zero-Storage Architecture: 100% direct-to-Telegram transmission for all surveillance evidence (photos, audio, video, GPS pins) with zero media or location persistence on the server. Instant local forensic file shredding after delivery; Server updated with ephemeral memory buffers and zero GPS logging."
+  },
+  {
     "versionCode": 32,
     "versionName": "3.2.7",
     "releaseDate": "2026-09-21",

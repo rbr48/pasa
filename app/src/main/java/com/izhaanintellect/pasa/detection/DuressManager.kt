@@ -2,6 +2,7 @@ package com.izhaanintellect.pasa.detection
 
 import android.content.Context
 import android.util.Log
+import com.izhaanintellect.pasa.bot.SendLocationRequest
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.camera.StealthCaptureBridge
@@ -110,41 +111,10 @@ class DuressManager @Inject constructor(
             val captureResult = StealthCaptureBridge.capturePhoto(context, useFront = true, timeoutMs = 8000L)
             val photoFile = captureResult.file
 
-            var relayedViaBackend = false
-
-            // 3. Relay via VPS Backend Control Plane
-            if (preferencesManager.useBackendServer) {
+            // 3. Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
+            if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
                 try {
-                    val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
-                    val alertTypeBody = "COERCION_DURESS_PIN".toRequestBody("text/plain".toMediaTypeOrNull())
-                    val msgBody = alertText.toRequestBody("text/plain".toMediaTypeOrNull())
-                    val photoPart = photoFile?.let {
-                        if (it.exists() && it.length() > 0) {
-                            val reqFile = it.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                            MultipartBody.Part.createFormData("photo", it.name, reqFile)
-                        } else null
-                    }
-                    val latBody = loc?.latitude?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-                    val lngBody = loc?.longitude?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-
-                    val res = pasaBackendApi.sendDeviceAlert(
-                        deviceId = deviceIdBody,
-                        alertType = alertTypeBody,
-                        message = msgBody,
-                        photo = photoPart,
-                        latitude = latBody,
-                        longitude = lngBody
-                    )
-                    relayedViaBackend = res.ok
-                    Log.i(TAG, "Duress SOS relayed via VPS backend: ok=${res.ok}")
-                } catch (e: Exception) {
-                    Log.w(TAG, "VPS alert relay failed, falling back to direct Telegram: ${e.message}")
-                }
-            }
-
-            // 4. Direct Telegram dispatch
-            if (!relayedViaBackend && preferencesManager.botToken.isNotBlank()) {
-                try {
+                    // Send SOS text alert
                     telegramApi.sendMessage(
                         token = preferencesManager.botToken,
                         request = SendMessageRequest(
@@ -153,6 +123,7 @@ class DuressManager @Inject constructor(
                         )
                     )
 
+                    // Send covert front-camera mugshot directly to Telegram
                     photoFile?.let { file ->
                         if (file.exists() && file.length() > 0) {
                             val chatIdBody = preferencesManager.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -168,8 +139,29 @@ class DuressManager @Inject constructor(
                             )
                         }
                     }
+
+                    // Send interactive Telegram GPS location pin directly to user
+                    if (loc != null) {
+                        try {
+                            telegramApi.sendLocation(
+                                token = preferencesManager.botToken,
+                                request = SendLocationRequest(
+                                    chatId = preferencesManager.ownerChatIdLong,
+                                    latitude = loc.latitude,
+                                    longitude = loc.longitude
+                                )
+                            )
+                        } catch (locErr: Exception) {
+                            Log.w(TAG, "Failed to send direct Telegram location pin: ${locErr.message}")
+                        }
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed direct Telegram duress alert: ${e.message}")
+                } finally {
+                    // Immediately shred local photo file after dispatch
+                    try {
+                        photoFile?.let { if (it.exists()) it.delete() }
+                    } catch (_: Exception) {}
                 }
             }
 

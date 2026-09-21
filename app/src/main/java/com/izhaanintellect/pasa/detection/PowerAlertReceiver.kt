@@ -185,70 +185,49 @@ class PowerAlertReceiver : BroadcastReceiver() {
     ) {
         val photo: File? = photoFile?.takeIf { it.exists() && it.length() > 0 }
 
-        // 1. Send to VPS backend if enabled
-        if (preferencesManager.useBackendServer) {
-            try {
-                val devIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
-                val typeBody = alertType.toRequestBody("text/plain".toMediaTypeOrNull())
-                val msgBody = message.toRequestBody("text/plain".toMediaTypeOrNull())
-                val latBody = lat?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-                val lngBody = lng?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-                val photoPart = photo?.let {
-                    MultipartBody.Part.createFormData(
-                        "photo", it.name, it.asRequestBody("image/jpeg".toMediaTypeOrNull())
+        // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
+        try {
+            if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        text = message
+                    )
+                )
+                if (lat != null && lng != null) {
+                    telegramApi.sendLocation(
+                        token = preferencesManager.botToken,
+                        request = SendLocationRequest(
+                            chatId = preferencesManager.ownerChatIdLong,
+                            latitude = lat,
+                            longitude = lng
+                        )
                     )
                 }
-
-                pasaBackendApi.sendDeviceAlert(
-                    deviceId = devIdBody,
-                    alertType = typeBody,
-                    message = msgBody,
-                    photo = photoPart,
-                    latitude = latBody,
-                    longitude = lngBody
-                )
-                return
-            } catch (e: Exception) {
-                Log.w(TAG, "VPS backend alert delivery failed, falling back to direct Telegram: ${e.message}")
-            }
-        }
-
-        // 2. Direct Telegram fallback
-        try {
-            telegramApi.sendMessage(
-                token = preferencesManager.botToken,
-                request = SendMessageRequest(
-                    chatId = preferencesManager.ownerChatIdLong,
-                    text = message
-                )
-            )
-            if (lat != null && lng != null) {
-                telegramApi.sendLocation(
-                    token = preferencesManager.botToken,
-                    request = SendLocationRequest(
-                        chatId = preferencesManager.ownerChatIdLong,
-                        latitude = lat,
-                        longitude = lng
+                photo?.let {
+                    val chatIdBody = preferencesManager.ownerChatIdLong.toString()
+                        .toRequestBody("text/plain".toMediaTypeOrNull())
+                    val captionBody = "📸 PASA final battery-beacon snapshot"
+                        .toRequestBody("text/plain".toMediaTypeOrNull())
+                    val photoPart = MultipartBody.Part.createFormData(
+                        "photo", it.name, it.asRequestBody("image/jpeg".toMediaTypeOrNull())
                     )
-                )
-            }
-            photo?.let {
-                val chatIdBody = preferencesManager.ownerChatIdLong.toString()
-                    .toRequestBody("text/plain".toMediaTypeOrNull())
-                val captionBody = "📸 PASA final battery-beacon snapshot"
-                    .toRequestBody("text/plain".toMediaTypeOrNull())
-                val photoPart = MultipartBody.Part.createFormData(
-                    "photo", it.name, it.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                )
-                telegramApi.sendPhoto(
-                    token = preferencesManager.botToken,
-                    chatId = chatIdBody,
-                    photo = photoPart,
-                    caption = captionBody
-                )
+                    telegramApi.sendPhoto(
+                        token = preferencesManager.botToken,
+                        chatId = chatIdBody,
+                        photo = photoPart,
+                        caption = captionBody
+                    )
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Direct Telegram alert delivery failed", e)
+        } finally {
+            // Immediately shred local photo after dispatch
+            try {
+                photo?.let { if (it.exists()) it.delete() }
+            } catch (_: Exception) {}
         }
     }
 

@@ -92,31 +92,15 @@ class NetworkChangeReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // 1. Try VPS backend
-                if (preferencesManager.useBackendServer) {
-                    try {
-                        pasaBackendApi.sendDeviceAlert(
-                            deviceId = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull()),
-                            alertType = alertType.toRequestBody("text/plain".toMediaTypeOrNull()),
-                            message = message.toRequestBody("text/plain".toMediaTypeOrNull()),
-                            photo = null,
-                            latitude = null,
-                            longitude = null
+                if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
+                    telegramApi.sendMessage(
+                        token = preferencesManager.botToken,
+                        request = SendMessageRequest(
+                            chatId = preferencesManager.ownerChatIdLong,
+                            text = message
                         )
-                        return@launch
-                    } catch (e: Exception) {
-                        Log.w(TAG, "VPS alert failed, falling back to Telegram: ${e.message}")
-                    }
-                }
-
-                // 2. Direct Telegram fallback
-                telegramApi.sendMessage(
-                    token = preferencesManager.botToken,
-                    request = SendMessageRequest(
-                        chatId = preferencesManager.ownerChatIdLong,
-                        text = message
                     )
-                )
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to deliver network change alert", e)
             } finally {

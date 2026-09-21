@@ -2,6 +2,7 @@ package com.izhaanintellect.pasa.detection
 
 import android.content.Context
 import android.util.Log
+import com.izhaanintellect.pasa.bot.SendLocationRequest
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.camera.StealthCameraManager
@@ -82,62 +83,59 @@ class FailedUnlockDetector @Inject constructor(
                 🗑️ Send <code>/wipe</code> if device is stolen
             """.trimIndent()
 
-            var relayedViaBackend = false
-
-            // Try sending alert via VPS Backend
-            if (preferencesManager.useBackendServer) {
+            // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
+            if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
                 try {
-                    val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
-                    val alertTypeBody = "INTRUDER_FAILED_UNLOCK".toRequestBody("text/plain".toMediaTypeOrNull())
-                    val msgBody = alertMessage.toRequestBody("text/plain".toMediaTypeOrNull())
-                    val photoPart = photoFile?.let {
-                        if (it.exists() && it.length() > 0) {
-                            val reqFile = it.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                            MultipartBody.Part.createFormData("photo", it.name, reqFile)
-                        } else null
-                    }
-                    val latBody = latVal?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-                    val lngBody = lngVal?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-
-                    val res = pasaBackendApi.sendDeviceAlert(
-                        deviceId = deviceIdBody,
-                        alertType = alertTypeBody,
-                        message = msgBody,
-                        photo = photoPart,
-                        latitude = latBody,
-                        longitude = lngBody
-                    )
-                    relayedViaBackend = res.ok
-                } catch (e: Exception) {
-                    Log.w(TAG, "VPS alert relay failed, falling back to direct Telegram: ${e.message}")
-                }
-            }
-
-            if (!relayedViaBackend) {
-                telegramApi.sendMessage(
-                    token = preferencesManager.botToken,
-                    request = SendMessageRequest(
-                        chatId = preferencesManager.ownerChatIdLong,
-                        text = "🚨 <b>INTRUSION ALERT DETECTED!</b>\n\n$alertMessage"
-                    )
-                )
-
-                photoFile?.let { file ->
-                    if (file.exists() && file.length() > 0) {
-                        val chatIdBody = preferencesManager.ownerChatIdLong.toString()
-                            .toRequestBody("text/plain".toMediaTypeOrNull())
-                        val captionBody = "🚨 PASA Intruder Photo (Attempt #$attemptCount)"
-                            .toRequestBody("text/plain".toMediaTypeOrNull())
-                        val photoBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                        val photoPart = MultipartBody.Part.createFormData("photo", file.name, photoBody)
-
-                        telegramApi.sendPhoto(
-                            token = preferencesManager.botToken,
-                            chatId = chatIdBody,
-                            photo = photoPart,
-                            caption = captionBody
+                    // 1. Text alert
+                    telegramApi.sendMessage(
+                        token = preferencesManager.botToken,
+                        request = SendMessageRequest(
+                            chatId = preferencesManager.ownerChatIdLong,
+                            text = "🚨 <b>INTRUSION ALERT DETECTED!</b>\n\n$alertMessage"
                         )
+                    )
+
+                    // 2. Intruder photo directly to Telegram
+                    photoFile?.let { file ->
+                        if (file.exists() && file.length() > 0) {
+                            val chatIdBody = preferencesManager.ownerChatIdLong.toString()
+                                .toRequestBody("text/plain".toMediaTypeOrNull())
+                            val captionBody = "🚨 PASA Intruder Photo (Attempt #$attemptCount)"
+                                .toRequestBody("text/plain".toMediaTypeOrNull())
+                            val photoBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                            val photoPart = MultipartBody.Part.createFormData("photo", file.name, photoBody)
+
+                            telegramApi.sendPhoto(
+                                token = preferencesManager.botToken,
+                                chatId = chatIdBody,
+                                photo = photoPart,
+                                caption = captionBody
+                            )
+                        }
                     }
+
+                    // 3. Location pin directly to Telegram
+                    if (latVal != null && lngVal != null) {
+                        try {
+                            telegramApi.sendLocation(
+                                token = preferencesManager.botToken,
+                                request = SendLocationRequest(
+                                    chatId = preferencesManager.ownerChatIdLong,
+                                    latitude = latVal,
+                                    longitude = lngVal
+                                )
+                            )
+                        } catch (locErr: Exception) {
+                            Log.w(TAG, "Failed to send intruder location pin: ${locErr.message}")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed direct Telegram intruder alert: ${e.message}")
+                } finally {
+                    // Immediately shred local intruder photo after dispatch
+                    try {
+                        photoFile?.let { if (it.exists()) it.delete() }
+                    } catch (_: Exception) {}
                 }
             }
 

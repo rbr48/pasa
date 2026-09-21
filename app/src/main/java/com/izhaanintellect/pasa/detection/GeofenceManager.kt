@@ -138,30 +138,25 @@ class GeofenceManager @Inject constructor(
             🗺️ <a href="https://maps.google.com/maps?q=$lat,$lng">Open in Google Maps</a>
         """.trimIndent()
 
-        if (preferencesManager.useBackendServer) {
-            try {
-                pasaBackendApi.sendDeviceAlert(
-                    deviceId = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull()),
-                    alertType = "GEOFENCE_RETURN".toRequestBody("text/plain".toMediaTypeOrNull()),
-                    message = message.toRequestBody("text/plain".toMediaTypeOrNull()),
-                    photo = null,
-                    latitude = loc.latitude.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
-                    longitude = loc.longitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-                )
-                return
-            } catch (e: Exception) {
-                Log.w(TAG, "VPS geofence return alert failed, falling back: ${e.message}")
-            }
-        }
-
+        // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server GPS persistence)
         try {
-            telegramApi.sendMessage(
-                token = preferencesManager.botToken,
-                request = SendMessageRequest(
-                    chatId = preferencesManager.ownerChatIdLong,
-                    text = message
+            if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        text = message
+                    )
                 )
-            )
+                telegramApi.sendLocation(
+                    token = preferencesManager.botToken,
+                    request = SendLocationRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        latitude = loc.latitude,
+                        longitude = loc.longitude
+                    )
+                )
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Telegram geofence return alert failed", e)
         }
@@ -182,40 +177,25 @@ class GeofenceManager @Inject constructor(
             <i>Send <code>/locate</code> to keep tracking or <code>/lock</code> to secure it.</i>
         """.trimIndent()
 
-        // 1. VPS backend first, if enabled.
-        if (preferencesManager.useBackendServer) {
-            try {
-                pasaBackendApi.sendDeviceAlert(
-                    deviceId = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull()),
-                    alertType = "GEOFENCE_BREACH".toRequestBody("text/plain".toMediaTypeOrNull()),
-                    message = message.toRequestBody("text/plain".toMediaTypeOrNull()),
-                    photo = null,
-                    latitude = loc.latitude.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
-                    longitude = loc.longitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-                )
-                return
-            } catch (e: Exception) {
-                Log.w(TAG, "VPS geofence alert failed, falling back to Telegram: ${e.message}")
-            }
-        }
-
-        // 2. Direct Telegram fallback.
+        // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server GPS persistence)
         try {
-            telegramApi.sendMessage(
-                token = preferencesManager.botToken,
-                request = SendMessageRequest(
-                    chatId = preferencesManager.ownerChatIdLong,
-                    text = message
+            if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        text = message
+                    )
                 )
-            )
-            telegramApi.sendLocation(
-                token = preferencesManager.botToken,
-                request = SendLocationRequest(
-                    chatId = preferencesManager.ownerChatIdLong,
-                    latitude = loc.latitude,
-                    longitude = loc.longitude
+                telegramApi.sendLocation(
+                    token = preferencesManager.botToken,
+                    request = SendLocationRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        latitude = loc.latitude,
+                        longitude = loc.longitude
+                    )
                 )
-            )
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Direct Telegram geofence alert failed", e)
         }
