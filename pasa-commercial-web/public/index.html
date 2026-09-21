@@ -1263,7 +1263,7 @@
             </th>
             <th class="py-4 px-5 font-semibold text-apple-blue bg-blue-50 text-center" style="min-width:130px">
               PASA Sentinel
-              <div class="text-[10px] font-normal mt-0.5 text-apple-grayText">v3.1.8 — Free / ৳3,490 Pro</div>
+              <div class="text-[10px] font-normal mt-0.5 text-apple-grayText">v3.1.8 — Free / ৳3,490 ($29) Pro</div>
             </th>
             <th class="py-4 px-5 font-medium text-apple-grayText bg-apple-grayLight text-center" style="min-width:130px">
               Google Find My Device
@@ -1605,7 +1605,7 @@
             
             <div class="p-3.5 rounded-2xl bg-green-500/10 border border-green-500/20 text-xs text-green-700 dark:text-green-400 mb-6 flex items-center justify-between">
               <span class="font-medium">PASA Sentinel Lifetime:</span>
-              <span class="font-bold font-mono text-sm">৳3,490 (One-Time)</span>
+              <span class="font-bold font-mono text-sm">৳3,490 / $29 USD (One-Time)</span>
             </div>
           </div>
 
@@ -1682,10 +1682,12 @@
             <span class="text-xs font-semibold uppercase text-apple-blue">Pro Lifetime</span>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-apple-blue font-medium">3 Devices</span>
           </div>
-          <div class="flex items-baseline gap-1 mb-1">
-            <span id="proPriceDisplay" class="text-5xl font-bold text-apple-black">৳3,490</span>
+          <!-- Dual Price Tag -->
+          <div class="flex items-baseline gap-2 mb-1 flex-wrap">
+            <span id="proPriceBdt" class="text-4xl sm:text-5xl font-bold text-apple-black dark:text-white font-mono">৳3,490</span>
+            <span id="proPriceUsd" class="text-xl sm:text-2xl font-bold text-apple-blue font-mono">/ $29 USD</span>
           </div>
-          <div id="proPriceSub" class="text-xs text-apple-grayText mb-3">one-time payment &bull; ~$29 USD</div>
+          <div id="proPriceSub" class="text-xs text-apple-grayText mb-3 font-medium">one-time payment &bull; lifetime sovereign license (no subscriptions)</div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
             Perpetual sovereign defense. Protect your primary phone and family devices forever with all future updates.
           </p>
@@ -1698,7 +1700,7 @@
           </ul>
         </div>
         <button onclick="handleProCheckoutClick()" id="proBuyBtn" class="apple-btn-pill w-full py-3.5 text-xs text-center font-medium shadow-[0_4px_18px_rgba(0,113,227,0.35)]">
-          <span id="proBuyBtnText">Buy Pro Lifetime — ৳3,490</span>
+          <span id="proBuyBtnText">Buy Pro Lifetime — ৳3,490 / $29 USD</span>
         </button>
       </div>
 
@@ -1709,10 +1711,12 @@
             <span class="text-xs font-semibold uppercase text-apple-grayText">Fleet / Enterprise</span>
             <span class="text-xs px-2.5 py-0.5 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-apple-grayText">10 Devices</span>
           </div>
-          <div class="flex items-baseline gap-1 mb-1">
-            <span id="fleetPriceDisplay" class="text-4xl font-bold text-apple-black">৳9,990</span>
+          <!-- Dual Price Tag -->
+          <div class="flex items-baseline gap-2 mb-1 flex-wrap">
+            <span id="fleetPriceBdt" class="text-3xl sm:text-4xl font-bold text-apple-black dark:text-white font-mono">৳9,990</span>
+            <span id="fleetPriceUsd" class="text-lg sm:text-xl font-bold text-apple-grayText font-mono">/ $83 USD</span>
           </div>
-          <div id="fleetPriceSub" class="text-xs text-apple-grayText mb-3">one-time payment &bull; ~$83 USD</div>
+          <div id="fleetPriceSub" class="text-xs text-apple-grayText mb-3 font-medium">one-time payment &bull; 10 hardware device nodes lifetime</div>
           <p class="text-xs text-apple-grayText leading-relaxed mb-6">
             For executive teams, secure facilities, and multi-device fleet deployments requiring Knox-grade ADB provisioning.
           </p>
@@ -1724,7 +1728,7 @@
           </ul>
         </div>
         <button onclick="handleFleetCheckoutClick()" id="fleetBuyBtn" class="apple-btn-secondary w-full py-3 text-xs text-center font-medium">
-          <span id="fleetBuyBtnText">Deploy Fleet License — ৳9,990</span>
+          <span id="fleetBuyBtnText">Deploy Fleet License — ৳9,990 / $83 USD</span>
         </button>
       </div>
 
@@ -1748,12 +1752,15 @@
       <!-- FAQ Item 1 -->
       <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(1)">
         <div class="flex items-center justify-between gap-4">
-          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Can a thief bypass PASA Sentinel by factory resetting from Recovery Mode?</h4>
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-apple-blue font-semibold uppercase">Recovery Protection</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Can a thief bypass PASA Sentinel by factory resetting from Recovery Mode?</h4>
+          </div>
           <i data-lucide="chevron-down" id="faqIcon-1" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
         </div>
         <div id="faqAnswer-1" class="faq-answer">
           <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
-            <b>No.</b> When provisioned as Android Device Owner via ADB, PASA enforces hardware-level Enterprise Device Policies. USB debugging remains armed, ADB wipe commands are rejected without cryptographic authentication, and Android Factory Reset Protection (FRP) permanently ties hardware partition access to your credentials. Even if wiped via custom hardware boxes, the IMEI and carrier locks remain active.
+            <b>No.</b> When provisioned as Android Device Owner via ADB, PASA Sentinel enforces hardware-level Enterprise Device Policies. USB debugging remains persistently armed, ADB wipe commands are rejected without cryptographic authentication, and Android Factory Reset Protection (FRP) permanently ties hardware partition access to your credentials. Even if wiped via custom hardware flash boxes, the IMEI and carrier locks remain permanently registered in international theft databases.
           </p>
         </div>
       </div>
@@ -1761,12 +1768,15 @@
       <!-- FAQ Item 2 -->
       <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(2)">
         <div class="flex items-center justify-between gap-4">
-          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">How does offline defense work if the thief removes my SIM card?</h4>
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-apple-blue font-semibold uppercase">Cellular PDU</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">How does offline defense work if the thief removes my SIM card?</h4>
+          </div>
           <i data-lucide="chevron-down" id="faqIcon-2" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
         </div>
         <div id="faqAnswer-2" class="faq-answer">
           <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
-            PASA Sentinel includes a dedicated hardware SIM State Broadcast Receiver. As soon as the tray is ejected, the phone locks down, silences notification sounds, and caches GPS fixes. Whenever any new SIM card is inserted by the thief or resale shop, PASA automatically and silently transmits an encrypted SMS containing the new IMSI, phone number, and GPS coordinates to your predefined trusted emergency contact.
+            PASA Sentinel includes a dedicated hardware SIM State Broadcast Receiver. As soon as the tray is ejected, the phone instantly locks down, silences notifications, and caches high-precision GNSS fixes. Whenever any replacement SIM card is inserted by the thief or resale shop, PASA automatically and silently transmits an encrypted SMS containing the new IMSI, phone number, and GPS coordinates to your predefined trusted emergency contact without alerting the thief.
           </p>
         </div>
       </div>
@@ -1774,12 +1784,15 @@
       <!-- FAQ Item 3 -->
       <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(3)">
         <div class="flex items-center justify-between gap-4">
-          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Will background motion sensors and Telegram long-polling drain my battery?</h4>
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/10 text-red-600 dark:text-red-400 font-semibold uppercase">Airplane Mode Lock</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Can a thief simply turn on Airplane Mode or pull down Quick Settings?</h4>
+          </div>
           <i data-lucide="chevron-down" id="faqIcon-3" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
         </div>
         <div id="faqAnswer-3" class="faq-answer">
           <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
-            Battery impact is negligible — typically <b>less than 1.2% over a 24-hour cycle</b>. PASA utilizes Android hardware sensor batching (low-power DSP) and event-driven C2 sockets rather than continuous CPU wake-locks. The kinetic snatch trigger uses a low-frequency hardware accelerometer interrupt that only wakes the main processor when a high-G acceleration delta is verified.
+            <b>No.</b> Through Knox-Grade Device Owner policies, PASA Sentinel can freeze and disable the pull-down Quick Settings shade and status bar on the lock screen. The thief cannot toggle Airplane Mode, turn off Wi-Fi, or disable Mobile Data without first entering your master cryptographic PIN. Furthermore, kinetic snatch alarms, local forensic photo capture, and offline SMS fallback continue running uninterrupted regardless of network connectivity.
           </p>
         </div>
       </div>
@@ -1787,12 +1800,15 @@
       <!-- FAQ Item 4 -->
       <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(4)">
         <div class="flex items-center justify-between gap-4">
-          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">How does the 7-Day Money-Back Guarantee work?</h4>
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-500/10 text-neutral-600 dark:text-neutral-400 font-semibold uppercase">Covert Trap</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">How does the Fake Shutdown Blackout feature work in real life?</h4>
+          </div>
           <i data-lucide="chevron-down" id="faqIcon-4" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
         </div>
         <div id="faqAnswer-4" class="faq-answer">
           <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
-            We offer an unconditional 7-day refund guarantee. If PASA Sentinel does not perform as described on your specific Android device, simply send your License Key to our support team on WhatsApp (<b>+880 1762-033445</b>) or Telegram. For bKash/Nagad purchases, funds are refunded to your account within 24 hours. For Binance Pay purchases, USDT is refunded directly to your Binance Pay ID.
+            When a thief long-presses the power button or taps 'Power Off' (or when a remote <code>/fakeshutdown</code> command is dispatched), PASA intercepts the power intent, plays a realistic spoofed Android shutdown animation, and immediately drives display panel illumination to 0 nits. To the thief, the phone feels completely switched off. In reality, the daemon stays running in low-power standby — buffering microphone audio, streaming GPS coordinates, and capturing covert mugshots whenever the phone is picked up.
           </p>
         </div>
       </div>
@@ -1800,12 +1816,15 @@
       <!-- FAQ Item 5 -->
       <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(5)">
         <div class="flex items-center justify-between gap-4">
-          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Is my location, camera, or audio evidence stored on any company server?</h4>
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold uppercase">Anti-Tamper</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Can PASA Sentinel be uninstalled by a thief or suspicious third party?</h4>
+          </div>
           <i data-lucide="chevron-down" id="faqIcon-5" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
         </div>
         <div id="faqAnswer-5" class="faq-answer">
           <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
-            <b>Never.</b> PASA Sentinel is engineered from day one as a Zero-Telemetry, sovereign system. No analytics libraries (Firebase, Google Play, Facebook SDK) exist in the APK. Evidence (mugshots, audio recordings, GPS coordinates) is encrypted on the device and streamed directly and exclusively to your private Telegram Bot chat. Nobody else can ever access your telemetry.
+            <b>Impossible without your Master PIN.</b> When provisioned as Android Device Owner via ADB, the "Uninstall" and "Force Stop" buttons are completely grayed out in Android System Settings. Even in Safe Mode, Device Owner policies remain strictly enforced by the Android OS framework. De-provisioning requires entering your cryptographic Master PIN inside the app or executing an authenticated remote unbind command.
           </p>
         </div>
       </div>
@@ -1813,12 +1832,147 @@
       <!-- FAQ Item 6 -->
       <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(6)">
         <div class="flex items-center justify-between gap-4">
-          <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Can I transfer my Pro Lifetime license if I switch or upgrade phones?</h4>
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold uppercase">Zero Root</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Is root access or bootloader unlocking required to run PASA Sentinel?</h4>
+          </div>
           <i data-lucide="chevron-down" id="faqIcon-6" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
         </div>
         <div id="faqAnswer-6" class="faq-answer">
           <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
-            <b>Yes!</b> Pro Lifetime licenses support 3 simultaneous hardware devices. When retiring an old smartphone, you can instantly unbind it via Telegram command (<code>/license unbind &lt;deviceId&gt;</code>) or through the Cryptographic Ledger tool on this site, freeing the slot to activate on your new Android phone immediately.
+            <b>No root required whatsoever.</b> PASA Sentinel utilizes standard, official Android Enterprise Device Administration and Device Policy Manager (DPM) APIs. You do not need to root your smartphone, flash custom recoveries (TWRP), or unlock the bootloader. Your manufacturer hardware warranty remains 100% valid, and security chips (Samsung Knox, Google Titan M2) remain completely intact.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 7 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(7)">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold uppercase">Banking Safe</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Will bKash, Nagad, Binance, and banking apps continue to work?</h4>
+          </div>
+          <i data-lucide="chevron-down" id="faqIcon-7" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-7" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            <b>Yes, 100% seamlessly.</b> Because PASA Sentinel does not use root exploits or modify system partitions, Google Play Integrity API (Hardware-backed MEETS_STRONG_INTEGRITY) and SafetyNet pass completely. All Bangladeshi mobile banking apps (bKash, Nagad, Rocket, Upay), cryptocurrency wallets (Binance, Trust Wallet, MetaMask), and commercial banking apps (City Touch, SC Mobile, BRAC Bank Astha) run with zero security warnings.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 8 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(8)">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold uppercase">Battery Profile</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Will background motion sensors and Telegram long-polling drain my battery?</h4>
+          </div>
+          <i data-lucide="chevron-down" id="faqIcon-8" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-8" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            Battery impact is negligible — typically <b>less than 1.2% over a full 24-hour cycle</b>. PASA utilizes Android hardware sensor batching on the low-power DSP and event-driven C2 sockets rather than continuous CPU wake-locks. The kinetic snatch trigger uses hardware accelerometer interrupts that only wake the main processor when a genuine high-G snatch delta (&gt;2.85G) is verified.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 9 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(9)">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-apple-blue font-semibold uppercase">Device Support</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">What Android versions and smartphone brands are supported?</h4>
+          </div>
+          <i data-lucide="chevron-down" id="faqIcon-9" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-9" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            PASA Sentinel supports <b>Android 8.0 (Oreo) through Android 15 &amp; Android 16 Developer Preview</b>. It is fully tested on Samsung (One UI 5 / 6 / 7), Xiaomi / Redmi / POCO (HyperOS &amp; MIUI), Google Pixel (Tensor G1–G4), Motorola (Hello UI / MyUX), OnePlus / Oppo (OxygenOS &amp; ColorOS), Vivo / iQOO (Funtouch OS), and Realme. Both single-SIM, dual-SIM, and eSIM configurations are natively supported.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 10 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(10)">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-apple-blue font-semibold uppercase">Telegram C2</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">How do I configure my private Telegram Bot? Is technical expertise needed?</h4>
+          </div>
+          <i data-lucide="chevron-down" id="faqIcon-10" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-10" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            <b>Zero technical or coding expertise required.</b> Setup takes under 2 minutes:
+            <br>1. Open Telegram, search <code>@BotFather</code>, and tap <b>Start</b>.
+            <br>2. Send <code>/newbot</code>, give your bot a name, and copy the provided API token.
+            <br>3. Open PASA Sentinel on your phone, paste the token into the Bot Token field, and tap <b>Pair &amp; Arm</b>.
+            <br>Your phone and Telegram bot are now cryptographically paired with end-to-end Ed25519 authentication.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 11 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(11)">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-pink-500/10 text-pink-600 dark:text-pink-400 font-semibold uppercase">Instant Delivery</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">What payment methods are supported, and how fast is license delivery?</h4>
+          </div>
+          <i data-lucide="chevron-down" id="faqIcon-11" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-11" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            We accept <b>bKash Personal (Send Money)</b> with 1-tap USSD (<code>*247#</code>) pre-filled dialer, <b>Nagad</b>, and <b>Binance Pay (USDT / Crypto)</b> with 1-tap app launch. Upon submitting your Transaction ID, our automated server provisions and displays your sovereign license key on screen in <b>under 60 seconds</b>. A backup confirmation is also delivered to your email and WhatsApp support.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 12 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(12)">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-semibold uppercase">Risk-Free</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">How does the 7-Day Money-Back Guarantee work?</h4>
+          </div>
+          <i data-lucide="chevron-down" id="faqIcon-12" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-12" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            We offer an unconditional 7-day refund policy. If PASA Sentinel does not perform as described on your smartphone hardware, simply message our support desk on WhatsApp (<b>+880 1762-033445</b>) or Telegram with your License Key. For bKash/Nagad transactions, funds are returned to your mobile number within 24 hours. For Binance Pay purchases, USDT is refunded directly to your Binance Pay ID.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 13 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(13)">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-semibold uppercase">Privacy Sovereignty</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Is my location, camera, or audio evidence stored on any company server?</h4>
+          </div>
+          <i data-lucide="chevron-down" id="faqIcon-13" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-13" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            <b>Never.</b> PASA Sentinel is engineered as a pure Zero-Telemetry sovereign tool. No analytics libraries (Firebase, Google Play, Facebook SDK) exist in the APK. Evidence (mugshots, audio recordings, GPS coordinates) is encrypted on the device and streamed directly and exclusively to your private Telegram Bot chat. Our team and servers have zero access to your telemetry, files, or location.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ Item 14 -->
+      <div class="apple-card p-5 sm:p-6 cursor-pointer" onclick="toggleFaq(14)">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-apple-blue font-semibold uppercase">License Flexibility</span>
+            <h4 class="text-sm sm:text-base font-semibold text-apple-black tracking-tight">Can I transfer my Pro Lifetime license if I switch or upgrade phones?</h4>
+          </div>
+          <i data-lucide="chevron-down" id="faqIcon-14" class="faq-icon w-5 h-5 text-apple-grayText flex-shrink-0"></i>
+        </div>
+        <div id="faqAnswer-14" class="faq-answer">
+          <p class="text-xs sm:text-sm text-apple-grayText leading-relaxed pt-3 border-t border-black/[0.06] dark:border-white/[0.08] mt-3">
+            <b>Yes!</b> Pro Lifetime licenses support 3 simultaneous hardware devices. When replacing or upgrading an old phone, you can instantly unbind it via Telegram command (<code>/license unbind &lt;deviceId&gt;</code>) or through the Cryptographic Ledger tool below, freeing the slot to activate on your new Android smartphone immediately.
           </p>
         </div>
       </div>
@@ -2451,15 +2605,17 @@
     function openCheckout(tier, price) {
       document.getElementById('selectedTier').value = tier;
       document.getElementById('selectedPrice').value = price;
-      const priceFormatted = '৳' + price.toLocaleString('en-BD');
-      document.getElementById('checkoutPriceTag').textContent = priceFormatted;
-      document.getElementById('checkoutPriceLine').textContent = priceFormatted;
-      if (document.getElementById('bkashAmount')) document.getElementById('bkashAmount').textContent = priceFormatted;
+      const bdtFormatted = '৳' + price.toLocaleString('en-BD');
+      const usdFormatted = (tier === 'PRO_ENTERPRISE') ? '$83 USD' : '$29 USD';
+      const dualPriceFormatted = `${bdtFormatted} / ${usdFormatted}`;
+      document.getElementById('checkoutPriceTag').textContent = dualPriceFormatted;
+      document.getElementById('checkoutPriceLine').textContent = dualPriceFormatted;
+      if (document.getElementById('bkashAmount')) document.getElementById('bkashAmount').textContent = bdtFormatted;
       const ussdLink = document.getElementById('bkashUssdLink');
       if (ussdLink) ussdLink.href = 'tel:*247*1*2*01737910040*' + price + '*PASA%23';
       if (document.getElementById('binanceAmount')) {
-        const usdtAmt = (tier === 'PRO_ENTERPRISE') ? '$84.99 USDT' : '$29.99 USDT';
-        document.getElementById('binanceAmount').textContent = `${priceFormatted} (~${usdtAmt})`;
+        const usdtAmt = (tier === 'PRO_ENTERPRISE') ? '$83.00 USDT' : '$29.00 USDT';
+        document.getElementById('binanceAmount').textContent = `${bdtFormatted} (~${usdtAmt})`;
       }
 
       let title = 'Pro Lifetime License (3 Devices)';
@@ -2702,34 +2858,34 @@
       activeCurrency = curr;
       const bdtBtn = document.getElementById('currencyBdtBtn');
       const usdBtn = document.getElementById('currencyUsdBtn');
-      const proDisplay = document.getElementById('proPriceDisplay');
-      const proSub = document.getElementById('proPriceSub');
+      const proBdt = document.getElementById('proPriceBdt');
+      const proUsd = document.getElementById('proPriceUsd');
+      const fleetBdt = document.getElementById('fleetPriceBdt');
+      const fleetUsd = document.getElementById('fleetPriceUsd');
       const proBuyText = document.getElementById('proBuyBtnText');
-      const fleetDisplay = document.getElementById('fleetPriceDisplay');
-      const fleetSub = document.getElementById('fleetPriceSub');
       const fleetBuyText = document.getElementById('fleetBuyBtnText');
       const mobileBuyText = document.getElementById('mobileBarBuyText');
 
       if (curr === 'USD') {
         if (bdtBtn) bdtBtn.className = 'px-4 py-1.5 rounded-full text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all flex items-center gap-1.5';
         if (usdBtn) usdBtn.className = 'px-4 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-neutral-800 text-apple-black dark:text-white shadow-sm transition-all flex items-center gap-1.5';
-        if (proDisplay) proDisplay.textContent = '$29';
-        if (proSub) proSub.textContent = 'one-time payment • ~৳3,490 BDT';
-        if (proBuyText) proBuyText.textContent = 'Buy Pro Lifetime — $29';
-        if (fleetDisplay) fleetDisplay.textContent = '$83';
-        if (fleetSub) fleetSub.textContent = 'one-time payment • ~৳9,990 BDT';
-        if (fleetBuyText) fleetBuyText.textContent = 'Deploy Fleet License — $83';
-        if (mobileBuyText) mobileBuyText.textContent = 'Buy Pro ($29)';
+        if (proUsd) proUsd.className = 'text-3xl sm:text-4xl font-bold text-apple-blue font-mono';
+        if (proBdt) proBdt.className = 'text-2xl sm:text-3xl font-semibold text-apple-grayText font-mono';
+        if (fleetUsd) fleetUsd.className = 'text-2xl sm:text-3xl font-bold text-apple-blue font-mono';
+        if (fleetBdt) fleetBdt.className = 'text-xl sm:text-2xl font-semibold text-apple-grayText font-mono';
+        if (proBuyText) proBuyText.textContent = 'Buy Pro Lifetime — $29 USD (৳3,490)';
+        if (fleetBuyText) fleetBuyText.textContent = 'Deploy Fleet License — $83 USD (৳9,990)';
+        if (mobileBuyText) mobileBuyText.textContent = 'Buy Pro ($29 / ৳3,490)';
       } else {
         if (bdtBtn) bdtBtn.className = 'px-4 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-neutral-800 text-apple-black dark:text-white shadow-sm transition-all flex items-center gap-1.5';
         if (usdBtn) usdBtn.className = 'px-4 py-1.5 rounded-full text-xs font-medium text-apple-grayText hover:text-apple-black dark:hover:text-white transition-all flex items-center gap-1.5';
-        if (proDisplay) proDisplay.textContent = '৳3,490';
-        if (proSub) proSub.textContent = 'one-time payment • ~$29 USD';
-        if (proBuyText) proBuyText.textContent = 'Buy Pro Lifetime — ৳3,490';
-        if (fleetDisplay) fleetDisplay.textContent = '৳9,990';
-        if (fleetSub) fleetSub.textContent = 'one-time payment • ~$83 USD';
-        if (fleetBuyText) fleetBuyText.textContent = 'Deploy Fleet License — ৳9,990';
-        if (mobileBuyText) mobileBuyText.textContent = 'Buy Pro (৳3,490)';
+        if (proBdt) proBdt.className = 'text-4xl sm:text-5xl font-bold text-apple-black dark:text-white font-mono';
+        if (proUsd) proUsd.className = 'text-xl sm:text-2xl font-bold text-apple-blue font-mono';
+        if (fleetBdt) fleetBdt.className = 'text-3xl sm:text-4xl font-bold text-apple-black dark:text-white font-mono';
+        if (fleetUsd) fleetUsd.className = 'text-lg sm:text-xl font-bold text-apple-grayText font-mono';
+        if (proBuyText) proBuyText.textContent = 'Buy Pro Lifetime — ৳3,490 / $29 USD';
+        if (fleetBuyText) fleetBuyText.textContent = 'Deploy Fleet License — ৳9,990 / $83 USD';
+        if (mobileBuyText) mobileBuyText.textContent = 'Buy Pro (৳3,490 / $29)';
       }
     }
     function handleProCheckoutClick() {
