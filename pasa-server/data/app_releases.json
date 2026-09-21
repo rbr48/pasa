@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 25,
+    "versionName": "3.2.0",
+    "releaseDate": "2026-09-21",
+    "fileName": "pasa-v3.2.0-25.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.2.0-25.apk",
+    "sha256": "2de7534a1c9e407f789077666effc68a859806a0a7eb62778731253838604ac9",
+    "size": 19035443,
+    "mandatory": false,
+    "releaseNotes": "v3.2.0: Major Surveillance & Stability Suite: Near-live video streaming via Telegram bot (/livestream, /stopstream); SIM change surveillance with automatic device IMEI and line number capture; Global crash auto-recovery; Screen recording memory safety & batch encoding; Hardened Fake Shutdown Lock Task enforcement and reboot resilience."
+  },
+  {
     "versionCode": 16,
     "versionName": "3.1.0",
     "releaseDate": "2026-09-20",

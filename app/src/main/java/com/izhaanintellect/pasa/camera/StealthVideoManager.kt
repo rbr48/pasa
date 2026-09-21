@@ -45,11 +45,11 @@ class StealthVideoManager @Inject constructor(
         return try {
             suspendCancellableCoroutine { continuation ->
                 val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+                var lifecycleOwner: ServiceLifecycleOwner? = null
+                var cameraProvider: ProcessCameraProvider? = null
+                var activeRecording: Recording? = null
 
                 cameraProviderFuture.addListener({
-                    var lifecycleOwner: ServiceLifecycleOwner? = null
-                    var cameraProvider: ProcessCameraProvider? = null
-
                     try {
                         cameraProvider = cameraProviderFuture.get()
                         lifecycleOwner = ServiceLifecycleOwner()
@@ -60,7 +60,7 @@ class StealthVideoManager @Inject constructor(
                             CameraSelector.DEFAULT_BACK_CAMERA
                         }
 
-                        if (!cameraProvider.hasCamera(cameraSelector)) {
+                        if (!cameraProvider!!.hasCamera(cameraSelector)) {
                             Log.e(TAG, "Device lacks requested camera (front=$useFrontCamera)")
                             isRecording.set(false)
                             continuation.resume(null)
@@ -76,10 +76,10 @@ class StealthVideoManager @Inject constructor(
                             .build()
                         val videoCapture = VideoCapture.withOutput(recorder)
 
-                        cameraProvider.unbindAll()
-                        lifecycleOwner.start()
-                        cameraProvider.bindToLifecycle(
-                            lifecycleOwner,
+                        cameraProvider!!.unbindAll()
+                        lifecycleOwner!!.start()
+                        cameraProvider!!.bindToLifecycle(
+                            lifecycleOwner!!,
                             cameraSelector,
                             videoCapture
                         )
@@ -94,7 +94,6 @@ class StealthVideoManager @Inject constructor(
                             recordingBuilder.withAudioEnabled()
                         }
 
-                        var activeRecording: Recording? = null
                         var stopJob: Job? = null
 
                         activeRecording = recordingBuilder.start(ContextCompat.getMainExecutor(context)) { event ->
@@ -131,6 +130,16 @@ class StealthVideoManager @Inject constructor(
 
                 continuation.invokeOnCancellation {
                     isRecording.set(false)
+                    try {
+                        activeRecording?.stop()
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Error stopping recording on cancellation: ${e.message}")
+                    }
+                    try {
+                        cleanup(lifecycleOwner, cameraProvider)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Error cleaning up camera on cancellation: ${e.message}")
+                    }
                 }
             }
         } catch (e: Exception) {

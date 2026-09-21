@@ -9,6 +9,17 @@ import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
+import android.os.SystemClock
+import java.io.File
+import java.io.PrintWriter
+import java.io.StringWriter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 /**
  * PASA Application class.
  * Initializes Hilt dependency injection, notification channels,
@@ -34,6 +45,27 @@ class PasaApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         Log.i(TAG, "PASA Sentinel (Private Android Security Agent) starting up...")
+        
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            try {
+                val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
+                val crashFile = File(filesDir, "crash_log.txt")
+                val sw = StringWriter()
+                throwable.printStackTrace(PrintWriter(sw))
+                crashFile.appendText("[$timestamp] Thread: ${thread.name}\n${sw.toString()}\n\n")
+
+                val intent = Intent(this, com.izhaanintellect.pasa.service.PasaService::class.java)
+                val pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+                val alarmManager = getSystemService(AlarmManager::class.java)
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 3000, pendingIntent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in UncaughtExceptionHandler", e)
+            } finally {
+                defaultHandler?.uncaughtException(thread, throwable)
+            }
+        }
+        
         createNotificationChannels()
 
         if (preferencesManager.isSetupComplete) {

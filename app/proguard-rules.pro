@@ -33,6 +33,7 @@
 }
 
 -keep class com.izhaanintellect.pasa.data.** { *; }
+-keep class com.izhaanintellect.pasa.commands.** { *; }
 -keep class com.izhaanintellect.pasa.admin.PasaDeviceAdmin { *; }
 
 # Crypto & Command Signing (Nimbus JOSE + Google Tink)

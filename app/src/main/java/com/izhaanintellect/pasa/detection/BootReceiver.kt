@@ -49,6 +49,39 @@ class BootReceiver : BroadcastReceiver() {
                 Log.i(TAG, "PASA configured — launching PasaService")
                 PasaService.start(context)
                 
+                // Re-apply Device Owner policies after boot
+                try {
+                    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+                    val component = android.content.ComponentName(context, com.izhaanintellect.pasa.admin.PasaDeviceAdmin::class.java)
+                    if (dpm?.isDeviceOwnerApp(context.packageName) == true) {
+                        dpm.setLockTaskPackages(component, arrayOf(context.packageName))
+                        dpm.setStatusBarDisabled(component, true)
+                        Log.i(TAG, "Device Owner policies re-applied after boot")
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not re-apply Device Owner policies: ${e.message}")
+                }
+
+                // Re-activate fake shutdown if it was active before reboot
+                if (preferencesManager.isFakeShutdownActive) {
+                    Log.i(TAG, "Fake shutdown was active before reboot — re-activating")
+                    try {
+                        val fakeIntent = com.izhaanintellect.pasa.ui.FakeShutdownActivity.createIntent(context)
+                        com.izhaanintellect.pasa.util.SecurityActivityLauncher.launch(
+                            context = context,
+                            intent = fakeIntent,
+                            notificationId = 2003,
+                            notificationTitle = "System Power Management",
+                            notificationText = "Display standby protocol active",
+                            wakeScreen = true,
+                            ongoing = true,
+                            silentNotification = true
+                        )
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Could not re-activate fake shutdown after boot: ${e.message}")
+                    }
+                }
+                
                 // Keep device protected storage in sync for future reboots
                 val deviceContext = context.createDeviceProtectedStorageContext()
                 deviceContext.getSharedPreferences("pasa_direct_boot", Context.MODE_PRIVATE)

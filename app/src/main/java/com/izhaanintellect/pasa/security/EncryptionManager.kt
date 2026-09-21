@@ -25,6 +25,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class EncryptionManager @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
     private val preferencesManager: PreferencesManager
 ) {
     companion object {
@@ -50,7 +51,13 @@ class EncryptionManager @Inject constructor(
                 val decoded = Base64.decode(existingEncrypted, Base64.NO_WRAP)
                 return decrypt(decoded, DB_KEY_ALIAS)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to decrypt existing DB passphrase, regenerating", e)
+                Log.e(TAG, "Database key recovery failed, resetting database", e)
+                val dbFile = context.getDatabasePath("pasa_secure_db")
+                if (dbFile.exists()) {
+                    dbFile.delete()
+                    File(dbFile.absolutePath + "-shm").delete()
+                    File(dbFile.absolutePath + "-wal").delete()
+                }
             }
         }
 
@@ -193,16 +200,59 @@ class EncryptionManager @Inject constructor(
         return true
     }
 
+    fun decryptEvidenceVaultToStream(file: File): java.io.InputStream {
+        val fis = FileInputStream(file)
+        val headerCheck = ByteArray(VAULT_HEADER.size)
+        fis.read(headerCheck)
+        val hasVaultHeader = headerCheck.contentEquals(VAULT_HEADER)
+        val iv = ByteArray(GCM_IV_LENGTH)
+        if (!hasVaultHeader) {
+            System.arraycopy(headerCheck, 0, iv, 0, headerCheck.size.coerceAtMost(GCM_IV_LENGTH))
+            val remainingIv = GCM_IV_LENGTH - headerCheck.size
+            if (remainingIv > 0) fis.read(iv, headerCheck.size, remainingIv)
+        } else {
+            fis.read(iv)
+        }
+        val cipher = Cipher.getInstance(AES_GCM_NO_PADDING)
+        cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(DEFAULT_ALIAS), GCMParameterSpec(GCM_TAG_LENGTH, iv))
+        return CipherInputStream(fis, cipher)
+    }
+
     fun encryptFile(inputFile: File, outputFile: File) {
-        val data = FileInputStream(inputFile).use { it.readBytes() }
-        val encrypted = encrypt(data)
-        FileOutputStream(outputFile).use { it.write(encrypted) }
+        val key = getOrCreateKey(DEFAULT_ALIAS)
+        val cipher = Cipher.getInstance(AES_GCM_NO_PADDING)
+        cipher.init(Cipher.ENCRYPT_MODE, key)
+        FileOutputStream(outputFile).use { fos ->
+            fos.write(cipher.iv)
+            FileInputStream(inputFile).use { input ->
+                CipherOutputStream(fos, cipher).use { output ->
+                    val buffer = ByteArray(8192)
+                    var bytesRead: Int
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                    }
+                }
+            }
+        }
     }
 
     fun decryptFile(inputFile: File, outputFile: File) {
-        val data = FileInputStream(inputFile).use { it.readBytes() }
-        val decrypted = decrypt(data)
-        FileOutputStream(outputFile).use { it.write(decrypted) }
+        FileInputStream(inputFile).use { input ->
+            val iv = ByteArray(GCM_IV_LENGTH)
+            input.read(iv)
+            val key = getOrCreateKey(DEFAULT_ALIAS)
+            val cipher = Cipher.getInstance(AES_GCM_NO_PADDING)
+            cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(GCM_TAG_LENGTH, iv))
+            FileOutputStream(outputFile).use { fos ->
+                CipherInputStream(input, cipher).use { cis ->
+                    val buffer = ByteArray(8192)
+                    var bytesRead: Int
+                    while (cis.read(buffer).also { bytesRead = it } != -1) {
+                        fos.write(buffer, 0, bytesRead)
+                    }
+                }
+            }
+        }
     }
 
     private fun getOrCreateKey(alias: String): SecretKey {

@@ -92,22 +92,33 @@ class ScreenRecordCommand @Inject constructor(
         val totalFramesTarget = (durationSeconds * fps).coerceIn(4, 40)
         val intervalMs = (1000L / fps)
 
+        val batchSize = 5
         val frames = mutableListOf<Bitmap>()
+        var processedCount = 0
         val startTime = System.currentTimeMillis()
         val endTime = startTime + (durationSeconds * 1000L)
 
         Log.i(TAG, "Capturing up to $totalFramesTarget frames over ${durationSeconds}s via Accessibility")
 
-        while (System.currentTimeMillis() < endTime && frames.size < totalFramesTarget) {
-            val shotFile = screenshotManager.captureScreenshot()
-            if (shotFile != null && shotFile.exists() && shotFile.length() > 0) {
-                val bmp = BitmapFactory.decodeFile(shotFile.absolutePath)
-                if (bmp != null) {
-                    frames.add(bmp)
+        try {
+            while (System.currentTimeMillis() < endTime && processedCount < totalFramesTarget) {
+                val batch = mutableListOf<Bitmap>()
+                // Collect up to batchSize frames
+                repeat(batchSize.coerceAtMost(totalFramesTarget - processedCount)) {
+                    if (System.currentTimeMillis() >= endTime) return@repeat
+                    val shotFile = screenshotManager.captureScreenshot()
+                    if (shotFile != null && shotFile.exists() && shotFile.length() > 0) {
+                        val bmp = BitmapFactory.decodeFile(shotFile.absolutePath)
+                        if (bmp != null) batch.add(bmp)
+                    }
+                    try { shotFile?.delete() } catch (_: Throwable) {}
+                    delay(intervalMs)
                 }
-                try { shotFile.delete() } catch (_: Exception) {}
+                frames.addAll(batch)
+                processedCount += batch.size
             }
-            delay(intervalMs)
+        } catch (e: Throwable) {
+            Log.e(TAG, "Error capturing frames (possibly OOM)", e)
         }
 
         if (frames.isEmpty()) {
@@ -161,12 +172,7 @@ class ScreenRecordCommand @Inject constructor(
     }
 
     private fun isDeviceOwner(): Boolean {
-        return try {
-            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
-            dpm?.isDeviceOwnerApp(context.packageName) ?: false
-        } catch (e: Exception) {
-            Log.e(TAG, "Error checking Device Owner status", e)
-            false
-        }
+        // Only attempt hardware screenrecord if process has shell or root UID
+        return android.os.Process.myUid() == 2000 /* SHELL_UID */ || android.os.Process.myUid() == 0 /* ROOT */
     }
 }

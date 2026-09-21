@@ -210,6 +210,7 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
         val api = entryPoint.telegramApi()
 
         if (prefs.isConfigured()) {
+            val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     api.sendMessage(
@@ -223,6 +224,8 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                     )
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to send admin enabled alert", e)
+                } finally {
+                    pendingResult.finish()
                 }
             }
         }
@@ -237,6 +240,7 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
         val api = entryPoint.telegramApi()
 
         if (prefs.isConfigured()) {
+            val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     api.sendMessage(
@@ -250,6 +254,8 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                     )
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to send admin disabled alert", e)
+                } finally {
+                    pendingResult.finish()
                 }
             }
         }
@@ -262,8 +268,13 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
         val entryPoint = getEntryPoint(context)
         val detector = entryPoint.failedUnlockDetector()
 
+        val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
-            detector.onFailedAttempt()
+            try {
+                detector.onFailedAttempt()
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 

@@ -151,6 +151,20 @@ class PasaService : LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val userManager = getSystemService(Context.USER_SERVICE) as? android.os.UserManager
+        if (userManager != null && !userManager.isUserUnlocked) {
+            Log.w(TAG, "Device is in Direct Boot mode (pre-first-unlock). Deferring full init.")
+            val filter = android.content.IntentFilter(Intent.ACTION_USER_UNLOCKED)
+            registerReceiver(object : android.content.BroadcastReceiver() {
+                override fun onReceive(ctx: Context, broadcastIntent: Intent) {
+                    Log.i(TAG, "User unlocked! Initializing full PASA services.")
+                    unregisterReceiver(this)
+                    start(ctx)
+                }
+            }, filter)
+            return START_STICKY
+        }
+
         super.onStartCommand(intent, flags, startId)
         serviceRef = java.lang.ref.WeakReference(this)
         Log.i(TAG, "PasaService started")
@@ -181,11 +195,21 @@ class PasaService : LifecycleService() {
                 startForeground(NOTIFICATION_ID, notification)
             }
         } catch (e: Exception) {
-            Log.w(TAG, "startForeground initial start failed, falling back: ${e.message}")
-            try {
-                startForeground(NOTIFICATION_ID, notification)
-            } catch (e2: Exception) {
-                Log.e(TAG, "Fallback attempt to start foreground service failed", e2)
+            if (Build.VERSION.SDK_INT >= 34 && e.javaClass.simpleName == "ForegroundServiceStartNotAllowedException") {
+                Log.w(TAG, "FGS start blocked, scheduling retry via AlarmManager")
+                val retryIntent = Intent(this, PasaService::class.java)
+                val pi = PendingIntent.getService(this, 0, retryIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                val am = getSystemService(AlarmManager::class.java)
+                am?.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    android.os.SystemClock.elapsedRealtime() + 5000, pi)
+            } else {
+                Log.w(TAG, "startForeground initial start failed, falling back: ${e.message}")
+                try {
+                    startForeground(NOTIFICATION_ID, notification)
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Fallback attempt to start foreground service failed", e2)
+                }
             }
         }
 

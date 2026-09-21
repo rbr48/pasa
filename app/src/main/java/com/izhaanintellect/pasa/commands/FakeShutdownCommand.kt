@@ -66,6 +66,20 @@ class FakeShutdownCommand @Inject constructor(
         preferencesManager.isFakeShutdownActive = true
 
         try {
+            // Ensure Lock Task mode is configured before blackout (critical for power button suppression)
+            try {
+                val dpm = context.getSystemService(android.content.Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+                val component = android.content.ComponentName(context, com.izhaanintellect.pasa.admin.PasaDeviceAdmin::class.java)
+                if (dpm?.isDeviceOwnerApp(context.packageName) == true) {
+                    dpm.setLockTaskPackages(component, arrayOf(context.packageName))
+                    dpm.setLockTaskFeatures(component, android.app.admin.DevicePolicyManager.LOCK_TASK_FEATURE_NONE)
+                    dpm.setStatusBarDisabled(component, true)
+                    Log.i(TAG, "Lock Task mode re-applied for fake shutdown")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not configure Lock Task mode: ${e.message}")
+            }
+
             val intent = FakeShutdownActivity.createIntent(context)
             SecurityActivityLauncher.launch(
                 context = context,

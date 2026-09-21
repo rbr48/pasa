@@ -86,9 +86,11 @@ object ScreenVideoEncoder {
                 while (true) {
                     val outIndex = codec.dequeueOutputBuffer(bufferInfo, 2000L)
                     if (outIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                        trackIndex = muxer.addTrack(codec.outputFormat)
-                        muxer.start()
-                        muxerStarted = true
+                        if (!muxerStarted) {
+                            trackIndex = muxer.addTrack(codec.outputFormat)
+                            muxer.start()
+                            muxerStarted = true
+                        }
                     } else if (outIndex >= 0) {
                         val encodedData = codec.getOutputBuffer(outIndex)
                         if (encodedData != null && bufferInfo.size > 0 && muxerStarted) {

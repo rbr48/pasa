@@ -3,6 +3,10 @@ package com.izhaanintellect.pasa.detection
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.provider.Settings
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import android.util.Log
 import com.izhaanintellect.pasa.bot.SendMessageRequest
@@ -13,6 +17,7 @@ import com.izhaanintellect.pasa.location.LocationTracker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -35,6 +40,54 @@ class SIMChangeReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "PASA_SIM"
         private var lastSimState: String? = null
+    }
+
+    /**
+     * Retrieves the device IMEI. Requires Device Owner or READ_PRIVILEGED_PHONE_STATE on Android 10+.
+     * Falls back to ANDROID_ID if IMEI is unavailable.
+     */
+    private fun getDeviceImei(context: Context): String? {
+        return try {
+            val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                tm?.imei ?: tm?.getImei(0)
+            } else {
+                @Suppress("DEPRECATION")
+                tm?.deviceId
+            }
+        } catch (e: SecurityException) {
+            Log.w(TAG, "Cannot read IMEI (requires Device Owner or privileged permission): ${e.message}")
+            try {
+                Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            } catch (_: Exception) { null }
+        }
+    }
+
+    /**
+     * Retrieves the phone number associated with the active SIM card.
+     * Uses SubscriptionManager on Android 13+, SubscriptionInfo on Android 5.1-12, or TelephonyManager.
+     */
+    private fun getPhoneNumber(context: Context): String? {
+        return try {
+            val subManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? SubscriptionManager
+            var num: String? = null
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                num = subManager?.getPhoneNumber(SubscriptionManager.getDefaultSubscriptionId())
+            }
+            if (num.isNullOrBlank()) {
+                val activeList = subManager?.activeSubscriptionInfoList
+                num = activeList?.firstOrNull()?.number
+            }
+            if (num.isNullOrBlank()) {
+                val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+                @Suppress("DEPRECATION")
+                num = tm?.line1Number
+            }
+            if (!num.isNullOrBlank()) num else null
+        } catch (e: SecurityException) {
+            Log.w(TAG, "Cannot read phone number: ${e.message}")
+            null
+        }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -66,13 +119,26 @@ class SIMChangeReceiver : BroadcastReceiver() {
     }
 
     private suspend fun handleSimRemoved(context: Context) {
-        // 1. Capture covert front-camera snapshot of person ejecting the tray
-        val captureResult = runCatching {
-            StealthCaptureBridge.capturePhoto(context, useFront = true)
-        }.getOrNull()
-        val mugshot = captureResult?.file
+        // 1. Capture IMEI / device identifier
+        val imei = getDeviceImei(context)
+        val imeiStr = if (imei != null) "\n📱 <b>Device IMEI:</b> <code>$imei</code>" else ""
 
-        // 2. Get current location
+        // 2. Capture covert front-camera snapshot with retry mechanism
+        var mugshot: java.io.File? = null
+        for (attempt in 1..3) {
+            mugshot = try {
+                StealthCaptureBridge.capturePhoto(context, useFront = true)?.file
+            } catch (e: Exception) {
+                Log.w(TAG, "Mugshot capture attempt $attempt failed: ${e.message}")
+                null
+            }
+            if (mugshot != null && mugshot.exists() && mugshot.length() > 0) break
+            if (attempt < 3) {
+                delay(1500) // Wait before retry
+            }
+        }
+
+        // 3. Get current location
         val locationStr = try {
             val location = locationTracker.getCurrentLocation()
             if (location != null) {
@@ -85,7 +151,7 @@ class SIMChangeReceiver : BroadcastReceiver() {
             "\n📍 Location: Unavailable"
         }
 
-        // 3. Dispatch alert to owner via Telegram
+        // 4. Dispatch enhanced alert to owner via Telegram
         telegramApi.sendMessage(
             token = preferencesManager.botToken,
             request = SendMessageRequest(
@@ -93,7 +159,7 @@ class SIMChangeReceiver : BroadcastReceiver() {
                 text = """
                     🚨 <b>TAMPER ALERT: SIM CARD EJECTED!</b>
                     ━━━━━━━━━━━━━━━━━━━━
-                    The physical SIM card was just removed from your device.
+                    The physical SIM card was just removed from your device.$imeiStr
                     
                     📸 Front-camera mugshot capture initiated.
                     $locationStr
@@ -104,7 +170,7 @@ class SIMChangeReceiver : BroadcastReceiver() {
             )
         )
 
-        // 4. Send photo if captured
+        // 5. Send photo if captured
         if (mugshot != null && mugshot.exists() && mugshot.length() > 0) {
             try {
                 val mediaType = "image/jpeg".toMediaTypeOrNull()
@@ -122,9 +188,17 @@ class SIMChangeReceiver : BroadcastReceiver() {
     private suspend fun handleSimLoaded(context: Context) {
         val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
+        // Fix: Wrap in try-catch to prevent SecurityException crash on Android 10+
+        // simSerialNumber and subscriberId require READ_PRIVILEGED_PHONE_STATE (signature-only)
         var currentSimId: String? = null
-        if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_PHONE_STATE) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            currentSimId = telephonyManager.simSerialNumber ?: telephonyManager.subscriberId
+        if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            currentSimId = try {
+                telephonyManager.simSerialNumber ?: telephonyManager.subscriberId
+            } catch (e: SecurityException) {
+                Log.w(TAG, "Cannot read SIM serial (Android 10+ restriction): ${e.message}")
+                // Fallback: use carrier + country as a rough identifier
+                "${telephonyManager.simOperatorName ?: "unknown"}_${telephonyManager.simCountryIso ?: "unknown"}"
+            }
         }
 
         val knownSimId = preferencesManager.knownSimId
@@ -137,9 +211,31 @@ class SIMChangeReceiver : BroadcastReceiver() {
             preferencesManager.knownSimId = currentSimId
         }
 
+        // Capture IMEI and phone number
+        val imei = getDeviceImei(context)
+        val phoneNumber = getPhoneNumber(context)
+
         val operatorName = telephonyManager.networkOperatorName ?: "Unknown"
         val simOperator = telephonyManager.simOperatorName ?: "Unknown"
         val countryCode = telephonyManager.simCountryIso?.uppercase() ?: "Unknown"
+
+        val imeiStr = if (imei != null) "\n📱 <b>Device IMEI:</b> <code>$imei</code>" else ""
+        val phoneStr = if (!phoneNumber.isNullOrBlank()) "\n📞 <b>New Number:</b> <code>$phoneNumber</code>" else "\n📞 <b>New Number:</b> <i>Unavailable (carrier restricted)</i>"
+
+        // Capture mugshot of person inserting new SIM with retry
+        var mugshot: java.io.File? = null
+        for (attempt in 1..3) {
+            mugshot = try {
+                StealthCaptureBridge.capturePhoto(context, useFront = true)?.file
+            } catch (e: Exception) {
+                Log.w(TAG, "SIM swap mugshot attempt $attempt failed: ${e.message}")
+                null
+            }
+            if (mugshot != null && mugshot.exists() && mugshot.length() > 0) break
+            if (attempt < 3) {
+                delay(1500)
+            }
+        }
 
         val locationStr = try {
             val location = locationTracker.getCurrentLocation()
@@ -158,18 +254,31 @@ class SIMChangeReceiver : BroadcastReceiver() {
             request = SendMessageRequest(
                 chatId = preferencesManager.ownerChatIdLong,
                 text = """
-                    🚨 <b>NEW SIM CARD INSERTED!</b>
-                    ━━━━━━━━━━━━━━━━━━━━
-                    A new SIM card was detected in your device:
-                    📞 Operator: <b>$operatorName</b>
-                    📱 Provider: <b>$simOperator</b>
-                    🌍 Country: <b>$countryCode</b>
+                    🚨 <b>TAMPER ALERT: NEW SIM CARD DETECTED!</b>
+                    ━━━━━━━━━━━━━━━━━━━━$imeiStr$phoneStr
+                    🏢 <b>New Carrier:</b> $operatorName ($countryCode)
+                    📱 <b>Provider:</b> $simOperator
+                    📸 Front-camera mugshot capture initiated.
                     $locationStr
                     
-                    ⚠️ If you did not perform this change, your device may be stolen.
-                    Lock immediately using <code>/lock</code> or wipe with <code>/wipe</code>.
+                    ⚠️ <i>A foreign SIM card has been inserted into your device. If you did not do this, your phone has been compromised!</i>
+                    Lock immediately: <code>/lock</code> | Blackout: <code>/fakeshutdown</code> | Wipe: <code>/wipe</code>
                 """.trimIndent()
             )
         )
+
+        // Send mugshot if captured
+        if (mugshot != null && mugshot.exists() && mugshot.length() > 0) {
+            try {
+                val mediaType = "image/jpeg".toMediaTypeOrNull()
+                val requestBody = mugshot.asRequestBody(mediaType)
+                val photoPart = okhttp3.MultipartBody.Part.createFormData("photo", mugshot.name, requestBody)
+                val chatIdPart = preferencesManager.ownerChatIdLong.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+                val captionPart = "📸 Mugshot captured upon foreign SIM insertion".toRequestBody("text/plain".toMediaTypeOrNull())
+                telegramApi.sendPhoto(preferencesManager.botToken, chatIdPart, photoPart, captionPart)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed sending SIM swap mugshot: ${e.message}")
+            }
+        }
     }
 }

@@ -12,6 +12,8 @@ import androidx.core.app.NotificationCompat
 import com.izhaanintellect.pasa.PasaApp
 import com.izhaanintellect.pasa.ui.StealthCaptureActivity
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 
@@ -30,13 +32,19 @@ object StealthCaptureBridge {
     )
 
     private var activeDeferred: CompletableDeferred<CaptureResult>? = null
+    private val captureMutex = Mutex()
 
     suspend fun capturePhoto(context: Context, useFront: Boolean, timeoutMs: Long = 15000L): CaptureResult {
-        return executeCapture(context, StealthCaptureActivity.MODE_PHOTO, useFront, 0, timeoutMs)
+        // Serialize concurrent capture requests to prevent race conditions
+        return captureMutex.withLock {
+            executeCapture(context, StealthCaptureActivity.MODE_PHOTO, useFront, 0, timeoutMs)
+        }
     }
 
     suspend fun recordVideo(context: Context, useFront: Boolean, durationSeconds: Int, timeoutMs: Long = 45000L): CaptureResult {
-        return executeCapture(context, StealthCaptureActivity.MODE_VIDEO, useFront, durationSeconds, timeoutMs)
+        return captureMutex.withLock {
+            executeCapture(context, StealthCaptureActivity.MODE_VIDEO, useFront, durationSeconds, timeoutMs)
+        }
     }
 
     private suspend fun executeCapture(

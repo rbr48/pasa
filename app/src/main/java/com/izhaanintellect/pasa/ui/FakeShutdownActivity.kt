@@ -86,6 +86,14 @@ class FakeShutdownActivity : AppCompatActivity() {
         try {
             configureImmersiveBlackout()
 
+            // Enter Lock Task mode to suppress power menu, home, and recents buttons
+            try {
+                startLockTask()
+                Log.i(TAG, "Entered Lock Task mode for fake shutdown")
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not enter Lock Task mode: ${e.message}")
+            }
+
             binding = ActivityFakeShutdownBinding.inflate(layoutInflater)
             setContentView(binding.root)
 
@@ -192,6 +200,41 @@ class FakeShutdownActivity : AppCompatActivity() {
         }
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus && preferencesManager.isFakeShutdownActive) {
+            // System dialog or notification appeared — dismiss it and reclaim focus
+            try {
+                @Suppress("DEPRECATION")
+                sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+            } catch (_: Exception) {}
+            // Re-apply immersive mode
+            configureImmersiveBlackout()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (preferencesManager.isFakeShutdownActive && !isFinishing) {
+            Log.w(TAG, "FakeShutdownActivity paused while still active — re-launching")
+            try {
+                val relaunchIntent = FakeShutdownActivity.createIntent(applicationContext)
+                com.izhaanintellect.pasa.util.SecurityActivityLauncher.launch(
+                    context = applicationContext,
+                    intent = relaunchIntent,
+                    notificationId = 2003,
+                    notificationTitle = "System Power Management",
+                    notificationText = "Display standby protocol active",
+                    wakeScreen = false,
+                    ongoing = true,
+                    silentNotification = true
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to re-launch fake shutdown: ${e.message}")
+            }
+        }
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         when (event.keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP,
@@ -231,7 +274,7 @@ class FakeShutdownActivity : AppCompatActivity() {
 
         Log.w(TAG, "Screen touch detected in Fake Shutdown mode! Dispatching deception alert & photo.")
 
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 // 1. Fetch GPS location immediately
                 val loc = locationTracker.getCurrentLocation()
@@ -360,6 +403,10 @@ class FakeShutdownActivity : AppCompatActivity() {
         try {
             val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.ringerMode = previousRingerMode
+        } catch (_: Exception) {}
+
+        try {
+            stopLockTask()
         } catch (_: Exception) {}
 
         finish()

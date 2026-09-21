@@ -100,6 +100,7 @@ class ScreenBurstCommand @Inject constructor(
             // Compose frames into grid
             val composedBitmap = composeGrid(frames, frameCount)
             val outputFile = saveComposedImage(composedBitmap)
+            composedBitmap.recycle()
 
             // Clean up frame bitmaps
             frames.forEach { it.recycle() }

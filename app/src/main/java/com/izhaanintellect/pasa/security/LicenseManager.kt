@@ -38,7 +38,8 @@ class LicenseManager @Inject constructor(
             "/geofence", "/fence", "/safezone",
             "/screenshot", "/screen",
             "/screen_burst", "/burst",
-            "/screenrecord", "/record_screen"
+            "/screenrecord", "/record_screen",
+            "/livestream", "/live_stream", "/live", "/stream"
         )
 
         /**

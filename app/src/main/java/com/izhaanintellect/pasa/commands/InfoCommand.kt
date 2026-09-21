@@ -56,6 +56,39 @@ class InfoCommand @Inject constructor(
             sb.appendLine("📞 <b>Network Operator:</b> ${tm.networkOperatorName.ifBlank { "N/A" }}")
             sb.appendLine("📱 <b>SIM Operator:</b> ${tm.simOperatorName.ifBlank { "N/A" }}")
             sb.appendLine("🌍 <b>SIM Country ISO:</b> ${tm.simCountryIso.uppercase().ifBlank { "N/A" }}")
+
+            val imei = try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    tm.imei ?: tm.getImei(0)
+                } else {
+                    @Suppress("DEPRECATION") tm.deviceId
+                }
+            } catch (_: SecurityException) {
+                try {
+                    android.provider.Settings.Secure.getString(context.contentResolver, android.provider.Settings.Secure.ANDROID_ID)
+                } catch (_: Exception) { null }
+            }
+            if (!imei.isNullOrBlank()) {
+                sb.appendLine("🆔 <b>IMEI / HWID:</b> <code>$imei</code>")
+            }
+
+            val num = try {
+                val subManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? android.telephony.SubscriptionManager
+                var n: String? = null
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    n = subManager?.getPhoneNumber(android.telephony.SubscriptionManager.getDefaultSubscriptionId())
+                }
+                if (n.isNullOrBlank()) {
+                    n = subManager?.activeSubscriptionInfoList?.firstOrNull()?.number
+                }
+                if (n.isNullOrBlank()) {
+                    @Suppress("DEPRECATION") n = tm.line1Number
+                }
+                n
+            } catch (_: SecurityException) { null }
+            if (!num.isNullOrBlank()) {
+                sb.appendLine("📱 <b>Line Number:</b> <code>$num</code>")
+            }
         } catch (e: Exception) {
             sb.appendLine("📞 <b>Telephony:</b> Restricted")
         }
