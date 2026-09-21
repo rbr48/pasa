@@ -1,33 +1,38 @@
 # 🛡️ PASA Sentinel (Private Android Security Agent)
 
 > **Next-Generation Sovereign Mobile Defense & Covert Anti-Theft Agent for Android (8.0 – 16).**  
-> *Zero Google Play dependencies. Air-gapped cellular SMS fallback. Knox-grade Device Owner permanence. Dual-channel Telegram C2.*
+> *Zero Google Play dependencies. Air-gapped cellular SMS fallback. Knox-grade Device Owner permanence. Dual-channel Telegram C2. Direct-to-Telegram Zero-Storage Architecture.*
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.1.8%20(Build%2024)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
-[![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Telemetry%20Policy-brightgreen.svg)](PRIVACY.md)
+[![Version](https://img.shields.io/badge/Release-v3.2.8%20(Build%2033)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
+[![Zero Storage](https://img.shields.io/badge/Zero%20Storage-Direct--to--Telegram-brightgreen.svg)](PRIVACY.md)
+[![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Cloud%20Telemetry-brightgreen.svg)](PRIVACY.md)
+[![Ed25519 Security](https://img.shields.io/badge/Cryptography-Ed25519%20Offline%20Certificates-blueviolet.svg)](#commercial-licensing--payment-methods)
 [![Terms of Service](https://img.shields.io/badge/Legal-Terms%20of%20Service%20%26%20EULA-blueviolet.svg)](TERMS.md)
-[![7-Day Guarantee](https://img.shields.io/badge/Guarantee-7--Day%20Money%20Back-30D158.svg)](PRIVACY.md#-4-7-day-money-back-guarantee-binance-pay)
-[![Binance Pay](https://img.shields.io/badge/Payments-Binance%20Pay%20Verified-F0B90B.svg)](#commercial-licensing--binance-pay)
+[![Binance Pay](https://img.shields.io/badge/Payments-Binance%20Pay%20Verified-F0B90B.svg)](#commercial-licensing--payment-methods)
+[![bKash](https://img.shields.io/badge/Payments-bKash%20Personal%20Verified-E2136E.svg)](#commercial-licensing--payment-methods)
 
 ---
 
 ## 📑 Table of Contents
 1. [The Problem: Why Google "Find My Device" Fails](#the-problem-why-google-find-my-device-fails)
-2. [Core Defense Architecture](#core-defense-architecture)
-3. [Complete Telegram Bot Setup Guide](#complete-telegram-bot-setup-guide)
+2. [Zero-Storage Architecture (Strategy 1 Sovereign Privacy)](#-zero-storage-architecture-strategy-1-sovereign-privacy)
+3. [Core Defense Capabilities](#-core-defense-capabilities)
+4. [Complete Telegram Bot Setup Guide](#-complete-telegram-bot-setup-guide)
    - [Method 1: Private Dedicated Bot via @BotFather (Recommended)](#method-1-private-dedicated-bot-via-botfather-recommended)
    - [Method 2: Instant Pairing via @Pas_agent_bot](#method-2-instant-pairing-via-pas_agent_bot)
-4. [Enterprise Device Owner & Persistence Setup](#enterprise-device-owner--persistence-setup)
-5. [Telegram C2 Command Glossary](#telegram-c2-command-glossary)
-6. [Offline Air-Gapped SMS Defense](#offline-air-gapped-sms-defense)
-7. [Commercial Licensing & Binance Pay](#commercial-licensing--binance-pay)
-   - [7-Day Money-Back Guarantee](#-7-day-no-questions-asked-money-back-guarantee)
-8. [Building from Source](#building-from-source)
-9. [Release Verification & Integrity](#release-verification--integrity)
-10. [Zero-Telemetry Privacy Policy](PRIVACY.md)
-11. [Terms of Service & EULA (Mandatory)](TERMS.md)
+5. [Enterprise Device Owner & Persistence Setup](#-enterprise-device-owner--persistence-setup)
+6. [Complete Telegram C2 Command Glossary (46 Commands)](#-complete-telegram-c2-command-glossary-46-commands)
+7. [Hardware Escrow Token & Physical Lockscreen Reset](#-hardware-escrow-token--physical-lockscreen-reset)
+8. [Lockscreen Duress PIN & Anti-Coercion Mode](#-lockscreen-duress-pin--anti-coercion-mode)
+9. [Offline Air-Gapped SMS Defense](#-offline-air-gapped-sms-defense)
+10. [Commercial Licensing & Payment Methods](#-commercial-licensing--payment-methods)
+    - [7-Day Money-Back Guarantee](#-7-day-no-questions-asked-money-back-guarantee)
+11. [Building from Source](#-building-from-source)
+12. [Release Verification & Integrity](#-release-verification--integrity)
+13. [Zero-Telemetry Privacy Policy](PRIVACY.md)
+14. [Terms of Service & EULA (Mandatory)](TERMS.md)
 
 ---
 
@@ -38,29 +43,53 @@ When a smartphone is stolen, street thieves act within the first **5 to 10 secon
 1. **They cut the Internet immediately:** Swiping down Quick Settings to enable **Airplane Mode** or ripping out the SIM card. The second Wi-Fi and mobile data drop, Google "Find My Device", Samsung SmartThings, and standard tracker apps go completely blind.
 2. **They power down the phone:** Holding the power button shuts down standard Android devices completely.
 3. **They boot into Safe Mode or Factory Reset:** In Safe Mode, all third-party apps are disabled, allowing the thief to wipe or uninstall standard security apps.
-4. **Subscription creep & Privacy violations:** Most commercial trackers (Life360, Prey, Cerberus) charge **$50–$100/year** on recurrent subscriptions while continuously uploading user location and contacts to corporate clouds.
+4. **Subscription creep & Privacy violations:** Most commercial trackers (Life360, Prey, Cerberus) charge **$50–$100/year** on recurrent subscriptions while continuously hoarding user location, contacts, and personal photos on corporate servers.
 
 ### 🛡️ How PASA Sentinel Solves This:
+* **Direct-to-Telegram Zero-Storage Architecture:** Zero photos, zero GPS tracks, and zero audio recordings are stored on any VPS disk or cloud database. Everything is dispatched directly and exclusively to your private Telegram Bot and immediately memory-shredded on the phone.
 * **Air-Gapped SMS Fallback:** When internet is dead, GSM cellular signal remains connected. A single encrypted SMS command powers up the hardware GPS receiver chip and texts back exact Google Maps coordinates directly from satellites.
-* **Fake Shutdown Deception:** When the thief tries to turn off the phone, PASA presents a spoofed power-down sequence and enters an AMOLED 0-nit black screen mode. The thief thinks the phone is dead, while PASA covertly records ambient audio and streams background GPS beacons.
+* **Fake Shutdown Deception:** When the thief tries to turn off the phone, PASA presents a spoofed power-down animation and enters an AMOLED 0-nit black screen mode. The thief thinks the phone is dead, while PASA covertly records ambient audio, captures intruder mugshots, and streams background GPS beacons.
 * **Autonomous Anti-Snatch Kinetic Lock:** If snatched from your hands (acceleration delta > 2.85G), PASA instantly locks the screen via Device Owner, captures a silent front-camera mugshot of the thief, and blasts a maximum-volume alarm.
-* **Knox-Grade Device Owner:** The Android "Uninstall" button is permanently grayed out. Safe Mode and developer options can be cryptographically disabled.
-* **Zero Big-Tech Telemetry:** All communication is routed strictly between your device, your private Telegram Bot, and your self-hosted control plane.
+* **Knox-Grade Device Owner:** The Android "Uninstall" button is permanently grayed out. Notification pull-down, Safe Mode, and USB debugging can be cryptographically disabled.
+* **Hardware Escrow Token (Android 14–16):** Remotely reset or overwrite the physical lockscreen PIN anytime via `/set_os_pin <new_pin>`.
+* **Zero Big-Tech Telemetry:** All communication is routed strictly between your device and your private Telegram Bot.
 
 ---
 
-## 🏛️ Core Defense Architecture
+## 🔒 Zero-Storage Architecture (Strategy 1 Sovereign Privacy)
+
+Unlike commercial spy apps that store user media on central servers, **PASA Sentinel operates on a strict Zero-Storage Architecture**:
+
+```
+[ Android Device (PASA Agent) ]
+        │
+        ├── 1. Covert Mugshot / Surveillance Video Captured
+        ├── 2. Direct Encrypted Multipart POST via Telegram Bot API
+        │       (https://api.telegram.org/bot<TOKEN>/sendPhoto)
+        │
+        ├── 3. Instant Local Cryptographic Shredding (photoFile.delete())
+        ▼
+[ Private Telegram Chat (Owner Only) ]  <─── Only YOU receive and hold the media!
+```
+
+* **No Evidence on Server Disk:** Surveillance photos, audio wiretaps, video clips, and live streams are transmitted directly to your private Telegram chat.
+* **Transient RAM Buffers Only:** Any C2 command telemetry relay uses ephemeral in-memory buffers (Multer `memoryStorage`), never touching a physical hard drive.
+* **Zero Location Logs:** The VPS database stores no GPS breadcrumbs or location history. GPS coordinates are sent straight to your Telegram message stream.
+
+---
+
+## 🏛️ Core Defense Capabilities
 
 ```
                                 +-----------------------------------+
                                 |     Owner C2 Terminal (Telegram)  |
                                 +-----------------+-----------------+
                                                   |
-                         Dual-Channel C2          | HTTPS Poll / Webhook
+                         Dual-Channel C2          | Direct Telegram HTTPS / Webhook
                          Failover Protocol        v
 +------------------+          Encrypted   +-------+-------+          Encrypted   +--------------------+
 |  GSM Radio Tower |<====== Cellular PDU =| PASA Sentinel |<====== HTTPS Payload =| PASA Control Plane |
-+--------+---------+         (Offline)    | Android Agent |          (Online)    |  (VPS / Node.js)   |
++--------+---------+         (Offline)    | Android Agent |          (Ephemeral) |  (VPS / Node.js)   |
          |                                +-------+-------+                      +--------------------+
          | Emergency SMS                          |
          v                                        +---> Covert Camera2 (No Viewfinder / Screen Off)
@@ -68,6 +97,7 @@ When a smartphone is stolen, street thieves act within the first **5 to 10 secon
 |  Emergency Phone |                              +---> Hardware GNSS Direct Satellite Lock
 +------------------+                              +---> G-Force Sensor (Anti-Snatch Delta Detector)
                                                   +---> AMOLED 0-Nit Fake Shutdown Canvas
+                                                  +---> Hardware Escrow Token Keyguard Arming
 ```
 
 ---
@@ -80,7 +110,7 @@ PASA Sentinel uses Telegram as its primary Command and Control (C2) console. You
 
 ### Method 1: Private Dedicated Bot via @BotFather (Recommended)
 
-Running your own private bot means only you have the credentials, with zero shared traffic.
+Running your own private bot means only you possess the bot token, ensuring complete zero-trust privacy.
 
 #### Step 1: Create your bot in Telegram
 1. Open Telegram and search for the official **`@BotFather`** ([https://t.me/BotFather](https://t.me/BotFather)).
@@ -101,15 +131,15 @@ Running your own private bot means only you have the credentials, with zero shar
 PASA only accepts commands from **your specific Telegram account** so no stranger can command your phone.
 1. Open Telegram and search for **`@userinfobot`** ([https://t.me/userinfobot](https://t.me/userinfobot)).
 2. Tap **Start**.
-3. It will reply with your profile info. Copy your **`Id`** (a number such as `123456789`).
+3. It will reply with your profile info. Copy your **`Id`** (a numeric string such as `5497803807`).
 
 #### Step 3: Connect your Phone in the PASA App
-1. Download and open **PASA Sentinel** on your Android phone.
+1. Download and install **PASA Sentinel** on your Android phone.
 2. In the setup wizard:
    * **Telegram Bot Token:** Paste the token from `@BotFather`.
    * **Owner Chat ID:** Paste your numeric ID from `@userinfobot`.
    * **Master PIN:** Choose a 4- to 8-digit emergency PIN (used for SMS authentication & unlocking).
-   * **Server URL:** Default is `https://izhaanintellect.fun/pasa/` (or your private VPS URL).
+   * **Server URL:** Default is `https://pasa.izhaanintellect.fun` (or your private VPS URL).
 3. Tap **Connect & Initialize Security Agent**.
 4. Grant the required Android permissions (Camera, Microphone, Location: Always Allow, Battery: Unrestricted).
 
@@ -129,28 +159,20 @@ If you prefer instant automated onboarding without creating your own bot via @Bo
 
 > 🛡️ **Sovereign Security Advisory:**  
 > Method 1 (Private Bot via @BotFather) is **recommended for zero-trust, maximum privacy**. With Method 1, only you possess the bot token.  
-> Method 2 routes commands through the central PASA gateway. While protected by device-binding OTPs and anti-brute-force rate limits (max 3 failed attempts before a 1-hour ban), Method 1 provides true sovereign autonomy.
+> Method 2 routes commands through the central PASA gateway with device-binding OTPs and anti-brute-force rate limits.
 
 1. In the PASA Android app setup screen, accept the **Mandatory Terms & Conditions**.
 2. Tap **"⚡ Instant Pair via @Pas_agent_bot"**.
 3. Review the Sovereign Security Advisory and tap **"Proceed with Instant Pair"**.
 4. The app generates a 3-minute ephemeral 6-digit pairing code (e.g. `839 201`).
-5. Open Telegram, start **[@Pas_agent_bot](https://t.me/Pas_agent_bot)**, and send the 6-digit code (or tap the direct link button).
+5. Open Telegram, start **[@Pas_agent_bot](https://t.me/Pas_agent_bot)**, and send the 6-digit code.
 6. `@Pas_agent_bot` confirms the link, and your Android device auto-configures and activates instantly!
-
----
-
-### 🔒 Pure Remote Unlock (Impenetrable Lost Mode)
-
-* **Telegram-Only Unlock:** To eliminate vulnerabilities and keypad brute-forcing by thieves, the lock screen has **zero on-screen PIN keypads**.
-* **Impenetrable Lockdown:** When locked via `/lock` or sensor triggers, the screen is locked in Knox Kiosk mode. It can **only be unlocked remotely** by sending `/unlock` from your verified Telegram C2 bot.
-* **Covert Touch Trap:** Any physical touch or swipe on the locked screen silently triggers front-camera mugshots and satellite GPS telemetry dispatched directly to your Telegram chat.
 
 ---
 
 ## 🔒 Enterprise Device Owner & Persistence Setup
 
-To make PASA Sentinel **impossible to uninstall** and allow it to lock Airplane Mode, run this one-time ADB command:
+To make PASA Sentinel **impossible to uninstall** and grant hardware-level administrative control, run this one-time ADB command:
 
 ```bash
 # 1. Connect phone via USB with USB Debugging enabled
@@ -164,8 +186,9 @@ adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
 * 🛡️ **Permanent Protection:** The "Uninstall" button in Android Settings is permanently grayed out.
 * 🔐 **Remote Hardware OS Lockscreen PIN Reset:** Overwrite the physical device lock screen PIN/password via `/set_os_pin <new_pin>`.
 * 🔒 **Knox Kiosk Mode (`LOCK_TASK_FEATURE_NONE`):** Physically disables the Home button, Recents button, Power menu, and notification pull-down on lock.
-* 📱 **Status Bar Lockdown:** Completely disables pulling down the notification shade and quick settings.
-* 🚫 **Safe Mode Lockout:** Prevents booting into Safe Mode to disable security services.
+* 📱 **Status Bar & Quick Settings Lockdown:** Completely disables pulling down the notification shade while locked, preventing thieves from toggling Airplane Mode or Wi-Fi.
+* 🔄 **Remote Hardware Reboot:** Trigger a clean hardware reboot via `/reboot`.
+* 🚫 **Safe Mode Lockout:** Prevents booting into Safe Mode to bypass security services.
 * ✈️ **Network Protection:** Blocks unauthorized toggling of Airplane Mode, USB debugging, or file transfers while locked.
 * 👁️ **100% Invisible Stealth:** Zero persistent notification icons via `IMPORTANCE_MIN` channel and hidden launcher icon.
 
@@ -174,17 +197,18 @@ adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
 
 ---
 
-## 🕹️ Complete Telegram C2 Command Glossary (44 Commands)
+## 🕹️ Complete Telegram C2 Command Glossary (46 Commands)
 
 Send these commands directly to your Telegram bot (or use the interactive menu autocomplete):
 
 | Category | Command | Syntax | Action & Behavior |
 |---|---|---|---|
-| **Core & Control** | `/menu` | `/menu` | 📱 Opens interactive touchscreen dashboard & quick controls |
+| **Core & Diagnostics** | `/menu` | `/menu` | 📱 Opens interactive touchscreen dashboard & quick controls |
 | | `/help` | `/help` | 📖 Complete documentation manual & command guide |
 | | `/status` | `/status` | 📊 Real-time battery, storage, RAM & sensor diagnostics |
 | | `/selftest` | `/selftest` | 🩺 Comprehensive 9-point security & sensor diagnostic audit |
 | | `/info` | `/info` | ℹ️ Hardware specs, SIM card details, and OS patch level |
+| | `/reboot` | `/reboot` | 🔄 Hardware reboot initiated remotely (Device Owner) |
 | **Location & Geofencing** | `/locate` | `/locate` or `/gps` | 📍 Acquires high-accuracy GNSS fix and sends Google Maps pin |
 | | `/track` | `/track [minutes]` | 🛰️ Starts continuous periodic GPS tracking |
 | | `/track_stop` | `/track_stop` | 🛑 Stops ongoing continuous GPS tracking |
@@ -195,6 +219,8 @@ Send these commands directly to your Telegram bot (or use the interactive menu a
 | | `/screenrecord` | `/screenrecord [seconds]` | 🎥 Covert HD MP4 screen recording (5–60s) via Device Owner |
 | | `/video` | `/video front\|back [sec]` | 📹 Silent camera video clip (1–60s) without screen wake |
 | | `/record` | `/record [seconds]` | 🎙️ Silent ambient microphone wiretap (default 30s) |
+| | `/livestream` | `/livestream` | 🔴 Starts encrypted real-time covert camera/audio stream |
+| | `/stopstream` | `/stopstream` | ⏹️ Stops active live video/audio stream |
 | | `/clipboard` | `/clipboard` | 📋 Reads current device clipboard text |
 | **Lockdown & Emergency** | `/lock` | `/lock [pin] [msg]` | 🔒 Locks device with emergency PIN & Lost Mode banner |
 | | `/lock_message` | `/lock_message <text>` | 💬 Updates lockscreen banner message |
@@ -206,7 +232,7 @@ Send these commands directly to your Telegram bot (or use the interactive menu a
 | | `/ring` | `/ring [seconds]` | 🚨 Blasts maximum volume 100% siren, overriding silent/DND |
 | | `/ring_stop` | `/ring_stop` | 🔇 Silences active emergency siren immediately |
 | | `/message` | `/message <text>` | 📢 Displays urgent fullscreen alert banner on display |
-| **Defense & Deception** | `/duress_pin` | `/duress_pin <pin>` | 🆘 Sets decoy coercion PIN: simulates unlock while sending SOS |
+| **Defense & Deception** | `/duress_pin` | `/duress_pin <pin>` | 🆘 Sets decoy coercion PIN: unlocks device while sending SOS |
 | | `/trap` | `/trap on\|off\|status` | 🛡️ Arms autonomous sensor traps (snatch, charger, pocket) |
 | | `/shred` | `/shred <path>` | 🗑️ Cryptographically sanitizes sensitive files with zero-fill |
 | | `/device_owner` | `/device_owner` | 👑 Checks Device Owner & Kiosk hardware lock status |
@@ -224,6 +250,38 @@ Send these commands directly to your Telegram bot (or use the interactive menu a
 | | `/update_confirm` | `/update_confirm` | ⚡ Downloads and installs pending OTA update directly |
 | | `/wipe` | `/wipe` | ⚠️ Initiates remote emergency factory reset (requires auth) |
 | | `/wipe_confirm` | `/wipe_confirm <pass>` | 💥 Confirms remote factory reset with master password |
+
+---
+
+## 🔐 Hardware Escrow Token & Physical Lockscreen Reset
+
+On Android 14, 15, and 16, Google deprecated legacy password reset APIs in favor of **Cryptographic Hardware Escrow Tokens**:
+
+1. **Enrolling the Token:** PASA automatically enrolls an AES-256 escrow token with the Android Keystore.
+2. **One-Time Keyguard Arming:**
+   * After installing PASA, lock your phone with the power button.
+   * Unlock it once using your physical PIN, password, or biometric.
+   * Android Keyguard automatically arms the escrow token in hardware.
+3. **Remote Password Reset:**
+   * Send `/set_os_pin <new_pin>` from Telegram.
+   * PASA calls `resetPasswordWithToken()` to overwrite your physical lockscreen credential instantly without wiping device data!
+
+---
+
+## 🆘 Lockscreen Duress PIN & Anti-Coercion Mode
+
+If an attacker coerces you to unlock your phone under threat:
+
+1. **Set your Duress PIN:** In Telegram, send:
+   ```text
+   /duress_pin 9999
+   ```
+2. **Under Coercion:** Enter `9999` on your lockscreen instead of your real PIN.
+3. **What happens automatically:**
+   * The device unlocks normally so the attacker believes you complied.
+   * PASA immediately captures silent front-camera mugshots of the attacker.
+   * A high-priority **🚨 EMERGENCY SOS COERCION ALERT** with live satellite coordinates and intruder photo is dispatched directly to your Telegram chat.
+   * If configured, sensitive cryptographic vaults are purged in the background.
 
 ---
 
@@ -252,43 +310,40 @@ PASA GPS: https://maps.google.com/?q=23.7771,90.3994 (Acc: 4m, Bat: 78%)
 
 ---
 
-## 💳 Commercial Licensing & Binance Pay
+## 💳 Commercial Licensing & Payment Methods
 
 PASA operates on a sovereign, one-time payment model — **no recurrent monthly subscriptions**.
 
-### Exclusive Payment Provider: Binance Pay
-* **Binance Pay ID / UID:** `756303714`
-* **Verified Payee Nickname:** `RBR48`
-* **Accepted Currency:** `USDT / BUSD`
+### Supported Payment Channels:
+1. **Binance Pay (Crypto USDT / BUSD):**
+   * **Binance Pay ID / UID:** `756303714`
+   * **Verified Payee Nickname:** `RBR48`
+2. **bKash Personal (Bangladesh BDT):**
+   * **Send Money:** Available on checkout at [https://pasa.izhaanintellect.fun/#pricing](https://pasa.izhaanintellect.fun/#pricing)
 
 ### License Tiers
 | Tier | Price | Devices | Features |
 |---|---|---|---|
-| **Community Trial** | Free (7 Days) | 1 Device | Core Telegram C2, Camera & Siren triggers, Manual backups |
-| **Pro Lifetime** | **৳3,490 / $29 USD** ($29 USDT) | 3 Devices | Full Airgap SMS, Fake Shutdown, Anti-Snatch, Lifetime OTA Updates |
-| **Fleet / Enterprise**| **৳9,990 / $84 USD** ($84 USDT) | 10 Devices | Dedicated deployment engineering, ADB automation scripts |
+| **Community Trial** | Free (7 Days) | 1 Device | Core Telegram C2, Camera & Siren triggers, Full Pro Evaluation |
+| **Pro Lifetime** | **৳3,490 / $29 USD** ($29 USDT) | 3 Devices | Full Airgap SMS, Fake Shutdown, Duress SOS, Anti-Snatch, Lifetime OTA Updates |
+| **Fleet / Enterprise**| **৳9,990 / $84 USD** ($84 USDT) | 10 Devices | Dedicated fleet deployment engineering, ADB automation scripts |
 
-### Anti-Fraud Two-Step Approval Workflow:
-1. Buyer selects plan on [https://pasa.izhaanintellect.fun](https://pasa.izhaanintellect.fun) and sends USDT via Binance Pay.
-2. Buyer enters email and submits transaction ID.
-3. Order is held in `PENDING_APPROVAL`.
-4. A real-time Telegram alert arrives on the operator's phone with interactive buttons:
-   `[ ✅ Approve & Issue Key ]`  `[ ❌ Reject Fake Payment ]`
-5. Upon confirmation, the cryptographically signed `PASA-LIFE-XXXX-XXXX` key appears automatically on the buyer's screen and is activated.
+### Offline Ed25519 Cryptographic Verification:
+* Licenses are cryptographically signed with military-grade **Ed25519** elliptic curves.
+* Once activated, the app verifies the certificate **offline in <0.2ms**, requiring zero continuous internet connection.
 
 ### 🛡️ 7-Day No-Questions-Asked Money-Back Guarantee
 Every paid license comes with an unconditional **7-day money-back guarantee**:
-* **Full Refund in USDT:** If PASA Sentinel doesn't meet your defense requirements or your device has OEM battery constraints, simply request a refund within 7 days.
-* **Rapid Payout:** 100% of your payment is sent straight back to your Binance Pay ID / UID within 24 hours.
-* **How to Claim:** Message Customer Support on WhatsApp at [**+880 1762-033445**](https://wa.me/8801762033445) or email [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun) with your Order ID or License Key.
-* Full policy documented in [PRIVACY.md](PRIVACY.md#-4-7-day-money-back-guarantee-binance-pay).
+* **Full Refund:** If PASA Sentinel doesn't meet your defense requirements or your device has OEM constraints, simply request a refund within 7 days.
+* **Rapid Payout:** 100% of your payment is sent back within 24 hours.
+* **How to Claim:** Message Customer Support on WhatsApp at [**+880 1762-033445**](https://wa.me/8801762033445) or email [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun).
 
 ---
 
 ## 🛠️ Building from Source
 
 ### Prerequisites
-* JDK 17 (Recommended: Microsoft OpenJDK 17 or Eclipse Temurin 17)
+* JDK 17 (Microsoft OpenJDK 17 or Eclipse Temurin 17)
 * Android SDK Platform 36 (Android 16)
 * Gradle 8.7
 
@@ -303,7 +358,7 @@ $env:JAVA_HOME = "C:\Program Files\Microsoft\jdk-17.0.20.8-hotspot"
 # 3. Assemble Release APK
 .\gradlew.bat assembleRelease
 ```
-The signed APK will be output to:
+The signed APK will be output to:  
 `app/build/outputs/apk/release/app-release.apk`
 
 ---
@@ -312,14 +367,14 @@ The signed APK will be output to:
 
 Download the official signed release binary directly from GitHub or our high-speed CDN:
 
-* **Direct GitHub Download:** [📦 PASA-Sentinel-v3.0.4.apk](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.0.4.apk)
+* **Direct Release Binary:** [📦 pasa-v3.2.8-33.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.2.8-33.apk)
 * **Direct Rolling Latest:** [📦 pasa-latest.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk)
-* **High-Speed CDN Mirror:** [https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
-* **Official Version:** `v3.0.4` (Build Code `10`)
-* **File Size:** `18,967,500 bytes` (18.09 MB)
+* **High-Speed CDN Mirror:** [https://pasa.izhaanintellect.fun/releases/pasa-latest.apk](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
+* **Official Version:** `v3.2.8` (Build Code `33`)
+* **File Size:** `19,053,405 bytes` (18.17 MB)
 * **SHA-256 Checksum:**
   ```text
-  2bb570ed8b1e82da9e2bcab602cca9ee03f0c4f1eacca493933f94238d955003
+  279ad9b88ee32e7dee751dd843ae6d62c01b8e9631b879c7aee1574f709d36a9
   ```
 
 ### Verify on Windows PowerShell:
