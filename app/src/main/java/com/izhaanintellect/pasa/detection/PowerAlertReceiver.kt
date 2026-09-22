@@ -45,6 +45,7 @@ class PowerAlertReceiver : BroadcastReceiver() {
         private const val TAG = "PASA_PowerAlert"
         private var lastBatteryAlertTime = 0L
         private var lastPowerDisconnectAlertTime = 0L
+        private var lastPowerConnectAlertTime = 0L
         private const val MIN_BATTERY_ALERT_INTERVAL_MS = 15 * 60 * 1000L // 15 mins
         private const val MIN_POWER_ALERT_INTERVAL_MS = 2 * 60 * 1000L    // 2 mins
     }
@@ -71,6 +72,88 @@ class PowerAlertReceiver : BroadcastReceiver() {
                 if (now - lastPowerDisconnectAlertTime < MIN_POWER_ALERT_INTERVAL_MS) return
                 lastPowerDisconnectAlertTime = now
                 handlePowerDisconnectedAlert(context)
+            }
+            Intent.ACTION_POWER_CONNECTED -> {
+                val km = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+                // Only trigger if phone is locked (cable inserted without user unlocking device first)
+                if (!km.isKeyguardLocked) {
+                    Log.d(TAG, "Charger connected while device unlocked — normal user behavior.")
+                    return
+                }
+                if (now - lastPowerConnectAlertTime < MIN_POWER_ALERT_INTERVAL_MS) return
+                lastPowerConnectAlertTime = now
+                handlePowerConnectedAlert(context)
+            }
+        }
+    }
+
+    private fun handlePowerConnectedAlert(context: Context) {
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                Log.w(TAG, "USB/Charger plugged into locked device! Executing hardware anti-tamper...")
+
+                // 1. Hardware USB Data Pin Killswitch (Android 12+ Enterprise Device Owner)
+                // Instantly severed to block forensic extraction tools (Cellebrite, GrayKey, BadUSB)
+                var usbKillswitchApplied = false
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)
+                ) {
+                    val (cutOk, _) = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setUsbDataSignaling(context, false)
+                    usbKillswitchApplied = cutOk
+                    Log.i(TAG, "Automatic anti-forensic USB data killswitch engaged: $cutOk")
+                }
+
+                val batteryPct = getBatteryPercentage(context)
+                val location = locationTracker.getCurrentLocation()
+
+                // 2. Covert stealth front-camera photo of the person plugging the cable
+                val photoFile = try {
+                    StealthCaptureBridge.capturePhoto(context, useFront = true, timeoutMs = 8000L).file
+                } catch (e: Exception) {
+                    Log.w(TAG, "Power connect mugshot capture failed: ${e.message}")
+                    null
+                }
+
+                val locText = if (location != null) {
+                    val lat = String.format(Locale.US, "%.5f", location.latitude)
+                    val lng = String.format(Locale.US, "%.5f", location.longitude)
+                    "📍 <b>Current GPS:</b> $lat, $lng\n🗺️ <a href=\"https://maps.google.com/maps?q=$lat,$lng\">View on Google Maps</a>"
+                } else {
+                    "📍 <b>Location:</b> Signal acquiring..."
+                }
+
+                val usbStatusText = if (usbKillswitchApplied) {
+                    "🛡️ <b>Hardware USB Data Pins:</b> 🔴 <b>SEVERED</b> (Anti-forensic extraction active; AC charging only)"
+                } else {
+                    "⚠️ <i>Hardware USB data killswitch not supported on this OS tier or not Device Owner.</i>"
+                }
+
+                val alertMsg = """
+                    🔌 <b>USB CABLE INSERTED (LOCKED DEVICE)</b>
+                    ━━━━━━━━━━━━━━━━━━━━
+                    🚨 A USB or power cable was plugged into your phone while the screen was locked!
+                    $usbStatusText
+                    🔋 <b>Battery Level:</b> ${batteryPct}%
+                    
+                    $locText
+                    ${if (photoFile != null) "\n📸 Perpetrator snapshot attached below." else ""}
+                    
+                    <i>Send <code>/lock</code> to reinforce security or <code>/usb_lock status</code> to inspect.</i>
+                """.trimIndent()
+
+                dispatchAlert(
+                    alertType = "POWER_CONNECTED_LOCKED",
+                    message = alertMsg,
+                    lat = location?.latitude,
+                    lng = location?.longitude,
+                    photoFile = photoFile,
+                    photoCaption = "📸 Locked USB Cable Insertion Mugshot"
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to deliver power connected alert", e)
+            } finally {
+                pendingResult.finish()
             }
         }
     }
@@ -181,7 +264,8 @@ class PowerAlertReceiver : BroadcastReceiver() {
         message: String,
         lat: Double?,
         lng: Double?,
-        photoFile: File?
+        photoFile: File?,
+        photoCaption: String = "📸 PASA Security Snapshot"
     ) {
         val photo: File? = photoFile?.takeIf { it.exists() && it.length() > 0 }
 
@@ -208,7 +292,7 @@ class PowerAlertReceiver : BroadcastReceiver() {
                 photo?.let {
                     val chatIdBody = preferencesManager.ownerChatIdLong.toString()
                         .toRequestBody("text/plain".toMediaTypeOrNull())
-                    val captionBody = "📸 PASA final battery-beacon snapshot"
+                    val captionBody = photoCaption
                         .toRequestBody("text/plain".toMediaTypeOrNull())
                     val photoPart = MultipartBody.Part.createFormData(
                         "photo", it.name, it.asRequestBody("image/jpeg".toMediaTypeOrNull())

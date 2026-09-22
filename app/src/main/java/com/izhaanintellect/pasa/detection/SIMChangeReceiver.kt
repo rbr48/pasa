@@ -123,11 +123,31 @@ class SIMChangeReceiver : BroadcastReceiver() {
     }
 
     private suspend fun handleSimRemoved(context: Context) {
-        // 1. Capture IMEI / device identifier
+        // 1. Instant Hardware Lock & Anti-Tamper Hardening
+        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+        val adminComponent = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.getComponentName(context)
+        var doHardened = false
+        if (dpm != null && dpm.isAdminActive(adminComponent)) {
+            try {
+                if (com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)) {
+                    // Forcibly power on GNSS hardware chip to track phone
+                    com.izhaanintellect.pasa.admin.PasaDeviceAdmin.forceLocationHardware(context, true)
+                    // Lockout notification shade to prevent turning on airplane mode
+                    try { dpm.setStatusBarDisabled(adminComponent, true) } catch (_: Exception) {}
+                    doHardened = true
+                }
+                dpm.lockNow()
+                Log.i(TAG, "Device screen locked immediately upon physical SIM ejection")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to enforce lock/restrictions on SIM removal: ${e.message}")
+            }
+        }
+
+        // 2. Capture IMEI / device identifier
         val imei = getDeviceImei(context)
         val imeiStr = if (imei != null) "\n📱 <b>Device IMEI:</b> <code>$imei</code>" else ""
 
-        // 2. Capture covert front-camera snapshot with retry mechanism
+        // 3. Capture covert front-camera snapshot with retry mechanism
         var mugshot: java.io.File? = null
         for (attempt in 1..3) {
             mugshot = try {
@@ -142,7 +162,7 @@ class SIMChangeReceiver : BroadcastReceiver() {
             }
         }
 
-        // 3. Get current location
+        // 4. Get current location
         val locationStr = try {
             val location = locationTracker.getCurrentLocation()
             if (location != null) {
@@ -159,10 +179,16 @@ class SIMChangeReceiver : BroadcastReceiver() {
             locationTracker.getCurrentLocation()?.let { Pair(it.latitude, it.longitude) }
         } catch (_: Exception) { null }
 
+        val hardenedInfo = if (doHardened) {
+            "\n🔒 <b>Countermeasure:</b> Screen locked instantly, GNSS hardware turned ON, Quick Settings disabled."
+        } else {
+            "\n🔒 <b>Countermeasure:</b> Device screen locked instantly."
+        }
+
         val alertText = """
             🚨 <b>TAMPER ALERT: SIM CARD EJECTED!</b>
             ━━━━━━━━━━━━━━━━━━━━
-            The physical SIM card was just removed from your device.$imeiStr
+            The physical SIM card was just removed from your device.$imeiStr$hardenedInfo
             
             📸 Front-camera mugshot capture initiated.
             $locationStr

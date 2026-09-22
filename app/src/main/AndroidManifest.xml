@@ -185,6 +185,7 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_DISABLED" />
                 <action android:name="android.app.action.ACTION_PASSWORD_FAILED" />
                 <action android:name="android.app.action.ACTION_PASSWORD_SUCCEEDED" />
+                <action android:name="android.app.action.SECURITY_LOGS_AVAILABLE" />
             </intent-filter>
         </receiver>
 
@@ -211,7 +212,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- Critical Battery & Power Disconnect Alert Receiver -->
+        <!-- Critical Battery & Power Disconnect/Connect Alert Receiver -->
         <receiver
             android:name=".detection.PowerAlertReceiver"
             android:directBootAware="true"
@@ -219,6 +220,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.BATTERY_LOW" />
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
             </intent-filter>
         </receiver>
 

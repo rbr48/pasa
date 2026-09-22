@@ -1,15 +1,20 @@
 package com.izhaanintellect.pasa.commands
 
+import android.content.Context
 import android.util.Log
+import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
 import com.izhaanintellect.pasa.location.LocationTracker
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Handles single-shot GPS location requests.
+ * Uses Device Owner privileges to force-enable hardware GPS if disabled.
  */
 @Singleton
 class LocateCommand @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val locationTracker: LocationTracker
 ) : Command {
 
@@ -23,6 +28,15 @@ class LocateCommand @Inject constructor(
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
         Log.i(TAG, "Resolving device location...")
+
+        // If Device Owner is active, forcibly power on the GNSS hardware receiver
+        if (PasaDeviceAdmin.isDeviceOwner(context)) {
+            try {
+                PasaDeviceAdmin.forceLocationHardware(context, true)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to forceLocationHardware: ${e.message}")
+            }
+        }
 
         val location = locationTracker.getCurrentLocation()
 

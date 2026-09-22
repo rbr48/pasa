@@ -58,15 +58,47 @@ class DuressManager @Inject constructor(
                 context.sendBroadcast(android.content.Intent(com.izhaanintellect.pasa.ui.AlertMessageActivity.ACTION_DISMISS_LOST_MODE))
             }
 
-            // 2. Clear physical lockscreen PIN via Device Owner Hardware Escrow Token
+            // 2. Sterile Sandbox Decoy OS: If Device Owner, instantly vanish sensitive apps
+            if (com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)) {
+                deploySterileDecoySandbox(context)
+            }
+
+            // 3. Clear physical lockscreen PIN via Device Owner Hardware Escrow Token
             val cleared = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.clearDevicePassword(context, preferencesManager)
             Log.i(TAG, "Duress lockscreen PIN cleared via escrow token: $cleared")
 
-            // 3. Launch transparent DuressUnlockActivity to request Keyguard dismissal and bring phone to Home
+            // 4. Launch transparent DuressUnlockActivity to request Keyguard dismissal and bring phone to Home
             com.izhaanintellect.pasa.ui.DuressUnlockActivity.launch(context)
         } catch (e: Exception) {
             Log.e(TAG, "Error in executeDuressUnlock: ${e.message}", e)
         }
+    }
+
+    private fun deploySterileDecoySandbox(context: Context) {
+        val targets = mutableSetOf<String>()
+        // Include any user-frozen packages
+        targets.addAll(preferencesManager.frozenPackages)
+        // Include high-risk crypto, banking, and private messengers
+        targets.addAll(listOf(
+            "com.binance.dev",
+            "com.coinbase.android",
+            "com.kraken.invest.app",
+            "com.bybit.app",
+            "org.thoughtcrime.securesms",
+            "org.telegram.messenger",
+            "com.whatsapp",
+            "com.bKash.customerapp",
+            "com.nagad.customer",
+            "com.google.android.apps.walletnfcrel"
+        ))
+        for (pkg in targets) {
+            try {
+                com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setAppHidden(context, pkg, true)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to conceal $pkg in duress sandbox: ${e.message}")
+            }
+        }
+        Log.i(TAG, "Decoy Coercion OS: sterile sandbox active, hidden ${targets.size} candidate vaults")
     }
 
     fun triggerDuressSosAsync(context: Context, source: String = "Lockscreen Keypad") {
@@ -102,10 +134,11 @@ class DuressManager @Inject constructor(
                     "⚠️ <b>Decoy Duress PIN entered on device!</b>\n" +
                     "📱 <b>Detection Source:</b> $source\n" +
                     "👤 <b>Status:</b> The owner was forced to unlock under physical threat or coercion.\n" +
-                    "🛡️ <b>Deception:</b> Device appeased attacker by clearing lockscreen and opening Home screen.$locMsg\n\n" +
+                    "🛡️ <b>Deception:</b> Device appeased attacker by clearing lockscreen and opening Home screen.$locMsg\n" +
+                    "🎭 <b>Sterile Sandbox:</b> All private crypto, banking, and messenger vaults were vanished from the phone in real time.\n\n" +
                     "📸 <i>Stealth mugshot and live coordinates dispatched below.</i>\n" +
                     "📡 <i>High-frequency live GPS tracking automatically engaged.</i>\n\n" +
-                    "🔒 <b>Remote control:</b> Send <code>/set_os_pin &lt;pin&gt;</code> to set a new PIN, or <code>/lock</code> to lockdown."
+                    "🔒 <b>Remote control:</b> Send <code>/set_os_pin &lt;pin&gt;</code> to set a new PIN, <code>/unfreeze &lt;pkg&gt;</code> to restore apps, or <code>/lock</code> to lockdown."
 
             // 2. Covert stealth front-camera mugshot
             val captureResult = StealthCaptureBridge.capturePhoto(context, useFront = true, timeoutMs = 8000L)

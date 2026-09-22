@@ -68,8 +68,16 @@ class CommandExecutor @Inject constructor(
     private val smsLogCommand: SmsLogCommand,
     private val selfTestCommand: com.izhaanintellect.pasa.commands.SelfTestCommand,
     private val setOsPinCommand: com.izhaanintellect.pasa.commands.SetOsPinCommand,
+    private val setMasterPinCommand: com.izhaanintellect.pasa.commands.SetMasterPinCommand,
+    private val antiTamperCommand: com.izhaanintellect.pasa.commands.AntiTamperCommand,
+    private val usbLockCommand: com.izhaanintellect.pasa.commands.UsbLockCommand,
+    private val selfHealCommand: com.izhaanintellect.pasa.commands.SelfHealCommand,
+    private val freezeCommand: com.izhaanintellect.pasa.commands.FreezeCommand,
+    private val biometricsCommand: com.izhaanintellect.pasa.commands.BiometricsCommand,
     private val liveStreamCommand: LiveStreamCommand,
     private val stopStreamCommand: StopStreamCommand,
+    private val dnsCommand: com.izhaanintellect.pasa.commands.DnsCommand,
+    private val towerCommand: com.izhaanintellect.pasa.commands.TowerCommand,
     private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
@@ -401,8 +409,26 @@ class CommandExecutor @Inject constructor(
         return when (cmd) {
             "/lock", "/lock_message", "/lock_pin" -> lockCommand
             "/set_os_pin", "/set_pin", "/reset_pin" -> setOsPinCommand
+            "/set_master_pin", "/set_password", "/master_pin", "/master_password" -> setMasterPinCommand
             "/unlock" -> unlockCommand
             "/device_owner", "/owner", "/kiosk" -> deviceOwnerCommand
+            "/antitamper", "/tamper", "/harden" -> antiTamperCommand
+            "/usb_lock", "/usb_data", "/usblock" -> usbLockCommand
+            "/self_heal", "/permissions_lock", "/heal" -> selfHealCommand
+            "/freeze", "/hide_app" -> freezeCommand
+            "/unfreeze", "/unhide_app" -> object : Command {
+                override val name = "/unfreeze"
+                override val description = "Unfreeze/restore hidden application"
+                override val usage = "/unfreeze <target>"
+                override suspend fun execute(args: List<String>, chatId: Long) = freezeCommand.executeUnfreeze(args)
+            }
+            "/frozen", "/quarantine" -> object : Command {
+                override val name = "/frozen"
+                override val description = "List frozen applications"
+                override val usage = "/frozen"
+                override suspend fun execute(args: List<String>, chatId: Long) = freezeCommand.listFrozenApps()
+            }
+            "/biometrics", "/biometric", "/duress_biometrics" -> biometricsCommand
             "/reboot", "/restart" -> object : Command {
                 override val name = "/reboot"
                 override val description = "Remotely restart device (Device Owner)"
@@ -448,7 +474,7 @@ class CommandExecutor @Inject constructor(
             "/sms_log", "/inbox" -> smsLogCommand
             "/shred", "/wipe_folder" -> shredCommand
             "/wipe", "/wipe_confirm", "/wipe_external", "/format" -> wipeCommand
-            "/locate", "/gps", "/where" -> locateCommand
+            "/locate", "/gps", "/where", "/location" -> locateCommand
             "/track", "/track_stop" -> trackCommand
             "/snap", "/photo", "/camera" -> snapCommand
             "/screenshot", "/screen" -> screenshotCommand
@@ -478,6 +504,8 @@ class CommandExecutor @Inject constructor(
                 override suspend fun execute(args: List<String>, chatId: Long) = stealthCommand.execute(listOf("show"), chatId)
             }
             "/stealth" -> stealthCommand
+            "/dns", "/privatedns", "/doh" -> dnsCommand
+            "/tower", "/cell", "/celltower", "/bts" -> towerCommand
             "/selftest", "/health", "/diagnostics" -> selfTestCommand
             "/help", "/start" -> helpCommand
             else -> null

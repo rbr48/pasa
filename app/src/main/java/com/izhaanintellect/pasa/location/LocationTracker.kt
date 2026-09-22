@@ -62,6 +62,8 @@ class LocationTracker @Inject constructor(
         }
     }
 
+    fun getLastKnownLocation(): Location? = getPlatformLocation()
+
     /**
      * Gets the current device location with high accuracy.
      * Falls back to last known location or AOSP LocationManager if Google Play Services is unavailable.

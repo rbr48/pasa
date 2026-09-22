@@ -5,7 +5,7 @@
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.2.8%20(Build%2033)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
+[![Version](https://img.shields.io/badge/Release-v3.4.0%20(Build%2036)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
 [![Zero Storage](https://img.shields.io/badge/Zero%20Storage-Direct--to--Telegram-brightgreen.svg)](PRIVACY.md)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Cloud%20Telemetry-brightgreen.svg)](PRIVACY.md)
 [![Ed25519 Security](https://img.shields.io/badge/Cryptography-Ed25519%20Offline%20Certificates-blueviolet.svg)](#commercial-licensing--payment-methods)
@@ -23,7 +23,7 @@
    - [Method 1: Private Dedicated Bot via @BotFather (Recommended)](#method-1-private-dedicated-bot-via-botfather-recommended)
    - [Method 2: Instant Pairing via @Pas_agent_bot](#method-2-instant-pairing-via-pas_agent_bot)
 5. [Enterprise Device Owner & Persistence Setup](#-enterprise-device-owner--persistence-setup)
-6. [Complete Telegram C2 Command Glossary (46 Commands)](#-complete-telegram-c2-command-glossary-46-commands)
+6. [Complete Telegram C2 Command Glossary (55 Commands)](#-complete-telegram-c2-command-glossary-55-commands)
 7. [Hardware Escrow Token & Physical Lockscreen Reset](#-hardware-escrow-token--physical-lockscreen-reset)
 8. [Lockscreen Duress PIN & Anti-Coercion Mode](#-lockscreen-duress-pin--anti-coercion-mode)
 9. [Offline Air-Gapped SMS Defense](#-offline-air-gapped-sms-defense)
@@ -49,7 +49,7 @@ When a smartphone is stolen, street thieves act within the first **5 to 10 secon
 * **Direct-to-Telegram Zero-Storage Architecture:** Zero photos, zero GPS tracks, and zero audio recordings are stored on any VPS disk or cloud database. Everything is dispatched directly and exclusively to your private Telegram Bot and immediately memory-shredded on the phone.
 * **Air-Gapped SMS Fallback:** When internet is dead, GSM cellular signal remains connected. A single encrypted SMS command powers up the hardware GPS receiver chip and texts back exact Google Maps coordinates directly from satellites.
 * **Fake Shutdown Deception:** When the thief tries to turn off the phone, PASA presents a spoofed power-down animation and enters an AMOLED 0-nit black screen mode. The thief thinks the phone is dead, while PASA covertly records ambient audio, captures intruder mugshots, and streams background GPS beacons.
-* **Autonomous Anti-Snatch Kinetic Lock:** If snatched from your hands (acceleration delta > 2.85G), PASA instantly locks the screen via Device Owner, captures a silent front-camera mugshot of the thief, and blasts a maximum-volume alarm.
+* **Autonomous Anti-Snatch Kinetic Lock:** If snatched from your hands (acceleration delta > 2.65G), PASA instantly locks the screen via Device Owner, captures a silent front-camera mugshot of the thief, and blasts a maximum-volume alarm.
 * **Knox-Grade Device Owner:** The Android "Uninstall" button is permanently grayed out. Notification pull-down, Safe Mode, and USB debugging can be cryptographically disabled.
 * **Hardware Escrow Token (Android 14–16):** Remotely reset or overwrite the physical lockscreen PIN anytime via `/set_os_pin <new_pin>`.
 * **Zero Big-Tech Telemetry:** All communication is routed strictly between your device and your private Telegram Bot.
@@ -109,51 +109,16 @@ PASA Sentinel uses Telegram as its primary Command and Control (C2) console. You
 ---
 
 ### Method 1: Private Dedicated Bot via @BotFather (Recommended)
-
-Running your own private bot means only you possess the bot token, ensuring complete zero-trust privacy.
-
-#### Step 1: Create your bot in Telegram
-1. Open Telegram and search for the official **`@BotFather`** ([https://t.me/BotFather](https://t.me/BotFather)).
-2. Tap **Start** and send the command:
-   ```text
-   /newbot
-   ```
-3. Enter a friendly name for your bot (e.g., `My Phone Sentinel`).
-4. Enter a unique username ending in `bot` (e.g., `my_device_pasa_bot`).
-5. **@BotFather will give you an HTTP API Token:**
-   ```text
-   Use this token to access the HTTP API:
-   7894561230:AAGabcdef1234567890abcdef1234567890
-   ```
-   *Keep this token secret!*
-
-#### Step 2: Obtain your personal Telegram Chat ID
-PASA only accepts commands from **your specific Telegram account** so no stranger can command your phone.
-1. Open Telegram and search for **`@userinfobot`** ([https://t.me/userinfobot](https://t.me/userinfobot)).
-2. Tap **Start**.
-3. It will reply with your profile info. Copy your **`Id`** (a numeric string such as `5497803807`).
-
-#### Step 3: Connect your Phone in the PASA App
-1. Download and install **PASA Sentinel** on your Android phone.
-2. In the setup wizard:
-   * **Telegram Bot Token:** Paste the token from `@BotFather`.
-   * **Owner Chat ID:** Paste your numeric ID from `@userinfobot`.
-   * **Master PIN:** Choose a 4- to 8-digit emergency PIN (used for SMS authentication & unlocking).
-   * **Server URL:** Default is `https://pasa.izhaanintellect.fun` (or your private VPS URL).
-3. Tap **Connect & Initialize Security Agent**.
-4. Grant the required Android permissions (Camera, Microphone, Location: Always Allow, Battery: Unrestricted).
-
-#### Step 4: Verify Remote C2
-1. Open your newly created bot in Telegram and send:
-   ```text
-   /start
-   ```
-2. The bot will welcome you and display the **Interactive Tactical Dashboard** with status buttons.
-3. Send `/ping` or `/locate` to confirm instant bidirectional telemetry!
+1. In Telegram, search for **[@BotFather](https://t.me/BotFather)** and send `/newbot`.
+2. Name your bot (e.g. `MyPhoneSentinelBot`) and choose a username ending in `bot`.
+3. Copy the HTTP API token provided by BotFather.
+4. Search for **[@userinfobot](https://t.me/userinfobot)** in Telegram, click Start, and copy your numeric **User ID** (e.g. `123456789`).
+5. Open the PASA Android app, enter your Bot Token and Owner Chat ID, and tap **"Initialize Sovereign Sentinel"**.
+6. Send `/menu` to your new bot to verify immediate C2 communication!
 
 ---
 
-### Method 2: Instant 6-Digit Pairing via @Pas_agent_bot
+### Method 2: Instant Pairing via @Pas_agent_bot
 
 If you prefer instant automated onboarding without creating your own bot via @BotFather:
 
@@ -187,6 +152,11 @@ adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
 * 🔐 **Remote Hardware OS Lockscreen PIN Reset:** Overwrite the physical device lock screen PIN/password via `/set_os_pin <new_pin>`.
 * 🔒 **Knox Kiosk Mode (`LOCK_TASK_FEATURE_NONE`):** Physically disables the Home button, Recents button, Power menu, and notification pull-down on lock.
 * 📱 **Status Bar & Quick Settings Lockdown:** Completely disables pulling down the notification shade while locked, preventing thieves from toggling Airplane Mode or Wi-Fi.
+* 🛡️ **System-Wide Encrypted DNS:** Force DNS-over-TLS via `/dns [quad9|cloudflare|adguard|host]` (Android 10+).
+* 🔌 **Hardware USB Data Pin Killswitch:** Physically sever USB data communication pins via `/usb_lock on` (Android 12+).
+* 👑 **Self-Healing Permissions:** Permanently lock Camera, Mic, SMS, and GPS permissions as unrevokable via `/self_heal`.
+* 🧊 **Shadow App Vault:** Vanish banking, crypto, and chat apps completely via `/freeze <pkg>` and `/unfreeze <pkg>`.
+* 🧬 **Duress Biometrics:** Disable fingerprint and face unlock to force Master PIN during checkpoints via `/biometrics on`.
 * 🔄 **Remote Hardware Reboot:** Trigger a clean hardware reboot via `/reboot`.
 * 🚫 **Safe Mode Lockout:** Prevents booting into Safe Mode to bypass security services.
 * ✈️ **Network Protection:** Blocks unauthorized toggling of Airplane Mode, USB debugging, or file transfers while locked.
@@ -197,7 +167,7 @@ adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
 
 ---
 
-## 🕹️ Complete Telegram C2 Command Glossary (46 Commands)
+## 🕹️ Complete Telegram C2 Command Glossary (55 Commands)
 
 Send these commands directly to your Telegram bot (or use the interactive menu autocomplete):
 
@@ -209,7 +179,17 @@ Send these commands directly to your Telegram bot (or use the interactive menu a
 | | `/selftest` | `/selftest` | 🩺 Comprehensive 9-point security & sensor diagnostic audit |
 | | `/info` | `/info` | ℹ️ Hardware specs, SIM card details, and OS patch level |
 | | `/reboot` | `/reboot` | 🔄 Hardware reboot initiated remotely (Device Owner) |
+| **Enterprise Device Owner** | `/device_owner` | `/device_owner` | 👑 Checks Device Owner & Kiosk hardware lock status |
+| | `/antitamper` | `/antitamper on\|off\|status` | 🛡️ Safe boot, airplane mode, and factory reset lockout |
+| | `/usb_lock` | `/usb_lock on\|off\|status` | 🔌 Kills USB data pins (AC charge only) [Android 12+] |
+| | `/self_heal` | `/self_heal` | 👑 Permanently locks & grants all runtime permissions |
+| | `/freeze` | `/freeze <pkg>` | 🧊 Conceals banking/crypto/messaging app into shadow vault |
+| | `/unfreeze` | `/unfreeze <pkg>` | ☀️ Restores hidden application from shadow vault |
+| | `/frozen` | `/frozen` | 📦 Lists all hidden/quarantined applications |
+| | `/biometrics` | `/biometrics on\|off` | 🧬 Duress biometric killswitch (forces Master PIN) |
+| | `/dns` | `/dns [quad9\|cloudflare\|adguard\|off\|status]` | 🛡️ Enforces system-wide encrypted DNS-over-TLS |
 | **Location & Geofencing** | `/locate` | `/locate` or `/gps` | 📍 Acquires high-accuracy GNSS fix and sends Google Maps pin |
+| | `/tower` | `/tower` | 📡 Dual-SIM cell tower triangulation & signal RF telemetry |
 | | `/track` | `/track [minutes]` | 🛰️ Starts continuous periodic GPS tracking |
 | | `/track_stop` | `/track_stop` | 🛑 Stops ongoing continuous GPS tracking |
 | | `/geofence` | `/geofence here 200` | 🌐 Sets safe zone radius & breach/return alerts |
@@ -226,6 +206,7 @@ Send these commands directly to your Telegram bot (or use the interactive menu a
 | | `/lock_message` | `/lock_message <text>` | 💬 Updates lockscreen banner message |
 | | `/lock_pin` | `/lock_pin <pin>` | 🔑 Locks phone with explicit 4–8 digit emergency PIN |
 | | `/set_os_pin` | `/set_os_pin <pin>` | 🔐 Overwrites physical Android OS lockscreen PIN (Device Owner) |
+| | `/set_master_pin` | `/set_master_pin <pin>` | 🔑 Remotely updates emergency Master PIN/Password |
 | | `/unlock` | `/unlock` | 🔓 Dismisses Lost Mode & restores normal device UI |
 | | `/fakeshutdown` | `/fakeshutdown` | 🕶️ Fake shutdown: blackout screen & silent touch traps |
 | | `/wake` | `/wake` | ☀️ Restores device from Fake Shutdown blackout |
@@ -233,9 +214,8 @@ Send these commands directly to your Telegram bot (or use the interactive menu a
 | | `/ring_stop` | `/ring_stop` | 🔇 Silences active emergency siren immediately |
 | | `/message` | `/message <text>` | 📢 Displays urgent fullscreen alert banner on display |
 | **Defense & Deception** | `/duress_pin` | `/duress_pin <pin>` | 🆘 Sets decoy coercion PIN: unlocks device while sending SOS |
-| | `/trap` | `/trap on\|off\|status` | 🛡️ Arms autonomous sensor traps (snatch, charger, pocket) |
+| | `/trap` | `/trap on\|off\|snatch\|charger\|pocket` | 🛡️ Arms autonomous sensor traps (snatch, charger, pocket) |
 | | `/shred` | `/shred <path>` | 🗑️ Cryptographically sanitizes sensitive files with zero-fill |
-| | `/device_owner` | `/device_owner` | 👑 Checks Device Owner & Kiosk hardware lock status |
 | | `/stealth` | `/stealth` (or `/hide`) | 👁️ Hides/reveals PASA app icon in launcher |
 | **Extraction & Logs** | `/contacts` | `/contacts [search]` | 👥 Searches or reads device address book contacts |
 | | `/call_log` | `/call_log [count]` | 📞 Views incoming and outgoing call history |
@@ -278,10 +258,11 @@ If an attacker coerces you to unlock your phone under threat:
    ```
 2. **Under Coercion:** Enter `9999` on your lockscreen instead of your real PIN.
 3. **What happens automatically:**
-   * The device unlocks normally so the attacker believes you complied.
+   * The device unlocks smoothly so the attacker believes you complied.
+   * **Sterile Sandbox Decoy OS:** All banking, crypto, and private messenger apps (Binance, Signal, Telegram, WhatsApp, bKash, etc.) are vanished instantly from the launcher, app drawer, and process list via Device Owner privileges, leaving only harmless stock apps visible.
    * PASA immediately captures silent front-camera mugshots of the attacker.
    * A high-priority **🚨 EMERGENCY SOS COERCION ALERT** with live satellite coordinates and intruder photo is dispatched directly to your Telegram chat.
-   * If configured, sensitive cryptographic vaults are purged in the background.
+   * High-frequency live GPS tracking automatically engages every 2 minutes.
 
 ---
 

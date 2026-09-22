@@ -64,6 +64,10 @@ class PreferencesManager @Inject constructor(
         private const val KEY_LICENSE_CERT_PAYLOAD = "license_cert_payload"
         private const val KEY_LICENSE_CERT_SIGNATURE = "license_cert_signature"
         private const val KEY_RESET_PASSWORD_TOKEN = "reset_password_token"
+        private const val KEY_ANTI_TAMPER_ENABLED = "anti_tamper_enabled"
+        private const val KEY_USB_LOCK_ENABLED = "usb_lock_enabled"
+        private const val KEY_BIOMETRICS_DISABLED = "biometrics_disabled"
+        private const val KEY_FROZEN_PACKAGES = "frozen_packages"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
 
@@ -341,6 +345,34 @@ class PreferencesManager @Inject constructor(
     var licenseCertSignature: String
         get() = prefs.getString(KEY_LICENSE_CERT_SIGNATURE, "") ?: ""
         set(value) = prefs.edit().putString(KEY_LICENSE_CERT_SIGNATURE, value).apply()
+
+    var antiTamperEnabled: Boolean
+        get() = prefs.getBoolean(KEY_ANTI_TAMPER_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_ANTI_TAMPER_ENABLED, value).apply()
+
+    var usbLockEnabled: Boolean
+        get() = prefs.getBoolean(KEY_USB_LOCK_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_USB_LOCK_ENABLED, value).apply()
+
+    var biometricsDisabled: Boolean
+        get() = prefs.getBoolean(KEY_BIOMETRICS_DISABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_BIOMETRICS_DISABLED, value).apply()
+
+    var frozenPackages: Set<String>
+        get() = prefs.getStringSet(KEY_FROZEN_PACKAGES, emptySet()) ?: emptySet()
+        set(value) = prefs.edit().putStringSet(KEY_FROZEN_PACKAGES, value).apply()
+
+    fun addFrozenPackage(pkg: String) {
+        val set = frozenPackages.toMutableSet()
+        set.add(pkg)
+        frozenPackages = set
+    }
+
+    fun removeFrozenPackage(pkg: String) {
+        val set = frozenPackages.toMutableSet()
+        set.remove(pkg)
+        frozenPackages = set
+    }
 
     /** Returns true if the minimum configuration required to run is present. */
     fun isConfigured(): Boolean {

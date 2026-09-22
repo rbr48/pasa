@@ -26,10 +26,23 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/unlock</code> — Release lock and restore device
             • <code>/wipe</code> — Emergency factory reset (Requires Auth)
             • <code>/wipe_confirm &lt;pass&gt;</code> — Confirm device wipe
-            • <code>/device_owner</code> — Inspect/enable Device Owner lockdown
+            • <code>/set_master_pin &lt;pin&gt;</code> — Update emergency Master PIN remotely
+            
+            👑 <b>Enterprise Device Owner Defense</b>
+            • <code>/device_owner</code> — Full enterprise telemetry dashboard
+            • <code>/antitamper on|off|status</code> — Safe boot, airplane mode, factory reset lock
+            • <code>/usb_lock on|off|status</code> — Kill USB data pins (AC charge only) [Android 12+]
+            • <code>/self_heal</code> — Lock permissions permanently as unrevokable
+            • <code>/freeze &lt;app&gt;</code> — Vanish banking/private apps into shadow vault
+            • <code>/unfreeze &lt;app&gt;</code> — Restore hidden application
+            • <code>/frozen</code> — List all hidden/quarantined applications
+            • <code>/biometrics on|off</code> — Duress biometric killswitch (forces Master PIN)
+            • <code>/dns quad9|cloudflare|adguard|off|status</code> — System-wide encrypted DNS-over-TLS
+            • <code>/reboot</code> — Remotely restart device hardware
             
             📍 <b>Location & Safe Zones</b>
             • <code>/locate</code> — Instant high-accuracy GPS fix + Maps pin
+            • <code>/tower</code> — Dual-SIM cell tower triangulation & signal RF telemetry
             • <code>/track &lt;minutes&gt;</code> — Continuous periodic tracking
             • <code>/track stop</code> — Deactivate tracking
             • <code>/geofence here 200</code> — Set safe zone & alert on exit [PRO]

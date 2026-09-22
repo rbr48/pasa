@@ -1,0 +1,159 @@
+# 🛡️ PASA Sentinel (Private Android Security Agent) — System Knowledge & Architecture
+
+This document serves as the permanent memory, architectural specification, and operational guideline for the PASA Sentinel codebase. Every agent working in this workspace must adhere to the principles, patterns, and constraints documented herein.
+
+---
+
+## 1. Project Overview & Core Philosophy
+
+**PASA Sentinel** is a sovereign mobile defense and covert anti-theft system for Android devices (Android 8.0 through Android 16 / API 26–36).
+* **Zero Google Play Dependencies:** Operates without Google Play Services, Firebase, or Google Find My Device.
+* **Direct-to-Telegram Zero-Storage Architecture (Strategy 1):** Zero photos, zero GPS tracks, and zero audio recordings are stored on VPS disk or cloud databases. Evidence is transmitted directly to the user's private Telegram bot and immediately memory-shredded on the phone.
+* **Knox-Grade Device Owner Permanence:** Configured via `adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin`. Grants irreversible anti-uninstall protection, hardware lockscreen reset via escrow tokens, status bar/notification shade lockout, airplane mode prevention, and kiosk lockdown.
+* **Dual-Channel C2:** Primary channel via Telegram Bot API (direct polling or VPS gateway); secondary air-gapped cellular SMS fallback authenticated via TOTP (RFC 6238).
+* **Cryptographic Security Layer (ASTRA):** Hardware-backed Android Keystore / StrongBox keys (P-256 ECDSA), server-side Ed25519 command signing, and offline Ed25519 license verification.
+
+---
+
+## 2. Directory Structure & Component Map
+
+```
+d:/Software_and_Apps/PrivateApp/
+├── app/                                 # Native Android Application (Kotlin, Gradle 8.7, AGP 8.5.1)
+│   ├── build.gradle.kts                 # compileSdk=36, minSdk=26, targetSdk=36, Hilt, Room, CameraX, Tink
+│   └── src/
+│       ├── main/
+│       │   ├── AndroidManifest.xml      # Permissions, receivers, foreground service declarations, file providers
+│       │   ├── java/com/izhaanintellect/pasa/
+│       │   │   ├── PasaApp.kt           # App entrypoint, Hilt init, notification channels, watchdog restart
+│       │   │   ├── accessibility/       # A11y screenshot capture & Duress PIN lockscreen keypad interceptor
+│       │   │   ├── admin/               # DeviceAdminReceiver, escrow password tokens, kiosk mode, reboot
+│       │   │   ├── audio/               # AudioRecorderManager (PCM/AAC ambient wiretaps)
+│       │   │   ├── bot/                 # TelegramApi (Retrofit), CommandParser, CommandExecutor
+│       │   │   ├── camera/              # CameraX headless manager, stealth video, screenshot & burst capture
+│       │   │   ├── commands/            # 46 modular command implementations extending Command base class
+│       │   │   ├── crypto/              # DeviceIdentity (StrongBox/TEE), CommandVerifier (Ed25519), ReplayStore
+│       │   │   ├── data/                # EncryptedSharedPreferences, Room database (SQLCipher)
+│       │   │   ├── detection/           # Autonomous traps: Snatch (accelerometer), Charger, SIM change, SMS
+│       │   │   ├── di/                  # Hilt modules (AppModule, DatabaseModule, NetworkModule)
+│       │   │   ├── location/            # FusedLocation + GNSS hardware tracker, geofencing
+│       │   │   ├── network/             # PasaBackendApi (Retrofit), OkHttp clients
+│       │   │   ├── security/            # Anti-tamper, DuressManager, Escrow Token activation
+│       │   │   ├── service/             # PasaService persistent foreground daemon with dynamic FGS elevation
+│       │   │   ├── ui/                  # SetupActivity, FakeShutdownActivity, AlertMessageActivity, Escrow
+│       │   │   ├── update/              # OtaUpdateManager (self-downloading signed APK installer)
+│       │   │   └── util/                # System utilities, SecurityActivityLauncher, permissions
+│       │   └── res/                     # Layouts, themes, drawables, accessibility_config, device_admin.xml
+├── pasa-server/                         # VPS Control Plane & Telegram Gateway (Node.js 22, Express)
+│   ├── server.js                        # Master server: HTTP C2 long-polling, Telegram Webhook, Web Admin Console
+│   ├── lib/
+│   │   ├── db.js                        # SQLite WAL control plane (node:sqlite DatabaseSync)
+│   │   ├── licensing.js                 # Ed25519 license signer, tiers (Trial, Pro, Enterprise), Binance/bKash
+│   │   ├── rateLimit.js                 # Sliding-window anti-brute-force rate limiter
+│   │   └── storage.js                   # JSON fallback persistence helper
+│   ├── landingPage.js                   # Serves commercial landing page
+│   ├── update_releases_v*.js            # Release publishing scripts
+│   └── releases/                        # Hosted signed APKs for OTA distribution
+├── pasa-commercial-web/                 # Commercial Marketing & Pricing Frontend
+│   └── public/assets/                   # CSS, JS, Branding assets
+├── releases/                            # Git-tracked release binaries (e.g. pasa-latest.apk)
+├── PRIVACY.md                           # Sovereign Zero-Telemetry & Zero-Storage Guarantee
+├── TERMS.md                             # Legal Terms of Service & EULA
+├── keystore.properties                  # Keystore signing credentials
+└── pasa-release-key.jks                 # Production release signing key
+```
+
+---
+
+## 3. Key Subsystems & Technical Details
+
+### 3.1 Direct-to-Telegram Zero-Storage Architecture (Strategy 1)
+* **Surveillance Media:** Photos taken by `/snap`, videos by `/video`, screenshots by `/screenshot`, and recordings by `/record` are streamed directly to Telegram API (`sendPhoto`, `sendVideo`, `sendVoice`, `sendDocument`).
+* **Instant Shredding:** As soon as transmission completes (or fails), local temporary files on the device are cryptographically overwritten and deleted (`photoFile.delete()`).
+* **Server Ephemeral Memory:** In `server.js`, `multer.memoryStorage()` is strictly enforced. Media buffers live exclusively in RAM during relay and never touch physical VPS disk.
+* **Zero Location Logs:** The VPS database never records GPS tracks. Location pins are forwarded straight to Telegram.
+
+### 3.2 Enterprise Device Owner & Hardware Defense Suite (Android 8.0 – 16)
+* Android 14+ removed `resetPassword()`. PASA uses cryptographic hardware escrow tokens:
+  1. Generates 32-byte secure random token stored in `EncryptedSharedPreferences`.
+  2. Enrolls token via `dpm.setResetPasswordToken(adminComponent, tokenBytes)`.
+  3. Keyguard arms token on first physical device unlock.
+  4. Remote reset executed via `dpm.resetPasswordWithToken(adminComponent, newPin, tokenBytes, 0)`.
+* **Hardware USB Data Pin Killswitch (`/usb_lock`):** Android 12+ (API 31+) `dpm.setUsbDataSignalingEnabled(false)` physically disables USB data pins. Forensic extraction boxes (Cellebrite, GrayKey), BadUSB, and juice-jacking attacks are neutralized while preserving AC power charging.
+* **Enterprise Anti-Tamper Suite (`/antitamper`):** Enforces kernel/OS restrictions: `DISALLOW_SAFE_BOOT` (blocks safe mode), `DISALLOW_AIRPLANE_MODE`, `DISALLOW_FACTORY_RESET`, `DISALLOW_NETWORK_RESET`, `DISALLOW_MOUNT_PHYSICAL_MEDIA`, `DISALLOW_USB_FILE_TRANSFER`, `DISALLOW_CONFIG_LOCATION`.
+* **Self-Healing Permission Sovereignty (`/self_heal`):** Uses `dpm.setPermissionGrantState(..., PERMISSION_GRANT_STATE_GRANTED)` to permanently lock Camera, Microphone, GPS, SMS, Call Log, and Contacts permissions as "Managed by your organization" (unrevokable by user or thief). Auto-enforced on app startup.
+* **Shadow App Vault (`/freeze`, `/unfreeze`, `/frozen`):** `dpm.setApplicationHidden` completely conceals banking, crypto, and private messenger apps from launcher, app drawer, and system process table without data loss.
+* **Biometric Coercion Killswitch (`/biometrics`):** `dpm.setKeyguardDisabledFeatures` deactivates fingerprint and 3D face recognition on the lockscreen, forcing complex Master Passphrase authentication during robberies or checkpoint duress.
+* **System-Wide Encrypted DNS Enforcement (`/dns`):** Android 10+ (API 29+) `dpm.setGlobalPrivateDnsModeSpecifiedHost` enforces tamper-proof DNS-over-TLS (DoT) across all Wi-Fi and cellular networks (Quad9, Cloudflare, AdGuard, or custom host), defeating ISP snooping and rogue captive portals.
+* **Remote Hardware GPS Enforcement:** `dpm.setLocationEnabled(adminComponent, true)` forcibly turns on the GNSS chip whenever location is requested.
+* **OS Security Event Auditing (`SecurityLog`):** Hooks kernel security logs (`onSecurityLogsAvailable`) to alert on unauthorized ADB shell connections, KeyStore tampering, and media mount operations.
+* **Kiosk Lockdown:** `dpm.setLockTaskPackages(adminComponent, [packageName])` and `dpm.setLockTaskFeatures(adminComponent, LOCK_TASK_FEATURE_NONE)`.
+* **SystemUI Lockout:** `dpm.setStatusBarDisabled(adminComponent, true)` blocks pulling down Quick Settings to prevent toggling Airplane Mode or Wi-Fi.
+
+### 3.3 Covert Forensics & Accessibility Keypad Interceptor
+* **AccessibilityScreenCaptureService (`AccessibilityService`):**
+  - Captures non-intrusive screenshots via `takeScreenshot(Display.DEFAULT_DISPLAY, ...)` on Android 11+ (API 30+) without permission popups.
+  - Monitors `TYPE_VIEW_CLICKED` on lockscreen/SystemUI keyboards to detect **Decoy Duress PIN**.
+  - When Duress PIN is matched:
+    1. Unlocks device via `duressMgr.executeDuressUnlock()`.
+    2. **Sterile Sandbox Decoy OS:** Instantly vanishes banking, crypto, and private messengers via `dpm.setApplicationHidden` to leave a sterile decoy environment for the coercer.
+    3. Performs simulated swipe-up gesture (`dispatchGesture`) to dismiss lockscreen.
+    4. Issues `GLOBAL_ACTION_HOME`.
+    5. Silently captures front-camera mugshot, sat GPS fix, and broadcasts emergency Telegram SOS.
+  - In Lost Mode, automatically dismisses unauthorized Notification Shade access.
+
+### 3.4 Autonomous Sensor Traps & Physical Anti-Theft
+* **Kinetic Snatch Detection (`TrapManager`):** Continuous accelerometer vector magnitude check `sqrt(x² + y² + z²) > 26.0 m/s² (~2.65G)`. Triggers immediate device lock, Kiosk Lost Mode guard, perpetrator selfie, and Telegram alert.
+* **Pocket & Bag Extraction Trap (`/trap pocket on`):** Monitors proximity sensor transitions from covered (in pocket) to uncovered while locked. If device is not unlocked within 5 seconds grace period, automatically engages Kiosk lock, snaps front camera mugshot, and alerts owner.
+* **Locked USB Cable Insertion Trap:** `PowerAlertReceiver` intercepts `ACTION_POWER_CONNECTED` while screen is locked. Instantly cuts hardware USB data signaling pins (`/usb_lock`) to neutralize forensic extraction boxes (Cellebrite, GrayKey) and juice-jacking, captures front-camera photo, and dispatches alert.
+* **Physical SIM Ejection Lockdown:** `SIMChangeReceiver` detects tray eject, instantly enforces hardware screen lock, enables GNSS hardware radio, locks out status bar/airplane mode toggle, and captures mugshot beacon.
+* **Dual-SIM Cell Tower Triangulation (`/tower`):** Scans LTE/5G NR/GSM cell identities (MCC, MNC, LAC/TAC, CID, dBm) across all active subscriptions for resilient indoor localization without satellite reception.
+
+### 3.5 Fake Shutdown Deception (`FakeShutdownActivity`)
+* Simulates authentic OEM power-down animation, then drops brightness to 0-nit black canvas with `WindowManager.LayoutParams.FLAG_FULLSCREEN` and `SYSTEM_UI_FLAG_IMMERSIVE_STICKY`.
+* Phone appears completely dead. Screen taps silently trigger front camera mugshots and GPS beacons.
+* Dismissed remotely via `/wake` command or secret multi-tap sequence.
+
+### 3.6 Air-Gapped Cellular SMS Fallback (`SmsCommandReceiver`)
+* Listens on `SMS_RECEIVED` (priority 999) with direct boot awareness.
+* Syntax: `PASA <6-digit-TOTP> <command>` (e.g. `PASA 419582 /locate` or `PASA 419582 /status`).
+* Validates TOTP code against hardware clock using enrolled secret key (RFC 6238, window tolerance ±1 step).
+* **Dual-SIM Routing:** Dynamically extracts `subscriptionId` from incoming SMS and dispatches responses via the receiving SIM's `SmsManager`.
+* **Security & Auth Feedback:** Alerts emergency numbers on brute-force attempts and invalid TOTPs; sends direct feedback for command execution.
+* **Supported SMS Commands:** `/locate` (with fast cached GNSS fallback), `/status`, `/help`, `/lock`, `/unlock`, `/ring`, `/ring_stop`, `/fakeshutdown`, `/wake`, `/set_master_pin <pin>`, `/wipe_confirm`.
+
+### 3.7 Commercial Licensing & Cryptography
+* **Ed25519 Offline Verification:** License keys (`PASA-PRO-XXXX-XXXX`, `PASA-LIFE-XXXX-XXXX`) issue an Ed25519-signed certificate payload. The Android client verifies the signature offline using the embedded public key in <0.2ms.
+* **Payment Gateways:** Binance Pay (UID `756303714`, Nickname `RBR48`) and bKash personal integration.
+* **7-Day Guarantee:** Unconditional 24-hour refund policy built into customer support operations.
+
+---
+
+## 4. Complete Command Matrix (55 Telegram C2 Commands)
+
+| Category | Commands |
+|---|---|
+| **Core & Diagnostics** | `/menu`, `/help`, `/status`, `/selftest`, `/info`, `/reboot` |
+| **Enterprise Device Owner** | `/device_owner`, `/antitamper`, `/usb_lock`, `/self_heal`, `/freeze`, `/unfreeze`, `/frozen`, `/biometrics`, `/dns` |
+| **Location & Geofence**| `/locate` (`/gps`, `/location`), `/tower`, `/track`, `/track_stop`, `/geofence` |
+| **Covert Forensics**   | `/snap`, `/screenshot`, `/screen_burst`, `/screenrecord`, `/video`, `/record`, `/livestream`, `/stopstream`, `/clipboard` |
+| **Lockdown & Alert**   | `/lock`, `/lock_message`, `/lock_pin`, `/set_os_pin`, `/set_master_pin`, `/unlock`, `/fakeshutdown`, `/wake`, `/ring`, `/ring_stop`, `/message` |
+| **Defense & Deception**| `/duress_pin`, `/trap`, `/shred`, `/stealth` (`/hide`, `/show`) |
+| **Extraction & Logs**  | `/contacts`, `/call_log`, `/sms_log`, `/history`, `/network` |
+| **System & Maintenance**| `/apps`, `/app_uninstall`, `/smssetup`, `/license`, `/check_update`, `/update_confirm`, `/wipe`, `/wipe_confirm` |
+
+---
+
+## 5. Development & Contribution Rules
+
+1. **Never Persist Sensitive Media to Server Disk:** Strategy 1 Zero-Storage is absolute. No PR or code change may save camera captures, audio clips, or GPS history to VPS hard drives.
+2. **Foreground Service Types (Android 14+):** Dynamic elevation is required when accessing Camera or Microphone from background (`PasaService.elevateToMicrophone()` / `demoteFromMicrophone()`). Catch `ForegroundServiceStartNotAllowedException` gracefully.
+3. **Thread Safety & Dispatchers:**
+   - Network & heavy crypto: `Dispatchers.IO`.
+   - UI and Accessibility gestures: `Dispatchers.Main` / `Handler(Looper.getMainLooper())`.
+   - Background tasks: AndroidX WorkManager with Hilt worker factories.
+4. **Direct Boot Awareness:** Receivers handling emergency restarts (`BootReceiver`, `SIMChangeReceiver`, `PowerAlertReceiver`, `SmsCommandReceiver`) must declare `android:directBootAware="true"` and use Device Encrypted Storage before first user unlock.
+5. **Node.js Server Conventions:**
+   - Use Node 22 built-in `node:sqlite` in WAL mode (`DatabaseSync`).
+   - Timing-safe comparisons (`crypto.timingSafeEqual`) for all authentication tokens.
+   - Sliding-window rate limiters on public and administrative endpoints.

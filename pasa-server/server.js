@@ -560,6 +560,7 @@ async function registerTelegramBotCommands(token) {
     { command: "selftest", description: "🩺 Run 9-point security, GPS & sensor audit" },
     { command: "info", description: "ℹ️ Hardware specs, SIM details & OS version" },
     { command: "locate", description: "📍 Acquire instant GPS fix & Google Maps pin" },
+    { command: "tower", description: "📡 Cell tower triangulation & signal RF telemetry" },
     { command: "track", description: "🛰️ Start continuous live GPS tracking" },
     { command: "track_stop", description: "🛑 Stop continuous GPS tracking" },
     { command: "geofence", description: "🌐 Configure safe zone radius & breach alerts" },
@@ -576,6 +577,7 @@ async function registerTelegramBotCommands(token) {
     { command: "lock_message", description: "💬 Set urgent alert message on lockscreen" },
     { command: "lock_pin", description: "🔑 Lock phone with custom 4-8 digit PIN" },
     { command: "set_os_pin", description: "🔐 Overwrite hardware OS lockscreen PIN (Device Owner)" },
+    { command: "set_master_pin", description: "🔑 Update PASA Master Emergency PIN/Password" },
     { command: "unlock", description: "🔓 Dismiss Lost Mode & unlock device screen" },
     { command: "fakeshutdown", description: "🕶️ Fake shutdown: blackout screen & silent traps" },
     { command: "wake", description: "☀️ Restore device from Fake Shutdown blackout" },
@@ -586,6 +588,14 @@ async function registerTelegramBotCommands(token) {
     { command: "trap", description: "🛡️ Arm sensor traps (snatch, charger, pocket)" },
     { command: "shred", description: "🗑️ Cryptographically shred sensitive files" },
     { command: "device_owner", description: "👑 Check Device Owner & Kiosk hardware lock" },
+    { command: "antitamper", description: "🛡️ Safe boot, airplane mode & factory reset lock" },
+    { command: "usb_lock", description: "🔌 Kill USB data pins (AC charge only) [Android 12+]" },
+    { command: "self_heal", description: "👑 Permanently lock & grant all permissions" },
+    { command: "dns", description: "🛡️ Enforce system-wide Private DNS-over-TLS (Device Owner)" },
+    { command: "freeze", description: "🧊 Conceal banking/private app into shadow vault" },
+    { command: "unfreeze", description: "☀️ Restore frozen application from vault" },
+    { command: "frozen", description: "📦 List all frozen/hidden applications" },
+    { command: "biometrics", description: "🧬 Duress biometric killswitch (forces Master PIN)" },
     { command: "reboot", description: "🔄 Remotely restart phone hardware (Device Owner)" },
     { command: "stealth", description: "👁️ Toggle PASA app icon in launcher" },
     { command: "hide", description: "🔇 Hide PASA app icon from phone launcher" },
@@ -1782,7 +1792,7 @@ async function handleTelegramUpdate(token, update) {
     return;
   }
 
-  if (lowerText.includes('locate') || lowerText.includes('gps') || lowerText === 'where') {
+  if (lowerText.includes('locate') || lowerText.includes('location') || lowerText.includes('gps') || lowerText === 'where') {
     await dispatchCommandToDevice(token, chatId, '/locate', []);
     return;
   }

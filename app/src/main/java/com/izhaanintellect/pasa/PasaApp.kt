@@ -76,6 +76,25 @@ class PasaApp : Application(), Configuration.Provider {
                 Log.w(TAG, "Could not start service from Application.onCreate: ${e.message}")
             }
         }
+
+        // Enforce baseline Device Owner sovereign protections if provisioned
+        if (com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(this)) {
+            try {
+                com.izhaanintellect.pasa.admin.PasaDeviceAdmin.selfHealPermissions(this)
+                if (preferencesManager.antiTamperEnabled) {
+                    com.izhaanintellect.pasa.admin.PasaDeviceAdmin.applyAntiTamperSuite(this, true)
+                }
+                if (preferencesManager.usbLockEnabled) {
+                    com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setUsbDataSignaling(this, false)
+                }
+                if (preferencesManager.biometricsDisabled) {
+                    com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setBiometricsDisabled(this, true)
+                }
+                com.izhaanintellect.pasa.admin.PasaDeviceAdmin.enableSecurityLogging(this, true)
+            } catch (e: Exception) {
+                Log.w(TAG, "Error applying Device Owner baseline configuration: ${e.message}")
+            }
+        }
     }
 
 

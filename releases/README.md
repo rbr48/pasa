@@ -8,33 +8,33 @@ This directory hosts verified release binaries of **PASA Sentinel (Private Andro
 
 | File | Release | Build | Size | Direct Link |
 |---|---|---|---|---|
-| **`PASA-Sentinel-v3.1.0.apk`** | `v3.1.0` (Latest Stable) | Build 16 | 18.11 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/PASA-Sentinel-v3.1.0.apk) |
-| **`pasa-latest.apk`** | Rolling Latest | Build 16 | 18.11 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
-| **Archive Releases** | `v3.0.0` – `v3.0.9` | Legacy | Various | [GitHub Releases](https://github.com/rbr48/pasa/releases) |
+| **`pasa-v3.3.0-35.apk`** | `v3.3.0` (Latest Stable) | Build 35 | 18.19 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.3.0-35.apk) |
+| **`pasa-latest.apk`** | Rolling Latest | Build 35 | 18.19 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
+| **Archive Releases** | `v3.0.0` – `v3.2.9` | Legacy | Various | [GitHub Releases](https://github.com/rbr48/pasa/releases) |
 
-Alternative Mirror (Fast CDN): [https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
+Alternative Mirror (Fast CDN): [https://pasa.izhaanintellect.fun/releases/pasa-latest.apk](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
 
 ---
 
-## 🔐 Cryptographic Integrity (v3.1.0)
+## 🔐 Cryptographic Integrity (v3.3.0)
 
 Always verify the SHA-256 checksum before sideloading onto your phone:
 
-* **File:** `PASA-Sentinel-v3.1.0.apk`
-* **File Size:** `18,984,359 bytes` (18.11 MB)
+* **File:** `pasa-v3.3.0-35.apk` / `pasa-latest.apk`
+* **File Size:** `19,069,880 bytes` (18.19 MB)
 * **SHA-256 Checksum:**
   ```text
-  87140529c244ae41a41beb2fc04284a88763725d65bd24adb660a80ceb19062a
+  ffad8366c0fffcd0c78d46803a46a23d762f8a61a44d17f56725ef68d54e29e2
   ```
 
 ### Verify Checksum:
 - **Windows (PowerShell):**
   ```powershell
-  Get-FileHash PASA-Sentinel-v3.1.0.apk -Algorithm SHA256
+  Get-FileHash pasa-v3.3.0-35.apk -Algorithm SHA256
   ```
 - **Linux / macOS:**
   ```bash
-  sha256sum PASA-Sentinel-v3.1.0.apk
+  sha256sum pasa-v3.3.0-35.apk
   ```
 
 ---

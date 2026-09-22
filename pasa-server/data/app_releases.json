@@ -1,5 +1,38 @@
 [
   {
+    "versionCode": 36,
+    "versionName": "3.4.0",
+    "releaseDate": "2026-09-22",
+    "fileName": "pasa-v3.4.0-36.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.4.0-36.apk",
+    "sha256": "f1a9befb5864cda3d343f5a3d5291b018408bddf3b3738154c8919c9a8160539",
+    "size": 19086256,
+    "mandatory": false,
+    "releaseNotes": "v3.4.0: Sovereign Mobile Defense & Hardware Anti-Tamper Hardening — System-Wide Encrypted DNS-over-TLS (/dns: Quad9, Cloudflare, AdGuard, custom host via Device Owner); Dual-SIM Cell Tower Triangulation & RF Telemetry (/tower); Hardware USB Insertion Auto-Killswitch (instantly cuts data pins on locked cable insertion + covert mugshot); Sterile Sandbox Decoy OS (vanishes banking/crypto/messengers on duress unlock); Real-Time Physical SIM Ejection Lock & GPS Force-On; Autonomous Pocket & Bag Extraction Trap (/trap pocket on|off with 5s grace period)."
+  },
+  {
+    "versionCode": 35,
+    "versionName": "3.3.0",
+    "releaseDate": "2026-09-22",
+    "fileName": "pasa-v3.3.0-35.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.3.0-35.apk",
+    "sha256": "ffad8366c0fffcd0c78d46803a46a23d762f8a61a44d17f56725ef68d54e29e2",
+    "size": 19069880,
+    "mandatory": false,
+    "releaseNotes": "v3.3.0: Sovereign Enterprise Device Owner Defense Suite — Hardware USB Data Pin Killswitch (/usb_lock, Android 12+); Enterprise Anti-Tamper Hardening (/antitamper: Safe Boot, Airplane Mode, Factory Reset blocks); Self-Healing Unrevokable Permissions (/self_heal); Shadow App Vault (/freeze, /unfreeze, /frozen); Biometric Coercion Killswitch (/biometrics); Remote Hardware GPS Enforcement; and OS Security Event Kernel Auditing."
+  },
+  {
+    "versionCode": 34,
+    "versionName": "3.2.9",
+    "releaseDate": "2026-09-22",
+    "fileName": "pasa-v3.2.9-34.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.2.9-34.apk",
+    "sha256": "4e4168500732995c95fa0c4004867be111d77e8e4b624cfdd1767254e44af518",
+    "size": 19053416,
+    "mandatory": false,
+    "releaseNotes": "v3.2.9: Fixed /location alias collision with /locate; Added /set_master_pin remote C2 command; Upgraded air-gapped SMS engine with dual-SIM routing, authentication failure alerts, fast GPS fallback, and extended SMS C2 commands (/status, /help, /set_master_pin)."
+  },
+  {
     "versionCode": 33,
     "versionName": "3.2.8",
     "releaseDate": "2026-09-21",

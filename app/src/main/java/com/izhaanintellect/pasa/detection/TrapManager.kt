@@ -48,17 +48,23 @@ class TrapManager @Inject constructor(
         private const val TAG = "PASA_TrapManager"
         private const val SNATCH_ACCEL_THRESHOLD = 26.0f // ~2.65G
         private const val SNATCH_COOLDOWN_MS = 60_000L
+        private const val POCKET_COOLDOWN_MS = 30_000L
+        private const val POCKET_GRACE_PERIOD_MS = 5_000L
     }
 
     private var sensorManager: SensorManager? = null
     private var isMonitoring = false
     private var lastSnatchTriggerTime = 0L
+    private var lastPocketTriggerTime = 0L
+    private var wasCoveredInPocket = false
+    private var pocketGraceJob: kotlinx.coroutines.Job? = null
 
     fun startMonitoring() {
         if (isMonitoring) return
 
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        val proximity = sensorManager?.getDefaultSensor(Sensor.TYPE_PROXIMITY)
 
         if (accelerometer != null) {
             sensorManager?.registerListener(
@@ -66,36 +72,88 @@ class TrapManager @Inject constructor(
                 accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL
             )
-            isMonitoring = true
             Log.i(TAG, "Autonomous Traps armed (Snatch & Motion detection active)")
         } else {
             Log.w(TAG, "No accelerometer available for traps")
         }
+
+        if (proximity != null) {
+            sensorManager?.registerListener(
+                this,
+                proximity,
+                SensorManager.SENSOR_DELAY_NORMAL
+            )
+            Log.i(TAG, "Proximity sensor registered for pocket/bag extraction defense")
+        }
+
+        isMonitoring = (accelerometer != null || proximity != null)
     }
 
     fun stopMonitoring() {
         sensorManager?.unregisterListener(this)
+        pocketGraceJob?.cancel()
+        pocketGraceJob = null
         isMonitoring = false
         Log.i(TAG, "Autonomous Traps disarmed")
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
         event ?: return
-        if (event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
 
-        if (!preferencesManager.isTrapEnabled && !preferencesManager.isSnatchTrapEnabled) return
+        when (event.sensor.type) {
+            Sensor.TYPE_ACCELEROMETER -> {
+                if (!preferencesManager.isTrapEnabled && !preferencesManager.isSnatchTrapEnabled) return
 
-        val x = event.values[0]
-        val y = event.values[1]
-        val z = event.values[2]
-        val magnitude = sqrt(x * x + y * y + z * z)
+                val x = event.values[0]
+                val y = event.values[1]
+                val z = event.values[2]
+                val magnitude = sqrt(x * x + y * y + z * z)
 
-        if (magnitude > SNATCH_ACCEL_THRESHOLD) {
-            val now = System.currentTimeMillis()
-            if (now - lastSnatchTriggerTime > SNATCH_COOLDOWN_MS) {
-                lastSnatchTriggerTime = now
-                Log.w(TAG, "SNATCH DETECTED! Acceleration spike: $magnitude m/s²")
-                handleSnatchEvent(magnitude)
+                if (magnitude > SNATCH_ACCEL_THRESHOLD) {
+                    val now = System.currentTimeMillis()
+                    if (now - lastSnatchTriggerTime > SNATCH_COOLDOWN_MS) {
+                        lastSnatchTriggerTime = now
+                        Log.w(TAG, "SNATCH DETECTED! Acceleration spike: $magnitude m/s²")
+                        handleSnatchEvent(magnitude)
+                    }
+                }
+            }
+            Sensor.TYPE_PROXIMITY -> {
+                val distance = event.values[0]
+                val maxRange = event.sensor.maximumRange
+                val isCovered = distance < maxRange
+
+                if (isCovered) {
+                    wasCoveredInPocket = true
+                    pocketGraceJob?.cancel()
+                    pocketGraceJob = null
+                } else {
+                    if (wasCoveredInPocket) {
+                        wasCoveredInPocket = false
+
+                        if (!preferencesManager.isTrapEnabled && !preferencesManager.isPocketTrapEnabled) return
+
+                        val km = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+                        if (km?.isKeyguardLocked == true) {
+                            val now = System.currentTimeMillis()
+                            if (now - lastPocketTriggerTime > POCKET_COOLDOWN_MS) {
+                                Log.i(TAG, "Phone extracted from pocket while locked! Starting 5-second grace period...")
+                                pocketGraceJob?.cancel()
+                                pocketGraceJob = CoroutineScope(Dispatchers.Main).launch {
+                                    kotlinx.coroutines.delay(POCKET_GRACE_PERIOD_MS)
+                                    val checkKm = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+                                    if (checkKm?.isKeyguardLocked == true) {
+                                        lastPocketTriggerTime = System.currentTimeMillis()
+                                        Log.w(TAG, "POCKET EXTRACTION CONFIRMED: Device remained locked after grace period!")
+                                        handlePocketExtractionEvent()
+                                    } else {
+                                        Log.d(TAG, "Device unlocked within grace period — authorized owner extraction.")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -222,11 +280,96 @@ class TrapManager @Inject constructor(
                                 photo = part,
                                 caption = captionBody
                             )
+                            try { photoFile.delete() } catch (_: Exception) {}
                         }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error in onChargerDisconnected", e)
                 }
+            }
+        }
+    }
+
+    /**
+     * Triggered when phone is pulled out of pocket/bag while locked and remains locked past grace period.
+     */
+    private fun handlePocketExtractionEvent() {
+        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+        val adminComponent = PasaDeviceAdmin.getComponentName(context)
+
+        // 1. Immediately Lock Screen
+        try {
+            if (dpm != null && dpm.isAdminActive(adminComponent)) {
+                dpm.lockNow()
+                Log.i(TAG, "Device screen locked immediately via Pocket Trap")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to lockNow on pocket extraction", e)
+        }
+
+        // 2. Launch Lost Mode Guard Screen
+        try {
+            val alertIntent = AlertMessageActivity.createIntent(
+                context = context,
+                message = "🚨 POCKET TRAP: Device removed from pocket without unlock.",
+                enforcePin = true
+            )
+            SecurityActivityLauncher.launch(
+                context = context,
+                intent = alertIntent,
+                notificationId = AlertMessageActivity.NOTIFICATION_ID,
+                notificationTitle = "🚨 POCKET / BAG EXTRACTION DETECTED",
+                notificationText = "Device automatically secured in Lost Mode",
+                wakeScreen = true,
+                ongoing = true
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not launch AlertMessageActivity on pocket extraction: ${e.message}")
+        }
+
+        // 3. Dispatch Forensics & Telegram Alert
+        CoroutineScope(Dispatchers.IO).launch {
+            var photoFile: java.io.File? = null
+            try {
+                val loc = locationTracker.getCurrentLocation()
+                val locText = if (loc != null) {
+                    "\n📍 <b>Extraction Location:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
+                } else ""
+
+                val alertText = "🚨 <b>AUTONOMOUS POCKET / BAG EXTRACTION DETECTED!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                        "⚠️ Device was removed from a pocket or bag while locked and was NOT unlocked within 5 seconds.\n" +
+                        "🔒 Device was secured automatically in Lost Mode.$locText"
+
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(
+                        chatId = preferencesManager.ownerChatIdLong,
+                        text = alertText
+                    )
+                )
+
+                // Capture perpetrator selfie
+                val captureResult = StealthCaptureBridge.capturePhoto(context, useFront = true)
+                photoFile = captureResult.file
+                photoFile?.let { file ->
+                    if (file.exists() && file.length() > 0) {
+                        val chatIdBody = preferencesManager.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
+                        val captionBody = "🚨 Pickpocket Perp Capture".toRequestBody("text/plain".toMediaTypeOrNull())
+                        val fileBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                        val part = MultipartBody.Part.createFormData("photo", file.name, fileBody)
+
+                        telegramApi.sendPhoto(
+                            token = preferencesManager.botToken,
+                            chatId = chatIdBody,
+                            photo = part,
+                            caption = captionBody
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in handlePocketExtractionEvent", e)
+            } finally {
+                try { photoFile?.let { if (it.exists()) it.delete() } } catch (_: Exception) {}
             }
         }
     }
