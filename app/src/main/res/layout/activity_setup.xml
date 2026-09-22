@@ -149,36 +149,13 @@
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
-                <!-- Method 2: Instant 6-Digit Pairing -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnQuickPair"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:layout_marginTop="10dp"
-                    android:backgroundTint="#0284C7"
-                    android:text="@string/btn_quick_pair"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="12dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="4dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-                    <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#1E293B"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="10dp"
-                        android:text="OR (Method 1: Sovereign Private Bot)"
-                        android:textColor="#64748B"
-                        android:textSize="11sp" />
-                    <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#1E293B"/>
-                </LinearLayout>
+                    android:layout_marginTop="4dp"
+                    android:text="Create your bot via @BotFather on Telegram, enter your bot token and chat ID below."
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilBotToken"

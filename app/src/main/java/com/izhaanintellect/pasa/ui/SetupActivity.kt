@@ -260,16 +260,6 @@ class SetupActivity : AppCompatActivity() {
             showTermsDialog()
         }
 
-        // Method 2: Instant Pairing via @Pas_agent_bot
-        binding.btnQuickPair.setOnClickListener {
-            if (!binding.cbAcceptTerms.isChecked) {
-                Toast.makeText(this, getString(R.string.terms_required_error), Toast.LENGTH_LONG).show()
-                binding.cbAcceptTerms.requestFocus()
-                return@setOnClickListener
-            }
-            showSovereignAdvisoryDialog()
-        }
-
         // Activate Button
         binding.btnActivate.setOnClickListener {
             activatePasa()
@@ -600,7 +590,7 @@ class SetupActivity : AppCompatActivity() {
             PASA Sentinel captures camera snapshots, ambient audio, and satellite GPS coordinates for theft recovery. You are solely responsible for compliance with local two-party recording laws.
 
             4. SOVEREIGN DEFENSE ARCHITECTURE
-            Method 1 (Private Bot via @BotFather) provides 100% sovereign, zero-trust defense. Method 2 (Instant Pairing) routes through our managed control plane.
+            Your private bot via @BotFather provides 100% sovereign, zero-trust defense. Your credentials remain exclusively on your device.
 
             Full legal terms are published at:
             https://pasa.izhaanintellect.fun/terms
@@ -614,186 +604,6 @@ class SetupActivity : AppCompatActivity() {
             }
             .setNegativeButton("Close", null)
             .show()
-    }
-
-    private fun showSovereignAdvisoryDialog() {
-        val advisoryMsg = "PASA Sentinel provides two Command & Control architectures:\n\n" +
-                "🛡️ Method 1: Private Bot via @BotFather (Recommended)\n" +
-                "• 100% sovereign, zero-trust defense.\n" +
-                "• You hold your private bot token.\n" +
-                "• Completely isolated from all third parties.\n\n" +
-                "⚡ Method 2: Instant Pairing via @Pas_agent_bot\n" +
-                "• Instant setup with a 6-digit one-time code.\n" +
-                "• Protected by rate limits and device-binding OTP.\n" +
-                "• Commands route through our hardened VPS gateway.\n\n" +
-                "For high-threat models and sovereign autonomy, Method 1 is strongly recommended."
-
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("🛡️ Sovereign Security Advisory")
-            .setMessage(advisoryMsg)
-            .setPositiveButton("Use Method 1 (Sovereign)") { _, _ ->
-                binding.tilBotToken.requestFocus()
-                Toast.makeText(this, "Enter your private bot token from @BotFather below", Toast.LENGTH_LONG).show()
-            }
-            .setNegativeButton("Proceed with Instant Pair") { _, _ ->
-                startInstantPairingWorkflow()
-            }
-            .show()
-    }
-
-    private var pairingJob: kotlinx.coroutines.Job? = null
-
-    private fun startInstantPairingWorkflow() {
-        val serverUrl = binding.etServerUrl.text.toString().trim().ifBlank { PreferencesManager.DEFAULT_SERVER_URL }
-        val deviceId = preferencesManager.deviceId
-        val deviceName = "${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE})"
-
-        val progressDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("⚡ Initializing Pairing Code")
-            .setMessage("Contacting PASA Control Plane...")
-            .setCancelable(false)
-            .show()
-
-        lifecycleScope.launch {
-            try {
-                val initRes = viewModel.initPairing(serverUrl, deviceId, deviceName)
-                progressDialog.dismiss()
-
-                if (!initRes.ok || initRes.code == null) {
-                    Toast.makeText(this@SetupActivity, "❌ Pairing initialization failed: ${initRes.message ?: "Server error"}", Toast.LENGTH_LONG).show()
-                    return@launch
-                }
-
-                showPairingCodeDialog(
-                    serverUrl = serverUrl,
-                    code = initRes.code,
-                    formattedCode = initRes.formattedCode ?: initRes.code,
-                    expiresInSec = initRes.expiresInSeconds ?: 180,
-                    botUsername = initRes.botUsername ?: "Pas_agent_bot"
-                )
-            } catch (e: Exception) {
-                progressDialog.dismiss()
-                Toast.makeText(this@SetupActivity, "❌ Connection error: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun showPairingCodeDialog(
-        serverUrl: String,
-        code: String,
-        formattedCode: String,
-        expiresInSec: Int,
-        botUsername: String
-    ) {
-        val dialogView = android.widget.LinearLayout(this).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(60, 40, 60, 20)
-            gravity = android.view.Gravity.CENTER_HORIZONTAL
-        }
-
-        val tvInstruction = android.widget.TextView(this).apply {
-            text = "Send this 6-digit one-time code to @$botUsername in Telegram to instantly pair this device:"
-            setTextColor(android.graphics.Color.parseColor("#CBD5E1"))
-            textSize = 14f
-            gravity = android.view.Gravity.CENTER
-        }
-
-        val tvCode = android.widget.TextView(this).apply {
-            text = formattedCode
-            textSize = 36f
-            typeface = android.graphics.Typeface.MONOSPACE
-            paint.isFakeBoldText = true
-            setTextColor(android.graphics.Color.parseColor("#38BDF8"))
-            gravity = android.view.Gravity.CENTER
-            setPadding(0, 30, 0, 20)
-            setTextIsSelectable(true)
-        }
-
-        val tvTimer = android.widget.TextView(this).apply {
-            text = "⏳ Code expires in ${expiresInSec}s"
-            setTextColor(android.graphics.Color.parseColor("#94A3B8"))
-            textSize = 12f
-            gravity = android.view.Gravity.CENTER
-        }
-
-        val btnOpenTg = com.google.android.material.button.MaterialButton(this).apply {
-            text = "✈️ Open @$botUsername in Telegram"
-            setBackgroundColor(android.graphics.Color.parseColor("#0284C7"))
-            setOnClickListener {
-                try {
-                    val tgIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/$botUsername?start=pair_$code"))
-                    startActivity(tgIntent)
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Please open Telegram and message @$botUsername", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-
-        val tvWaiting = android.widget.TextView(this).apply {
-            text = "📡 Listening for Telegram pairing confirmation..."
-            setTextColor(android.graphics.Color.parseColor("#22C55E"))
-            textSize = 12f
-            gravity = android.view.Gravity.CENTER
-            setPadding(0, 20, 0, 10)
-        }
-
-        dialogView.addView(tvInstruction)
-        dialogView.addView(tvCode)
-        dialogView.addView(tvTimer)
-        dialogView.addView(btnOpenTg)
-        dialogView.addView(tvWaiting)
-
-        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("⚡ Instant Device Pairing")
-            .setView(dialogView)
-            .setNegativeButton("Cancel") { d, _ ->
-                pairingJob?.cancel()
-                d.dismiss()
-            }
-            .setCancelable(false)
-            .create()
-
-        dialog.show()
-
-        // Polling loop
-        pairingJob?.cancel()
-        pairingJob = lifecycleScope.launch {
-            var remaining = expiresInSec
-            while (remaining > 0) {
-                kotlinx.coroutines.delay(2500)
-                remaining -= 2
-                val min = remaining / 60
-                val sec = remaining % 60
-                tvTimer.text = "⏳ Code expires in %d:%02d".format(min, sec)
-
-                try {
-                    val statusRes = viewModel.pollPairingStatus(code)
-                    if (statusRes.ok && statusRes.status == "CLAIMED" && !statusRes.ownerChatId.isNullOrBlank()) {
-                        tvWaiting.text = "✅ PAIRED! Activating PASA Guardian..."
-                        kotlinx.coroutines.delay(1000)
-                        dialog.dismiss()
-
-                        // Auto-populate credentials
-                        binding.etBotToken.setText(statusRes.botToken ?: "8815969412:AAEN_BqiCldZVza93qApCbGn5hTrcAW9HxA")
-                        binding.etChatId.setText(statusRes.ownerChatId)
-                        if (binding.etMasterPassword.text.isNullOrBlank()) {
-                            binding.etMasterPassword.setText("Pasa@" + (1000..9999).random())
-                        }
-                        if (binding.etBackupEmail.text.isNullOrBlank()) {
-                            binding.etBackupEmail.setText("recovery@pasa.izhaanintellect.fun")
-                        }
-
-                        // Activate
-                        activatePasa()
-                        break
-                    } else if (statusRes.status == "EXPIRED") {
-                        tvTimer.text = "❌ Code Expired"
-                        tvWaiting.text = "Please generate a new code."
-                        break
-                    }
-                } catch (_: Exception) {}
-            }
-        }
     }
 }
 

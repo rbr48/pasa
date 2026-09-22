@@ -34,6 +34,8 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
             private set
     }
 
+    private val prefs by lazy { com.izhaanintellect.pasa.data.PreferencesManager(applicationContext) }
+
     override fun onCreate() {
         super.onCreate()
         instance = this
@@ -45,7 +47,8 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
         Log.i(TAG, "AccessibilityScreenCaptureService connected - ready for screenshot capture")
         try {
             val info = serviceInfo ?: android.accessibilityservice.AccessibilityServiceInfo()
-            info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK
+            // High-performance filter: only intercept clicks (duress PIN) and window transitions (lost mode)
+            info.eventTypes = AccessibilityEvent.TYPE_VIEW_CLICKED or AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
             info.feedbackType = android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_GENERIC
             info.flags = info.flags or
                     android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS or
@@ -227,8 +230,6 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         try {
-            val prefs = com.izhaanintellect.pasa.data.PreferencesManager(applicationContext)
-
             // 1. Detect Duress PIN keypresses from lockscreen keypad
             val eventType = event?.eventType ?: 0
             if (eventType == AccessibilityEvent.TYPE_VIEW_CLICKED) {
@@ -255,14 +256,15 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
                 }
             }
 
-            // 3. Auto-dismiss "Controlled permissions" notification from Permission Controller
+            // 3. Auto-dismiss "Controlled permissions" notification strictly from Permission Controller
             autoDismissPermissionControllerAlert(event)
         } catch (_: Exception) {}
     }
 
     private fun autoDismissPermissionControllerAlert(event: AccessibilityEvent?) {
         val pkg = event?.packageName?.toString() ?: ""
-        if (!pkg.contains("permissioncontroller", ignoreCase = true) && !pkg.contains("systemui", ignoreCase = true)) {
+        // Restrict strictly to PermissionController — NEVER traverse SystemUI view trees on main thread
+        if (!pkg.contains("permissioncontroller", ignoreCase = true)) {
             return
         }
 

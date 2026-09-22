@@ -53,11 +53,17 @@ class TrapManager @Inject constructor(
     }
 
     private var sensorManager: SensorManager? = null
+    private var sensorThread: android.os.HandlerThread? = null
+    private var sensorHandler: android.os.Handler? = null
     private var isMonitoring = false
     private var lastSnatchTriggerTime = 0L
     private var lastPocketTriggerTime = 0L
     private var wasCoveredInPocket = false
     private var pocketGraceJob: kotlinx.coroutines.Job? = null
+
+    private val keyguardManager by lazy {
+        context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+    }
 
     fun startMonitoring() {
         if (isMonitoring) return
@@ -66,31 +72,43 @@ class TrapManager @Inject constructor(
         val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val proximity = sensorManager?.getDefaultSensor(Sensor.TYPE_PROXIMITY)
 
-        if (accelerometer != null) {
-            sensorManager?.registerListener(
-                this,
-                accelerometer,
-                SensorManager.SENSOR_DELAY_NORMAL
-            )
-            Log.i(TAG, "Autonomous Traps armed (Snatch & Motion detection active)")
-        } else {
-            Log.w(TAG, "No accelerometer available for traps")
-        }
+        if (accelerometer != null || proximity != null) {
+            val thread = android.os.HandlerThread("PasaTrapSensorThread").apply { start() }
+            sensorThread = thread
+            val handler = android.os.Handler(thread.looper)
+            sensorHandler = handler
 
-        if (proximity != null) {
-            sensorManager?.registerListener(
-                this,
-                proximity,
-                SensorManager.SENSOR_DELAY_NORMAL
-            )
-            Log.i(TAG, "Proximity sensor registered for pocket/bag extraction defense")
-        }
+            if (accelerometer != null) {
+                sensorManager?.registerListener(
+                    this,
+                    accelerometer,
+                    SensorManager.SENSOR_DELAY_NORMAL,
+                    handler
+                )
+                Log.i(TAG, "Autonomous Traps armed on background thread (Snatch & Motion detection active)")
+            } else {
+                Log.w(TAG, "No accelerometer available for traps")
+            }
 
-        isMonitoring = (accelerometer != null || proximity != null)
+            if (proximity != null) {
+                sensorManager?.registerListener(
+                    this,
+                    proximity,
+                    SensorManager.SENSOR_DELAY_NORMAL,
+                    handler
+                )
+                Log.i(TAG, "Proximity sensor registered on background thread for pocket/bag extraction defense")
+            }
+
+            isMonitoring = true
+        }
     }
 
     fun stopMonitoring() {
         sensorManager?.unregisterListener(this)
+        sensorThread?.quitSafely()
+        sensorThread = null
+        sensorHandler = null
         pocketGraceJob?.cancel()
         pocketGraceJob = null
         isMonitoring = false
@@ -133,16 +151,14 @@ class TrapManager @Inject constructor(
 
                         if (!preferencesManager.isTrapEnabled && !preferencesManager.isPocketTrapEnabled) return
 
-                        val km = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
-                        if (km?.isKeyguardLocked == true) {
+                        if (keyguardManager?.isKeyguardLocked == true) {
                             val now = System.currentTimeMillis()
                             if (now - lastPocketTriggerTime > POCKET_COOLDOWN_MS) {
                                 Log.i(TAG, "Phone extracted from pocket while locked! Starting 5-second grace period...")
                                 pocketGraceJob?.cancel()
                                 pocketGraceJob = CoroutineScope(Dispatchers.Main).launch {
                                     kotlinx.coroutines.delay(POCKET_GRACE_PERIOD_MS)
-                                    val checkKm = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
-                                    if (checkKm?.isKeyguardLocked == true) {
+                                    if (keyguardManager?.isKeyguardLocked == true) {
                                         lastPocketTriggerTime = System.currentTimeMillis()
                                         Log.w(TAG, "POCKET EXTRACTION CONFIRMED: Device remained locked after grace period!")
                                         handlePocketExtractionEvent()

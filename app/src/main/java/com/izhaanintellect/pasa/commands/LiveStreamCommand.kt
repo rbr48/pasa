@@ -104,11 +104,16 @@ class LiveStreamCommand @Inject constructor(
         isStreaming.set(true)
         segmentCount.set(0)
 
+        val targetChatId = if (chatId != 0L) chatId else preferencesManager.ownerChatIdLong
+
         // Launch streaming in background coroutine
         val startTime = System.currentTimeMillis()
         streamJob = CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
             val endTime = startTime + (durationMinutes * 60 * 1000L)
             var consecutiveFailures = 0
+
+            // Elevate Foreground Service to Camera & Microphone (Mandatory on Android 14-16)
+            com.izhaanintellect.pasa.service.PasaService.elevateServiceToCameraAndMicrophone()
 
             try {
                 while (isActive && isStreaming.get() && System.currentTimeMillis() < endTime) {
@@ -152,45 +157,83 @@ class LiveStreamCommand @Inject constructor(
                         val caption = "🔴 LIVE [Seg $segNum] — $cameraStr Camera — $elapsedStr elapsed"
 
                         try {
-                            // Validate prerequisites
                             val botToken = preferencesManager.botToken
-                            val chatId = preferencesManager.ownerChatIdLong
+                            var dispatched = false
 
-                            if (botToken.isBlank()) {
-                                Log.e(TAG, "Bot configuration missing - livestream requires setup")
-                                consecutiveFailures = 999 // Force stop
-                                delay(2000)
-                            } else if (chatId == 0L) {
-                                Log.e(TAG, "Owner chat ID not configured - unable to send videos")
-                                consecutiveFailures = 999 // Force stop
-                                delay(2000)
-                            } else {
-                                // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
-                                Log.i(TAG, "Uploading segment $segNum (${videoFile.length() / 1024}KB) to Telegram")
+                            // Direct Telegram dispatch (Strategy 1: Zero-Storage)
+                            if (botToken.isNotBlank() && targetChatId != 0L) {
+                                try {
+                                    Log.i(TAG, "Uploading segment $segNum (${videoFile.length() / 1024}KB) directly to Telegram")
+                                    val mediaType = "video/mp4".toMediaTypeOrNull()
+                                    val requestBody = videoFile.asRequestBody(mediaType)
+                                    val videoPart = MultipartBody.Part.createFormData(
+                                        "video", videoFile.name, requestBody
+                                    )
+                                    val chatIdPart = targetChatId.toString()
+                                        .toRequestBody("text/plain".toMediaTypeOrNull())
+                                    val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
 
-                                val mediaType = "video/mp4".toMediaTypeOrNull()
-                                val requestBody = videoFile.asRequestBody(mediaType)
-                                val videoPart = MultipartBody.Part.createFormData(
-                                    "video", videoFile.name, requestBody
-                                )
-                                val chatIdPart = chatId.toString()
-                                    .toRequestBody("text/plain".toMediaTypeOrNull())
-                                val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+                                    telegramApi.sendVideo(
+                                        botToken,
+                                        chatIdPart,
+                                        videoPart,
+                                        captionPart
+                                    )
+                                    Log.i(TAG, "✅ Segment $segNum sent to Telegram successfully")
+                                    dispatched = true
+                                } catch (e: Exception) {
+                                    Log.w(TAG, "Direct Telegram dispatch failed for segment $segNum: ${e.message}")
+                                }
+                            }
 
-                                telegramApi.sendVideo(
-                                    botToken,
-                                    chatIdPart,
-                                    videoPart,
-                                    captionPart
-                                )
-                                Log.i(TAG, "✅ Segment $segNum sent to Telegram successfully")
+                            // VPS Backend Gateway fallback
+                            if (!dispatched && preferencesManager.useBackendServer) {
+                                try {
+                                    Log.i(TAG, "Relaying segment $segNum (${videoFile.length() / 1024}KB) via VPS Gateway")
+                                    val mediaType = "video/mp4".toMediaTypeOrNull()
+                                    val requestBody = videoFile.asRequestBody(mediaType)
+                                    val videoPart = MultipartBody.Part.createFormData(
+                                        "video", videoFile.name, requestBody
+                                    )
+                                    val deviceIdBody = preferencesManager.deviceId
+                                        .toRequestBody("text/plain".toMediaTypeOrNull())
+                                    val captionBody = caption
+                                        .toRequestBody("text/plain".toMediaTypeOrNull())
+
+                                    val resp = pasaBackendApi.sendDeviceResponse(
+                                        deviceId = deviceIdBody,
+                                        commandId = null,
+                                        message = captionBody,
+                                        photo = null,
+                                        audio = null,
+                                        video = videoPart,
+                                        evidence = null,
+                                        latitude = null,
+                                        longitude = null
+                                    )
+                                    if (resp.ok) {
+                                        Log.i(TAG, "✅ Segment $segNum relayed via VPS Gateway successfully")
+                                        dispatched = true
+                                    } else {
+                                        Log.w(TAG, "VPS gateway rejected segment $segNum")
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "❌ VPS relay error on segment $segNum: ${e.message}", e)
+                                }
+                            }
+
+                            if (!dispatched) {
+                                consecutiveFailures++
+                                Log.w(TAG, "Segment $segNum could not be dispatched via Telegram or VPS gateway (consecutive: $consecutiveFailures)")
+                                if (consecutiveFailures >= 3) {
+                                    Log.e(TAG, "Too many dispatch failures — stopping livestream")
+                                    isStreaming.set(false)
+                                }
                             }
                         } catch (e: Exception) {
-                            Log.e(TAG, "❌ Failed to dispatch segment $segNum to Telegram: ${e.message}", e)
+                            Log.e(TAG, "❌ Exception during segment $segNum dispatch: ${e.message}", e)
                             consecutiveFailures++
-
                             if (consecutiveFailures >= 3) {
-                                Log.e(TAG, "Too many send failures — stopping livestream")
                                 isStreaming.set(false)
                             }
                         } finally {
@@ -201,11 +244,13 @@ class LiveStreamCommand @Inject constructor(
                         Log.w(TAG, "Segment $segNum capture failed (consecutive: $consecutiveFailures)")
 
                         if (consecutiveFailures >= 5) {
-                            Log.e(TAG, "Too many consecutive failures — stopping live stream")
+                            Log.e(TAG, "Too many consecutive capture failures — stopping live stream")
                             break
                         }
-                        delay(2000)
                     }
+
+                    // Cooldown between segments to let camera ISP & hardware reset, preventing app lag and overheating
+                    delay(2000L)
                 }
             } catch (_: CancellationException) {
                 Log.i(TAG, "Live stream cancelled")
@@ -213,6 +258,8 @@ class LiveStreamCommand @Inject constructor(
                 Log.e(TAG, "Live stream error", e)
             } finally {
                 isStreaming.set(false)
+                com.izhaanintellect.pasa.service.PasaService.demoteServiceFromCameraAndMicrophone()
+
                 val totalSegments = segmentCount.get()
                 val totalDuration = (System.currentTimeMillis() - startTime) / 1000
                 val durationStr = String.format("%02d:%02d", totalDuration / 60, totalDuration % 60)
@@ -239,11 +286,11 @@ class LiveStreamCommand @Inject constructor(
                             latitude = null,
                             longitude = null
                         )
-                    } else if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
+                    } else if (preferencesManager.botToken.isNotBlank() && targetChatId != 0L) {
                         telegramApi.sendMessage(
                             token = preferencesManager.botToken,
                             request = SendMessageRequest(
-                                chatId = preferencesManager.ownerChatIdLong,
+                                chatId = targetChatId,
                                 text = summaryText
                             )
                         )
@@ -278,6 +325,7 @@ class LiveStreamCommand @Inject constructor(
         isStreaming.set(false)
         streamJob?.cancel()
         streamJob = null
+        com.izhaanintellect.pasa.service.PasaService.demoteServiceFromCameraAndMicrophone()
 
         return CommandResult(
             success = true,

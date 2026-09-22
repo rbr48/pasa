@@ -6,6 +6,8 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Handler
+import android.os.HandlerThread
 import android.util.Log
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
@@ -38,8 +40,14 @@ class MotionDetector @Inject constructor(
     }
 
     private var sensorManager: SensorManager? = null
+    private var sensorThread: HandlerThread? = null
+    private var sensorHandler: Handler? = null
     private var lastAlertTime = 0L
     private var isMonitoring = false
+
+    private val keyguardManager by lazy {
+        context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+    }
 
     fun startMonitoring() {
         if (isMonitoring) return
@@ -48,13 +56,20 @@ class MotionDetector @Inject constructor(
         val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
         if (accelerometer != null) {
+            // Offload sensor event loop to dedicated background thread to guarantee zero UI frame drops
+            val thread = HandlerThread("PasaMotionSensorThread").apply { start() }
+            sensorThread = thread
+            val handler = Handler(thread.looper)
+            sensorHandler = handler
+
             sensorManager?.registerListener(
                 this,
                 accelerometer,
-                SensorManager.SENSOR_DELAY_NORMAL
+                SensorManager.SENSOR_DELAY_NORMAL,
+                handler
             )
             isMonitoring = true
-            Log.i(TAG, "Motion detection armed")
+            Log.i(TAG, "Motion detection armed on background thread")
         } else {
             Log.w(TAG, "No accelerometer available on device")
         }
@@ -62,6 +77,9 @@ class MotionDetector @Inject constructor(
 
     fun stopMonitoring() {
         sensorManager?.unregisterListener(this)
+        sensorThread?.quitSafely()
+        sensorThread = null
+        sensorHandler = null
         isMonitoring = false
         Log.i(TAG, "Motion detection disarmed")
     }
@@ -89,8 +107,7 @@ class MotionDetector @Inject constructor(
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
     private fun isDeviceLocked(): Boolean {
-        val keyguardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        return keyguardManager.isDeviceLocked
+        return keyguardManager?.isDeviceLocked == true
     }
 
     private fun sendMotionAlert() {
