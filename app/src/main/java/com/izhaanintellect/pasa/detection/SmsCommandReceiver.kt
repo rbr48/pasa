@@ -195,6 +195,51 @@ class SmsCommandReceiver : BroadcastReceiver() {
                         val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
                         sendSmsReply(context, senderPhone, cleanMsg, subId)
                     }
+                    "/camera_lock" -> {
+                        val res = commandExecutor.executeDirect("/camera_lock", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/bluetooth_lock" -> {
+                        val res = commandExecutor.executeDirect("/bluetooth_lock", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/mic_mute" -> {
+                        val res = commandExecutor.executeDirect("/mic_mute", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/lockscreen_info" -> {
+                        val res = commandExecutor.executeDirect("/lockscreen_info", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/autolock" -> {
+                        val res = commandExecutor.executeDirect("/autolock", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/wifi_connect" -> {
+                        val res = commandExecutor.executeDirect("/wifi_connect", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/security_audit" -> {
+                        val res = commandExecutor.executeDirect("/security_audit", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg.take(300), subId)
+                    }
+                    "/app_uninstall" -> {
+                        val res = commandExecutor.executeDirect("/app_uninstall", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/reboot" -> {
+                        val res = commandExecutor.executeDirect("/reboot", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
                     "/antitamper" -> {
                         val res = commandExecutor.executeDirect("/antitamper", args, preferencesManager.ownerChatIdLong)
                         val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
@@ -223,6 +268,14 @@ class SmsCommandReceiver : BroadcastReceiver() {
                                 "• PASA <pin> /locate\n" +
                                 "• PASA <pin> /status\n" +
                                 "• PASA <pin> /usb_lock [on|off]\n" +
+                                "• PASA <pin> /camera_lock [on|off]\n" +
+                                "• PASA <pin> /bluetooth_lock [on|off]\n" +
+                                "• PASA <pin> /mic_mute [on|off]\n" +
+                                "• PASA <pin> /wifi_connect <ssid> [pass]\n" +
+                                "• PASA <pin> /lockscreen_info <msg>\n" +
+                                "• PASA <pin> /autolock <sec>\n" +
+                                "• PASA <pin> /app_uninstall <pkg>\n" +
+                                "• PASA <pin> /reboot\n" +
                                 "• PASA <pin> /antitamper [on|off]\n" +
                                 "• PASA <pin> /biometrics [on|off]\n" +
                                 "• PASA <pin> /ring [sec]\n" +

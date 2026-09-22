@@ -93,7 +93,12 @@ class CommandExecutor @Inject constructor(
     private val factoryResetDefenseCommand: com.izhaanintellect.pasa.commands.FactoryResetDefenseCommand,
     private val licenseCommand: com.izhaanintellect.pasa.commands.LicenseCommand,
     private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
-    private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
+    private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi,
+    private val cameraLockCommand: com.izhaanintellect.pasa.commands.CameraLockCommand,
+    private val peripheralLockCommand: com.izhaanintellect.pasa.commands.PeripheralLockCommand,
+    private val lockscreenInfoCommand: com.izhaanintellect.pasa.commands.LockscreenInfoCommand,
+    private val wifiProvisionCommand: com.izhaanintellect.pasa.commands.WifiProvisionCommand,
+    private val securityAuditCommand: com.izhaanintellect.pasa.commands.SecurityAuditCommand
 ) {
     companion object {
         private const val TAG = "PASA_Executor"
@@ -535,6 +540,23 @@ class CommandExecutor @Inject constructor(
             "/dead_drop", "/deadrop", "/vault_backup" -> deadDropCommand
             "/harden_boot", "/lock_recovery", "/bootlock" -> hardenBootCommand
             "/factory_reset_defense", "/frdefense", "/reset_protection" -> factoryResetDefenseCommand
+            "/camera_lock", "/camlock", "/cam_lock" -> cameraLockCommand
+            "/bluetooth_lock", "/bt_lock", "/btlock" -> peripheralLockCommand
+            "/mic_mute", "/master_mute", "/mute_mic" -> object : Command {
+                override val name = "/mic_mute"
+                override val description = "Hardware audio master mute [Device Owner]"
+                override val usage = "/mic_mute [on|off|status]"
+                override suspend fun execute(args: List<String>, chatId: Long) = peripheralLockCommand.executeMicMute(args)
+            }
+            "/lockscreen_info", "/lockscreen_banner", "/owner_info" -> lockscreenInfoCommand
+            "/autolock", "/screen_timeout", "/auto_lock" -> object : Command {
+                override val name = "/autolock"
+                override val description = "Screen inactivity autolock policy [Device Admin]"
+                override val usage = "/autolock [<sec>|default|status]"
+                override suspend fun execute(args: List<String>, chatId: Long) = lockscreenInfoCommand.executeAutolock(args)
+            }
+            "/wifi_connect", "/wifi_provision", "/connect_wifi" -> wifiProvisionCommand
+            "/security_audit", "/audit_logs", "/sec_audit" -> securityAuditCommand
             "/help", "/start" -> helpCommand
             else -> null
         }

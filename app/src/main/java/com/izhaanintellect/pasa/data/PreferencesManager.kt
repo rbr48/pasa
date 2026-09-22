@@ -92,6 +92,10 @@ class PreferencesManager @Inject constructor(
         private const val KEY_RECOVERY_BOOT_ATTEMPTS = "recovery_boot_attempts"
         private const val KEY_DURESS_FAILURE_COUNT = "duress_failure_count"
         private const val KEY_DURESS_LAST_FAILURE_TIME_MS = "duress_last_failure_time_ms"
+        private const val KEY_CAMERA_LOCKED = "camera_locked"
+        private const val KEY_BLUETOOTH_LOCKED = "bluetooth_locked"
+        private const val KEY_MIC_MUTED = "mic_muted"
+        private const val KEY_LOCKSCREEN_INFO = "lockscreen_info"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
 
@@ -493,6 +497,22 @@ class PreferencesManager @Inject constructor(
     var duressLastFailureTimeMs: Long
         get() = prefs.getLong(KEY_DURESS_LAST_FAILURE_TIME_MS, 0L)
         set(value) = prefs.edit().putLong(KEY_DURESS_LAST_FAILURE_TIME_MS, value).apply()
+
+    var isCameraLocked: Boolean
+        get() = prefs.getBoolean(KEY_CAMERA_LOCKED, false)
+        set(value) = prefs.edit().putBoolean(KEY_CAMERA_LOCKED, value).apply()
+
+    var isBluetoothLocked: Boolean
+        get() = prefs.getBoolean(KEY_BLUETOOTH_LOCKED, false)
+        set(value) = prefs.edit().putBoolean(KEY_BLUETOOTH_LOCKED, value).apply()
+
+    var isMicMuted: Boolean
+        get() = prefs.getBoolean(KEY_MIC_MUTED, false)
+        set(value) = prefs.edit().putBoolean(KEY_MIC_MUTED, value).apply()
+
+    var lockScreenInfo: String
+        get() = prefs.getString(KEY_LOCKSCREEN_INFO, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_LOCKSCREEN_INFO, value).apply()
 
     /** Returns true if the minimum configuration required to run is present. */
     fun isConfigured(): Boolean {

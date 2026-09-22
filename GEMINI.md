@@ -183,8 +183,8 @@ d:/Software_and_Apps/PrivateApp/
 * **Certificate DN:** `CN=PASA Sentinel, OU=Security, O=Izhaan Intellect, L=Dhaka, C=BD`.
 * **Certificate SHA-256:** `0c8f62dd8934d3b73e12d965742da29e643bdc157bc859e5b6aa7454409ad57a`.
 * **Current Production Release:**
-  - **Version:** `v3.4.6` (Build `42`).
-  - **APK Binary SHA-256:** `0a4ed06c32092c0137f20f73c1187476af43f2fcc18b702f562bd7a0e1d7c89e`.
+  - **Version:** `v3.4.8` (Build `44`).
+  - **APK Binary SHA-256:** `6e84bc88e1d42aff7543445bb55725b08b43e087a8e92fbf268423261844e78b`.
   - **CDN Endpoint:** `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`.
   - **OTA Manifest Route:** `GET https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=<build>`.
 

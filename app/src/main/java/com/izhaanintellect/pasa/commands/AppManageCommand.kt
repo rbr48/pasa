@@ -72,6 +72,11 @@ class AppManageCommand @Inject constructor(
                 return CommandResult(success = false, message = "❌ Package not found: <code>$packageName</code>")
             }
 
+            if (com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)) {
+                val (ok, text) = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.silentUninstall(context, packageName)
+                return CommandResult(success = ok, message = text)
+            }
+
             val intent = Intent(Intent.ACTION_DELETE).apply {
                 data = Uri.parse("package:$packageName")
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -79,7 +84,7 @@ class AppManageCommand @Inject constructor(
             context.startActivity(intent)
             CommandResult(
                 success = true,
-                message = "🗑️ Uninstallation dialog prompted on device for: <code>$packageName</code>"
+                message = "🗑️ Uninstallation dialog prompted on device for: <code>$packageName</code>\n(Tip: Grant Device Owner for 100% silent removal)"
             )
         } catch (e: Exception) {
             CommandResult(success = false, message = "❌ Failed to initiate uninstall: ${e.message}")

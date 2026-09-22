@@ -11,6 +11,13 @@ import android.os.Build
 import android.os.UserHandle
 import android.os.UserManager
 import android.util.Log
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.net.wifi.WifiConfiguration
+import android.net.wifi.WifiManager
+import android.net.wifi.WifiNetworkSpecifier
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.data.PreferencesManager
@@ -589,6 +596,276 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             } catch (e: Exception) {
                 Log.e(TAG, "Exception clearing password via escrow token", e)
                 false
+            }
+        }
+
+        fun setCameraDisabled(context: Context, disabled: Boolean): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isAdminActive(component)) {
+                return Pair(false, "❌ Device Admin privileges required to manage camera state.")
+            }
+            return try {
+                dpm.setCameraDisabled(component, disabled)
+                val status = if (disabled) "LOCKED (All cameras disabled system-wide)" else "UNLOCKED (Normal camera access restored)"
+                Pair(true, "📷 Hardware Camera state: $status")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to setCameraDisabled: ${e.message}", e)
+                Pair(false, "❌ Error setting camera state: ${e.message}")
+            }
+        }
+
+        fun isCameraDisabled(context: Context): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            return try {
+                dpm.getCameraDisabled(component)
+            } catch (_: Exception) { false }
+        }
+
+        fun setMasterMute(context: Context, muted: Boolean): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                return Pair(false, "❌ Master audio mute requires Android Device Owner permissions.")
+            }
+            return try {
+                dpm.setMasterVolumeMuted(component, muted)
+                val status = if (muted) "MUTED (All audio output silenced)" else "UNMUTED (Audio output restored)"
+                Pair(true, "🔇 Hardware Audio Master Mute: $status")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to setMasterVolumeMuted: ${e.message}", e)
+                Pair(false, "❌ Error setting audio mute: ${e.message}")
+            }
+        }
+
+        fun isMasterMute(context: Context): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) return false
+            return try {
+                dpm.isMasterVolumeMuted(component)
+            } catch (_: Exception) { false }
+        }
+
+        fun setBluetoothDisabled(context: Context, disabled: Boolean): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                return Pair(false, "❌ Bluetooth lock requires Android Device Owner permissions.")
+            }
+            return try {
+                if (disabled) {
+                    dpm.addUserRestriction(component, UserManager.DISALLOW_BLUETOOTH)
+                    dpm.addUserRestriction(component, UserManager.DISALLOW_BLUETOOTH_SHARING)
+                } else {
+                    dpm.clearUserRestriction(component, UserManager.DISALLOW_BLUETOOTH)
+                    dpm.clearUserRestriction(component, UserManager.DISALLOW_BLUETOOTH_SHARING)
+                }
+                val status = if (disabled) "LOCKED (Bluetooth & file sharing disallowed)" else "UNLOCKED (Bluetooth allowed)"
+                Pair(true, "📡 Hardware Bluetooth state: $status")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to setBluetoothDisabled: ${e.message}", e)
+                Pair(false, "❌ Error setting Bluetooth restriction: ${e.message}")
+            }
+        }
+
+        fun isBluetoothDisabled(context: Context): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) return false
+            return try {
+                val bundle = dpm.getUserRestrictions(component)
+                bundle.getBoolean(UserManager.DISALLOW_BLUETOOTH, false)
+            } catch (_: Exception) { false }
+        }
+
+        fun setLockScreenInfo(context: Context, info: CharSequence?): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                return Pair(false, "❌ Setting lockscreen info banner requires Android Device Owner permissions.")
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                return Pair(false, "❌ Lockscreen banner requires Android 7.0+ (API 24+).")
+            }
+            return try {
+                dpm.setDeviceOwnerLockScreenInfo(component, info)
+                if (info.isNullOrBlank()) {
+                    Pair(true, "📱 Lockscreen info banner cleared.")
+                } else {
+                    Pair(true, "📱 Lockscreen info banner updated:\n\"$info\"")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to setDeviceOwnerLockScreenInfo: ${e.message}", e)
+                Pair(false, "❌ Error setting lockscreen info: ${e.message}")
+            }
+        }
+
+        fun getLockScreenInfo(context: Context): CharSequence? {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) return null
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return null
+            return try {
+                dpm.getDeviceOwnerLockScreenInfo()
+            } catch (_: Exception) { null }
+        }
+
+        fun setMaximumTimeToLock(context: Context, timeoutMs: Long): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isAdminActive(component)) {
+                return Pair(false, "❌ Device Admin privileges required to manage screen timeout policy.")
+            }
+            return try {
+                dpm.setMaximumTimeToLock(component, timeoutMs)
+                if (timeoutMs == 0L) {
+                    Pair(true, "⏱️ Inactivity lock policy reset to system default.")
+                } else {
+                    val sec = timeoutMs / 1000L
+                    Pair(true, "⏱️ Maximum screen inactivity timeout set to: ${sec}s (${sec / 60}m).")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to setMaximumTimeToLock: ${e.message}", e)
+                Pair(false, "❌ Error setting autolock policy: ${e.message}")
+            }
+        }
+
+        fun getMaximumTimeToLock(context: Context): Long {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            return try {
+                dpm.getMaximumTimeToLock(component)
+            } catch (_: Exception) { 0L }
+        }
+
+        fun retrieveSecurityLogsList(context: Context): Pair<Boolean, List<String>> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                return Pair(false, listOf("❌ Security Log inspection requires Android Device Owner permissions."))
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                return Pair(false, listOf("❌ Security Log retrieval requires Android 7.0+ (API 24+)."))
+            }
+            return try {
+                val events = dpm.retrieveSecurityLogs(component)
+                if (events.isNullOrEmpty()) {
+                    Pair(true, emptyList())
+                } else {
+                    val formatted = events.takeLast(30).map { event ->
+                        val tagStr = when (event.tag) {
+                            SecurityLog.TAG_ADB_SHELL_INTERACTIVE -> "ADB_SHELL_INTERACTIVE"
+                            SecurityLog.TAG_ADB_SHELL_CMD -> "ADB_SHELL_CMD"
+                            SecurityLog.TAG_MEDIA_MOUNT -> "MEDIA_MOUNT"
+                            SecurityLog.TAG_MEDIA_UNMOUNT -> "MEDIA_UNMOUNT"
+                            SecurityLog.TAG_KEY_DESTRUCTION -> "KEYSTORE_KEY_DESTRUCTION"
+                            SecurityLog.TAG_KEY_GENERATED -> "KEYSTORE_KEY_GENERATED"
+                            SecurityLog.TAG_KEY_IMPORT -> "KEYSTORE_KEY_IMPORT"
+                            SecurityLog.TAG_LOGGING_STARTED -> "SECURITY_LOGGING_STARTED"
+                            SecurityLog.TAG_LOGGING_STOPPED -> "SECURITY_LOGGING_STOPPED"
+                            SecurityLog.TAG_APP_PROCESS_START -> "APP_PROCESS_START"
+                            SecurityLog.TAG_KEYGUARD_DISMISS_AUTH_ATTEMPT -> "KEYGUARD_AUTH_ATTEMPT"
+                            SecurityLog.TAG_KEYGUARD_DISMISSED -> "KEYGUARD_DISMISSED"
+                            SecurityLog.TAG_KEYGUARD_SECURED -> "KEYGUARD_SECURED"
+                            else -> "TAG_${event.tag}"
+                        }
+                        val time = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US).format(java.util.Date(event.timeNanos / 1_000_000L))
+                        "[$time] $tagStr: ${event.data ?: "N/A"}"
+                    }
+                    Pair(true, formatted)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to retrieveSecurityLogs: ${e.message}", e)
+                Pair(false, listOf("❌ Error retrieving security logs: ${e.message}"))
+            }
+        }
+
+        fun silentUninstall(context: Context, packageName: String): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                return Pair(false, "❌ Silent uninstallation requires Android Device Owner permissions.")
+            }
+            return try {
+                val packageInstaller = context.packageManager.packageInstaller
+                val intent = Intent("com.izhaanintellect.pasa.UNINSTALL_COMPLETE").setPackage(context.packageName)
+                val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_MUTABLE
+                } else {
+                    android.app.PendingIntent.FLAG_UPDATE_CURRENT
+                }
+                val pendingIntent = android.app.PendingIntent.getBroadcast(context, 0, intent, flags)
+                packageInstaller.uninstall(packageName, pendingIntent.intentSender)
+                Pair(true, "🗑️ Silent uninstallation initiated for package: <code>$packageName</code>")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed silent uninstall of $packageName: ${e.message}", e)
+                Pair(false, "❌ Silent uninstall failed: ${e.message}")
+            }
+        }
+
+        fun connectWifi(context: Context, ssid: String, pass: String): Pair<Boolean, String> {
+            return try {
+                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+                    ?: return Pair(false, "❌ Wi-Fi Service unavailable on device.")
+
+                if (!wifiManager.isWifiEnabled) {
+                    @Suppress("DEPRECATION")
+                    wifiManager.isWifiEnabled = true
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                    val specifier = if (pass.isNotBlank()) {
+                        WifiNetworkSpecifier.Builder()
+                            .setSsid(ssid)
+                            .setWpa2Passphrase(pass)
+                            .build()
+                    } else {
+                        WifiNetworkSpecifier.Builder()
+                            .setSsid(ssid)
+                            .build()
+                    }
+                    val request = NetworkRequest.Builder()
+                        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                        .setNetworkSpecifier(specifier)
+                        .build()
+
+                    connectivityManager.requestNetwork(request, object : ConnectivityManager.NetworkCallback() {
+                        override fun onAvailable(network: Network) {
+                            super.onAvailable(network)
+                            Log.i(TAG, "Emergency Wi-Fi network available: $ssid")
+                            connectivityManager.bindProcessToNetwork(network)
+                        }
+                    })
+                    Pair(true, "📶 Emergency Wi-Fi connection requested for SSID: <b>$ssid</b> (Android 10+ Specifier).")
+                } else {
+                    @Suppress("DEPRECATION")
+                    val wifiConfig = WifiConfiguration().apply {
+                        this.SSID = "\"$ssid\""
+                        if (pass.isNotBlank()) {
+                            this.preSharedKey = "\"$pass\""
+                        } else {
+                            this.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE)
+                        }
+                    }
+                    @Suppress("DEPRECATION")
+                    val netId = wifiManager.addNetwork(wifiConfig)
+                    if (netId != -1) {
+                        @Suppress("DEPRECATION")
+                        wifiManager.disconnect()
+                        @Suppress("DEPRECATION")
+                        wifiManager.enableNetwork(netId, true)
+                        @Suppress("DEPRECATION")
+                        wifiManager.reconnect()
+                        Pair(true, "📶 Emergency Wi-Fi network provisioned and connected to: <b>$ssid</b>")
+                    } else {
+                        Pair(false, "❌ Failed to configure Wi-Fi network <b>$ssid</b>.")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to connect to Wi-Fi $ssid: ${e.message}", e)
+                Pair(false, "❌ Wi-Fi connection error: ${e.message}")
             }
         }
     }

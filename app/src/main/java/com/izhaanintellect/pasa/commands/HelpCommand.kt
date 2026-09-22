@@ -32,6 +32,13 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/device_owner</code> — Full enterprise telemetry dashboard
             • <code>/antitamper on|off|status</code> — Safe boot, airplane mode, factory reset lock
             • <code>/usb_lock on|off|status</code> — Kill USB data pins (AC charge only) [Android 12+]
+            • <code>/camera_lock on|off|status</code> — Hardware camera killswitch (anti-spy)
+            • <code>/bluetooth_lock on|off|status</code> — Disallow Bluetooth pairing & file sharing
+            • <code>/mic_mute on|off|status</code> — Hardware master audio mute (HAL level)
+            • <code>/lockscreen_info &lt;text&gt;|clear</code> — Pin contact banner to OS lockscreen
+            • <code>/autolock &lt;sec&gt;|default</code> — Enforce screen inactivity timeout policy
+            • <code>/wifi_connect &lt;ssid&gt; [pass]</code> — Emergency Wi-Fi provisioning while locked
+            • <code>/security_audit</code> — Inspect Linux kernel OS security audit logs
             • <code>/notification hide|show|toggle</code> — Hide/restore notification tray [Android 6+]
             • <code>/self_heal</code> — Lock permissions permanently as unrevokable
             • <code>/freeze &lt;app&gt;</code> — Vanish banking/private apps into shadow vault
