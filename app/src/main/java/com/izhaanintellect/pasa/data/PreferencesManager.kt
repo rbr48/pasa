@@ -68,6 +68,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_USB_LOCK_ENABLED = "usb_lock_enabled"
         private const val KEY_BIOMETRICS_DISABLED = "biometrics_disabled"
         private const val KEY_FROZEN_PACKAGES = "frozen_packages"
+        private const val KEY_NOTIFICATION_SUPPRESSED = "notification_suppressed"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
 
@@ -373,6 +374,10 @@ class PreferencesManager @Inject constructor(
         set.remove(pkg)
         frozenPackages = set
     }
+
+    var isNotificationSuppressed: Boolean
+        get() = prefs.getBoolean(KEY_NOTIFICATION_SUPPRESSED, true)
+        set(value) = prefs.edit().putBoolean(KEY_NOTIFICATION_SUPPRESSED, value).apply()
 
     /** Returns true if the minimum configuration required to run is present. */
     fun isConfigured(): Boolean {

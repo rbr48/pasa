@@ -129,17 +129,17 @@ d:/Software_and_Apps/PrivateApp/
 
 ---
 
-## 4. Complete Command Matrix (55 Telegram C2 Commands)
+## 4. Complete Command Matrix (58 Telegram C2 Commands)
 
 | Category | Commands |
 |---|---|
 | **Core & Diagnostics** | `/menu`, `/help`, `/status`, `/selftest`, `/info`, `/reboot` |
-| **Enterprise Device Owner** | `/device_owner`, `/antitamper`, `/usb_lock`, `/self_heal`, `/freeze`, `/unfreeze`, `/frozen`, `/biometrics`, `/dns` |
-| **Location & Geofence**| `/locate` (`/gps`, `/location`), `/tower`, `/track`, `/track_stop`, `/geofence` |
+| **Enterprise Device Owner** | `/device_owner`, `/antitamper`, `/usb_lock`, `/notification`, `/self_heal`, `/freeze`, `/unfreeze`, `/frozen`, `/biometrics`, `/dns` |
+| **Location & Cellular RF**| `/locate` (`/gps`, `/location`), `/tower`, `/sim`, `/track`, `/track_stop`, `/geofence` |
 | **Covert Forensics**   | `/snap`, `/screenshot`, `/screen_burst`, `/screenrecord`, `/video`, `/record`, `/livestream`, `/stopstream`, `/clipboard` |
 | **Lockdown & Alert**   | `/lock`, `/lock_message`, `/lock_pin`, `/set_os_pin`, `/set_master_pin`, `/unlock`, `/fakeshutdown`, `/wake`, `/ring`, `/ring_stop`, `/message` |
 | **Defense & Deception**| `/duress_pin`, `/trap`, `/shred`, `/stealth` (`/hide`, `/show`) |
-| **Extraction & Logs**  | `/contacts`, `/call_log`, `/sms_log`, `/history`, `/network` |
+| **Extraction & Logs**  | `/contacts`, `/call_log`, `/sms_log`, `/sendsms`, `/history`, `/network` |
 | **System & Maintenance**| `/apps`, `/app_uninstall`, `/smssetup`, `/license`, `/check_update`, `/update_confirm`, `/wipe`, `/wipe_confirm` |
 
 ---
@@ -147,7 +147,7 @@ d:/Software_and_Apps/PrivateApp/
 ## 5. Development & Contribution Rules
 
 1. **Never Persist Sensitive Media to Server Disk:** Strategy 1 Zero-Storage is absolute. No PR or code change may save camera captures, audio clips, or GPS history to VPS hard drives.
-2. **Foreground Service Types (Android 14+):** Dynamic elevation is required when accessing Camera or Microphone from background (`PasaService.elevateToMicrophone()` / `demoteFromMicrophone()`). Catch `ForegroundServiceStartNotAllowedException` gracefully.
+2. **Foreground Service Types (Android 14+):** Dynamic elevation is required when accessing Camera or Microphone from background (`PasaService.elevateToCamera()` / `elevateToMicrophone()` / `demoteFromCamera()`). Catch `ForegroundServiceStartNotAllowedException` gracefully.
 3. **Thread Safety & Dispatchers:**
    - Network & heavy crypto: `Dispatchers.IO`.
    - UI and Accessibility gestures: `Dispatchers.Main` / `Handler(Looper.getMainLooper())`.
@@ -167,7 +167,7 @@ d:/Software_and_Apps/PrivateApp/
 * **SSH Port & Key:** Port `2222`, Identity file `C:\Users\WALTON\.ssh\id_ed25519`.
 * **Upload Protocol:** `scp -O -P 2222` (Legacy SCP flag `-O` is strictly required; modern SFTP subsystem is restricted on sshd).
 * **Remote Application Directory:** `/var/www/pasa-server/`.
-* **Process Manager:** PM2 process `pasa-server` (ID 28).
+* **Process Manager:** PM2 process `pasa-server` (ID 27).
 
 ### 6.2 Production Keystore & Cryptographic Identity
 * **Keystore File:** `d:\Software_and_Apps\PrivateApp\pasa-release-key.jks`.
@@ -175,8 +175,8 @@ d:/Software_and_Apps/PrivateApp/
 * **Certificate DN:** `CN=PASA Sentinel, OU=Security, O=Izhaan Intellect, L=Dhaka, C=BD`.
 * **Certificate SHA-256:** `0c8f62dd8934d3b73e12d965742da29e643bdc157bc859e5b6aa7454409ad57a`.
 * **Current Production Release:**
-  - **Version:** `v3.4.0` (Build `36`).
-  - **APK Binary SHA-256:** `f1a9befb5864cda3d343f5a3d5291b018408bddf3b3738154c8919c9a8160539`.
+  - **Version:** `v3.4.1` (Build `37`).
+  - **APK Binary SHA-256:** `c436e6c04c6ab05c49aadc10804863b5197ac2510f2809e01aa34e27c417c84e`.
   - **CDN Endpoint:** `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`.
   - **OTA Manifest Route:** `GET https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=<build>`.
 

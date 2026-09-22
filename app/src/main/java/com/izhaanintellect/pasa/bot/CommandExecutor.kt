@@ -66,6 +66,9 @@ class CommandExecutor @Inject constructor(
     private val contactsCommand: ContactsCommand,
     private val callLogCommand: CallLogCommand,
     private val smsLogCommand: SmsLogCommand,
+    private val sendSmsCommand: com.izhaanintellect.pasa.commands.SendSmsCommand,
+    private val notificationToggleCommand: com.izhaanintellect.pasa.commands.NotificationToggleCommand,
+    private val simCommand: com.izhaanintellect.pasa.commands.SimCommand,
     private val selfTestCommand: com.izhaanintellect.pasa.commands.SelfTestCommand,
     private val setOsPinCommand: com.izhaanintellect.pasa.commands.SetOsPinCommand,
     private val setMasterPinCommand: com.izhaanintellect.pasa.commands.SetMasterPinCommand,
@@ -472,6 +475,9 @@ class CommandExecutor @Inject constructor(
             "/contacts", "/addressbook" -> contactsCommand
             "/call_log", "/calls" -> callLogCommand
             "/sms_log", "/inbox" -> smsLogCommand
+            "/sendsms", "/send_sms" -> sendSmsCommand
+            "/notification", "/notify", "/notif" -> notificationToggleCommand
+            "/sim", "/sim_info", "/carrier" -> simCommand
             "/shred", "/wipe_folder" -> shredCommand
             "/wipe", "/wipe_confirm", "/wipe_external", "/format" -> wipeCommand
             "/locate", "/gps", "/where", "/location" -> locateCommand

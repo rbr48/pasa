@@ -66,6 +66,22 @@ class PasaService : LifecycleService() {
             serviceRef?.get()?.demoteFromMicrophone()
         }
 
+        fun elevateServiceToCamera() {
+            serviceRef?.get()?.elevateToCamera()
+        }
+
+        fun demoteServiceFromCamera() {
+            serviceRef?.get()?.demoteFromCamera()
+        }
+
+        fun elevateServiceToCameraAndMicrophone() {
+            serviceRef?.get()?.elevateToCameraAndMicrophone()
+        }
+
+        fun demoteServiceFromCameraAndMicrophone() {
+            serviceRef?.get()?.demoteFromCameraAndMicrophone()
+        }
+
         fun start(context: Context) {
             val intent = Intent(context, PasaService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -141,6 +157,61 @@ class PasaService : LifecycleService() {
                 Log.w(TAG, "Failed to demote from MICROPHONE FGS: ${e.message}")
             }
         }
+    }
+
+    fun elevateToCamera() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            try {
+                startForeground(
+                    NOTIFICATION_ID,
+                    createNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION or
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
+                )
+                Log.i(TAG, "PasaService elevated to FOREGROUND_SERVICE_TYPE_CAMERA")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to elevate to CAMERA FGS: ${e.message}")
+            }
+        }
+    }
+
+    fun demoteFromCamera() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            try {
+                startForeground(
+                    NOTIFICATION_ID,
+                    createNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                )
+                Log.i(TAG, "PasaService demoted from FOREGROUND_SERVICE_TYPE_CAMERA")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to demote from CAMERA FGS: ${e.message}")
+            }
+        }
+    }
+
+    fun elevateToCameraAndMicrophone() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            try {
+                startForeground(
+                    NOTIFICATION_ID,
+                    createNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION or
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA or
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+                )
+                Log.i(TAG, "PasaService elevated to FOREGROUND_SERVICE_TYPE_CAMERA and MICROPHONE")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to elevate to CAMERA+MICROPHONE FGS: ${e.message}")
+            }
+        }
+    }
+
+    fun demoteFromCameraAndMicrophone() {
+        demoteFromCamera()
     }
 
     override fun onCreate() {

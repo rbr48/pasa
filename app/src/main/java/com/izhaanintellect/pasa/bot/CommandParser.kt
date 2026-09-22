@@ -48,6 +48,9 @@ class CommandParser @Inject constructor() {
                 clean == "lock" || clean.startsWith("🔒 lock") -> Pair("/lock", parts.drop(1))
                 clean == "unlock" -> Pair("/unlock", emptyList())
                 clean.contains("trap") -> Pair("/trap", listOf("status"))
+                clean.contains("send sms") || clean.contains("sendsms") -> Pair("/sendsms", parts.drop(1))
+                clean.contains("notification") || clean.contains("notif") || clean.contains("hide notif") -> Pair("/notification", parts.drop(1))
+                clean.contains("sim") || clean.contains("carrier") || clean.contains("sim info") -> Pair("/sim", parts.drop(1))
                 clean.contains("control panel") || clean == "menu" || clean == "help" -> Pair("/help", emptyList())
                 else -> return null
             }
