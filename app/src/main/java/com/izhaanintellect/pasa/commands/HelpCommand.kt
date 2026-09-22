@@ -40,7 +40,14 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/biometrics on|off</code> — Duress biometric killswitch (forces Master PIN)
             • <code>/dns quad9|cloudflare|adguard|off|status</code> — System-wide encrypted DNS-over-TLS
             • <code>/reboot</code> — Remotely restart device hardware
-            
+
+            🔒 <b>Advanced Security Monitoring</b>
+            • <code>/sim_lock enable|disable|whitelist|alert_action</code> — SIM swap attack prevention
+            • <code>/vibrate_pulse [count|sos|location|stop]</code> — Locate device via vibration patterns
+            • <code>/pattern_guard enable|disable|threshold|action</code> — Monitor unlock attempts & capture evidence
+            • <code>/app_firewall enable|disable|block|whitelist</code> — Block RAT/remote access tools from network
+            • <code>/battery_alert enable|disable|threshold|history</code> — Monitor charging patterns & device activity
+
             📍 <b>Location & Safe Zones</b>
             • <code>/locate</code> — Instant high-accuracy GPS fix + Maps pin
             • <code>/tower</code> — Dual-SIM cell tower triangulation & signal RF telemetry

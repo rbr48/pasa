@@ -81,6 +81,11 @@ class CommandExecutor @Inject constructor(
     private val stopStreamCommand: StopStreamCommand,
     private val dnsCommand: com.izhaanintellect.pasa.commands.DnsCommand,
     private val towerCommand: com.izhaanintellect.pasa.commands.TowerCommand,
+    private val simLockCommand: com.izhaanintellect.pasa.commands.SimLockCommand,
+    private val vibratePulseCommand: com.izhaanintellect.pasa.commands.VibratePulseCommand,
+    private val patternGuardCommand: com.izhaanintellect.pasa.commands.PatternGuardCommand,
+    private val appFirewallCommand: com.izhaanintellect.pasa.commands.AppFirewallCommand,
+    private val batteryAlertCommand: com.izhaanintellect.pasa.commands.BatteryAlertCommand,
     private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
@@ -513,6 +518,11 @@ class CommandExecutor @Inject constructor(
             "/dns", "/privatedns", "/doh" -> dnsCommand
             "/tower", "/cell", "/celltower", "/bts" -> towerCommand
             "/selftest", "/health", "/diagnostics" -> selfTestCommand
+            "/sim_lock", "/sim_swap", "/simlockdown" -> simLockCommand
+            "/vibrate_pulse", "/vibrate", "/pulse", "/sos" -> vibratePulseCommand
+            "/pattern_guard", "/unlock_guard", "/pattern_monitor" -> patternGuardCommand
+            "/app_firewall", "/firewall", "/rat_block" -> appFirewallCommand
+            "/battery_alert", "/battery", "/charge_monitor" -> batteryAlertCommand
             "/help", "/start" -> helpCommand
             else -> null
         }
