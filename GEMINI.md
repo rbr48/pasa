@@ -89,8 +89,10 @@ d:/Software_and_Apps/PrivateApp/
 * **OS Security Event Auditing (`SecurityLog`):** Hooks kernel security logs (`onSecurityLogsAvailable`) to alert on unauthorized ADB shell connections, KeyStore tampering, and media mount operations.
 * **Kiosk Lockdown:** `dpm.setLockTaskPackages(adminComponent, [packageName])` and `dpm.setLockTaskFeatures(adminComponent, LOCK_TASK_FEATURE_NONE)`.
 * **SystemUI Lockout:** `dpm.setStatusBarDisabled(adminComponent, true)` blocks pulling down Quick Settings to prevent toggling Airplane Mode or Wi-Fi.
+* **Permanent Notification Tray Suppression (`/notification`):** On Android 13+ (API 33+), Device Owner enforces `dpm.setPermissionGrantState(..., Manifest.permission.POST_NOTIFICATIONS, PERMISSION_GRANT_STATE_DENIED)` by default. Completely removes the ongoing "System Security Core" notification from the drawer and lockscreen forever while keeping `PasaService` fully active. Remotely toggleable via `/notification hide|show|toggle|status`.
 
-### 3.3 Covert Forensics & Accessibility Keypad Interceptor
+### 3.3 Covert Forensics & Headless Sensor Architecture
+* **Zero-Blackout Headless Camera & Video (`/snap`, `/video`):** Operates purely headlessly via `StealthCameraManager` and `StealthVideoManager` using CameraX bound to a `ServiceLifecycleOwner`. Dynamically elevates `PasaService` to `FOREGROUND_SERVICE_TYPE_CAMERA` and `FOREGROUND_SERVICE_TYPE_MICROPHONE`. Bypasses `StealthCaptureActivity` overlay during standard capture, completely eliminating display dimming, UI flicker, or black screens.
 * **AccessibilityScreenCaptureService (`AccessibilityService`):**
   - Captures non-intrusive screenshots via `takeScreenshot(Display.DEFAULT_DISPLAY, ...)` on Android 11+ (API 30+) without permission popups.
   - Monitors `TYPE_VIEW_CLICKED` on lockscreen/SystemUI keyboards to detect **Decoy Duress PIN**.
@@ -119,7 +121,8 @@ d:/Software_and_Apps/PrivateApp/
 * Syntax: `PASA <6-digit-TOTP> <command>` (e.g. `PASA 419582 /locate` or `PASA 419582 /status`).
 * Validates TOTP code against hardware clock using enrolled secret key (RFC 6238, window tolerance ±1 step).
 * **Dual-SIM Routing:** Dynamically extracts `subscriptionId` from incoming SMS and dispatches responses via the receiving SIM's `SmsManager`.
-* **Security & Auth Feedback:** Alerts emergency numbers on brute-force attempts and invalid TOTPs; sends direct feedback for command execution.
+* **Direct Outbound Cellular SMS (`/sendsms`):** Transmits SMS messages directly via cellular radio (`/sendsms [sim1|sim2] <number> <msg>`). Used to verify unknown device phone numbers via caller ID when carriers do not store the MSISDN on the SIM card chip.
+* **SIM & Cellular Carrier Telemetry (`/sim`):** Displays active SIM slots, carrier names, subscription IDs, signal strength levels, network types (2G/3G/4G/5G), and MCC/MNC codes.
 * **Supported SMS Commands:** `/locate` (with fast cached GNSS fallback), `/status`, `/help`, `/lock`, `/unlock`, `/ring`, `/ring_stop`, `/fakeshutdown`, `/wake`, `/set_master_pin <pin>`, `/wipe_confirm`.
 
 ### 3.7 Commercial Licensing & Cryptography
