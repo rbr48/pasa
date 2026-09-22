@@ -1192,6 +1192,10 @@ async function handleCheckUpdateCommand(token, chatId, args = []) {
 
 // Telegram Bot long-poller loop
 function startBotPoller(token) {
+  if (process.env.ENABLE_SERVER_POLLER !== 'true') {
+    console.log(`[Telegram Poller] Poller disabled on server (Sovereign Direct-to-Telegram mode active).`);
+    return;
+  }
   if (!token || typeof token !== 'string' || token.trim().length === 0) return;
   token = token.trim();
 
