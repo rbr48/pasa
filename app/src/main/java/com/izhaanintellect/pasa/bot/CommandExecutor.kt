@@ -88,6 +88,7 @@ class CommandExecutor @Inject constructor(
     private val batteryAlertCommand: com.izhaanintellect.pasa.commands.BatteryAlertCommand,
     private val tamperDetectionCommand: com.izhaanintellect.pasa.commands.TamperDetectionCommand,
     private val deadDropCommand: com.izhaanintellect.pasa.commands.DeadDropCommand,
+    private val hardenBootCommand: com.izhaanintellect.pasa.commands.HardenBootCommand,
     private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
@@ -527,6 +528,7 @@ class CommandExecutor @Inject constructor(
             "/battery_alert", "/battery", "/charge_monitor" -> batteryAlertCommand
             "/tamper_detect", "/tamper", "/integrity_check" -> tamperDetectionCommand
             "/dead_drop", "/deadrop", "/vault_backup" -> deadDropCommand
+            "/harden_boot", "/lock_recovery", "/bootlock" -> hardenBootCommand
             "/help", "/start" -> helpCommand
             else -> null
         }

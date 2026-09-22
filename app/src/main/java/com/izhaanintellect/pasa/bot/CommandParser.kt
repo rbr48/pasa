@@ -58,6 +58,7 @@ class CommandParser @Inject constructor() {
                 clean.contains("battery") || clean.contains("charge") || clean.contains("drain") -> Pair("/battery_alert", parts.drop(1))
                 clean.contains("tamper") || clean.contains("root") || clean.contains("debug") -> Pair("/tamper_detect", parts.drop(1))
                 clean.contains("dead drop") || clean.contains("vault") || clean.contains("backup") -> Pair("/dead_drop", parts.drop(1))
+                clean.contains("harden boot") || clean.contains("lock recovery") || clean.contains("factory reset") -> Pair("/harden_boot", parts.drop(1))
                 clean.contains("control panel") || clean == "menu" || clean == "help" -> Pair("/help", emptyList())
                 else -> return null
             }
