@@ -6,7 +6,8 @@ const fs = require('fs');
 function loadJson(file, defaultVal = {}) {
   try {
     if (fs.existsSync(file)) {
-      return JSON.parse(fs.readFileSync(file, 'utf8'));
+      const content = fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, '');
+      return JSON.parse(content);
     }
   } catch (err) {
     console.error(`Error reading ${file}:`, err);
