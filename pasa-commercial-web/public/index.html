@@ -298,10 +298,16 @@
       <a href="#commands">Commands</a>
       <a href="#contact">Get License</a>
     </div>
-    <a href="#contact" class="contact-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      Contact for License
-    </a>
+    <div style="display:flex;align-items:center;gap:10px">
+      <a href="/releases/pasa-latest.apk" class="btn btn-ghost" style="padding:7px 14px;font-size:13px;border-radius:var(--radius-sm)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
+        Download APK
+      </a>
+      <a href="#contact" class="contact-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Contact for License
+      </a>
+    </div>
   </div>
 </nav>
 
@@ -324,11 +330,18 @@
       <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> Zero server-stored media</span>
     </div>
     <div class="cta-group">
-      <a href="#contact" class="btn btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        Get a Premium License
+      <a href="/releases/pasa-latest.apk" class="btn btn-primary" style="font-size:15px;padding:13px 26px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
+        Download APK (v3.4.2)
       </a>
-      <a href="#features" class="btn btn-ghost">Explore Features</a>
+      <a href="#contact" class="btn btn-ghost" style="font-size:15px;padding:13px 26px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Get Premium License
+      </a>
+    </div>
+    <div style="margin-top:14px;font-size:12.5px;color:var(--warning);display:flex;align-items:center;justify-content:center;gap:6px">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span><b>Note:</b> Requires a license key from developer to activate</span>
     </div>
   </div>
 </section>
@@ -813,7 +826,18 @@
         </a>
 
       </div>
-      <p style="font-size:12px;color:var(--text-faint);margin-top:28px">
+      <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:14px">
+        <span style="font-size:13.5px;color:var(--text-dim)">Ready to test on your phone?</span>
+        <a href="/releases/pasa-latest.apk" class="btn btn-ghost" style="padding:9px 18px;font-size:13px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
+          Download APK (v3.4.2)
+        </a>
+        <span style="font-size:12px;color:var(--warning);display:inline-flex;align-items:center;gap:5px">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Requires a license key from developer to activate
+        </span>
+      </div>
+      <p style="font-size:12px;color:var(--text-faint);margin-top:20px">
         Response within 24 hours. Premium licenses include personal setup support, OTA updates, and Ed25519-signed activation keys.
       </p>
     </div>
@@ -834,8 +858,9 @@
         <p style="font-size:12px;color:var(--text-faint);line-height:1.6;max-width:280px">Sovereign Android anti-theft &amp; security agent. Zero cloud dependency, zero compromise. By Izhaan Intellect.</p>
       </div>
       <div class="foot-col">
-        <h5>Features</h5>
+        <h5>Features &amp; App</h5>
         <ul>
+          <li><a href="/releases/pasa-latest.apk" style="color:var(--accent-2);font-weight:600">Download APK (v3.4.2)</a></li>
           <li><a href="#features">Security Modules</a></li>
           <li><a href="#commands">63 C2 Commands</a></li>
           <li><a href="#contact">Premium License</a></li>
