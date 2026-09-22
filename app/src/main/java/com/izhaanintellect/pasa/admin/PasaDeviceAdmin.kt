@@ -98,7 +98,10 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                 try {
                     dpm.setLockTaskPackages(component, arrayOf(context.packageName))
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        dpm.setLockTaskFeatures(component, DevicePolicyManager.LOCK_TASK_FEATURE_NONE)
+                        dpm.setLockTaskFeatures(
+                            component,
+                            DevicePolicyManager.LOCK_TASK_FEATURE_NONE or DevicePolicyManager.LOCK_TASK_FEATURE_KEYGUARD
+                        )
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         try {

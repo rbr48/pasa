@@ -112,12 +112,7 @@ class LockCommand @Inject constructor(
                 }
             }
 
-            // 1. Lock OS hardware keyguard (with ANDROID 16 delay to ensure state updates)
-            dpm.lockNow()
-            Thread.sleep(300L) // Allow lockNow() to complete on Android 16
-            Log.i(TAG, "📵 OS keyguard locked")
-
-            // 2. Launch full-screen Lost Mode Guard
+            // 1. Launch full-screen Lost Mode Guard FIRST so window manager registers it as top
             val alertIntent = AlertMessageActivity.createIntent(
                 context = context,
                 message = messageText,
@@ -135,8 +130,16 @@ class LockCommand @Inject constructor(
                 silentNotification = false
             )
 
-            // 3. Additional delay to ensure AlertMessageActivity has time to start lock task
-            Thread.sleep(500L)
+            // Short delay to allow window to attach
+            Thread.sleep(250L)
+
+            // 2. Lock OS hardware keyguard
+            try {
+                dpm.lockNow()
+                Log.i(TAG, "📵 OS keyguard locked")
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ dpm.lockNow warning: ${e.message}")
+            }
 
             CommandResult(
                 success = true,

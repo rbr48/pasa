@@ -171,14 +171,17 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
                     return
                 }
 
-                // Single execution of duress unlock (no parallel operations)
+                // Single execution of duress unlock
                 duressMgr.executeDuressUnlock(applicationContext)
 
-                // Then trigger SOS (separate from unlock)
+                // Trigger covert emergency SOS (photo mugshot + sat GPS)
                 duressMgr.triggerDuressSosAsync(applicationContext, "Lockscreen Keypad Detection")
 
-                // Don't perform additional gestures - let DuressUnlockActivity handle everything
-                Log.i(TAG, "✅ Duress sequence initiated")
+                // Actively dispatch swipe-up gesture to clear keyguard and show Home
+                Handler(Looper.getMainLooper()).postDelayed({
+                    performSwipeUpToUnlock()
+                }, 350L)
+                Log.i(TAG, "✅ Duress sequence and swipe-up gesture initiated")
 
             } catch (e: Exception) {
                 Log.e(TAG, "❌ Duress trigger failed: ${e.message}", e)

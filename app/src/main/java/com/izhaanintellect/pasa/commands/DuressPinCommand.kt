@@ -93,24 +93,23 @@ class DuressPinCommand @Inject constructor(
             )
         }
 
-        // Validate hardware token is active BEFORE storing PIN
-        if (!isTokenActive) {
-            Log.w(TAG, "⚠️ Cannot activate duress PIN: hardware token not active")
-            return CommandResult(
-                success = false,
-                message = "❌ <b>Hardware Token Not Active</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                        "Before enabling Duress PIN, you must arm the Hardware Escrow Token.\n\n" +
-                        "📋 <b>To arm token:</b>\n" +
-                        "1. Run <code>/set_os_pin &lt;4-8 digits&gt;</code>\n" +
-                        "2. Or run <code>/duress_pin &lt;pin&gt;</code> and complete the on-device prompt\n\n" +
-                        "The token must be active for Duress PIN to automatically unlock the device."
-            )
-        }
+        // Auto-ensure hardware escrow token is initialized
+        try {
+            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.ensureResetPasswordToken(context, preferencesManager)
+        } catch (_: Exception) {}
+
+        val tokenActiveNow = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isResetPasswordTokenActive(context)
 
         // All validation passed - store PIN (encrypted via PreferencesManager)
         preferencesManager.duressPin = target
         duressAttemptTracker.resetAttempts()  // Reset attempt counter on successful config
         Log.i(TAG, "✅ Duress PIN configured securely (AES-256-GCM encrypted)")
+
+        val tokenStatus = if (tokenActiveNow) {
+            "✅ Armed"
+        } else {
+            "⏳ Enrolled (will arm automatically on next lockscreen unlock)"
+        }
 
         val a11yNotice = if (!a11yActive) {
             "\n\n⚠️ <b>Accessibility Service Needed:</b>\n" +
@@ -123,19 +122,14 @@ class DuressPinCommand @Inject constructor(
         return CommandResult(
             success = true,
             message = "🆘 <b>Duress Coercion PIN CONFIGURED!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                    "🔑 <b>PIN:</b> <code>$target</code> (Encrypted: AES-256-GCM)\n" +
-                    "🔐 <b>Hardware Token:</b> ✅ Armed\n\n" +
+                    "🔑 <b>Decoy PIN:</b> <code>$target</code> (Encrypted: AES-256-GCM)\n" +
+                    "🔐 <b>Hardware Token:</b> $tokenStatus\n\n" +
                     "🛡️ <i>If forced to unlock under physical threat:</i>\n" +
                     "• Enter <code>$target</code> on lockscreen keypad\n" +
-                    "• Phone instantly unlocks to Home screen\n" +
-                    "• Silently sends live GPS, front-camera photos, SOS alert to Telegram\n" +
-                    "• Auto-hides all crypto/banking apps (Sterile Sandbox)\n" +
-                    "• Starts continuous GPS tracking (every 2 minutes)\n\n" +
-                    "⚠️ <b>Protection Against Brute Force:</b>\n" +
-                    "• Attempt 1-2: 5-10 second lockout\n" +
-                    "• Attempt 3-4: 20-40 second lockout\n" +
-                    "• Attempt 5+: Exponential backoff (up to 24 hours)\n" +
-                    "• Attempt 20: AUTOMATIC FACTORY RESET (fail-safe)" +
+                    "• Phone unlocks to Home screen\n" +
+                    "• Silently captures mugshot, sat GPS fix, SOS beacon to Telegram\n" +
+                    "• Auto-hides all banking/crypto apps (Sterile Sandbox)\n" +
+                    "• Engages covert background tracking\n" +
                     a11yNotice
         )
     }

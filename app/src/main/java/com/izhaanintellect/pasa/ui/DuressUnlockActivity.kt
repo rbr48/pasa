@@ -69,43 +69,54 @@ class DuressUnlockActivity : AppCompatActivity() {
     }
 
     private fun dismissKeyguardAndGoHome() {
-        try {
-            val km = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+        val km = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+        val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
+        var homeDispatched = false
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && km != null) {
-                Log.d(TAG, "Requesting keyguard dismissal via API 26+ method")
+        fun triggerHome() {
+            if (!homeDispatched) {
+                homeDispatched = true
+                goToHome()
+            }
+        }
+
+        // Safety fallback: if dismissal callback stalls, force launch Home after 800ms
+        val fallbackRunnable = Runnable {
+            Log.d(TAG, "Keyguard dismissal timeout — forcing Home launch")
+            triggerHome()
+        }
+        mainHandler.postDelayed(fallbackRunnable, 800L)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && km != null) {
+            Log.d(TAG, "Requesting keyguard dismissal via API 26+ method")
+            try {
                 km.requestDismissKeyguard(this, object : KeyguardManager.KeyguardDismissCallback() {
                     override fun onDismissSucceeded() {
                         Log.i(TAG, "✅ Keyguard dismissal succeeded")
-                        dismissed = true
-                        // Don't call goToHome here - let onCreate finish first
+                        mainHandler.removeCallbacks(fallbackRunnable)
+                        triggerHome()
                     }
 
                     override fun onDismissError() {
-                        Log.w(TAG, "⚠️ Keyguard dismissal error")
-                        dismissed = false
+                        Log.w(TAG, "⚠️ Keyguard dismissal error — launching Home fallback")
+                        mainHandler.removeCallbacks(fallbackRunnable)
+                        triggerHome()
                     }
 
                     override fun onDismissCancelled() {
-                        Log.w(TAG, "⚠️ Keyguard dismissal cancelled")
-                        dismissed = false
+                        Log.w(TAG, "⚠️ Keyguard dismissal cancelled — launching Home fallback")
+                        mainHandler.removeCallbacks(fallbackRunnable)
+                        triggerHome()
                     }
                 })
-
-                // Wait a bit for dismissal to process
-                Thread.sleep(200)
+            } catch (e: Exception) {
+                Log.w(TAG, "Keyguard dismissal exception: ${e.message}")
+                mainHandler.removeCallbacks(fallbackRunnable)
+                triggerHome()
             }
-
-            // If dismiss didn't succeed, or if using older API, launch home
-            if (!dismissed) {
-                Log.d(TAG, "Launching Home as fallback")
-            }
-
-            goToHome()
-
-        } catch (e: Exception) {
-            Log.e(TAG, "❌ Unlock error: ${e.message}", e)
-            goToHome()
+        } else {
+            mainHandler.removeCallbacks(fallbackRunnable)
+            triggerHome()
         }
     }
 

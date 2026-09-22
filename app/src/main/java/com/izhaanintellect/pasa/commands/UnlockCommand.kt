@@ -48,10 +48,39 @@ class UnlockCommand @Inject constructor(
             preferencesManager.lostModeMessage = ""
             Log.i(TAG, "✅ Lost Mode preferences cleared")
 
-            // 2. Clear Device Owner lockdown restrictions
+            // 2. Clear Device Owner lockdown restrictions & restore keyguard
             try {
                 com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setComprehensiveLockdown(context, false)
                 com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setUninstallBlocked(context, false)
+
+                val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+                val adminComponent = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.getComponentName(context)
+                if (dpm != null && com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)) {
+                    // Restore biometrics (fingerprint/face unlock) unless explicitly turned off by /biometrics command
+                    val disabledFeatures = if (preferencesManager.biometricsDisabled) {
+                        android.app.admin.DevicePolicyManager.KEYGUARD_DISABLE_FINGERPRINT or
+                        (if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                            android.app.admin.DevicePolicyManager.KEYGUARD_DISABLE_BIOMETRICS or
+                            android.app.admin.DevicePolicyManager.KEYGUARD_DISABLE_FACE
+                        } else 0)
+                    } else {
+                        0
+                    }
+                    try {
+                        dpm.setKeyguardDisabledFeatures(adminComponent, disabledFeatures)
+                        Log.i(TAG, "✅ Keyguard features restored (disabledFeatures=$disabledFeatures)")
+                    } catch (e: Exception) {
+                        Log.w(TAG, "⚠️ Could not restore keyguard features: ${e.message}")
+                    }
+
+                    // Clear device owner lockscreen warning message
+                    try {
+                        dpm.setDeviceOwnerLockScreenInfo(adminComponent, null)
+                        Log.i(TAG, "✅ Lockscreen owner message cleared")
+                    } catch (e: Exception) {
+                        Log.w(TAG, "⚠️ Could not clear lockscreen message: ${e.message}")
+                    }
+                }
                 Log.i(TAG, "✅ Device Owner restrictions cleared")
             } catch (e: Exception) {
                 Log.w(TAG, "⚠️ Partial Device Owner cleanup: ${e.message}")

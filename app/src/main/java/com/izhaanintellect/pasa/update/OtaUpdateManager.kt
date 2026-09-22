@@ -253,6 +253,29 @@ class OtaUpdateManager @Inject constructor(
             val pendingIntent = PendingIntent.getBroadcast(
                 context, 0, intent, flags
             )
+
+            // Pre-schedule an exact AlarmManager alarm to resurrect PasaService 10s after install
+            try {
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? android.app.AlarmManager
+                val watchdogIntent = Intent(context, com.izhaanintellect.pasa.detection.PasaWatchdogReceiver::class.java).apply {
+                    action = com.izhaanintellect.pasa.detection.PasaWatchdogReceiver.ACTION_WATCHDOG_RESTART
+                }
+                val watchdogPending = PendingIntent.getBroadcast(
+                    context,
+                    998,
+                    watchdogIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                alarmManager?.setExactAndAllowWhileIdle(
+                    android.app.AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + 10000L,
+                    watchdogPending
+                )
+                Log.i(TAG, "Pre-scheduled watchdog resurrection alarm via AlarmManager in 10s")
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not pre-schedule watchdog alarm: ${e.message}")
+            }
+
             session.commit(pendingIntent.intentSender)
             Log.i(TAG, "Silent install session committed (Device Owner mode)")
         } catch (e: Exception) {

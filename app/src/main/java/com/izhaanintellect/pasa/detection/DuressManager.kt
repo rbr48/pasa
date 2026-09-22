@@ -99,21 +99,22 @@ class DuressManager @Inject constructor(
                     deploySterileDecoySandbox(context)
                 }
 
-                // 3. Clear physical lockscreen PIN via Hardware Escrow Token
-                val cleared = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.clearDevicePassword(
-                    context,
-                    preferencesManager
-                )
-                if (!cleared) {
-                    Log.e(TAG, "❌ Hardware escrow token clear FAILED - token might not be active")
-                    return
+                // 3. Clear physical lockscreen PIN via Hardware Escrow Token (if enrolled)
+                try {
+                    val cleared = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.clearDevicePassword(
+                        context,
+                        preferencesManager
+                    )
+                    if (cleared) {
+                        Log.i(TAG, "✅ Physical lockscreen PIN cleared via escrow token")
+                    } else {
+                        Log.w(TAG, "⚠️ Hardware escrow token clear not active or restricted — continuing unlock sequence")
+                    }
+                } catch (escrowErr: Exception) {
+                    Log.w(TAG, "Escrow clear warning: ${escrowErr.message} — continuing unlock sequence")
                 }
-                Log.i(TAG, "✅ Physical lockscreen PIN cleared via escrow token")
 
-                // 4. Small delay to ensure password clear completes
-                Thread.sleep(500)
-
-                // 5. Launch DuressUnlockActivity (serialized - only runs after password clear)
+                // 4. Launch DuressUnlockActivity to dismiss keyguard & transition to Home
                 com.izhaanintellect.pasa.ui.DuressUnlockActivity.launch(context)
                 Log.i(TAG, "✅ Duress unlock complete")
 

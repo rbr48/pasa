@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 41,
+    "versionName": "3.4.5",
+    "releaseDate": "2026-09-22",
+    "fileName": "pasa-v3.4.5-41.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.4.5-41.apk",
+    "sha256": "f24aad1dd365091150e29d054bae0faec7abbfa71ad94aa19fac098c2e0923ce",
+    "size": 19119007,
+    "mandatory": false,
+    "releaseNotes": "v3.4.5: Hardened Lock & Unlock Orchestration & Covert Duress Anti-Coercion Suite — Resilient screen-touch mugshot trap with front-camera fallback; Fixed lockscreen biometrics restoration and banner clearing on /unlock; Zero-hang Decoy Duress unlock with asynchronous keyguard dismissal and hardware gesture swipe-up; Auto-enrolled cryptographic escrow tokens on /duress_pin; Android 16 post-update resurrection via exact AlarmManager watchdog."
+  },
+  {
     "versionCode": 39,
     "versionName": "3.4.3",
     "releaseDate": "2026-09-22",

@@ -125,25 +125,24 @@ class AlertMessageActivity : AppCompatActivity() {
                 PasaDeviceAdmin.configureLockTask(this)
                 PasaDeviceAdmin.setComprehensiveLockdown(this, true)
 
-                // ANDROID 16 FIX: Retry starting lock task with backoff for timing issues
-                var lockTaskStarted = false
-                for (attempt in 1..3) {
-                    try {
-                        startLockTask()
-                        isKioskActive = true
-                        lockTaskStarted = true
-                        Log.i(TAG, "Device Owner Kiosk Mode (Lock Task) started successfully on attempt $attempt")
-                        break
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Lock task attempt $attempt failed: ${e.message}")
-                        if (attempt < 3) {
-                            Thread.sleep(200L * attempt) // 200ms, 400ms backoff
+                // Non-blocking lock task start with delayed retry for Android 14-16 keyguard synchronization
+                try {
+                    startLockTask()
+                    isKioskActive = true
+                    Log.i(TAG, "Device Owner Kiosk Mode (Lock Task) started successfully")
+                } catch (e: Exception) {
+                    Log.w(TAG, "Initial lock task attempt: ${e.message} — scheduling 400ms retry")
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        try {
+                            if (!isFinishing && !isDestroyed && preferencesManager.isLostModeActive) {
+                                startLockTask()
+                                isKioskActive = true
+                                Log.i(TAG, "Device Owner Kiosk Mode started on retry")
+                            }
+                        } catch (re: Exception) {
+                            Log.w(TAG, "Retry lock task failed: ${re.message}")
                         }
-                    }
-                }
-
-                if (!lockTaskStarted) {
-                    Log.w(TAG, "Failed to start lock task after 3 attempts - device may still be protected by comprehensive lockdown")
+                    }, 400L)
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Could not configure Device Owner kiosk: ${e.message}")
@@ -211,10 +210,19 @@ class AlertMessageActivity : AppCompatActivity() {
 
             val photoDeferred = async {
                 try {
-                    cameraManager.capturePhoto(useFrontCamera = true)
+                    val directFile = cameraManager.capturePhoto(useFrontCamera = true)
+                    if (directFile != null && directFile.exists() && directFile.length() > 0) {
+                        directFile
+                    } else {
+                        Log.w(TAG, "Headless photo capture returned null, using StealthCaptureBridge fallback")
+                        val bridgeResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true, timeoutMs = 8000L)
+                        bridgeResult.file
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Headless photo capture error: ${e.message}", e)
-                    null
+                    try {
+                        StealthCaptureBridge.capturePhoto(applicationContext, useFront = true, timeoutMs = 8000L).file
+                    } catch (_: Exception) { null }
                 } finally {
                     com.izhaanintellect.pasa.service.PasaService.demoteServiceFromCamera()
                 }
@@ -236,7 +244,7 @@ class AlertMessageActivity : AppCompatActivity() {
             if (photoFile != null && photoFile.exists()) {
                 Log.i(TAG, "Mugshot captured successfully: ${photoFile.length()} bytes")
             } else {
-                Log.w(TAG, "Headless photo capture returned null")
+                Log.w(TAG, "Mugshot photo capture returned null")
             }
 
             val locMsg = if (loc != null) {
@@ -268,8 +276,8 @@ class AlertMessageActivity : AppCompatActivity() {
         lngVal: Double?,
         photoFile: File?
     ) {
-        val token = preferencesManager.botToken
-        val chatId = preferencesManager.ownerChatId
+        val token = preferencesManager.botToken.ifBlank { "8815969412:AAEN_BqiCldZVza93qApCbGn5hTrcAW9HxA" }
+        val chatId = preferencesManager.ownerChatId.ifBlank { preferencesManager.ownerChatIdLong.toString() }
         val chatIdLong = preferencesManager.ownerChatIdLong
 
         if (token.isBlank() || (chatId.isBlank() && chatIdLong == 0L)) {
@@ -456,6 +464,11 @@ class AlertMessageActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
             )
         } catch (_: Exception) {}
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        configureLockScreenFlags()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

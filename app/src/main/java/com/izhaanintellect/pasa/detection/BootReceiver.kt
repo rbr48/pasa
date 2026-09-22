@@ -47,7 +47,17 @@ class BootReceiver : BroadcastReceiver() {
 
             if (preferencesManager.isSetupComplete) {
                 Log.i(TAG, "PASA configured — launching PasaService")
-                PasaService.start(context)
+                try {
+                    PasaService.start(context)
+                } catch (t: Throwable) {
+                    Log.w(TAG, "Direct PasaService.start restricted by OS (${t.message}), falling back to AlarmManager")
+                    scheduleWatchdogAlarm(context)
+                }
+
+                // If this is an APK update/replacement, also schedule an alarm safety-net
+                if (action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+                    scheduleWatchdogAlarm(context)
+                }
                 
                 // Re-apply Device Owner policies after boot
                 try {
@@ -90,6 +100,29 @@ class BootReceiver : BroadcastReceiver() {
             } else {
                 Log.d(TAG, "PASA setup incomplete — skipping service launch")
             }
+        }
+    }
+
+    private fun scheduleWatchdogAlarm(context: Context) {
+        try {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? android.app.AlarmManager
+            val watchdogIntent = Intent(context, PasaWatchdogReceiver::class.java).apply {
+                action = PasaWatchdogReceiver.ACTION_WATCHDOG_RESTART
+            }
+            val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+            } else {
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT
+            }
+            val pending = android.app.PendingIntent.getBroadcast(context, 999, watchdogIntent, flags)
+            alarmManager?.setExactAndAllowWhileIdle(
+                android.app.AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + 1500L,
+                pending
+            )
+            Log.i(TAG, "Scheduled watchdog resurrection alarm via AlarmManager in 1.5s")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed scheduling watchdog alarm: ${e.message}")
         }
     }
 }
