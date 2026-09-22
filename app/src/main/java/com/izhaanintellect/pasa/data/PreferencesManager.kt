@@ -311,7 +311,7 @@ class PreferencesManager @Inject constructor(
         set(value) = prefs.edit().putString(KEY_DEVICE_ID, value).apply()
 
     var useBackendServer: Boolean
-        get() = prefs.getBoolean(KEY_USE_BACKEND, false)
+        get() = prefs.getBoolean(KEY_USE_BACKEND, true)
         set(value) = prefs.edit().putBoolean(KEY_USE_BACKEND, value).apply()
         
     var apiKey: String

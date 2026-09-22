@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 42,
+    "versionName": "3.4.6",
+    "releaseDate": "2026-09-22",
+    "fileName": "pasa-v3.4.6-42.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.4.6-42.apk",
+    "sha256": "0a4ed06c32092c0137f20f73c1187476af43f2fcc18b702f562bd7a0e1d7c89e",
+    "size": 19119002,
+    "mandatory": false,
+    "releaseNotes": "v3.4.6: Resilient VPS Gateway Relay & ISP Firewall Bypass — Automatic VPS Gateway long-polling when server is configured (bypassing ISP/BTRC Telegram API blocks); Restored seamless C2 command dispatching for all paired devices; Real-time status reporting and instant duress execution."
+  },
+  {
     "versionCode": 41,
     "versionName": "3.4.5",
     "releaseDate": "2026-09-22",

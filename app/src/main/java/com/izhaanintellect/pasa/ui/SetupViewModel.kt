@@ -143,6 +143,7 @@ class SetupViewModel @Inject constructor(
         preferencesManager.backupEmail = email.trim()
         preferencesManager.isStealthMode = stealthMode
         preferencesManager.serverUrl = serverUrl.trim()
+        preferencesManager.useBackendServer = serverUrl.trim().isNotBlank()
         preferencesManager.isSetupComplete = true
 
         try {

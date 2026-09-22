@@ -369,7 +369,8 @@ class PasaService : LifecycleService() {
                     var commandReceivedInCycle = false
 
                     // 1. Try VPS Backend polling first if enabled (HTTP long-polling)
-                    if (preferencesManager.useBackendServer) {
+                    val shouldUseBackend = preferencesManager.useBackendServer || preferencesManager.serverUrl.isNotBlank()
+                    if (shouldUseBackend) {
                         try {
                             val pollResp = pasaBackendApi.pollCommands(preferencesManager.deviceId, timeout = 25)
                             if (pollResp.ok && !pollResp.commands.isNullOrEmpty()) {
@@ -437,7 +438,7 @@ class PasaService : LifecycleService() {
                     }
 
                     // 2. Direct Telegram API fallback (ONLY if backend server is NOT used, preventing 409 Conflict)
-                    if (!polledSuccessfully && !preferencesManager.useBackendServer) {
+                    if (!polledSuccessfully && !shouldUseBackend) {
                         val token = preferencesManager.botToken
                         val offset = preferencesManager.updateOffset
 
