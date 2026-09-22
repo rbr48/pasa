@@ -1,5 +1,5 @@
 // Upload full command menu to Telegram Bot API
-const token = '8815969412:AAEN_BqiCldZVza93qApCbGn5hTrcAW9HxA';
+const token = process.env.TELEGRAM_BOT_TOKEN || '8815969412:AAEN_BqiCldZVza93qApCbGn5hTrcAW9HxA';
 
 const commandsList = [
   { command: "menu", description: "📱 Open interactive touchscreen control panel" },
@@ -9,6 +9,9 @@ const commandsList = [
   { command: "info", description: "ℹ️ Hardware specs, SIM details & OS version" },
   { command: "locate", description: "📍 Acquire instant GPS fix & Google Maps pin" },
   { command: "tower", description: "📡 Cell tower triangulation & signal RF telemetry" },
+  { command: "sim", description: "📶 Active SIM slots, carrier name & signal RF" },
+  { command: "sim_lock", description: "🛡️ SIM swap guard & ICCID whitelist lock" },
+  { command: "sendsms", description: "✉️ Send outbound SMS directly via SIM slot" },
   { command: "track", description: "🛰️ Start continuous live GPS tracking" },
   { command: "track_stop", description: "🛑 Stop continuous GPS tracking" },
   { command: "geofence", description: "🌐 Configure safe zone radius & breach alerts" },
@@ -25,17 +28,33 @@ const commandsList = [
   { command: "lock_message", description: "💬 Set urgent alert message on lockscreen" },
   { command: "lock_pin", description: "🔑 Lock phone with custom 4-8 digit PIN" },
   { command: "set_os_pin", description: "🔐 Overwrite hardware OS lockscreen PIN (Device Owner)" },
+  { command: "set_master_pin", description: "🔑 Set cryptographic master PIN for remote control" },
   { command: "unlock", description: "🔓 Dismiss Lost Mode & unlock device screen" },
   { command: "fakeshutdown", description: "🕶️ Fake shutdown: blackout screen & silent traps" },
   { command: "wake", description: "☀️ Restore device from Fake Shutdown blackout" },
   { command: "ring", description: "🚨 Trigger maximum volume emergency siren" },
   { command: "ring_stop", description: "🔇 Silence active emergency alarm siren" },
+  { command: "vibrate_pulse", description: "📳 Locate device silently via tactile vibrations" },
+  { command: "pattern_guard", description: "👁️ Failed pattern/PIN intrusion monitor & mugshot" },
+  { command: "app_firewall", description: "🧱 Block RAT & spyware network outbound telemetry" },
+  { command: "battery_alert", description: "🔋 Monitor abnormal drain & charging disconnects" },
+  { command: "harden_boot", description: "🔒 Lock recovery mode & prevent unauthorized reset" },
+  { command: "tamper_detect", description: "🔍 Scan for root, debuggers, hooks & emulators" },
+  { command: "dead_drop", description: "☁️ Backup evidence to encrypted local/cloud vault" },
   { command: "message", description: "📢 Display urgent fullscreen alert on device" },
   { command: "duress_pin", description: "🆘 Set decoy coercion PIN for emergency SOS" },
   { command: "trap", description: "🛡️ Arm sensor traps (snatch, charger, pocket)" },
   { command: "shred", description: "🗑️ Cryptographically shred sensitive files" },
   { command: "device_owner", description: "👑 Check Device Owner & Kiosk hardware lock" },
-  { command: "dns", description: "🛡️ Enforce system-wide Private DNS-over-TLS (Device Owner)" },
+  { command: "antitamper", description: "🛡️ Safe boot, airplane mode & factory reset lock" },
+  { command: "usb_lock", description: "🔌 Cut USB data signaling pins (charge only)" },
+  { command: "notification", description: "🔕 Permanent notification drawer suppression" },
+  { command: "self_heal", description: "✨ Permanently lock app permissions as managed" },
+  { command: "freeze", description: "🧊 Vanish banking & private apps into shadow vault" },
+  { command: "unfreeze", description: "🔥 Restore hidden applications to launcher" },
+  { command: "frozen", description: "📦 List currently frozen shadow vault apps" },
+  { command: "biometrics", description: "🚫 Biometric coercion killswitch (forces Master PIN)" },
+  { command: "dns", description: "🛡️ Enforce system-wide Private DNS-over-TLS" },
   { command: "reboot", description: "🔄 Remotely restart phone hardware (Device Owner)" },
   { command: "stealth", description: "👁️ Toggle PASA app icon in launcher" },
   { command: "hide", description: "🔇 Hide PASA app icon from phone launcher" },
@@ -56,7 +75,7 @@ const commandsList = [
 ];
 
 async function main() {
-  console.log(`Setting ${commandsList.length} commands on bot...`);
+  console.log(`Setting ${commandsList.length} commands on bot @Pas_agent_bot...`);
   const res = await fetch(`https://api.telegram.org/bot${token}/setMyCommands`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
