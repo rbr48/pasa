@@ -86,6 +86,8 @@ class CommandExecutor @Inject constructor(
     private val patternGuardCommand: com.izhaanintellect.pasa.commands.PatternGuardCommand,
     private val appFirewallCommand: com.izhaanintellect.pasa.commands.AppFirewallCommand,
     private val batteryAlertCommand: com.izhaanintellect.pasa.commands.BatteryAlertCommand,
+    private val tamperDetectionCommand: com.izhaanintellect.pasa.commands.TamperDetectionCommand,
+    private val deadDropCommand: com.izhaanintellect.pasa.commands.DeadDropCommand,
     private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
@@ -523,6 +525,8 @@ class CommandExecutor @Inject constructor(
             "/pattern_guard", "/unlock_guard", "/pattern_monitor" -> patternGuardCommand
             "/app_firewall", "/firewall", "/rat_block" -> appFirewallCommand
             "/battery_alert", "/battery", "/charge_monitor" -> batteryAlertCommand
+            "/tamper_detect", "/tamper", "/integrity_check" -> tamperDetectionCommand
+            "/dead_drop", "/deadrop", "/vault_backup" -> deadDropCommand
             "/help", "/start" -> helpCommand
             else -> null
         }

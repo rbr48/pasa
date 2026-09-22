@@ -48,6 +48,10 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/app_firewall enable|disable|block|whitelist</code> — Block RAT/remote access tools from network
             • <code>/battery_alert enable|disable|threshold|history</code> — Monitor charging patterns & device activity
 
+            🛡️ <b>Tamper-Proof Hardening</b>
+            • <code>/tamper_detect enable|disable|scan|status</code> — Detect root, debuggers, hooks, emulators [NEW]
+            • <code>/dead_drop enable|disable|upload|status</code> — Backup evidence to encrypted cloud vault [NEW]
+
             📍 <b>Location & Safe Zones</b>
             • <code>/locate</code> — Instant high-accuracy GPS fix + Maps pin
             • <code>/tower</code> — Dual-SIM cell tower triangulation & signal RF telemetry

@@ -56,6 +56,8 @@ class CommandParser @Inject constructor() {
                 clean.contains("pattern") || clean.contains("unlock attempt") || clean.contains("unlock guard") -> Pair("/pattern_guard", parts.drop(1))
                 clean.contains("firewall") || clean.contains("app firewall") || clean.contains("rat block") -> Pair("/app_firewall", parts.drop(1))
                 clean.contains("battery") || clean.contains("charge") || clean.contains("drain") -> Pair("/battery_alert", parts.drop(1))
+                clean.contains("tamper") || clean.contains("root") || clean.contains("debug") -> Pair("/tamper_detect", parts.drop(1))
+                clean.contains("dead drop") || clean.contains("vault") || clean.contains("backup") -> Pair("/dead_drop", parts.drop(1))
                 clean.contains("control panel") || clean == "menu" || clean == "help" -> Pair("/help", emptyList())
                 else -> return null
             }
