@@ -79,6 +79,13 @@ d:/Software_and_Apps/PrivateApp/
   2. Enrolls token via `dpm.setResetPasswordToken(adminComponent, tokenBytes)`.
   3. Keyguard arms token on first physical device unlock.
   4. Remote reset executed via `dpm.resetPasswordWithToken(adminComponent, newPin, tokenBytes, 0)`.
+* **Hardware Camera Killswitch (`/camera_lock`):** `dpm.setCameraDisabled(component, true)` completely disables all front and rear cameras system-wide, neutralizing malware or unauthorized camera access.
+* **Peripheral Lockout (`/bluetooth_lock`, `/mic_mute`):** `dpm.addUserRestriction(UserManager.DISALLOW_BLUETOOTH)` blocks Bluetooth pairings and file sharing. `dpm.setMasterVolumeMuted(component, true)` mutes all audio at the hardware HAL level.
+* **Lockscreen Emergency Banner (`/lockscreen_info`):** Android 7.0+ `dpm.setDeviceOwnerLockScreenInfo(component, text)` pins owner recovery contact information permanently onto the OS lockscreen display.
+* **Inactivity Autolock Policy (`/autolock`):** `dpm.setMaximumTimeToLock(component, ms)` enforces custom maximum screen inactivity timeouts before locking.
+* **Emergency Wi-Fi Auto-Provisioning (`/wifi_connect`):** Android 10+ `WifiNetworkSpecifier` and legacy `WifiConfiguration` provision and connect the device to Wi-Fi while locked.
+* **Kernel OS Security Auditing (`/security_audit`):** Low-level Linux kernel `SecurityLog` events (`dpm.retrieveSecurityLogs`) report interactive ADB shell openings, KeyStore tampering/destruction, and physical media mounts.
+* **Silent Application Uninstallation (`/app_uninstall`):** Device Owner `PackageInstaller.uninstall(pkg, pendingIntent)` silently removes unauthorized apps or spyware without showing confirmation prompts.
 * **Hardware USB Data Pin Killswitch (`/usb_lock`):** Android 12+ (API 31+) `dpm.setUsbDataSignalingEnabled(false)` physically disables USB data pins. Forensic extraction boxes (Cellebrite, GrayKey), BadUSB, and juice-jacking attacks are neutralized while preserving AC power charging.
 * **Enterprise Anti-Tamper Suite (`/antitamper`):** Enforces kernel/OS restrictions: `DISALLOW_SAFE_BOOT` (blocks safe mode), `DISALLOW_AIRPLANE_MODE`, `DISALLOW_FACTORY_RESET`, `DISALLOW_NETWORK_RESET`, `DISALLOW_MOUNT_PHYSICAL_MEDIA`, `DISALLOW_USB_FILE_TRANSFER`, `DISALLOW_CONFIG_LOCATION`.
 * **Self-Healing Permission Sovereignty (`/self_heal`):** Uses `dpm.setPermissionGrantState(..., PERMISSION_GRANT_STATE_GRANTED)` to permanently lock Camera, Microphone, GPS, SMS, Call Log, and Contacts permissions as "Managed by your organization" (unrevokable by user or thief). Auto-enforced on app startup.
@@ -123,12 +130,12 @@ d:/Software_and_Apps/PrivateApp/
 
 ### 3.6 Air-Gapped Cellular SMS Fallback (`SmsCommandReceiver`)
 * Listens on `SMS_RECEIVED` (priority 999) with direct boot awareness.
-* Syntax: `PASA <6-digit-TOTP> <command>` (e.g. `PASA 419582 /locate` or `PASA 419582 /status`).
-* Validates TOTP code against hardware clock using enrolled secret key (RFC 6238, window tolerance ±1 step).
+* Syntax: `PASA <6-digit-TOTP-or-MasterPIN> <command>` (e.g. `PASA 419582 /locate` or `PASA 419582 /status`).
+* Validates TOTP code against hardware clock using enrolled secret key (RFC 6238, window tolerance ±3 steps) or master cryptographic passphrase.
 * **Dual-SIM Routing:** Dynamically extracts `subscriptionId` from incoming SMS and dispatches responses via the receiving SIM's `SmsManager`.
 * **Direct Outbound Cellular SMS (`/sendsms`):** Transmits SMS messages directly via cellular radio (`/sendsms [sim1|sim2] <number> <msg>`). Used to verify unknown device phone numbers via caller ID when carriers do not store the MSISDN on the SIM card chip.
 * **SIM & Cellular Carrier Telemetry (`/sim`):** Displays active SIM slots, carrier names, subscription IDs, signal strength levels, network types (2G/3G/4G/5G), and MCC/MNC codes.
-* **Supported SMS Commands:** `/locate` (with fast cached GNSS fallback), `/status`, `/help`, `/lock`, `/unlock`, `/ring`, `/ring_stop`, `/fakeshutdown`, `/wake`, `/set_master_pin <pin>`, `/wipe_confirm`.
+* **Complete Air-Gapped Command Coverage:** Every single command responds via SMS: `/locate`, `/status`, `/usb_lock`, `/camera_lock`, `/bluetooth_lock`, `/mic_mute`, `/wifi_connect`, `/lockscreen_info`, `/autolock`, `/app_uninstall`, `/reboot`, `/security_audit`, `/antitamper`, `/biometrics`, `/ring`, `/ring_stop`, `/lock`, `/unlock`, `/fakeshutdown`, `/wake`, `/set_master_pin <pin>`, `/wipe`, `/wipe_confirm`. All SMS responses are stripped of HTML tags for clean SMS delivery.
 
 ### 3.7 Commercial Licensing & Cryptography
 * **Ed25519 Offline Verification:** License keys (`PASA-PRO-XXXX-XXXX`, `PASA-LIFE-XXXX-XXXX`) issue an Ed25519-signed certificate payload. The Android client verifies the signature offline using the embedded public key in <0.2ms.
@@ -137,17 +144,17 @@ d:/Software_and_Apps/PrivateApp/
 
 ---
 
-## 4. Complete Command Matrix (63 Telegram C2 Commands)
+## 4. Complete Command Matrix (77 Telegram C2 Commands)
 
 | Category | Commands |
 |---|---|
-| **Core & Diagnostics** | `/menu`, `/help`, `/status`, `/selftest`, `/info`, `/reboot`, `/battery_alert` |
-| **Enterprise Device Owner** | `/device_owner`, `/antitamper`, `/usb_lock`, `/notification`, `/self_heal`, `/freeze`, `/unfreeze`, `/frozen`, `/biometrics`, `/dns`, `/app_firewall` |
+| **Core & Diagnostics** | `/menu`, `/help`, `/status`, `/selftest`, `/info`, `/reboot`, `/battery_alert`, `/network` |
+| **Enterprise Device Owner** | `/device_owner`, `/antitamper`, `/usb_lock`, `/camera_lock`, `/bluetooth_lock`, `/mic_mute`, `/lockscreen_info`, `/autolock`, `/wifi_connect`, `/security_audit`, `/notification`, `/self_heal`, `/freeze`, `/unfreeze`, `/frozen`, `/biometrics`, `/dns`, `/app_firewall` |
 | **Location & Cellular RF**| `/locate` (`/gps`, `/location`), `/tower`, `/sim`, `/sim_lock`, `/track`, `/track_stop`, `/geofence` |
-| **Covert Forensics**   | `/snap`, `/screenshot`, `/screen_burst`, `/screenrecord`, `/video`, `/record`, `/livestream`, `/stopstream`, `/clipboard` |
+| **Covert Forensics**   | `/snap`, `/screenshot`, `/screen_burst`, `/screenrecord`, `/video`, `/record`, `/livestream`, `/stopstream`, `/livestream_diag`, `/clipboard` |
 | **Lockdown & Alert**   | `/lock`, `/lock_message`, `/lock_pin`, `/set_os_pin`, `/set_master_pin`, `/unlock`, `/fakeshutdown`, `/wake`, `/ring`, `/ring_stop`, `/vibrate_pulse`, `/message` |
-| **Defense & Deception**| `/duress_pin`, `/pattern_guard`, `/trap`, `/shred`, `/stealth` (`/hide`, `/show`) |
-| **Extraction & Logs**  | `/contacts`, `/call_log`, `/sms_log`, `/sendsms`, `/history`, `/network` |
+| **Defense & Deception**| `/duress_pin`, `/pattern_guard`, `/trap`, `/shred`, `/stealth` (`/hide`, `/show`), `/tamper_detect`, `/dead_drop`, `/harden_boot`, `/factory_reset_defense` |
+| **Extraction & Logs**  | `/contacts`, `/call_log`, `/sms_log`, `/sendsms`, `/history` |
 | **System & Maintenance**| `/apps`, `/app_uninstall`, `/smssetup`, `/license`, `/check_update`, `/update_confirm`, `/wipe`, `/wipe_confirm` |
 
 ---
