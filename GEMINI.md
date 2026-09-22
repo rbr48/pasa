@@ -90,6 +90,7 @@ d:/Software_and_Apps/PrivateApp/
 * **Kiosk Lockdown:** `dpm.setLockTaskPackages(adminComponent, [packageName])` and `dpm.setLockTaskFeatures(adminComponent, LOCK_TASK_FEATURE_NONE)`.
 * **SystemUI Lockout:** `dpm.setStatusBarDisabled(adminComponent, true)` blocks pulling down Quick Settings to prevent toggling Airplane Mode or Wi-Fi.
 * **Permanent Notification Tray Suppression (`/notification`):** On Android 13+ (API 33+), Device Owner enforces `dpm.setPermissionGrantState(..., Manifest.permission.POST_NOTIFICATIONS, PERMISSION_GRANT_STATE_DENIED)` by default. Completely removes the ongoing "System Security Core" notification from the drawer and lockscreen forever while keeping `PasaService` fully active. Remotely toggleable via `/notification hide|show|toggle|status`.
+* **App Network Isolation Firewall (`/app_firewall`):** Granular package network isolation (blacklist / whitelist mode) preventing RATs, malware, or compromised apps from outbound telemetry or command reception. Remotely toggleable via `/app_firewall [status|enable|disable|blacklist|whitelist|block|unblock]`.
 
 ### 3.3 Covert Forensics & Headless Sensor Architecture
 * **Zero-Blackout Headless Camera & Video (`/snap`, `/video`):** Operates purely headlessly via `StealthCameraManager` and `StealthVideoManager` using CameraX bound to a `ServiceLifecycleOwner`. Dynamically elevates `PasaService` to `FOREGROUND_SERVICE_TYPE_CAMERA` and `FOREGROUND_SERVICE_TYPE_MICROPHONE`. Bypasses `StealthCaptureActivity` overlay during standard capture, completely eliminating display dimming, UI flicker, or black screens.
@@ -108,13 +109,17 @@ d:/Software_and_Apps/PrivateApp/
 * **Kinetic Snatch Detection (`TrapManager`):** Continuous accelerometer vector magnitude check `sqrt(x² + y² + z²) > 26.0 m/s² (~2.65G)`. Triggers immediate device lock, Kiosk Lost Mode guard, perpetrator selfie, and Telegram alert.
 * **Pocket & Bag Extraction Trap (`/trap pocket on`):** Monitors proximity sensor transitions from covered (in pocket) to uncovered while locked. If device is not unlocked within 5 seconds grace period, automatically engages Kiosk lock, snaps front camera mugshot, and alerts owner.
 * **Locked USB Cable Insertion Trap:** `PowerAlertReceiver` intercepts `ACTION_POWER_CONNECTED` while screen is locked. Instantly cuts hardware USB data signaling pins (`/usb_lock`) to neutralize forensic extraction boxes (Cellebrite, GrayKey) and juice-jacking, captures front-camera photo, and dispatches alert.
-* **Physical SIM Ejection Lockdown:** `SIMChangeReceiver` detects tray eject, instantly enforces hardware screen lock, enables GNSS hardware radio, locks out status bar/airplane mode toggle, and captures mugshot beacon.
+* **Physical SIM Ejection Lockdown & SIM Swap Guard (`/sim_lock`):** `SIMChangeReceiver` detects tray eject or unauthorized SIM swaps. Validates active ICCID against authorized whitelist. If breached, enforces hardware screen lock, enables GNSS hardware radio, captures mugshot beacon, and executes configured alert actions (`/sim_lock [status|enable|disable|whitelist|action]`).
+* **Failed Lockscreen Pattern / PIN Guard (`/pattern_guard`):** Monitors repeated keyguard authentication failures; triggers silent mugshot capture, hardware lock, and Telegram intrusion notification upon threshold breach (1-10 attempts, configurable via `/pattern_guard`).
+* **Battery Health & Rapid Drain Alert (`/battery_alert`):** Proactive battery telemetry alerting owner on critical low levels, abnormal rapid drain (detecting background surveillance/tethers), or unauthorized charger disconnection (`/battery_alert [status|enable|disable|threshold]`).
 * **Dual-SIM Cell Tower Triangulation (`/tower`):** Scans LTE/5G NR/GSM cell identities (MCC, MNC, LAC/TAC, CID, dBm) across all active subscriptions for resilient indoor localization without satellite reception.
 
-### 3.5 Fake Shutdown Deception (`FakeShutdownActivity`)
-* Simulates authentic OEM power-down animation, then drops brightness to 0-nit black canvas with `WindowManager.LayoutParams.FLAG_FULLSCREEN` and `SYSTEM_UI_FLAG_IMMERSIVE_STICKY`.
-* Phone appears completely dead. Screen taps silently trigger front camera mugshots and GPS beacons.
-* Dismissed remotely via `/wake` command or secret multi-tap sequence.
+### 3.5 Deception & Covert Tactile Feedback
+* **Fake Shutdown Deception (`FakeShutdownActivity`):**
+  - Simulates authentic OEM power-down animation, then drops brightness to 0-nit black canvas with `WindowManager.LayoutParams.FLAG_FULLSCREEN` and `SYSTEM_UI_FLAG_IMMERSIVE_STICKY`.
+  - Phone appears completely dead. Screen taps silently trigger front camera mugshots and GPS beacons.
+  - Dismissed remotely via `/wake` command or secret multi-tap sequence.
+* **Covert Tactile Device Locator (`/vibrate_pulse`):** Custom vibration sequences (intermittent pulse, SOS Morse code `...---...`, continuous) for locating device covertly without loud audio sirens alerting thieves in hostile environments (`/vibrate_pulse [pulse|sos|continuous|stop]`).
 
 ### 3.6 Air-Gapped Cellular SMS Fallback (`SmsCommandReceiver`)
 * Listens on `SMS_RECEIVED` (priority 999) with direct boot awareness.
@@ -132,16 +137,16 @@ d:/Software_and_Apps/PrivateApp/
 
 ---
 
-## 4. Complete Command Matrix (58 Telegram C2 Commands)
+## 4. Complete Command Matrix (63 Telegram C2 Commands)
 
 | Category | Commands |
 |---|---|
-| **Core & Diagnostics** | `/menu`, `/help`, `/status`, `/selftest`, `/info`, `/reboot` |
-| **Enterprise Device Owner** | `/device_owner`, `/antitamper`, `/usb_lock`, `/notification`, `/self_heal`, `/freeze`, `/unfreeze`, `/frozen`, `/biometrics`, `/dns` |
-| **Location & Cellular RF**| `/locate` (`/gps`, `/location`), `/tower`, `/sim`, `/track`, `/track_stop`, `/geofence` |
+| **Core & Diagnostics** | `/menu`, `/help`, `/status`, `/selftest`, `/info`, `/reboot`, `/battery_alert` |
+| **Enterprise Device Owner** | `/device_owner`, `/antitamper`, `/usb_lock`, `/notification`, `/self_heal`, `/freeze`, `/unfreeze`, `/frozen`, `/biometrics`, `/dns`, `/app_firewall` |
+| **Location & Cellular RF**| `/locate` (`/gps`, `/location`), `/tower`, `/sim`, `/sim_lock`, `/track`, `/track_stop`, `/geofence` |
 | **Covert Forensics**   | `/snap`, `/screenshot`, `/screen_burst`, `/screenrecord`, `/video`, `/record`, `/livestream`, `/stopstream`, `/clipboard` |
-| **Lockdown & Alert**   | `/lock`, `/lock_message`, `/lock_pin`, `/set_os_pin`, `/set_master_pin`, `/unlock`, `/fakeshutdown`, `/wake`, `/ring`, `/ring_stop`, `/message` |
-| **Defense & Deception**| `/duress_pin`, `/trap`, `/shred`, `/stealth` (`/hide`, `/show`) |
+| **Lockdown & Alert**   | `/lock`, `/lock_message`, `/lock_pin`, `/set_os_pin`, `/set_master_pin`, `/unlock`, `/fakeshutdown`, `/wake`, `/ring`, `/ring_stop`, `/vibrate_pulse`, `/message` |
+| **Defense & Deception**| `/duress_pin`, `/pattern_guard`, `/trap`, `/shred`, `/stealth` (`/hide`, `/show`) |
 | **Extraction & Logs**  | `/contacts`, `/call_log`, `/sms_log`, `/sendsms`, `/history`, `/network` |
 | **System & Maintenance**| `/apps`, `/app_uninstall`, `/smssetup`, `/license`, `/check_update`, `/update_confirm`, `/wipe`, `/wipe_confirm` |
 
@@ -178,8 +183,8 @@ d:/Software_and_Apps/PrivateApp/
 * **Certificate DN:** `CN=PASA Sentinel, OU=Security, O=Izhaan Intellect, L=Dhaka, C=BD`.
 * **Certificate SHA-256:** `0c8f62dd8934d3b73e12d965742da29e643bdc157bc859e5b6aa7454409ad57a`.
 * **Current Production Release:**
-  - **Version:** `v3.4.1` (Build `37`).
-  - **APK Binary SHA-256:** `c436e6c04c6ab05c49aadc10804863b5197ac2510f2809e01aa34e27c417c84e`.
+  - **Version:** `v3.4.2` (Build `38`).
+  - **APK Binary SHA-256:** `392e83c9a4fce184476cb581fb480ddef45fee2e973031abab359beb890985a1`.
   - **CDN Endpoint:** `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`.
   - **OTA Manifest Route:** `GET https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=<build>`.
 

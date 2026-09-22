@@ -69,6 +69,18 @@ class PreferencesManager @Inject constructor(
         private const val KEY_BIOMETRICS_DISABLED = "biometrics_disabled"
         private const val KEY_FROZEN_PACKAGES = "frozen_packages"
         private const val KEY_NOTIFICATION_SUPPRESSED = "notification_suppressed"
+        private const val KEY_APP_FIREWALL_ENABLED = "app_firewall_enabled"
+        private const val KEY_APP_FIREWALL_WHITELIST_ONLY = "app_firewall_whitelist_only"
+        private const val KEY_APP_FIREWALL_BLACKLIST = "app_firewall_blacklist"
+        private const val KEY_BATTERY_ALERT_ENABLED = "battery_alert_enabled"
+        private const val KEY_BATTERY_ALERT_THRESHOLD = "battery_alert_threshold"
+        private const val KEY_PATTERN_GUARD_ENABLED = "pattern_guard_enabled"
+        private const val KEY_PATTERN_GUARD_FAILURE_COUNT = "pattern_guard_failure_count"
+        private const val KEY_PATTERN_GUARD_THRESHOLD = "pattern_guard_threshold"
+        private const val KEY_PATTERN_GUARD_ACTION = "pattern_guard_action"
+        private const val KEY_SIM_LOCK_ENABLED = "sim_lock_enabled"
+        private const val KEY_SIM_LOCK_ALERT_ACTION = "sim_lock_alert_action"
+        private const val KEY_SIM_LOCK_WHITELIST = "sim_lock_whitelist"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
 
@@ -378,6 +390,54 @@ class PreferencesManager @Inject constructor(
     var isNotificationSuppressed: Boolean
         get() = prefs.getBoolean(KEY_NOTIFICATION_SUPPRESSED, true)
         set(value) = prefs.edit().putBoolean(KEY_NOTIFICATION_SUPPRESSED, value).apply()
+
+    var isAppFirewallEnabled: Boolean
+        get() = prefs.getBoolean(KEY_APP_FIREWALL_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_APP_FIREWALL_ENABLED, value).apply()
+
+    var isAppFirewallWhitelistOnly: Boolean
+        get() = prefs.getBoolean(KEY_APP_FIREWALL_WHITELIST_ONLY, false)
+        set(value) = prefs.edit().putBoolean(KEY_APP_FIREWALL_WHITELIST_ONLY, value).apply()
+
+    var appFirewallBlacklist: List<String>
+        get() = prefs.getStringSet(KEY_APP_FIREWALL_BLACKLIST, emptySet())?.toList() ?: emptyList()
+        set(value) = prefs.edit().putStringSet(KEY_APP_FIREWALL_BLACKLIST, value.toSet()).apply()
+
+    var isBatteryAlertEnabled: Boolean
+        get() = prefs.getBoolean(KEY_BATTERY_ALERT_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_BATTERY_ALERT_ENABLED, value).apply()
+
+    var batteryAlertThreshold: Int
+        get() = prefs.getInt(KEY_BATTERY_ALERT_THRESHOLD, 15)
+        set(value) = prefs.edit().putInt(KEY_BATTERY_ALERT_THRESHOLD, value).apply()
+
+    var isPatternGuardEnabled: Boolean
+        get() = prefs.getBoolean(KEY_PATTERN_GUARD_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_PATTERN_GUARD_ENABLED, value).apply()
+
+    var patternGuardFailureCount: Int
+        get() = prefs.getInt(KEY_PATTERN_GUARD_FAILURE_COUNT, 0)
+        set(value) = prefs.edit().putInt(KEY_PATTERN_GUARD_FAILURE_COUNT, value).apply()
+
+    var patternGuardThreshold: Int
+        get() = prefs.getInt(KEY_PATTERN_GUARD_THRESHOLD, 3)
+        set(value) = prefs.edit().putInt(KEY_PATTERN_GUARD_THRESHOLD, value).apply()
+
+    var patternGuardAction: String
+        get() = prefs.getString(KEY_PATTERN_GUARD_ACTION, "photo") ?: "photo"
+        set(value) = prefs.edit().putString(KEY_PATTERN_GUARD_ACTION, value).apply()
+
+    var isSimLockEnabled: Boolean
+        get() = prefs.getBoolean(KEY_SIM_LOCK_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_SIM_LOCK_ENABLED, value).apply()
+
+    var simLockAlertAction: String
+        get() = prefs.getString(KEY_SIM_LOCK_ALERT_ACTION, "alert") ?: "alert"
+        set(value) = prefs.edit().putString(KEY_SIM_LOCK_ALERT_ACTION, value).apply()
+
+    var simLockWhitelist: List<String>
+        get() = prefs.getStringSet(KEY_SIM_LOCK_WHITELIST, emptySet())?.toList() ?: emptyList()
+        set(value) = prefs.edit().putStringSet(KEY_SIM_LOCK_WHITELIST, value.toSet()).apply()
 
     /** Returns true if the minimum configuration required to run is present. */
     fun isConfigured(): Boolean {

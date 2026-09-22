@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 38,
+    "versionName": "3.4.2",
+    "releaseDate": "2026-09-22",
+    "fileName": "pasa-v3.4.2-38.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.4.2-38.apk",
+    "sha256": "392e83c9a4fce184476cb581fb480ddef45fee2e973031abab359beb890985a1",
+    "size": 19102652,
+    "mandatory": false,
+    "releaseNotes": "v3.4.2: 5 Enterprise Security Modules & Hardening — SIM Lock Swap Guard (/sim_lock: whitelist, swap auto-lock); Tactile Device Locator (/vibrate_pulse: pulse, SOS, continuous); Lockscreen Pattern Guard (/pattern_guard: failure threshold, auto-photo/lock); App Network Firewall (/app_firewall: RAT isolation, blacklist/whitelist); Battery Health & Drain Monitor (/battery_alert: drain rate, charging anomalies)."
+  },
+  {
     "versionCode": 37,
     "versionName": "3.4.1",
     "releaseDate": "2026-09-22",

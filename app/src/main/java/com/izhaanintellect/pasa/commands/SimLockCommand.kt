@@ -115,23 +115,19 @@ class SimLockCommand @Inject constructor(
         }
 
         val subInfo = activeSubscriptions.firstOrNull()
-        val imsi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            subInfo?.imsi ?: ""
-        } else {
-            ""
-        }
+        val iccid = subInfo?.iccId ?: ""
 
-        if (imsi.isBlank()) {
+        if (iccid.isBlank()) {
             return CommandResult(
                 success = false,
-                message = "❌ Unable to read SIM IMSI. Check permissions."
+                message = "❌ Unable to read SIM ICCID. Check permissions."
             )
         }
 
         // Add to whitelist
         val currentWhitelist = preferencesManager.simLockWhitelist.toMutableList()
-        if (!currentWhitelist.contains(imsi)) {
-            currentWhitelist.add(imsi)
+        if (!currentWhitelist.contains(iccid)) {
+            currentWhitelist.add(iccid)
             preferencesManager.simLockWhitelist = currentWhitelist
         }
 
@@ -140,7 +136,7 @@ class SimLockCommand @Inject constructor(
             message = """
                 ✅ <b>SIM Whitelisted</b>
                 ━━━━━━━━━━━━━━━━━━━━
-                📡 <b>IMSI:</b> <code>${imsi.take(10)}...***</code>
+                📡 <b>ICCID:</b> <code>${iccid.take(10)}...***</code>
 
                 ✓ This SIM is now trusted
                 ✓ SIM swaps to unknown SIMs will still trigger alert
@@ -214,19 +210,15 @@ class SimLockCommand @Inject constructor(
 
             if (activeSubscriptions.isNotEmpty()) {
                 val subInfo = activeSubscriptions.first()
-                val imsi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    subInfo.imsi ?: ""
-                } else {
-                    ""
-                }
+                val iccid = subInfo.iccId ?: ""
 
-                if (imsi.isNotBlank()) {
+                if (iccid.isNotBlank()) {
                     val whitelist = preferencesManager.simLockWhitelist.toMutableList()
-                    if (!whitelist.contains(imsi)) {
-                        whitelist.add(imsi)
+                    if (!whitelist.contains(iccid)) {
+                        whitelist.add(iccid)
                         preferencesManager.simLockWhitelist = whitelist
                     }
-                    Log.i(TAG, "Current SIM captured: ${imsi.take(10)}...")
+                    Log.i(TAG, "Current SIM captured: ${iccid.take(10)}...")
                 }
             }
         } catch (e: Exception) {
@@ -244,12 +236,8 @@ class SimLockCommand @Inject constructor(
             } else {
                 val subInfo = activeSubscriptions.first()
                 val carrier = subInfo.displayName?.toString() ?: "Unknown"
-                val imsi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    subInfo.imsi?.take(10) + "...***" ?: "Unknown"
-                } else {
-                    "Unknown"
-                }
-                "🏢 Carrier: $carrier\n🔐 IMSI: $imsi"
+                val iccid = subInfo.iccId?.take(10)?.let { "$it...***" } ?: "Unknown"
+                "🏢 Carrier: $carrier\n🔐 ICCID: $iccid"
             }
         } catch (e: Exception) {
             "❌ Error reading SIM: ${e.message}"
