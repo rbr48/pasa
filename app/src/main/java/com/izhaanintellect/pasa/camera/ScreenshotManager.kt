@@ -28,7 +28,7 @@ class ScreenshotManager @Inject constructor(
     companion object {
         private const val TAG = "PASA_ScreenshotMgr"
         private const val A11Y_SERVICE_CLASS = "com.izhaanintellect.pasa.accessibility.AccessibilityScreenCaptureService"
-        private const val MIN_FRAME_INTERVAL_MS = 50  // Rate limit: max ~20 FPS per device
+        private const val MIN_FRAME_INTERVAL_MS = 600  // Rate limit: respects Android rigid interval limit
     }
 
     private val screenshotDir = File(context.filesDir, "screenshots").apply {
@@ -132,41 +132,31 @@ class ScreenshotManager @Inject constructor(
                 val enabledServicesList = am.getEnabledAccessibilityServiceList(
                     android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK
                 )
+                val myPkg = context.packageName
                 for (service in enabledServicesList) {
                     val serviceInfo = service.resolveInfo?.serviceInfo
-                    if (serviceInfo != null &&
-                        serviceInfo.packageName == context.packageName &&
-                        (serviceInfo.name == AccessibilityScreenCaptureService::class.java.name ||
-                         serviceInfo.name.contains("AccessibilityScreenCaptureService"))) {
+                    if (serviceInfo != null && serviceInfo.packageName == myPkg) {
                         return true
                     }
                 }
             }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error checking accessibility manager: ${e.message}")
+        }
 
+        try {
             // Method 2: Check Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             val enabledServices = Settings.Secure.getString(
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-            ) ?: return false
-
-            val expectedCn = android.content.ComponentName(context, AccessibilityScreenCaptureService::class.java)
-            val fullString = expectedCn.flattenToString()
-            val shortString = expectedCn.flattenToShortString()
-
-            val colonSplitter = android.text.TextUtils.SimpleStringSplitter(':')
-            colonSplitter.setString(enabledServices)
-            while (colonSplitter.hasNext()) {
-                val componentNameString = colonSplitter.next()
-                if (componentNameString.equals(fullString, ignoreCase = true) ||
-                    componentNameString.equals(shortString, ignoreCase = true) ||
-                    componentNameString.contains(A11Y_SERVICE_CLASS, ignoreCase = true) ||
-                    componentNameString.contains("AccessibilityScreenCaptureService", ignoreCase = true)) {
-                    return true
-                }
+            )
+            if (!enabledServices.isNullOrBlank() && enabledServices.contains(context.packageName, ignoreCase = true)) {
+                return true
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error checking accessibility service: ${e.message}")
+            Log.w(TAG, "Error checking Settings.Secure accessibility: ${e.message}")
         }
+
         return false
     }
 

