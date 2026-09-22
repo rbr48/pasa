@@ -106,6 +106,7 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/selftest</code> — Comprehensive 9-point security &amp; sensor audit
             • <code>/check_update</code> — Check for OTA app updates
             • <code>/update_confirm</code> — Install pending OTA update
+            • <code>/license [activate &lt;key&gt;]</code> — Check tier & activate Pro key
             • <code>/hide</code> / <code>/show</code> — Toggle app icon in launcher
             
             ━━━━━━━━━━━━━━━━━━━━

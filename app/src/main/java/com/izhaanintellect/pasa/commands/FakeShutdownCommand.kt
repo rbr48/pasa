@@ -32,30 +32,15 @@ class FakeShutdownCommand @Inject constructor(
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        val password = args.firstOrNull()
-        val sub = args.getOrNull(1)?.lowercase()
+        val first = args.firstOrNull()?.lowercase()
+        val second = args.getOrNull(1)?.lowercase()
 
-        return if (sub == "wake" || sub == "stop" || sub == "off") {
-            // Wake doesn't require auth (just disabling feature)
+        val isWake = first == "wake" || first == "stop" || first == "off" ||
+                     second == "wake" || second == "stop" || second == "off"
+
+        return if (isWake) {
             wakeDevice()
         } else {
-            // SECURITY: FakeShutdown requires authentication
-            if (password.isNullOrBlank() || !authManager.verifyMasterPassword(password)) {
-                return CommandResult(
-                    success = false,
-                    message = """
-                        🔐 <b>Authentication Required</b>
-                        ━━━━━━━━━━━━━━━━━━━━
-                        This sensitive operation requires your master password.
-
-                        <b>To activate fake shutdown:</b>
-                        <code>/fakeshutdown &lt;password&gt;</code>
-
-                        <b>To wake from fake shutdown:</b>
-                        <code>/fakeshutdown wake</code>
-                    """.trimIndent()
-                )
-            }
             startFakeShutdown()
         }
     }

@@ -30,8 +30,10 @@ import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -57,6 +59,8 @@ class AlertMessageActivity : AppCompatActivity() {
     @Inject lateinit var telegramApi: TelegramApi
     @Inject lateinit var locationTracker: LocationTracker
     @Inject lateinit var duressManager: com.izhaanintellect.pasa.detection.DuressManager
+    @Inject lateinit var cameraManager: com.izhaanintellect.pasa.camera.StealthCameraManager
+    @Inject lateinit var pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 
     private var isKioskActive = false
 
@@ -120,11 +124,29 @@ class AlertMessageActivity : AppCompatActivity() {
             try {
                 PasaDeviceAdmin.configureLockTask(this)
                 PasaDeviceAdmin.setComprehensiveLockdown(this, true)
-                startLockTask()
-                isKioskActive = true
-                Log.i(TAG, "Device Owner Kiosk Mode (Lock Task) started successfully")
+
+                // ANDROID 16 FIX: Retry starting lock task with backoff for timing issues
+                var lockTaskStarted = false
+                for (attempt in 1..3) {
+                    try {
+                        startLockTask()
+                        isKioskActive = true
+                        lockTaskStarted = true
+                        Log.i(TAG, "Device Owner Kiosk Mode (Lock Task) started successfully on attempt $attempt")
+                        break
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Lock task attempt $attempt failed: ${e.message}")
+                        if (attempt < 3) {
+                            Thread.sleep(200L * attempt) // 200ms, 400ms backoff
+                        }
+                    }
+                }
+
+                if (!lockTaskStarted) {
+                    Log.w(TAG, "Failed to start lock task after 3 attempts - device may still be protected by comprehensive lockdown")
+                }
             } catch (e: Exception) {
-                Log.w(TAG, "Could not start lock task: ${e.message}")
+                Log.w(TAG, "Could not configure Device Owner kiosk: ${e.message}")
             }
         }
 
@@ -156,9 +178,6 @@ class AlertMessageActivity : AppCompatActivity() {
             binding.btnCallOwner.visibility = View.GONE
         }
 
-        try {
-            binding.btnUnlockWithPin.visibility = View.GONE
-        } catch (_: Exception) {}
 
         playAlertChime()
         } catch (e: Throwable) {
@@ -173,7 +192,7 @@ class AlertMessageActivity : AppCompatActivity() {
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         if (ev?.action == MotionEvent.ACTION_DOWN) {
             val now = System.currentTimeMillis()
-            if (now - lastTouchCaptureTime > 15000L) { // Debounce 15 seconds to avoid spamming
+            if (now - lastTouchCaptureTime > 4000L) { // 4 second debounce
                 lastTouchCaptureTime = now
                 Log.w(TAG, "Physical screen touch detected during Lost Mode! Triggering covert capture.")
                 CoroutineScope(Dispatchers.IO).launch {
@@ -184,25 +203,57 @@ class AlertMessageActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(ev)
     }
 
-    private suspend fun triggerTouchCapture() {
+    private suspend fun triggerTouchCapture() = withContext(Dispatchers.IO) {
         try {
-            val loc = locationTracker.getCurrentLocation()
+            Log.i(TAG, "Touch detected - initiating rapid headless capture and Telegram dispatch")
+
+            com.izhaanintellect.pasa.service.PasaService.elevateServiceToCamera()
+
+            val photoDeferred = async {
+                try {
+                    cameraManager.capturePhoto(useFrontCamera = true)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Headless photo capture error: ${e.message}", e)
+                    null
+                } finally {
+                    com.izhaanintellect.pasa.service.PasaService.demoteServiceFromCamera()
+                }
+            }
+
+            val locDeferred = async {
+                try {
+                    withTimeoutOrNull(4000L) {
+                        locationTracker.getCurrentLocation()
+                    }
+                } catch (_: Exception) {
+                    null
+                }
+            }
+
+            val photoFile = photoDeferred.await()
+            val loc = locDeferred.await()
+
+            if (photoFile != null && photoFile.exists()) {
+                Log.i(TAG, "Mugshot captured successfully: ${photoFile.length()} bytes")
+            } else {
+                Log.w(TAG, "Headless photo capture returned null")
+            }
+
             val locMsg = if (loc != null) {
                 "\n📍 <b>Location:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
             } else ""
 
-            val alertText = "⚠️ <b>Physical Screen Touch Detected on Locked Device!</b>\nAn unauthorized user touched the screen while Lost Mode is active.$locMsg\n\n📸 Covert front-camera photo captured silently."
-            val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true, timeoutMs = 8000L)
+            val alertText = "⚠️ <b>Physical Screen Touch Detected on Locked Device!</b>\nAn unauthorized user touched the screen while Lost Mode is active.$locMsg\n\n📸 Covert front-camera mugshot captured silently."
 
             dispatchSecurityAlert(
                 alertType = "LOST_MODE_SCREEN_TOUCH",
                 alertMessage = alertText,
                 latVal = loc?.latitude,
                 lngVal = loc?.longitude,
-                photoFile = captureResult.file
+                photoFile = photoFile
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Error handling screen touch capture", e)
+            Log.e(TAG, "Error handling screen touch capture: ${e.message}", e)
         }
     }
 
@@ -217,59 +268,119 @@ class AlertMessageActivity : AppCompatActivity() {
         lngVal: Double?,
         photoFile: File?
     ) {
-        // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
-        if (!preferencesManager.botToken.isNullOrBlank() && preferencesManager.ownerChatIdLong != 0L) {
-            try {
-                val locMsg = if (latVal != null && lngVal != null) {
-                    "\n📍 <b>Location:</b> <a href=\"https://www.google.com/maps?q=$latVal,$lngVal\">$latVal, $lngVal</a>"
-                } else ""
+        val token = preferencesManager.botToken
+        val chatId = preferencesManager.ownerChatId
+        val chatIdLong = preferencesManager.ownerChatIdLong
 
-                telegramApi.sendMessage(
-                    token = preferencesManager.botToken,
-                    request = SendMessageRequest(
-                        chatId = preferencesManager.ownerChatIdLong,
-                        text = "🚨 <b>$alertType</b>\n━━━━━━━━━━━━━━━━━━━━\n$alertMessage$locMsg"
-                    )
-                )
+        if (token.isBlank() || (chatId.isBlank() && chatIdLong == 0L)) {
+            Log.e(TAG, "❌ Cannot send alert - bot token or chat ID not configured")
+            return
+        }
 
-                photoFile?.let { file ->
-                    if (file.exists() && file.length() > 0) {
-                        val chatIdBody = preferencesManager.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
-                        val captionBody = "📸 Forensic capture ($alertType)".toRequestBody("text/plain".toMediaTypeOrNull())
-                        val fileBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                        val part = MultipartBody.Part.createFormData("photo", file.name, fileBody)
-
-                        telegramApi.sendPhoto(
-                            token = preferencesManager.botToken,
-                            chatId = chatIdBody,
-                            photo = part,
-                            caption = captionBody
-                        )
-                    }
-                }
-
-                if (latVal != null && lngVal != null) {
-                    try {
-                        telegramApi.sendLocation(
-                            token = preferencesManager.botToken,
-                            request = SendLocationRequest(
-                                chatId = preferencesManager.ownerChatIdLong,
-                                latitude = latVal,
-                                longitude = lngVal
-                            )
-                        )
-                    } catch (locErr: Exception) {
-                        Log.w(TAG, "Failed to send direct location pin: ${locErr.message}")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Direct Telegram dispatch failed: ${e.message}")
-            } finally {
-                // Immediately shred local photo after dispatch
+        try {
+            // Path A: If VPS backend is enabled, relay through VPS backend alert API
+            if (preferencesManager.useBackendServer) {
                 try {
-                    photoFile?.let { if (it.exists()) it.delete() }
-                } catch (_: Exception) {}
+                    val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val alertTypeBody = alertType.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val msgBody = alertMessage.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val latBody = latVal?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val lngBody = lngVal?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val photoPart = photoFile?.let { file ->
+                        if (file.exists() && file.length() > 0) {
+                            val reqFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                            MultipartBody.Part.createFormData("photo", file.name, reqFile)
+                        } else null
+                    }
+
+                    val resp = pasaBackendApi.sendDeviceAlert(
+                        deviceId = deviceIdBody,
+                        alertType = alertTypeBody,
+                        message = msgBody,
+                        photo = photoPart,
+                        latitude = latBody,
+                        longitude = lngBody
+                    )
+                    if (resp.ok) {
+                        Log.i(TAG, "✅ Security alert relayed through VPS successfully")
+                        return
+                    }
+                } catch (vpsErr: Exception) {
+                    Log.w(TAG, "VPS alert relay failed, falling back to direct Telegram: ${vpsErr.message}")
+                }
             }
+
+            // Path B: Direct Telegram API dispatch (Sovereign Mode or fallback)
+            val fullText = "🚨 <b>$alertType</b>\n━━━━━━━━━━━━━━━━━━━━\n$alertMessage"
+
+            // 1. Send photo with caption if photo exists
+            var photoSent = false
+            if (photoFile != null && photoFile.exists() && photoFile.length() > 0) {
+                try {
+                    val chatIdBody = chatId.toRequestBody("text/plain".toMediaTypeOrNull())
+                    val captionBody = fullText.take(1024).toRequestBody("text/plain".toMediaTypeOrNull())
+                    val fileBody = photoFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                    val part = MultipartBody.Part.createFormData("photo", photoFile.name, fileBody)
+
+                    val photoResp = telegramApi.sendPhoto(
+                        token = token,
+                        chatId = chatIdBody,
+                        photo = part,
+                        caption = captionBody
+                    )
+                    if (photoResp.ok) {
+                        photoSent = true
+                        Log.i(TAG, "✅ Mugshot photo & alert sent directly to Telegram")
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Direct photo send error: ${e.message}")
+                }
+            }
+
+            // 2. If photo was not sent or failed, send text message
+            if (!photoSent) {
+                try {
+                    telegramApi.sendMessage(
+                        token = token,
+                        request = SendMessageRequest(
+                            chatId = chatIdLong,
+                            text = fullText
+                        )
+                    )
+                    Log.i(TAG, "✅ Alert text sent directly to Telegram")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Direct text alert send error: ${e.message}")
+                }
+            }
+
+            // 3. Send location pin if coordinates available
+            if (latVal != null && lngVal != null) {
+                try {
+                    telegramApi.sendLocation(
+                        token = token,
+                        request = SendLocationRequest(
+                            chatId = chatIdLong,
+                            latitude = latVal,
+                            longitude = lngVal
+                        )
+                    )
+                    Log.i(TAG, "✅ Location pin sent directly to Telegram")
+                } catch (locErr: Exception) {
+                    Log.w(TAG, "Direct location pin send error: ${locErr.message}")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Security alert dispatch error: ${e.message}", e)
+        } finally {
+            // Immediately shred local photo after dispatch
+            try {
+                photoFile?.let {
+                    if (it.exists()) {
+                        it.delete()
+                        Log.i(TAG, "Photo shredded after dispatch")
+                    }
+                }
+            } catch (_: Exception) {}
         }
     }
 

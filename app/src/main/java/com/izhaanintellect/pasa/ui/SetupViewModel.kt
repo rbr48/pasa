@@ -45,7 +45,7 @@ class SetupViewModel @Inject constructor(
     fun isBatteryWhitelisted(): Boolean = com.izhaanintellect.pasa.util.BatteryOptimizationHelper.isIgnoringBatteryOptimizations(context)
     fun getManufacturer(): String = com.izhaanintellect.pasa.util.BatteryOptimizationHelper.getManufacturer()
     fun getSecurityLevel(): String = preferencesManager.deviceKeySecurityLevel
-    fun getBackendMode(): String = if (preferencesManager.useBackendServer) "VPS Gateway" else "Direct Telegram"
+    fun getBackendMode(): String = if (preferencesManager.useBackendServer) "VPS Gateway Relay" else "100% Sovereign (Direct Telegram)"
 
     fun flushUploadQueue() {
         com.izhaanintellect.pasa.worker.EvidenceUploadWorker.schedulePendingBatch(context)
@@ -164,6 +164,11 @@ class SetupViewModel @Inject constructor(
     suspend fun registerDeviceWithBackend(context: android.content.Context? = null): Boolean {
         return withContext(Dispatchers.IO) {
             try {
+                if (!preferencesManager.useBackendServer) {
+                    Log.i(TAG, "🛡️ Direct Sovereign Mode active: skipping VPS registration (Zero VPS telemetry)")
+                    return@withContext true
+                }
+
                 var publicKeyJwkStr: String? = null
                 var attestationList: List<String>? = null
 
@@ -208,6 +213,7 @@ class SetupViewModel @Inject constructor(
     suspend fun sendSetupConfirmation(): Boolean {
         return withContext(Dispatchers.IO) {
             try {
+                val modeStr = if (preferencesManager.useBackendServer) "VPS Cloud Gateway" else "100% Sovereign (Direct Telegram)"
                 val response = telegramApi.sendMessage(
                     token = preferencesManager.botToken,
                     request = SendMessageRequest(
@@ -216,11 +222,12 @@ class SetupViewModel @Inject constructor(
                             🛡️ <b>PASA Sentinel (Private Android Security Agent) ONLINE</b>
                             ━━━━━━━━━━━━━━━━━━━━
                             ✅ Device linked: <code>${preferencesManager.deviceId}</code>
-                            🌐 Backend Control Plane: Connected
-                            🔒 Privileged commands are now active.
+                            🔒 Architecture: <b>$modeStr</b>
+                            ⚡ Privileged Knox & Device Owner defense active.
                             
                             Send <code>/help</code> to view all commands.
                             Send <code>/status</code> for an instant telemetry report.
+                            Send <code>/license</code> to view Pro tier status.
                         """.trimIndent()
                     )
                 )

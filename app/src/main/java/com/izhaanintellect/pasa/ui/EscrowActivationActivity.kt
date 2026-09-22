@@ -110,7 +110,28 @@ class EscrowActivationActivity : AppCompatActivity() {
                 try {
                     val pending = pendingPin
                     if (!pending.isNullOrBlank()) {
-                        val (success, msg) = PasaDeviceAdmin.resetDevicePassword(this@EscrowActivationActivity, pending, preferencesManager)
+                        // ANDROID 16 FIX: Add 500ms delay for token to fully activate after credential verification
+                        kotlinx.coroutines.delay(500L)
+
+                        // Retry up to 3 times with exponential backoff for token readiness
+                        var lastError = ""
+                        var success = false
+                        for (attempt in 1..3) {
+                            val (result, msg) = PasaDeviceAdmin.resetDevicePassword(this@EscrowActivationActivity, pending, preferencesManager)
+                            success = result
+                            lastError = msg
+
+                            if (success) {
+                                Log.i(TAG, "PIN reset succeeded on attempt $attempt")
+                                break
+                            }
+
+                            Log.w(TAG, "PIN reset attempt $attempt failed: $msg")
+                            if (attempt < 3) {
+                                kotlinx.coroutines.delay(200L * attempt) // 200ms, 400ms backoff
+                            }
+                        }
+
                         if (success) {
                             dispatchTelegramNotification(
                                 "🔐 <b>OS Lockscreen PIN Updated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
@@ -120,7 +141,7 @@ class EscrowActivationActivity : AppCompatActivity() {
                             )
                         } else {
                             dispatchTelegramNotification(
-                                "⚠️ <b>Token Armed, but applying new PIN returned:</b> $msg"
+                                "❌ <b>Failed to apply new PIN after 3 attempts:</b>\n$lastError"
                             )
                         }
                     } else {

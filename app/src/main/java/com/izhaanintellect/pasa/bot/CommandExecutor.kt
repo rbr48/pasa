@@ -91,6 +91,7 @@ class CommandExecutor @Inject constructor(
     private val deadDropCommand: com.izhaanintellect.pasa.commands.DeadDropCommand,
     private val hardenBootCommand: com.izhaanintellect.pasa.commands.HardenBootCommand,
     private val factoryResetDefenseCommand: com.izhaanintellect.pasa.commands.FactoryResetDefenseCommand,
+    private val licenseCommand: com.izhaanintellect.pasa.commands.LicenseCommand,
     private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
@@ -508,6 +509,7 @@ class CommandExecutor @Inject constructor(
             "/apps", "/app_uninstall" -> appManageCommand
             "/message", "/msg", "/broadcast", "/alert_screen" -> messageCommand
             "/clipboard", "/clip", "/paste" -> clipboardCommand
+            "/license", "/pro" -> licenseCommand
             "/hide" -> object : Command {
                 override val name = "/hide"
                 override val description = "Hide launcher icon"
@@ -529,7 +531,7 @@ class CommandExecutor @Inject constructor(
             "/pattern_guard", "/unlock_guard", "/pattern_monitor" -> patternGuardCommand
             "/app_firewall", "/firewall", "/rat_block" -> appFirewallCommand
             "/battery_alert", "/battery", "/charge_monitor" -> batteryAlertCommand
-            "/tamper_detect", "/tamper", "/integrity_check" -> tamperDetectionCommand
+            "/tamper_detect", "/detect_tamper", "/integrity_check" -> tamperDetectionCommand
             "/dead_drop", "/deadrop", "/vault_backup" -> deadDropCommand
             "/harden_boot", "/lock_recovery", "/bootlock" -> hardenBootCommand
             "/factory_reset_defense", "/frdefense", "/reset_protection" -> factoryResetDefenseCommand

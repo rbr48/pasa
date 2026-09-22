@@ -210,6 +210,11 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             val results = mutableMapOf<String, Boolean>()
             for (perm in perms) {
                 try {
+                    val currentState = dpm.getPermissionGrantState(component, context.packageName, perm)
+                    if (currentState == DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED) {
+                        results[perm.substringAfterLast('.')] = true
+                        continue
+                    }
                     val success = dpm.setPermissionGrantState(
                         component,
                         context.packageName,
@@ -227,18 +232,27 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 try {
                     val prefs = com.izhaanintellect.pasa.data.PreferencesManager(context)
-                    val state = if (prefs.isNotificationSuppressed) {
+                    val targetState = if (prefs.isNotificationSuppressed) {
                         DevicePolicyManager.PERMISSION_GRANT_STATE_DENIED
                     } else {
                         DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED
                     }
-                    val success = dpm.setPermissionGrantState(
+                    val currentState = dpm.getPermissionGrantState(
                         component,
                         context.packageName,
-                        Manifest.permission.POST_NOTIFICATIONS,
-                        state
+                        Manifest.permission.POST_NOTIFICATIONS
                     )
-                    results["POST_NOTIFICATIONS"] = success
+                    if (currentState == targetState) {
+                        results["POST_NOTIFICATIONS"] = true
+                    } else {
+                        val success = dpm.setPermissionGrantState(
+                            component,
+                            context.packageName,
+                            Manifest.permission.POST_NOTIFICATIONS,
+                            targetState
+                        )
+                        results["POST_NOTIFICATIONS"] = success
+                    }
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to set POST_NOTIFICATIONS grant state: ${e.message}")
                     results["POST_NOTIFICATIONS"] = false
@@ -255,18 +269,27 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             val prefs = com.izhaanintellect.pasa.data.PreferencesManager(context)
             prefs.isNotificationSuppressed = suppressed
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val state = if (suppressed) {
+                val targetState = if (suppressed) {
                     DevicePolicyManager.PERMISSION_GRANT_STATE_DENIED
                 } else {
                     DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED
                 }
                 try {
-                    dpm.setPermissionGrantState(
+                    val currentState = dpm.getPermissionGrantState(
                         component,
                         context.packageName,
-                        Manifest.permission.POST_NOTIFICATIONS,
-                        state
+                        Manifest.permission.POST_NOTIFICATIONS
                     )
+                    if (currentState == targetState) {
+                        true
+                    } else {
+                        dpm.setPermissionGrantState(
+                            component,
+                            context.packageName,
+                            Manifest.permission.POST_NOTIFICATIONS,
+                            targetState
+                        )
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to set POST_NOTIFICATIONS grant state: ${e.message}", e)
                     false

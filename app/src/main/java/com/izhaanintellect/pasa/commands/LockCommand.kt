@@ -2,6 +2,7 @@ package com.izhaanintellect.pasa.commands
 
 import android.app.admin.DevicePolicyManager
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
 import com.izhaanintellect.pasa.data.PreferencesManager
@@ -83,9 +84,26 @@ class LockCommand @Inject constructor(
                     PasaDeviceAdmin.configureLockTask(context)
                     PasaDeviceAdmin.setUninstallBlocked(context, true)
                     PasaDeviceAdmin.setComprehensiveLockdown(context, true)
+
+                    // ANDROID 16 FIX: Disable keyguard PIN/pattern/biometrics to prevent local unlock
+                    try {
+                        dpm.setKeyguardDisabledFeatures(
+                            adminComponent,
+                            DevicePolicyManager.KEYGUARD_DISABLE_FINGERPRINT or
+                            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                DevicePolicyManager.KEYGUARD_DISABLE_BIOMETRICS or
+                                DevicePolicyManager.KEYGUARD_DISABLE_FACE
+                            } else { 0 })
+                        )
+                        Log.i(TAG, "✅ Keyguard Biometrics disabled - Lost Mode unlock-only")
+                    } catch (e: Exception) {
+                        Log.w(TAG, "⚠️ Could not disable keyguard features: ${e.message}")
+                    }
+
                     dpm.setDeviceOwnerLockScreenInfo(adminComponent, messageText)
                     ownerHardeningMsg = "\n\n👑 <b>Device Owner Hardening:</b>\n" +
                             "🔐 Kiosk Lock Task enabled\n" +
+                            "🔒 PIN/Pattern/Biometric entry disabled\n" +
                             "📵 Airplane Mode locked\n" +
                             "🚫 USB data transfer blocked\n" +
                             "🚷 App uninstall blocked"
@@ -94,8 +112,9 @@ class LockCommand @Inject constructor(
                 }
             }
 
-            // 1. Lock OS hardware keyguard
+            // 1. Lock OS hardware keyguard (with ANDROID 16 delay to ensure state updates)
             dpm.lockNow()
+            Thread.sleep(300L) // Allow lockNow() to complete on Android 16
             Log.i(TAG, "📵 OS keyguard locked")
 
             // 2. Launch full-screen Lost Mode Guard
@@ -115,6 +134,9 @@ class LockCommand @Inject constructor(
                 ongoing = true,
                 silentNotification = false
             )
+
+            // 3. Additional delay to ensure AlertMessageActivity has time to start lock task
+            Thread.sleep(500L)
 
             CommandResult(
                 success = true,

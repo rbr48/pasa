@@ -157,21 +157,27 @@ class SelfTestCommand @Inject constructor(
             report.append("📶 <b>GSM SMS Radio:</b> ⚠️ No SIM Card Detected\n")
         }
 
-        // 9. C2 Cloud Gateway & License
-        val startPing = System.currentTimeMillis()
-        val c2Check = withContext(Dispatchers.IO) {
-            runCatching {
-                pasaBackendApi.checkLicense(preferencesManager.deviceId)
-            }.getOrNull()
-        }
-        val latencyMs = System.currentTimeMillis() - startPing
-
-        if (c2Check != null && c2Check.ok) {
+        // 9. C2 Control Plane & Sovereign Defense
+        if (!preferencesManager.useBackendServer) {
             passedPoints++
-            val tier = c2Check.tier ?: preferencesManager.licenseTier
-            report.append("🌐 <b>C2 Control Plane:</b> ✅ Connected (${latencyMs}ms | $tier)\n")
+            val tier = preferencesManager.licenseTier
+            report.append("🌐 <b>C2 Control Plane:</b> ✅ Sovereign Direct Telegram (Zero VPS | $tier)\n")
         } else {
-            report.append("🌐 <b>C2 Control Plane:</b> ⚠️ Unreachable (${latencyMs}ms)\n")
+            val startPing = System.currentTimeMillis()
+            val c2Check = withContext(Dispatchers.IO) {
+                runCatching {
+                    pasaBackendApi.checkLicense(preferencesManager.deviceId)
+                }.getOrNull()
+            }
+            val latencyMs = System.currentTimeMillis() - startPing
+
+            if (c2Check != null && c2Check.ok) {
+                passedPoints++
+                val tier = c2Check.tier ?: preferencesManager.licenseTier
+                report.append("🌐 <b>C2 Control Plane:</b> ✅ Connected (${latencyMs}ms | $tier)\n")
+            } else {
+                report.append("🌐 <b>C2 Control Plane:</b> ⚠️ Unreachable (${latencyMs}ms)\n")
+            }
         }
 
         // Score calculation

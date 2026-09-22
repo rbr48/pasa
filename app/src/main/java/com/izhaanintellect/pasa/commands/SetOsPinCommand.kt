@@ -63,7 +63,25 @@ class SetOsPinCommand @Inject constructor(
             )
         }
 
-        val (success, message) = PasaDeviceAdmin.resetDevicePassword(context, newPin, preferencesManager)
+        // ANDROID 16 FIX: Retry with backoff in case of token activation delay
+        var success = false
+        var message = ""
+        var lastAttempt = false
+
+        for (attempt in 1..2) {
+            val (result, msg) = PasaDeviceAdmin.resetDevicePassword(context, newPin, preferencesManager)
+            success = result
+            message = msg
+            lastAttempt = (attempt == 2)
+
+            if (success || attempt == 1 && PasaDeviceAdmin.isResetPasswordTokenActive(context)) {
+                break
+            }
+            // Delay before retry: 300ms on first attempt
+            if (attempt == 1) {
+                Thread.sleep(300L)
+            }
+        }
 
         if (!success && !PasaDeviceAdmin.isResetPasswordTokenActive(context)) {
             val actIntent = com.izhaanintellect.pasa.ui.EscrowActivationActivity.createIntent(context, newPin)

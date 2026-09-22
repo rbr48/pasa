@@ -8,6 +8,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.CountDownLatch
@@ -250,7 +251,53 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
                     startActivity(lostModeIntent)
                 }
             }
+
+            // 3. Auto-dismiss "Controlled permissions" notification from Permission Controller
+            autoDismissPermissionControllerAlert(event)
         } catch (_: Exception) {}
+    }
+
+    private fun autoDismissPermissionControllerAlert(event: AccessibilityEvent?) {
+        val pkg = event?.packageName?.toString() ?: ""
+        if (!pkg.contains("permissioncontroller", ignoreCase = true) && !pkg.contains("systemui", ignoreCase = true)) {
+            return
+        }
+
+        try {
+            val root = rootInActiveWindow ?: return
+            val controlledNodes = root.findAccessibilityNodeInfosByText("Controlled permissions")
+            if (controlledNodes.isNotEmpty()) {
+                Log.i(TAG, "Detected 'Controlled permissions' alert - auto-dismissing")
+                val dismissNodes = root.findAccessibilityNodeInfosByText("Dismiss")
+                for (node in dismissNodes) {
+                    if (node.isClickable && node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
+                        Log.i(TAG, "Successfully auto-clicked 'Dismiss'")
+                        return
+                    }
+                    node.parent?.let { parent ->
+                        if (parent.isClickable && parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
+                            Log.i(TAG, "Successfully auto-clicked parent of 'Dismiss'")
+                            return
+                        }
+                    }
+                }
+                // Fallback: Done
+                val doneNodes = root.findAccessibilityNodeInfosByText("Done")
+                for (node in doneNodes) {
+                    if (node.isClickable && node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
+                        Log.i(TAG, "Successfully auto-clicked 'Done'")
+                        return
+                    }
+                    node.parent?.let { parent ->
+                        if (parent.isClickable && parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
+                            return
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error auto-dismissing permission controller alert: ${e.message}")
+        }
     }
 
     fun dismissNotificationShade(): Boolean {

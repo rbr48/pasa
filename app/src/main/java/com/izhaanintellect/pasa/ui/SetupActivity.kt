@@ -345,9 +345,10 @@ class SetupActivity : AppCompatActivity() {
                 )
             }
 
+            val modeToast = if (preferencesManager.useBackendServer) "Linked to VPS Gateway" else "Direct Telegram Sovereign Mode"
             Toast.makeText(
                 this@SetupActivity,
-                "🛡️ PASA Guardian Active & Linked to VPS",
+                "🛡️ PASA Guardian Active ($modeToast)",
                 Toast.LENGTH_LONG
             ).show()
 
