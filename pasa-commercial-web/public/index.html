@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PASA Sentinel — Sovereign Mobile Anti-Theft &amp; Security System</title>
+<meta name="description" content="PASA Sentinel — a sovereign Android security agent with 63 Telegram C2 commands, Device Owner enforcement, zero-telemetry architecture, and enterprise-grade anti-theft defenses for Android 8.0–16.">
+<meta name="theme-color" content="#05070d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #05070d;
+    --surface: #0c0f1a;
+    --surface-2: #111524;
+    --border: rgba(255,255,255,0.07);
+    --accent: #3b82f6;
+    --accent-2: #60a5fa;
+    --accent-3: #8b5cf6;
+    --accent-soft: rgba(59,130,246,0.12);
+    --danger: #f87171;
+    --danger-soft: rgba(248,113,113,0.12);
+    --success: #34d399;
+    --success-soft: rgba(52,211,153,0.12);
+    --warning: #fbbf24;
+    --warning-soft: rgba(251,191,36,0.12);
+    --text: #e8eaf0;
+    --text-dim: rgba(232,234,240,0.55);
+    --text-faint: rgba(232,234,240,0.35);
+    --font: 'Inter', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── Layout ── */
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  .wrap-narrow { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Background effects ── */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  .hero-orb {
+    position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 900px; height: 900px; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(ellipse at center, rgba(59,130,246,0.10) 0%, transparent 65%);
+  }
+
+  /* ── Nav ── */
+  nav.nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(5,7,13,0.85); backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1120px; margin: 0 auto; padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between; height: 58px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 15px; }
+  .brand-mark svg { width: 22px; height: 22px; color: var(--accent); }
+  .nav-links { display: flex; gap: 6px; }
+  .nav-links a {
+    color: var(--text-dim); text-decoration: none; font-size: 13.5px;
+    padding: 6px 12px; border-radius: var(--radius-sm); transition: color .15s, background .15s;
+  }
+  .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+  .contact-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #fff; text-decoration: none;
+    padding: 8px 18px; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 600;
+    transition: opacity .15s;
+  }
+  .contact-btn:hover { opacity: .85; }
+  .contact-btn svg { width: 15px; height: 15px; }
+  @media (max-width: 680px) {
+    .nav-links { display: none; }
+  }
+
+  /* ── Hero ── */
+  .hero { position: relative; padding: 110px 24px 90px; text-align: center; overflow: hidden; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent-2); background: var(--accent-soft);
+    border: 1px solid rgba(96,165,250,.2); border-radius: 100px; padding: 5px 14px;
+  }
+  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-2); }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 4.2rem); font-weight: 800; line-height: 1.1;
+    margin-top: 22px; letter-spacing: -0.03em;
+  }
+  .grad-text {
+    background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent-3) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .lede { font-size: 1.05rem; color: var(--text-dim); margin-top: 18px; max-width: 560px; margin-left: auto; margin-right: auto; line-height: 1.75; }
+  .hero-badges { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 30px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--text-dim); border: 1px solid var(--border);
+    background: var(--surface); padding: 6px 14px; border-radius: 100px;
+  }
+  .pill svg { width: 13px; height: 13px; color: var(--success); }
+  .cta-group { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 36px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600;
+    text-decoration: none; cursor: pointer; border: none; transition: all .2s;
+  }
+  .btn svg { width: 16px; height: 16px; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--surface); border-color: rgba(255,255,255,0.15); }
+  .btn-whatsapp { background: #25D366; color: #fff; }
+  .btn-whatsapp:hover { background: #1ebe5d; }
+  .btn-tg { background: #229ed9; color: #fff; }
+  .btn-tg:hover { background: #1a8bbf; }
+
+  /* ── Section headings ── */
+  h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; line-height: 1.15; letter-spacing: -0.025em; }
+  .section-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px; display: block;
+  }
+  .section-head { text-align: center; margin-bottom: 52px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+  }
+  .card-hover { transition: border-color .2s, transform .2s, box-shadow .2s; }
+  .card-hover:hover {
+    border-color: rgba(59,130,246,0.35); transform: translateY(-3px);
+    box-shadow: 0 16px 48px -12px rgba(59,130,246,0.15);
+  }
+
+  /* ── Command Matrix ── */
+  .cmd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 16px;
+  }
+  .cmd-card { padding: 22px; }
+  .cmd-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .cmd-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .cmd-icon svg { width: 19px; height: 19px; }
+  .cmd-title { font-size: 14px; font-weight: 700; }
+  .cmd-category { font-size: 11px; color: var(--text-faint); margin-top: 2px; text-transform: uppercase; letter-spacing: .06em; }
+  .cmd-list { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+  .cmd-tag {
+    font-family: var(--mono); font-size: 11.5px;
+    background: rgba(59,130,246,0.1); color: var(--accent-2);
+    border: 1px solid rgba(59,130,246,0.2); border-radius: 5px; padding: 3px 8px;
+  }
+
+  /* ── Feature rows ── */
+  .feature-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .feat-card { display: flex; gap: 16px; align-items: flex-start; }
+  .feat-icon {
+    width: 44px; height: 44px; border-radius: 11px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .feat-icon svg { width: 20px; height: 20px; }
+  .feat-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .feat-body p { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; }
+
+  /* ── Stats ── */
+  .stats-row { display: flex; flex-wrap: wrap; gap: 2px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 72px; }
+  .stat-cell {
+    flex: 1; min-width: 160px; padding: 28px 24px; background: var(--surface); text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-num { font-size: 2.4rem; font-weight: 800; font-family: var(--mono); color: var(--accent-2); }
+  .stat-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+  /* ── Contact ── */
+  .contact-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 52px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% -20%, rgba(59,130,246,0.08) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .contact-methods { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 32px; }
+  .contact-method {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px 28px; text-decoration: none; color: var(--text);
+    transition: border-color .2s, transform .2s;
+  }
+  .contact-method:hover { border-color: rgba(59,130,246,0.4); transform: translateY(-2px); }
+  .contact-method-icon {
+    width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  }
+  .contact-method-icon svg { width: 22px; height: 22px; }
+  .contact-method-label { font-size: 12px; color: var(--text-dim); }
+  .contact-method-val { font-size: 14px; font-weight: 700; margin-top: 2px; }
+
+  /* ── Command showcase marquee ── */
+  .marquee-wrap { overflow: hidden; margin: 40px 0; }
+  .marquee-track {
+    display: flex; gap: 10px; animation: marquee 30s linear infinite;
+    width: max-content;
+  }
+  .marquee-item {
+    display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+    font-family: var(--mono); font-size: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 6px 14px; border-radius: 100px; color: var(--text-dim);
+  }
+  .marquee-item b { color: var(--accent-2); }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── Band (alternate bg) ── */
+  .band { background: var(--surface-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+  /* ── Footer ── */
+  footer { border-top: 1px solid var(--border); padding: 40px 0 30px; }
+  .foot-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 40px; margin-bottom: 36px; }
+  .foot-col h5 { font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text); margin-bottom: 14px; }
+  .foot-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .foot-col a, .foot-col button { color: var(--text-dim); font-size: 13px; text-decoration: none; transition: color .15s; background: none; border: none; cursor: pointer; padding: 0; font-family: var(--font); text-align: left; }
+  .foot-col a:hover, .foot-col button:hover { color: var(--text); }
+  .foot-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--text-faint); padding-top: 20px; border-top: 1px solid var(--border); }
+  @media (max-width: 680px) {
+    .foot-grid { grid-template-columns: 1fr; gap: 24px; }
+    .foot-bottom { flex-direction: column; gap: 6px; }
+  }
+
+  /* ── Whatsapp Float ── */
+  .wa-float {
+    position: fixed; bottom: 22px; right: 22px; z-index: 80;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: #25D366; color: #fff; text-decoration: none;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 30px -8px rgba(37,211,102,0.6);
+    transition: transform .2s;
+  }
+  .wa-float:hover { transform: scale(1.1); }
+  .wa-float svg { width: 26px; height: 26px; }
+
+  /* ── Reveal animation ── */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity .5s ease, transform .5s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 480px) {
+    .contact-section { padding: 36px 20px; }
+    .contact-methods { flex-direction: column; }
+    .contact-method { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-grid" aria-hidden="true"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </span>
+      <span>PASA Sentinel</span>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#commands">Commands</a>
+      <a href="#contact">Get License</a>
+    </div>
+    <a href="#contact" class="contact-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Contact for License
+    </a>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- HERO -->
+<section id="top" class="hero">
+  <div class="hero-orb" aria-hidden="true"></div>
+  <div class="wrap" style="position:relative;z-index:1">
+    <span class="eyebrow reveal in"><span class="dot"></span> v3.4.2 · 63 C2 Commands · Android 8.0–16</span>
+    <h1 style="margin-top:22px">Your phone<br><span class="grad-text">fights back.</span></h1>
+    <p class="lede">
+      PASA Sentinel is a sovereign Android anti-theft and security system. Device Owner enforced, zero-telemetry, Telegram-controlled — even when Wi-Fi is cut, SIM is pulled, and airplane mode is enabled.
+    </p>
+    <div class="hero-badges">
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> Knox Device Owner</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> Zero Google Play dependency</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> Ed25519 offline verification</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> Works fully offline via SMS</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> Zero server-stored media</span>
+    </div>
+    <div class="cta-group">
+      <a href="#contact" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Get a Premium License
+      </a>
+      <a href="#features" class="btn btn-ghost">Explore Features</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="wrap">
+  <div class="stats-row reveal">
+    <div class="stat-cell"><div class="stat-num">63</div><div class="stat-label">Telegram C2 Commands</div></div>
+    <div class="stat-cell"><div class="stat-num">9+</div><div class="stat-label">Security Modules</div></div>
+    <div class="stat-cell"><div class="stat-num">API 26–36</div><div class="stat-label">Android 8.0–16 Support</div></div>
+    <div class="stat-cell"><div class="stat-num">0 bytes</div><div class="stat-label">Media stored on server</div></div>
+  </div>
+</div>
+
+<!-- COMMAND MARQUEE -->
+<div class="marquee-wrap" aria-hidden="true">
+  <div class="marquee-track">
+    <span class="marquee-item"><b>/snap</b></span>
+    <span class="marquee-item"><b>/locate</b></span>
+    <span class="marquee-item"><b>/fakeshutdown</b></span>
+    <span class="marquee-item"><b>/sim_lock</b></span>
+    <span class="marquee-item"><b>/vibrate_pulse</b></span>
+    <span class="marquee-item"><b>/pattern_guard</b></span>
+    <span class="marquee-item"><b>/app_firewall</b></span>
+    <span class="marquee-item"><b>/battery_alert</b></span>
+    <span class="marquee-item"><b>/antitamper</b></span>
+    <span class="marquee-item"><b>/usb_lock</b></span>
+    <span class="marquee-item"><b>/notification</b></span>
+    <span class="marquee-item"><b>/dns</b></span>
+    <span class="marquee-item"><b>/tower</b></span>
+    <span class="marquee-item"><b>/screenrecord</b></span>
+    <span class="marquee-item"><b>/record</b></span>
+    <span class="marquee-item"><b>/track</b></span>
+    <span class="marquee-item"><b>/wipe</b></span>
+    <span class="marquee-item"><b>/duress_pin</b></span>
+    <!-- repeat for seamless loop -->
+    <span class="marquee-item"><b>/snap</b></span>
+    <span class="marquee-item"><b>/locate</b></span>
+    <span class="marquee-item"><b>/fakeshutdown</b></span>
+    <span class="marquee-item"><b>/sim_lock</b></span>
+    <span class="marquee-item"><b>/vibrate_pulse</b></span>
+    <span class="marquee-item"><b>/pattern_guard</b></span>
+    <span class="marquee-item"><b>/app_firewall</b></span>
+    <span class="marquee-item"><b>/battery_alert</b></span>
+    <span class="marquee-item"><b>/antitamper</b></span>
+    <span class="marquee-item"><b>/usb_lock</b></span>
+    <span class="marquee-item"><b>/notification</b></span>
+    <span class="marquee-item"><b>/dns</b></span>
+    <span class="marquee-item"><b>/tower</b></span>
+    <span class="marquee-item"><b>/screenrecord</b></span>
+    <span class="marquee-item"><b>/record</b></span>
+    <span class="marquee-item"><b>/track</b></span>
+    <span class="marquee-item"><b>/wipe</b></span>
+    <span class="marquee-item"><b>/duress_pin</b></span>
+  </div>
+</div>
+
+<!-- CORE FEATURES -->
+<section id="features" style="padding: 80px 0 90px">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-tag">Defense Architecture</span>
+      <h2>Enterprise-grade security.<br><span class="grad-text">No compromise.</span></h2>
+      <p class="lede" style="margin-top:14px">Every module is built for adversarial conditions — thieves, forensic analysts, and coercive situations.</p>
+    </div>
+    <div class="feature-list reveal">
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--danger-soft);color:var(--danger)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Kinetic Snatch Detection</h4>
+          <p>Continuous accelerometer monitoring (>2.65G). Triggers Device Owner lock, perpetrator selfie, and Telegram alert in under 800ms.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--accent-soft);color:var(--accent-2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1a10 10 0 010-14.2M19.1 4.9a10 10 0 010 14.2M8 15.5a5 5 0 010-7M16 8.5a5 5 0 010 7"/><circle cx="12" cy="12" r="1.5"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Air-Gap SMS Fallback C2</h4>
+          <p>TOTP-authenticated commands over raw SMS. /locate, /lock, /ring, /wipe — works even with Wi-Fi and mobile data completely disabled.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--warning-soft);color:var(--warning)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Zero-Blackout Forensic Camera</h4>
+          <p>CameraX headless capture — no flash, no shutter sound, no screen wake. Front/rear burst, stealth video, and screen recording delivered directly to Telegram.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:rgba(139,92,246,0.12);color:var(--accent-3)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.4 6.6a9 9 0 11-12.8 0M12 2v6"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Fake Shutdown Decoy</h4>
+          <p>Spoofs the OEM power-off animation. Screen goes dark to 0-nit while GPS, mic, and Telegram relay keep running silently behind the screen.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:rgba(139,92,246,0.12);color:var(--accent-3)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 118 0v3"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Knox Device Owner Permanence</h4>
+          <p>ADB-provisioned Device Owner. Uninstall disabled at OS level, safe mode blocked, factory reset protection enforced. Survives reboots without reconfiguration.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--success-soft);color:var(--success)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Hardware Escrow Password Reset</h4>
+          <p>32-byte hardware-backed token enables remote lockscreen PIN reset on Android 14+ without ever having access to the current credential.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--danger-soft);color:var(--danger)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Duress PIN & Sterile Decoy OS</h4>
+          <p>Under coercion, enter a special PIN to silently hide banking, crypto, and private apps via Device Owner — leaving a blank, clean decoy environment for the coercer.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--accent-soft);color:var(--accent-2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>GPS + Cell Tower Triangulation</h4>
+          <p>Hardware GNSS streaming every 30 seconds. Fallback to LTE/5G/GSM cell tower triangulation (MCC, MNC, CID, dBm) for indoor localization without satellite fix.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--warning-soft);color:var(--warning)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Self-Healing Permission Sovereignty</h4>
+          <p>Permanently locks Camera, Microphone, GPS, SMS, Contacts as "Managed by organization" via Device Owner — unrevokable by the thief or any user action.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--success-soft);color:var(--success)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>SIM Swap Guard</h4>
+          <p>Monitors physical SIM ICCID against a trusted whitelist. Any unauthorized swap triggers automatic lockdown, mugshot capture, and emergency alert.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--danger-soft);color:var(--danger)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Hardware USB Data Killswitch</h4>
+          <p>Android 12+ API disables USB data pins (preserving charge only). Neutralizes forensic extraction boxes (Cellebrite, GrayKey) and BadUSB attacks on connection.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:rgba(139,92,246,0.12);color:var(--accent-3)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18v.01"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Tactile Device Locator</h4>
+          <p>Locate the device silently via custom vibration patterns: intermittent pulse, SOS Morse code (···−−−···), or continuous — without sounding loud sirens.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--accent-soft);color:var(--accent-2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>App Network Isolation Firewall</h4>
+          <p>Blacklist or whitelist packages from network access. Prevents RATs, spyware, or suspect apps from outbound telemetry while PASA itself remains online.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--success-soft);color:var(--success)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Battery & Drain Monitoring</h4>
+          <p>Alerts on critical battery, abnormal rapid drain (detecting covert surveillance or tethers), and unauthorized charger disconnection in real time.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--warning-soft);color:var(--warning)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 19.07a10 10 0 010-14.14"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>System-Wide Encrypted DNS</h4>
+          <p>Enforces DNS-over-TLS (Quad9, Cloudflare, AdGuard, or custom) across all networks as Device Owner — defeats ISP snooping and rogue captive portals.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--danger-soft);color:var(--danger)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2l19 20M10.5 10.5L8 15l2 2 4.1-4.1M15 8l1-5 5 1-1.5 6.5"/><path d="M15 15l-5 5"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Failed Pattern Guard</h4>
+          <p>Monitors lockscreen failed unlock attempts. At configurable threshold (1–10 tries), triggers silent mugshot capture, hardware lock, and Telegram intrusion alert.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:var(--accent-soft);color:var(--accent-2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Pocket & Charger Traps</h4>
+          <p>Proximity sensor trap triggers on bag/pocket extraction. Power connection trap auto-kills USB data pins and captures photo when cable is inserted on a locked device.</p>
+        </div>
+      </div>
+
+      <div class="card card-hover feat-card">
+        <div class="feat-icon" style="background:rgba(139,92,246,0.12);color:var(--accent-3)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <div class="feat-body">
+          <h4>Direct Outbound SMS & SIM Telemetry</h4>
+          <p>Send SMS directly from the device via Telegram command to identify SIM line numbers. Full dual-SIM carrier, ICCID, network type, and signal telemetry on demand.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- COMMAND MATRIX -->
+<section id="commands" class="band" style="padding: 80px 0 90px">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-tag">63 Telegram C2 Commands</span>
+      <h2>Complete Command Matrix</h2>
+      <p class="lede" style="margin-top:14px">Every capability remotely accessible via your private Telegram bot — and offline via TOTP-authenticated SMS when the internet is cut.</p>
+    </div>
+    <div class="cmd-grid reveal">
+
+      <div class="card cmd-card">
+        <div class="cmd-card-header">
+          <div class="cmd-icon" style="background:var(--surface-2);color:var(--accent-2)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <div class="cmd-title">Core & Diagnostics</div>
+            <div class="cmd-category">7 commands</div>
+          </div>
+        </div>
+        <ul class="cmd-list">
+          <li class="cmd-tag">/menu</li>
+          <li class="cmd-tag">/help</li>
+          <li class="cmd-tag">/status</li>
+          <li class="cmd-tag">/selftest</li>
+          <li class="cmd-tag">/info</li>
+          <li class="cmd-tag">/reboot</li>
+          <li class="cmd-tag">/battery_alert</li>
+        </ul>
+      </div>
+
+      <div class="card cmd-card">
+        <div class="cmd-card-header">
+          <div class="cmd-icon" style="background:rgba(139,92,246,0.12);color:var(--accent-3)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 118 0v3"/></svg>
+          </div>
+          <div>
+            <div class="cmd-title">Enterprise Device Owner</div>
+            <div class="cmd-category">11 commands</div>
+          </div>
+        </div>
+        <ul class="cmd-list">
+          <li class="cmd-tag">/device_owner</li>
+          <li class="cmd-tag">/antitamper</li>
+          <li class="cmd-tag">/usb_lock</li>
+          <li class="cmd-tag">/notification</li>
+          <li class="cmd-tag">/self_heal</li>
+          <li class="cmd-tag">/freeze</li>
+          <li class="cmd-tag">/unfreeze</li>
+          <li class="cmd-tag">/frozen</li>
+          <li class="cmd-tag">/biometrics</li>
+          <li class="cmd-tag">/dns</li>
+          <li class="cmd-tag">/app_firewall</li>
+        </ul>
+      </div>
+
+      <div class="card cmd-card">
+        <div class="cmd-card-header">
+          <div class="cmd-icon" style="background:var(--success-soft);color:var(--success)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <div class="cmd-title">Location & Cellular RF</div>
+            <div class="cmd-category">7 commands</div>
+          </div>
+        </div>
+        <ul class="cmd-list">
+          <li class="cmd-tag">/locate</li>
+          <li class="cmd-tag">/gps</li>
+          <li class="cmd-tag">/tower</li>
+          <li class="cmd-tag">/sim</li>
+          <li class="cmd-tag">/sim_lock</li>
+          <li class="cmd-tag">/track</li>
+          <li class="cmd-tag">/geofence</li>
+        </ul>
+      </div>
+
+      <div class="card cmd-card">
+        <div class="cmd-card-header">
+          <div class="cmd-icon" style="background:var(--warning-soft);color:var(--warning)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <div>
+            <div class="cmd-title">Covert Forensics</div>
+            <div class="cmd-category">9 commands</div>
+          </div>
+        </div>
+        <ul class="cmd-list">
+          <li class="cmd-tag">/snap</li>
+          <li class="cmd-tag">/screenshot</li>
+          <li class="cmd-tag">/screen_burst</li>
+          <li class="cmd-tag">/screenrecord</li>
+          <li class="cmd-tag">/video</li>
+          <li class="cmd-tag">/record</li>
+          <li class="cmd-tag">/livestream</li>
+          <li class="cmd-tag">/stopstream</li>
+          <li class="cmd-tag">/clipboard</li>
+        </ul>
+      </div>
+
+      <div class="card cmd-card">
+        <div class="cmd-card-header">
+          <div class="cmd-icon" style="background:var(--danger-soft);color:var(--danger)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.4 6.6a9 9 0 11-12.8 0M12 2v6"/></svg>
+          </div>
+          <div>
+            <div class="cmd-title">Lockdown & Alert</div>
+            <div class="cmd-category">12 commands</div>
+          </div>
+        </div>
+        <ul class="cmd-list">
+          <li class="cmd-tag">/lock</li>
+          <li class="cmd-tag">/lock_message</li>
+          <li class="cmd-tag">/lock_pin</li>
+          <li class="cmd-tag">/set_os_pin</li>
+          <li class="cmd-tag">/set_master_pin</li>
+          <li class="cmd-tag">/unlock</li>
+          <li class="cmd-tag">/fakeshutdown</li>
+          <li class="cmd-tag">/wake</li>
+          <li class="cmd-tag">/ring</li>
+          <li class="cmd-tag">/ring_stop</li>
+          <li class="cmd-tag">/vibrate_pulse</li>
+          <li class="cmd-tag">/message</li>
+        </ul>
+      </div>
+
+      <div class="card cmd-card">
+        <div class="cmd-card-header">
+          <div class="cmd-icon" style="background:rgba(139,92,246,0.12);color:var(--accent-3)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <div>
+            <div class="cmd-title">Defense & Deception</div>
+            <div class="cmd-category">5 commands</div>
+          </div>
+        </div>
+        <ul class="cmd-list">
+          <li class="cmd-tag">/duress_pin</li>
+          <li class="cmd-tag">/pattern_guard</li>
+          <li class="cmd-tag">/trap</li>
+          <li class="cmd-tag">/shred</li>
+          <li class="cmd-tag">/stealth</li>
+        </ul>
+      </div>
+
+      <div class="card cmd-card">
+        <div class="cmd-card-header">
+          <div class="cmd-icon" style="background:var(--accent-soft);color:var(--accent-2)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+          <div>
+            <div class="cmd-title">Extraction & Logs</div>
+            <div class="cmd-category">6 commands</div>
+          </div>
+        </div>
+        <ul class="cmd-list">
+          <li class="cmd-tag">/contacts</li>
+          <li class="cmd-tag">/call_log</li>
+          <li class="cmd-tag">/sms_log</li>
+          <li class="cmd-tag">/sendsms</li>
+          <li class="cmd-tag">/history</li>
+          <li class="cmd-tag">/network</li>
+        </ul>
+      </div>
+
+      <div class="card cmd-card">
+        <div class="cmd-card-header">
+          <div class="cmd-icon" style="background:var(--success-soft);color:var(--success)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <div class="cmd-title">System & Maintenance</div>
+            <div class="cmd-category">8 commands</div>
+          </div>
+        </div>
+        <ul class="cmd-list">
+          <li class="cmd-tag">/apps</li>
+          <li class="cmd-tag">/app_uninstall</li>
+          <li class="cmd-tag">/smssetup</li>
+          <li class="cmd-tag">/license</li>
+          <li class="cmd-tag">/check_update</li>
+          <li class="cmd-tag">/update_confirm</li>
+          <li class="cmd-tag">/wipe</li>
+          <li class="cmd-tag">/wipe_confirm</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / LICENSE -->
+<section id="contact" style="padding: 80px 0 100px">
+  <div class="wrap-narrow">
+    <div class="contact-section reveal">
+      <span class="eyebrow"><span class="dot"></span> Premium Licensing</span>
+      <h2 style="margin-top:20px">Get a Premium License</h2>
+      <p class="lede" style="margin-top:14px">
+        Contact the developer directly to obtain a premium license with dedicated support. We'll guide you through the complete setup — from Device Owner provisioning to Telegram bot configuration.
+      </p>
+      <div class="contact-methods">
+
+        <a href="mailto:support@izhaanintellect.fun" class="contact-method">
+          <div class="contact-method-icon" style="background:var(--accent-soft);color:var(--accent-2)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/></svg>
+          </div>
+          <div>
+            <div class="contact-method-label">Email Support</div>
+            <div class="contact-method-val">support@izhaanintellect.fun</div>
+          </div>
+        </a>
+
+        <a href="https://wa.me/8801762033445" target="_blank" rel="noopener" class="contact-method">
+          <div class="contact-method-icon" style="background:rgba(37,211,102,0.12);color:#25D366">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.87.52 3.63 1.42 5.14L2 22l5.09-1.53a9.87 9.87 0 004.95 1.32h.01c5.46 0 9.9-4.45 9.9-9.9C21.95 6.45 17.5 2 12.04 2zm5.79 14.03c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.13.11-1.82-.12-.42-.13-.96-.31-1.65-.6-2.9-1.25-4.79-4.16-4.94-4.36-.14-.2-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.27-.29.58-.36.78-.36.19 0 .39 0 .55.01.18.01.42-.07.65.5.24.58.82 2 .89 2.15.07.15.12.32.02.52-.09.2-.14.32-.28.5-.14.17-.3.38-.42.51-.14.15-.29.31-.12.61.17.29.75 1.24 1.61 2 1.11.99 2.04 1.3 2.34 1.44.29.15.47.13.64-.07.17-.21.72-.83.91-1.11.19-.29.39-.24.65-.14.27.09 1.68.79 1.97.94.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+          </div>
+          <div>
+            <div class="contact-method-label">WhatsApp</div>
+            <div class="contact-method-val">+880 1762-033445</div>
+          </div>
+        </a>
+
+        <a href="https://t.me/Pas_agent_bot" target="_blank" rel="noopener" class="contact-method">
+          <div class="contact-method-icon" style="background:rgba(34,158,217,0.12);color:#229ed9">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.247l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.09 14.102l-2.95-.924c-.642-.204-.655-.642.135-.951l11.507-4.437c.537-.194 1.006.131.78.457z"/></svg>
+          </div>
+          <div>
+            <div class="contact-method-label">Official Telegram Bot</div>
+            <div class="contact-method-val">@Pas_agent_bot</div>
+          </div>
+        </a>
+
+      </div>
+      <p style="font-size:12px;color:var(--text-faint);margin-top:28px">
+        Response within 24 hours. Premium licenses include personal setup support, OTA updates, and Ed25519-signed activation keys.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <div class="brand" style="margin-bottom:12px">
+          <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+          <span>PASA Sentinel</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-faint);line-height:1.6;max-width:280px">Sovereign Android anti-theft &amp; security agent. Zero cloud dependency, zero compromise. By Izhaan Intellect.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Features</h5>
+        <ul>
+          <li><a href="#features">Security Modules</a></li>
+          <li><a href="#commands">63 C2 Commands</a></li>
+          <li><a href="#contact">Premium License</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:support@izhaanintellect.fun">support@izhaanintellect.fun</a></li>
+          <li><a href="https://wa.me/8801762033445" target="_blank" rel="noopener">WhatsApp: 01762-033445</a></li>
+          <li><a href="https://t.me/Pas_agent_bot" target="_blank" rel="noopener">Telegram: @Pas_agent_bot</a></li>
+          <li><a href="/terms" target="_blank">Terms &amp; EULA</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; 2026 Izhaan Intellect &amp; PASA Sentinel. All rights reserved.</span>
+      <div style="display:flex;gap:16px">
+        <a href="/terms">Terms &amp; EULA</a>
+        <a href="https://github.com/rbr48/pasa" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp Float -->
+<a href="https://wa.me/8801762033445" target="_blank" rel="noopener" class="wa-float" title="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.87.52 3.63 1.42 5.14L2 22l5.09-1.53a9.87 9.87 0 004.95 1.32h.01c5.46 0 9.9-4.45 9.9-9.9C21.95 6.45 17.5 2 12.04 2zm5.79 14.03c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.13.11-1.82-.12-.42-.13-.96-.31-1.65-.6-2.9-1.25-4.79-4.16-4.94-4.36-.14-.2-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.27-.29.58-.36.78-.36.19 0 .39 0 .55.01.18.01.42-.07.65.5.24.58.82 2 .89 2.15.07.15.12.32.02.52-.09.2-.14.32-.28.5-.14.17-.3.38-.42.51-.14.15-.29.31-.12.61.17.29.75 1.24 1.61 2 1.11.99 2.04 1.3 2.34 1.44.29.15.47.13.64-.07.17-.21.72-.83.91-1.11.19-.29.39-.24.65-.14.27.09 1.68.79 1.97.94.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+</a>
+
+<script>
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Nav active state
+  const sections = document.querySelectorAll('section[id], div[id="top"]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let curr = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) curr = s.id; });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + curr ? 'var(--text)' : '';
+    });
+  }, { passive: true });
+</script>
+</body>
+</html>
