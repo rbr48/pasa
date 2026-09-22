@@ -79,6 +79,7 @@ class CommandExecutor @Inject constructor(
     private val biometricsCommand: com.izhaanintellect.pasa.commands.BiometricsCommand,
     private val liveStreamCommand: LiveStreamCommand,
     private val stopStreamCommand: StopStreamCommand,
+    private val liveStreamDiagnosticsCommand: com.izhaanintellect.pasa.commands.LiveStreamDiagnosticsCommand,
     private val dnsCommand: com.izhaanintellect.pasa.commands.DnsCommand,
     private val towerCommand: com.izhaanintellect.pasa.commands.TowerCommand,
     private val simLockCommand: com.izhaanintellect.pasa.commands.SimLockCommand,
@@ -498,6 +499,7 @@ class CommandExecutor @Inject constructor(
             "/video", "/videocap", "/vr" -> videoCommand
             "/livestream", "/live_stream", "/live", "/stream" -> liveStreamCommand
             "/stopstream", "/stop_stream", "/stoplive" -> stopStreamCommand
+            "/livestream_diag", "/stream_diag", "/livestream_diagnostics" -> liveStreamDiagnosticsCommand
             "/record", "/audio", "/mic" -> recordCommand
             "/ring", "/alarm", "/siren", "/ring_stop" -> ringCommand
             "/status" -> statusCommand

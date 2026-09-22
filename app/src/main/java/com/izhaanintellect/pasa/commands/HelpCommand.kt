@@ -72,6 +72,7 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/video front|back &lt;seconds&gt;</code> — Silent camera video (1-60s) [PRO TRIAL]
             • <code>/livestream [front|back] [mins]</code> — Near-live sequential video stream to Telegram [PRO]
             • <code>/stopstream</code> — Stop active live video stream
+            • <code>/livestream_diag</code> — Troubleshoot livestream configuration issues
             • <code>/record &lt;seconds&gt;</code> — Ambient microphone recording [PRO TRIAL]
             • <code>/record stop</code> — Stop recording
 

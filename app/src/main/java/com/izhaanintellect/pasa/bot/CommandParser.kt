@@ -41,7 +41,13 @@ class CommandParser @Inject constructor() {
                 clean.contains("locate") || clean.contains("location") || clean.contains("gps") -> Pair("/locate", emptyList())
                 clean.contains("siren") || clean.contains("alarm") || clean.contains("ring") -> Pair("/ring", if (parts.size > 1) parts.drop(1) else listOf("60"))
                 clean.contains("photo") || clean.contains("snap") || clean.contains("selfie") -> Pair("/snap", listOf("front"))
-                clean.contains("livestream") || clean.contains("stream") -> Pair("/livestream", emptyList())
+                clean.contains("livestream") || clean.contains("stream") -> {
+                    if (clean.contains("diag") || clean.contains("debug")) {
+                        Pair("/livestream_diag", emptyList())
+                    } else {
+                        Pair("/livestream", emptyList())
+                    }
+                }
                 clean == "stopstream" || clean == "stop stream" -> Pair("/stopstream", emptyList())
                 clean.contains("video") -> Pair("/video", listOf("front", "15"))
                 clean.contains("audio") || clean.contains("mic") || clean.contains("record") -> Pair("/record", listOf("30"))

@@ -130,29 +130,47 @@ class LiveStreamCommand @Inject constructor(
                         val caption = "🔴 LIVE [Seg $segNum] — $cameraStr Camera — $elapsedStr elapsed"
 
                         try {
-                            // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
-                            if (preferencesManager.botToken.isNotBlank() && preferencesManager.ownerChatIdLong != 0L) {
+                            // Validate prerequisites
+                            val botToken = preferencesManager.botToken
+                            val chatId = preferencesManager.ownerChatIdLong
+
+                            if (botToken.isBlank()) {
+                                Log.e(TAG, "❌ LIVESTREAM FAILED: Bot token not configured. Run /smssetup to configure.")
+                                consecutiveFailures = 999 // Force stop
+                                delay(2000)
+                            } else if (chatId == 0L) {
+                                Log.e(TAG, "❌ LIVESTREAM FAILED: Owner chat ID not set. Unable to send videos.")
+                                consecutiveFailures = 999 // Force stop
+                                delay(2000)
+                            } else {
+                                // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
+                                Log.i(TAG, "📤 Uploading segment $segNum (${ videoFile.length() / 1024 }KB) to Telegram...")
+
                                 val mediaType = "video/mp4".toMediaTypeOrNull()
                                 val requestBody = videoFile.asRequestBody(mediaType)
                                 val videoPart = MultipartBody.Part.createFormData(
                                     "video", videoFile.name, requestBody
                                 )
-                                val chatIdPart = preferencesManager.ownerChatIdLong.toString()
+                                val chatIdPart = chatId.toString()
                                     .toRequestBody("text/plain".toMediaTypeOrNull())
                                 val captionPart = caption.toRequestBody("text/plain".toMediaTypeOrNull())
 
                                 telegramApi.sendVideo(
-                                    preferencesManager.botToken,
+                                    botToken,
                                     chatIdPart,
                                     videoPart,
                                     captionPart
                                 )
-                                Log.i(TAG, "Segment $segNum sent directly to Telegram")
-                            } else {
-                                Log.w(TAG, "No valid Telegram bot credentials to dispatch segment $segNum")
+                                Log.i(TAG, "✅ Segment $segNum sent to Telegram successfully")
                             }
                         } catch (e: Exception) {
-                            Log.w(TAG, "Failed to dispatch segment $segNum: ${e.message}")
+                            Log.e(TAG, "❌ Failed to dispatch segment $segNum to Telegram: ${e.message}", e)
+                            consecutiveFailures++
+
+                            if (consecutiveFailures >= 3) {
+                                Log.e(TAG, "Too many send failures — stopping livestream")
+                                isStreaming.set(false)
+                            }
                         } finally {
                             try { videoFile.delete() } catch (_: Exception) {}
                         }
