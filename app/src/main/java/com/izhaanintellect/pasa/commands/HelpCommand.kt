@@ -52,6 +52,7 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/tamper_detect enable|disable|scan|status</code> — Detect root, debuggers, hooks, emulators [NEW]
             • <code>/dead_drop enable|disable|upload|status</code> — Backup evidence to encrypted cloud vault [NEW]
             • <code>/harden_boot lock|unlock|status</code> — Lock recovery mode & prevent factory reset [NEW]
+            • <code>/factory_reset_defense status|layers|threats</code> — Show factory reset protection details [NEW]
 
             📍 <b>Location & Safe Zones</b>
             • <code>/locate</code> — Instant high-accuracy GPS fix + Maps pin

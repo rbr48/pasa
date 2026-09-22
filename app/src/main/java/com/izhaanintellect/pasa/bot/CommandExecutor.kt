@@ -89,6 +89,7 @@ class CommandExecutor @Inject constructor(
     private val tamperDetectionCommand: com.izhaanintellect.pasa.commands.TamperDetectionCommand,
     private val deadDropCommand: com.izhaanintellect.pasa.commands.DeadDropCommand,
     private val hardenBootCommand: com.izhaanintellect.pasa.commands.HardenBootCommand,
+    private val factoryResetDefenseCommand: com.izhaanintellect.pasa.commands.FactoryResetDefenseCommand,
     private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager,
     private val pasaBackendApi: com.izhaanintellect.pasa.network.PasaBackendApi
 ) {
@@ -529,6 +530,7 @@ class CommandExecutor @Inject constructor(
             "/tamper_detect", "/tamper", "/integrity_check" -> tamperDetectionCommand
             "/dead_drop", "/deadrop", "/vault_backup" -> deadDropCommand
             "/harden_boot", "/lock_recovery", "/bootlock" -> hardenBootCommand
+            "/factory_reset_defense", "/frdefense", "/reset_protection" -> factoryResetDefenseCommand
             "/help", "/start" -> helpCommand
             else -> null
         }
