@@ -157,3 +157,47 @@ d:/Software_and_Apps/PrivateApp/
    - Use Node 22 built-in `node:sqlite` in WAL mode (`DatabaseSync`).
    - Timing-safe comparisons (`crypto.timingSafeEqual`) for all authentication tokens.
    - Sliding-window rate limiters on public and administrative endpoints.
+
+---
+
+## 6. Production VPS Deployment & OTA Operations
+
+### 6.1 Hostinger VPS Topology
+* **Host / IP:** `148.135.137.245` (`srv1678100.hstgr.cloud`, Ubuntu 24.04 LTS).
+* **SSH Port & Key:** Port `2222`, Identity file `C:\Users\WALTON\.ssh\id_ed25519`.
+* **Upload Protocol:** `scp -O -P 2222` (Legacy SCP flag `-O` is strictly required; modern SFTP subsystem is restricted on sshd).
+* **Remote Application Directory:** `/var/www/pasa-server/`.
+* **Process Manager:** PM2 process `pasa-server` (ID 28).
+
+### 6.2 Production Keystore & Cryptographic Identity
+* **Keystore File:** `d:\Software_and_Apps\PrivateApp\pasa-release-key.jks`.
+* **Keystore Properties:** `keystore.properties` (password: `PasaSentinel@2026#Secure`, alias: `pasa_sentinel`).
+* **Certificate DN:** `CN=PASA Sentinel, OU=Security, O=Izhaan Intellect, L=Dhaka, C=BD`.
+* **Certificate SHA-256:** `0c8f62dd8934d3b73e12d965742da29e643bdc157bc859e5b6aa7454409ad57a`.
+* **Current Production Release:**
+  - **Version:** `v3.4.0` (Build `36`).
+  - **APK Binary SHA-256:** `f1a9befb5864cda3d343f5a3d5291b018408bddf3b3738154c8919c9a8160539`.
+  - **CDN Endpoint:** `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`.
+  - **OTA Manifest Route:** `GET https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=<build>`.
+
+### 6.3 Standard Deployment Workflow
+1. **Compilation & Assembly (JDK 17):**
+   ```powershell
+   $env:JAVA_HOME = "C:\Program Files\Microsoft\jdk-17.0.18.8-hotspot"
+   .\gradlew assembleRelease
+   ```
+2. **Signature Verification:**
+   ```powershell
+   apksigner verify --verbose --print-certs releases/pasa-latest.apk
+   ```
+3. **Binary & Server Script Sync to VPS:**
+   ```powershell
+   scp -O -P 2222 -i ~/.ssh/id_ed25519 pasa-server/server.js pasa-server/upload_telegram_menu.js pasa-server/update_releases_v<ver>.js root@148.135.137.245:/var/www/pasa-server/
+   scp -O -P 2222 -i ~/.ssh/id_ed25519 releases/pasa-v<ver>-<build>.apk root@148.135.137.245:/var/www/pasa-server/releases/
+   ```
+4. **Remote Activation & Symlinks:**
+   ```bash
+   ssh -p 2222 -i ~/.ssh/id_ed25519 root@148.135.137.245 "cd /var/www/pasa-server/releases && ln -sf pasa-v<ver>-<build>.apk pasa-latest.apk && ln -sf pasa-v<ver>-<build>.apk pasa-v<ver>.apk && cd /var/www/pasa-server && node update_releases_v<ver>.js && node upload_telegram_menu.js && pm2 restart pasa-server"
+   ```
+5. **Git Repository Push:**
+   Commit with author `M S Rana <shohagrana15193@gmail.com>` and push to `origin main`.
