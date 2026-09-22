@@ -220,7 +220,7 @@ class SecurePreferencesManager @Inject constructor(
                 val admin = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.getComponent(context)
 
                 Log.e(TAG, "EXECUTING FACTORY WIPE")
-                dpm?.wipeData(android.app.admin.DevicePolicyManager.WIPE_ALL_DATA)
+                dpm?.wipeData(0)
             } catch (e: Exception) {
                 Log.e(TAG, "Wipe failed: ${e.message}", e)
             }

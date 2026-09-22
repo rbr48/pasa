@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.izhaanintellect.pasa.camera.StealthCaptureBridge
 import com.izhaanintellect.pasa.camera.StealthVideoManager
+import com.izhaanintellect.pasa.security.AuthManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
@@ -12,7 +13,8 @@ import javax.inject.Singleton
 @Singleton
 class VideoCommand @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val stealthVideoManager: StealthVideoManager
+    private val stealthVideoManager: StealthVideoManager,
+    private val authManager: AuthManager
 ) : Command {
     override val name = "/video"
     override val description = "Record a silent video using the device camera"
@@ -23,11 +25,20 @@ class VideoCommand @Inject constructor(
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        val useFront = args.firstOrNull()?.lowercase()?.let {
+        // SECURITY: Require authentication for camera recording
+        val password = args.firstOrNull()
+        if (password.isNullOrBlank() || !authManager.verifyMasterPassword(password)) {
+            return CommandResult(
+                success = false,
+                message = "🔐 Authentication required: <code>/video &lt;password&gt; [front|back] [seconds]</code>"
+            )
+        }
+
+        val useFront = args.getOrNull(1)?.lowercase()?.let {
             it != "back" && it != "rear"
         } ?: true
-        
-        val durationSeconds = args.getOrNull(1)?.toIntOrNull()?.coerceIn(1, 60) ?: 15
+
+        val durationSeconds = args.getOrNull(2)?.toIntOrNull()?.coerceIn(1, 60) ?: 15
         val cameraLabel = if (useFront) "front" else "rear"
         Log.i(TAG, "Recording video headlessly (camera=$cameraLabel, duration=${durationSeconds}s)")
 

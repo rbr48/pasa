@@ -131,7 +131,8 @@ class SendSmsCommand @Inject constructor(
 
         smsManager.sendMultipartTextMessage(phoneNumber, null, parts, null, null)
 
-        Log.i(TAG, "SMS sent to $phoneNumber via $simSelector ($partCount parts): $messageBody")
+        // Don't log phone number or message content - information disclosure risk
+        Log.i(TAG, "SMS sent via $simSelector ($partCount parts)")
 
         val simDisplay = when (simSelector) {
             "sim1" -> "SIM 1"

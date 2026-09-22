@@ -58,7 +58,7 @@ class BootGapDetectionService @Inject constructor(
                     handleSuspiciousBoot("Boot gap: ${bootGap / 1000}s (recovery mode suspected)")
                 }
                 bootGap < 0 -> { // Negative gap = time went backwards (factory reset)
-                    Log.e(TAG, "🚨 BOOT TIME RESET: Time went backwards by ${Math.abs(bootGap) / 1000} seconds")
+                    Log.e(TAG, "🚨 BOOT TIME RESET: Time went backwards by ${kotlin.math.abs(bootGap) / 1000} seconds")
                     handleSuspiciousBoot("Time reset detected - likely factory reset attempt")
                 }
                 isRecoveryModeActive() -> { // Check if currently in recovery
@@ -78,19 +78,24 @@ class BootGapDetectionService @Inject constructor(
         }
     }
 
+    private fun getSystemProperty(key: String, def: String = ""): String {
+        return try {
+            val c = Class.forName("android.os.SystemProperties")
+            val get = c.getMethod("get", String::class.java, String::class.java)
+            get.invoke(null, key, def) as String
+        } catch (e: Exception) {
+            def
+        }
+    }
+
     /**
      * Detect if device is currently in recovery mode.
      */
     private fun isRecoveryModeActive(): Boolean {
         return try {
-            // Recovery mode indicators
-            val recoveryPath = "/recovery"
-            val bootReasonProp = android.os.SystemProperties.get("ro.boot.serialno", "")
-            val bootloaderProp = android.os.SystemProperties.get("ro.bootloader", "")
-
             // Check if in recovery by looking for recovery-related properties
-            val isRecovery = android.os.SystemProperties.get("ro.recovery", "").isNotEmpty() ||
-                    android.os.SystemProperties.get("ro.bootloader", "").contains("recovery")
+            val isRecovery = getSystemProperty("ro.recovery", "").isNotEmpty() ||
+                    getSystemProperty("ro.bootloader", "").contains("recovery")
 
             Log.d(TAG, "Recovery mode check: $isRecovery")
             isRecovery
@@ -108,36 +113,33 @@ class BootGapDetectionService @Inject constructor(
         Log.e(TAG, "🚨 HANDLING SUSPICIOUS BOOT: $reason")
 
         try {
-            // Alert owner FIRST
-            alertOwnerToRecoveryBoot(reason)
+            // Alert owner via Telegram
+            sendSuspiciousBootAlert(reason)
 
-            // Then trigger emergency wipe
-            triggerEmergencyWipe(reason)
+            // If configured, trigger immediate wipe
+            if (shouldWipeOnRecoveryBoot()) {
+                triggerEmergencyWipe(reason)
+            }
 
         } catch (e: Exception) {
             Log.e(TAG, "Failed to handle suspicious boot: ${e.message}", e)
         }
     }
 
-    /**
-     * Alert owner that recovery mode was detected.
-     */
-    private fun alertOwnerToRecoveryBoot(reason: String) {
-        Log.e(TAG, """
-            🚨 EMERGENCY ALERT
-            ━━━━━━━━━━━━━━━━━━━━
-            Device booted from recovery mode!
-            Reason: $reason
+    private fun shouldWipeOnRecoveryBoot(): Boolean {
+        // Only wipe if boot hardening is enabled
+        return preferencesManager.isBootHardenedLocked
+    }
 
-            This indicates factory reset or wipe attempt.
-            PASA is triggering emergency wipe NOW.
-            All data will be destroyed in 10 seconds.
+    private fun sendSuspiciousBootAlert(reason: String) {
+        Log.w(TAG, """
+            🚨 SUSPICIOUS BOOT DETECTED
+            Reason: $reason
+            Action: Security response initiated
         """.trimIndent())
 
-        // This would integrate with TelegramApi
-        // For now, just log it
         preferencesManager.lastRecoveryBootDetection = System.currentTimeMillis()
-        preferencesManager.recoveryBootAttempts += 1
+        preferencesManager.recoveryBootAttempts = preferencesManager.recoveryBootAttempts + 1
     }
 
     /**
@@ -155,7 +157,7 @@ class BootGapDetectionService @Inject constructor(
                 Log.e(TAG, "Executing factory wipe via Device Owner...")
 
                 // Wipe all data immediately
-                dpm.wipeData(android.app.admin.DevicePolicyManager.WIPE_ALL_DATA)
+                dpm.wipeData(0)
 
                 Log.e(TAG, "✅ Wipe command sent - device will be reset")
             } else {

@@ -1,6 +1,7 @@
 package com.izhaanintellect.pasa.commands
 
 import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -63,25 +64,11 @@ class HardenBootCommand @Inject constructor(
                 )
             }
 
-            // Disable OEM unlock (prevents bootloader unlock and recovery mode)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                try {
-                    dpm.setOEMUnlockAllowed(admin, false)
-                    Log.i(TAG, "✅ OEM unlock DISABLED - recovery mode inaccessible")
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not disable OEM unlock: ${e.message}")
-                }
-            }
+            // Disable OEM unlock if supported (prevents bootloader unlock and recovery mode)
+            setOemUnlock(dpm, admin, false)
 
             // Disable USB debugging (prevents fastboot/adb)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                try {
-                    dpm.setAdbEnabled(admin, false)
-                    Log.i(TAG, "✅ USB debugging DISABLED - fastboot inaccessible")
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not disable ADB: ${e.message}")
-                }
-            }
+            setDebuggingAllowed(dpm, admin, false)
 
             // Store lock state
             preferencesManager.isBootHardenedLocked = true
@@ -134,25 +121,11 @@ class HardenBootCommand @Inject constructor(
                 )
             }
 
-            // Re-enable OEM unlock (allows recovery mode access again)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                try {
-                    dpm.setOEMUnlockAllowed(admin, true)
-                    Log.i(TAG, "✅ OEM unlock RE-ENABLED")
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not enable OEM unlock: ${e.message}")
-                }
-            }
+            // Re-enable OEM unlock
+            setOemUnlock(dpm, admin, true)
 
             // Re-enable USB debugging
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                try {
-                    dpm.setAdbEnabled(admin, true)
-                    Log.i(TAG, "✅ USB debugging RE-ENABLED")
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not enable ADB: ${e.message}")
-                }
-            }
+            setDebuggingAllowed(dpm, admin, true)
 
             preferencesManager.isBootHardenedLocked = false
 
@@ -231,5 +204,29 @@ class HardenBootCommand @Inject constructor(
                 ℹ️ Factory reset requires removing Device Owner (impossible without auth).
             """.trimIndent()
         )
+    }
+
+    private fun setOemUnlock(dpm: DevicePolicyManager, admin: ComponentName, allowed: Boolean) {
+        try {
+            val method = dpm.javaClass.getMethod("setOemUnlockAllowed", ComponentName::class.java, Boolean::class.javaPrimitiveType)
+            method.invoke(dpm, admin, allowed)
+            Log.i(TAG, "OEM unlock allowed set to: $allowed")
+        } catch (e: Exception) {
+            Log.w(TAG, "setOemUnlockAllowed unavailable: ${e.message}")
+        }
+    }
+
+    private fun setDebuggingAllowed(dpm: DevicePolicyManager, admin: ComponentName, allowed: Boolean) {
+        try {
+            if (allowed) {
+                dpm.clearUserRestriction(admin, android.os.UserManager.DISALLOW_DEBUGGING_FEATURES)
+                Log.i(TAG, "USB debugging restriction cleared")
+            } else {
+                dpm.addUserRestriction(admin, android.os.UserManager.DISALLOW_DEBUGGING_FEATURES)
+                Log.i(TAG, "USB debugging restricted (DISALLOW_DEBUGGING_FEATURES)")
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Debugging restriction error: ${e.message}")
+        }
     }
 }

@@ -40,7 +40,7 @@ class DaemonResurrectionService : JobService() {
                 val jobInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     JobInfo.Builder(JOB_ID, ComponentName(context, DaemonResurrectionService::class.java))
                         .setMinimumLatency(CHECK_INTERVAL_MS)
-                        .setMaxExecutionDelayMillis(CHECK_INTERVAL_MS + 5000)
+                        .setOverrideDeadline(CHECK_INTERVAL_MS + 5000)
                         .setPersisted(true) // Survive device reboot
                         .setRequiresStorageNotLow(false)
                         .build()
@@ -68,9 +68,6 @@ class DaemonResurrectionService : JobService() {
             }
         }
     }
-
-    @Inject
-    lateinit var context: Context
 
     override fun onStartJob(params: JobParameters?): Boolean {
         Log.d(TAG, "🔄 Resurrection check running...")
@@ -127,7 +124,7 @@ class DaemonResurrectionService : JobService() {
     private fun resurrectDaemon() {
         try {
             // Start main service
-            val serviceIntent = Intent(this, PasaTelegramBotService::class.java)
+            val serviceIntent = Intent(this, PasaService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(serviceIntent)
             } else {

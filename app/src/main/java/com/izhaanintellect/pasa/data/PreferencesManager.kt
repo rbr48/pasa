@@ -81,6 +81,17 @@ class PreferencesManager @Inject constructor(
         private const val KEY_SIM_LOCK_ENABLED = "sim_lock_enabled"
         private const val KEY_SIM_LOCK_ALERT_ACTION = "sim_lock_alert_action"
         private const val KEY_SIM_LOCK_WHITELIST = "sim_lock_whitelist"
+        private const val KEY_TAMPER_DETECTION_ENABLED = "tamper_detection_enabled"
+        private const val KEY_TAMPER_DETECTION_THREATS_FOUND = "tamper_detection_threats_found"
+        private const val KEY_HARDENING_VERSION = "hardening_version"
+        private const val KEY_DEAD_DROP_ENABLED = "dead_drop_enabled"
+        private const val KEY_BOOT_HARDENED_LOCKED = "boot_hardened_locked"
+        private const val KEY_LAST_SHUTDOWN_TIME = "last_shutdown_time"
+        private const val KEY_LAST_BOOT_TIME = "last_boot_time"
+        private const val KEY_LAST_RECOVERY_BOOT_DETECTION = "last_recovery_boot_detection"
+        private const val KEY_RECOVERY_BOOT_ATTEMPTS = "recovery_boot_attempts"
+        private const val KEY_DURESS_FAILURE_COUNT = "duress_failure_count"
+        private const val KEY_DURESS_LAST_FAILURE_TIME_MS = "duress_last_failure_time_ms"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
 
@@ -438,6 +449,50 @@ class PreferencesManager @Inject constructor(
     var simLockWhitelist: List<String>
         get() = prefs.getStringSet(KEY_SIM_LOCK_WHITELIST, emptySet())?.toList() ?: emptyList()
         set(value) = prefs.edit().putStringSet(KEY_SIM_LOCK_WHITELIST, value.toSet()).apply()
+
+    var isTamperDetectionEnabled: Boolean
+        get() = prefs.getBoolean(KEY_TAMPER_DETECTION_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_TAMPER_DETECTION_ENABLED, value).apply()
+
+    var tamperDetectionThreatsFound: Int
+        get() = prefs.getInt(KEY_TAMPER_DETECTION_THREATS_FOUND, 0)
+        set(value) = prefs.edit().putInt(KEY_TAMPER_DETECTION_THREATS_FOUND, value).apply()
+
+    var hardeningVersion: Int
+        get() = prefs.getInt(KEY_HARDENING_VERSION, 0)
+        set(value) = prefs.edit().putInt(KEY_HARDENING_VERSION, value).apply()
+
+    var isDeadDropEnabled: Boolean
+        get() = prefs.getBoolean(KEY_DEAD_DROP_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_DEAD_DROP_ENABLED, value).apply()
+
+    var isBootHardenedLocked: Boolean
+        get() = prefs.getBoolean(KEY_BOOT_HARDENED_LOCKED, false)
+        set(value) = prefs.edit().putBoolean(KEY_BOOT_HARDENED_LOCKED, value).apply()
+
+    var lastShutdownTime: Long
+        get() = prefs.getLong(KEY_LAST_SHUTDOWN_TIME, 0L)
+        set(value) = prefs.edit().putLong(KEY_LAST_SHUTDOWN_TIME, value).apply()
+
+    var lastBootTime: Long
+        get() = prefs.getLong(KEY_LAST_BOOT_TIME, 0L)
+        set(value) = prefs.edit().putLong(KEY_LAST_BOOT_TIME, value).apply()
+
+    var lastRecoveryBootDetection: Long
+        get() = prefs.getLong(KEY_LAST_RECOVERY_BOOT_DETECTION, 0L)
+        set(value) = prefs.edit().putLong(KEY_LAST_RECOVERY_BOOT_DETECTION, value).apply()
+
+    var recoveryBootAttempts: Int
+        get() = prefs.getInt(KEY_RECOVERY_BOOT_ATTEMPTS, 0)
+        set(value) = prefs.edit().putInt(KEY_RECOVERY_BOOT_ATTEMPTS, value).apply()
+
+    var duressFailureCount: Int
+        get() = prefs.getInt(KEY_DURESS_FAILURE_COUNT, 0)
+        set(value) = prefs.edit().putInt(KEY_DURESS_FAILURE_COUNT, value).apply()
+
+    var duressLastFailureTimeMs: Long
+        get() = prefs.getLong(KEY_DURESS_LAST_FAILURE_TIME_MS, 0L)
+        set(value) = prefs.edit().putLong(KEY_DURESS_LAST_FAILURE_TIME_MS, value).apply()
 
     /** Returns true if the minimum configuration required to run is present. */
     fun isConfigured(): Boolean {

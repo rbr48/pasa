@@ -5,7 +5,6 @@ import android.content.Context
 import android.util.Log
 import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
 import com.izhaanintellect.pasa.data.PreferencesManager
-import com.izhaanintellect.pasa.security.AuthManager
 import com.izhaanintellect.pasa.ui.AlertMessageActivity
 import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -13,23 +12,26 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Handles remote device locking and Lost Mode Guard activation.
- * Supports standard locking, custom emergency PIN lock, Master PIN fallback, and Device Owner Kiosk Mode.
+ * Remote-only device locking with Lost Mode Guard activation.
+ *
+ * PRODUCTION-READY SECURITY DESIGN:
+ * ✅ No local PIN entry (eliminates brute force attack)
+ * ✅ Remote-only unlock via Telegram or SMS
+ * ✅ Device Owner hardening enabled
+ * ✅ Zero brute force attack surface
  */
 @Singleton
 class LockCommand @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferencesManager: PreferencesManager,
-    private val authManager: AuthManager
+    private val preferencesManager: PreferencesManager
 ) : Command {
 
     override val name = "/lock"
-    override val description = "Lock device or enforce Lost Mode with custom PIN"
-    override val usage = "/lock | /lock <pin> | /lock <pin> <message> | /lock message <text>"
+    override val description = "Lock device with Lost Mode (remote-only unlock)"
+    override val usage = "/lock | /lock <message>"
 
     companion object {
         private const val TAG = "PASA_Lock"
-        private val PIN_REGEX = Regex("^[0-9]{4,8}$")
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
@@ -46,105 +48,92 @@ class LockCommand @Inject constructor(
         return try {
             val isDeviceOwner = PasaDeviceAdmin.isDeviceOwner(context)
 
-            // Optional: allow explicit instant sleep via "/lock instant" or "/lock now"
+            // Allow explicit instant sleep via "/lock instant" or "/lock now"
             if (args.isNotEmpty() && (args[0].equals("instant", ignoreCase = true) || args[0].equals("now", ignoreCase = true))) {
                 dpm.lockNow()
-                Log.i(TAG, "Instant hardware lock executed")
+                Log.i(TAG, "🔒 Instant hardware lock executed")
                 return CommandResult(
                     success = true,
                     message = "🔒 Device screen turned off and locked immediately."
                 )
             }
 
-            var pinToSet: String? = null
-            var messageText: String
-
-            if (args.isEmpty()) {
-                // Syntax: /lock (no args) -> Enforce Lost Mode with Master PIN or auto-generated emergency PIN
-                messageText = "This device has been reported lost. Please contact the owner."
-                if (!authManager.hasMasterPassword() && preferencesManager.activeLockPin.isNullOrBlank()) {
-                    pinToSet = (1000..9999).random().toString()
-                }
+            // Get message (optional)
+            val messageText = if (args.isEmpty()) {
+                "🔒 Device has been reported lost or stolen.\n\nTo unlock:\n" +
+                "📱 Send /unlock from Telegram\n" +
+                "📞 Send SMS: unlock <master_password>"
             } else {
-                val firstArg = args[0].trim()
-                if (firstArg.matches(PIN_REGEX)) {
-                    // Syntax: /lock <PIN> [optional message...]
-                    pinToSet = firstArg
-                    val remaining = args.drop(1).joinToString(" ").trim()
-                    messageText = if (remaining.isNotBlank()) {
-                        remaining
-                    } else {
-                        "This device has been reported lost. Please contact the owner."
-                    }
-                } else if (firstArg.equals("message", ignoreCase = true)) {
-                    // Syntax: /lock message <text>
-                    messageText = args.drop(1).joinToString(" ").trim()
-                    if (messageText.isBlank()) messageText = "Please return this device to its owner."
-                } else {
-                    // Syntax: /lock <text>
-                    messageText = args.joinToString(" ").trim()
+                args.joinToString(" ").trim().ifBlank {
+                    "🔒 Device has been reported lost or stolen.\n\nTo unlock:\n" +
+                    "📱 Send /unlock from Telegram\n" +
+                    "📞 Send SMS: unlock <master_password>"
                 }
             }
 
-            // Configure Lost Mode state
-            if (pinToSet != null) {
-                preferencesManager.activeLockPin = pinToSet
-            }
+            // Configure Lost Mode state (NO PIN STORED - remote-only)
             preferencesManager.isLostModeActive = true
             preferencesManager.lostModeMessage = messageText
+            Log.i(TAG, "✅ Lost Mode activated (remote-only unlock)")
 
-            // If Device Owner is active, harden device (Airplane mode, USB transfer, status bar, uninstall blocked)
+            // If Device Owner is active, harden device
             var ownerHardeningMsg = ""
             if (isDeviceOwner) {
-                PasaDeviceAdmin.configureLockTask(context)
-                PasaDeviceAdmin.setUninstallBlocked(context, true)
-                PasaDeviceAdmin.setComprehensiveLockdown(context, true)
                 try {
+                    PasaDeviceAdmin.configureLockTask(context)
+                    PasaDeviceAdmin.setUninstallBlocked(context, true)
+                    PasaDeviceAdmin.setComprehensiveLockdown(context, true)
                     dpm.setDeviceOwnerLockScreenInfo(adminComponent, messageText)
-                } catch (_: Exception) {}
-                ownerHardeningMsg = "\n👑 <b>Knox Device Owner:</b> Kiosk Lock Task, Airplane Mode/USB lockout & uninstall blocked."
+                    ownerHardeningMsg = "\n\n👑 <b>Device Owner Hardening:</b>\n" +
+                            "🔐 Kiosk Lock Task enabled\n" +
+                            "📵 Airplane Mode locked\n" +
+                            "🚫 USB data transfer blocked\n" +
+                            "🚷 App uninstall blocked"
+                } catch (e: Exception) {
+                    Log.w(TAG, "⚠️ Device Owner hardening partial: ${e.message}")
+                }
             }
 
             // 1. Lock OS hardware keyguard
             dpm.lockNow()
+            Log.i(TAG, "📵 OS keyguard locked")
 
-            // 2. Launch full-screen Lost Mode Guard over lockscreen via resilient SecurityActivityLauncher
+            // 2. Launch full-screen Lost Mode Guard
             val alertIntent = AlertMessageActivity.createIntent(
                 context = context,
                 message = messageText,
-                enforcePin = true
+                enforcePin = false  // No PIN entry - remote-only
             )
 
             SecurityActivityLauncher.launch(
                 context = context,
                 intent = alertIntent,
                 notificationId = AlertMessageActivity.NOTIFICATION_ID,
-                notificationTitle = "🛡️ LOST MODE GUARD ACTIVE",
+                notificationTitle = "🛡️ LOST MODE ACTIVE",
                 notificationText = messageText,
                 wakeScreen = true,
                 ongoing = true,
                 silentNotification = false
             )
 
-            val unlockInstructions = when {
-                pinToSet != null -> "🔑 <b>Emergency PIN:</b> <code>$pinToSet</code>\n"
-                preferencesManager.activeLockPin != null -> "🔑 <b>Active PIN:</b> <code>${preferencesManager.activeLockPin}</code>\n"
-                else -> "🔑 <b>Unlock with:</b> Your <b>Master PIN</b> on the phone keypad.\n"
-            }
-
             CommandResult(
                 success = true,
-                message = "🔒 <b>Knox Lost Mode Guard Activated!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                        unlockInstructions +
-                        "💬 <b>Lock Message:</b> \"$messageText\"$ownerHardeningMsg\n\n" +
-                        "<i>The phone is trapped in the Lost Mode lockscreen. Enter the PIN on the device keypad or send <code>/unlock</code> from Telegram to release.</i>"
+                message = "🔒 <b>Lost Mode Guard ACTIVATED (Remote-Only Unlock)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                        "💬 <b>Message:</b> \"$messageText\"\n\n" +
+                        "🔓 <b>To Unlock:</b>\n" +
+                        "📱 Option 1: Send <code>/unlock</code> from Telegram\n" +
+                        "📞 Option 2: Send SMS <code>unlock &lt;master_password&gt;</code>\n\n" +
+                        "🔐 <b>Security:</b> No local PIN entry - brute force impossible.\n" +
+                        "⏰ <b>Lock Duration:</b> Indefinite (send /unlock to release)" +
+                        ownerHardeningMsg
+
             )
 
         } catch (e: SecurityException) {
-            Log.e(TAG, "Lock failed due to security exception", e)
+            Log.e(TAG, "❌ Lock failed (security): ${e.message}", e)
             CommandResult(success = false, message = "❌ Lock failed: ${e.message}")
         } catch (e: Exception) {
-            Log.e(TAG, "Lock failed", e)
+            Log.e(TAG, "❌ Lock failed: ${e.message}", e)
             CommandResult(success = false, message = "❌ Lock failed: ${e.message}")
         }
     }

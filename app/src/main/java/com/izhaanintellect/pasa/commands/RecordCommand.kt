@@ -2,15 +2,17 @@ package com.izhaanintellect.pasa.commands
 
 import android.util.Log
 import com.izhaanintellect.pasa.audio.AudioRecorderManager
+import com.izhaanintellect.pasa.security.AuthManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Handles ambient audio recording.
+ * Handles ambient audio recording (requires authentication).
  */
 @Singleton
 class RecordCommand @Inject constructor(
-    private val audioRecorderManager: AudioRecorderManager
+    private val audioRecorderManager: AudioRecorderManager,
+    private val authManager: AuthManager
 ) : Command {
 
     override val name = "/record"
@@ -24,12 +26,22 @@ class RecordCommand @Inject constructor(
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        if (args.firstOrNull()?.lowercase() == "stop") {
+        // SECURITY: Require authentication for audio recording
+        val password = args.firstOrNull()
+        if (password.isNullOrBlank() || !authManager.verifyMasterPassword(password)) {
+            return CommandResult(
+                success = false,
+                message = "🔐 Authentication required: <code>/record &lt;password&gt; [seconds]</code> or <code>/record &lt;password&gt; stop</code>"
+            )
+        }
+
+        val sub = args.getOrNull(1)?.lowercase()
+        if (sub == "stop") {
             audioRecorderManager.stopRecording()
             return CommandResult(success = true, message = "⏹️ Audio recording stopped.")
         }
 
-        val durationSeconds = (args.firstOrNull()?.toIntOrNull() ?: DEFAULT_DURATION)
+        val durationSeconds = (args.getOrNull(1)?.toIntOrNull() ?: DEFAULT_DURATION)
             .coerceIn(1, MAX_DURATION)
 
         Log.i(TAG, "Recording audio for ${durationSeconds}s")

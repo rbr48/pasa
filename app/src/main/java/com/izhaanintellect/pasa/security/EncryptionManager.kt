@@ -282,4 +282,13 @@ class EncryptionManager @Inject constructor(
         Log.d(TAG, "New KeyStore key generated: $alias")
         return key
     }
+
+    /**
+     * Compute SHA-256 hex digest of input string.
+     */
+    fun hashSHA256(input: String): String {
+        val md = java.security.MessageDigest.getInstance("SHA-256")
+        val bytes = md.digest(input.toByteArray(Charsets.UTF_8))
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
 }

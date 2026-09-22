@@ -26,8 +26,6 @@ import com.izhaanintellect.pasa.camera.StealthCaptureBridge
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.databinding.ActivityAlertMessageBinding
 import com.izhaanintellect.pasa.location.LocationTracker
-import com.izhaanintellect.pasa.network.PasaBackendApi
-import com.izhaanintellect.pasa.security.AuthManager
 import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -47,7 +45,8 @@ import javax.inject.Inject
 
 /**
  * Full-screen lockscreen activity for displaying urgent owner messages and lost-device alerts.
- * Features custom PIN entry, tamper photo capture on failed PIN attempts, and Device Owner Kiosk Mode.
+ * Remote-only unlock via Telegram or SMS (no local PIN entry).
+ * Features: screen-touch photo capture, Device Owner Kiosk Mode, message display.
  */
 @AndroidEntryPoint
 class AlertMessageActivity : AppCompatActivity() {
@@ -55,10 +54,8 @@ class AlertMessageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAlertMessageBinding
 
     @Inject lateinit var preferencesManager: PreferencesManager
-    @Inject lateinit var authManager: AuthManager
     @Inject lateinit var telegramApi: TelegramApi
     @Inject lateinit var locationTracker: LocationTracker
-    @Inject lateinit var pasaBackendApi: PasaBackendApi
     @Inject lateinit var duressManager: com.izhaanintellect.pasa.detection.DuressManager
 
     private var isKioskActive = false
@@ -159,9 +156,9 @@ class AlertMessageActivity : AppCompatActivity() {
             binding.btnCallOwner.visibility = View.GONE
         }
 
-        binding.btnUnlockWithPin.setOnClickListener {
-            showPinUnlockDialog()
-        }
+        try {
+            binding.btnUnlockWithPin.visibility = View.GONE
+        } catch (_: Exception) {}
 
         playAlertChime()
         } catch (e: Throwable) {
@@ -170,53 +167,6 @@ class AlertMessageActivity : AppCompatActivity() {
         }
     }
 
-    private fun showPinUnlockDialog() {
-        val input = android.widget.EditText(this).apply {
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
-            hint = "Enter PIN"
-            setPadding(50, 40, 50, 40)
-            setTextColor(android.graphics.Color.WHITE)
-            setHintTextColor(android.graphics.Color.GRAY)
-        }
-
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("Unlock Device")
-            .setMessage("Enter your authorization PIN to dismiss this lock overlay:")
-            .setView(input)
-            .setPositiveButton("Unlock") { _, _ ->
-                val entered = input.text.toString().trim()
-                if (entered.isBlank()) return@setPositiveButton
-
-                val duressPin = preferencesManager.duressPin
-                val isDuress = !duressPin.isNullOrBlank() && entered == duressPin
-
-                if (isDuress) {
-                    Log.w(TAG, "Duress PIN entered on AlertMessageActivity! Executing full unlock and firing covert SOS.")
-                    exitLostMode()
-                    duressManager.executeDuressUnlock(applicationContext)
-                    duressManager.triggerDuressSosAsync(applicationContext, "Lost Mode Screen Overlay")
-                    return@setPositiveButton
-                }
-
-                val activeLockPin = preferencesManager.activeLockPin
-                val isMaster = authManager.hasMasterPassword() && authManager.verifyMasterPassword(entered)
-                val isLockPin = !activeLockPin.isNullOrBlank() && entered == activeLockPin
-
-                if (isMaster || isLockPin) {
-                    Log.i(TAG, "Valid unlock PIN entered. Exiting Lost Mode.")
-                    android.widget.Toast.makeText(this, "✅ Device Unlocked", android.widget.Toast.LENGTH_SHORT).show()
-                    exitLostMode()
-                } else {
-                    Log.w(TAG, "Invalid PIN entered on unlock dialog! Capturing forensic selfie.")
-                    android.widget.Toast.makeText(this, "❌ Incorrect PIN", android.widget.Toast.LENGTH_SHORT).show()
-                    CoroutineScope(Dispatchers.IO).launch {
-                        triggerTouchCapture()
-                    }
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
 
     private var lastTouchCaptureTime = 0L
 

@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 39,
+    "versionName": "3.4.3",
+    "releaseDate": "2026-09-22",
+    "fileName": "pasa-v3.4.3-39.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.4.3-39.apk",
+    "sha256": "d603f3d470607687ed5ad254534abdc0b849a168e6fc52a70fa525953674ad90",
+    "size": 19119021,
+    "mandatory": false,
+    "releaseNotes": "v3.4.3: Factory Reset Defense & Core Resilience Hardening — Recovery Mode & Fastboot Lockout (/harden_boot); Real-time Threat & Tamper Detection (/tamper_detect); Boot Gap & Time Anomaly Analysis (/boot_gap); JobScheduler Daemon Resurrection Core; Enhanced Streaming Screen Recorder."
+  },
+  {
     "versionCode": 38,
     "versionName": "3.4.2",
     "releaseDate": "2026-09-22",

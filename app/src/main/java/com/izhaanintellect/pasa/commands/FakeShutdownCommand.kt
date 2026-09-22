@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.izhaanintellect.pasa.data.PreferencesManager
+import com.izhaanintellect.pasa.security.AuthManager
 import com.izhaanintellect.pasa.ui.FakeShutdownActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -17,7 +18,8 @@ import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 @Singleton
 class FakeShutdownCommand @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val authManager: AuthManager
 ) : Command {
 
     override val name = "/fakeshutdown"
@@ -30,11 +32,30 @@ class FakeShutdownCommand @Inject constructor(
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        val sub = args.firstOrNull()?.lowercase()
+        val password = args.firstOrNull()
+        val sub = args.getOrNull(1)?.lowercase()
 
         return if (sub == "wake" || sub == "stop" || sub == "off") {
+            // Wake doesn't require auth (just disabling feature)
             wakeDevice()
         } else {
+            // SECURITY: FakeShutdown requires authentication
+            if (password.isNullOrBlank() || !authManager.verifyMasterPassword(password)) {
+                return CommandResult(
+                    success = false,
+                    message = """
+                        🔐 <b>Authentication Required</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        This sensitive operation requires your master password.
+
+                        <b>To activate fake shutdown:</b>
+                        <code>/fakeshutdown &lt;password&gt;</code>
+
+                        <b>To wake from fake shutdown:</b>
+                        <code>/fakeshutdown wake</code>
+                    """.trimIndent()
+                )
+            }
             startFakeShutdown()
         }
     }

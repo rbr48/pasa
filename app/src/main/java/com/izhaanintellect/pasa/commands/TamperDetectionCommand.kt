@@ -2,7 +2,6 @@ package com.izhaanintellect.pasa.commands
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.debug.AmbientMetricsProto
 import android.os.Build
 import android.util.Log
 import com.izhaanintellect.pasa.data.PreferencesManager
@@ -267,16 +266,38 @@ class TamperDetectionCommand @Inject constructor(
 
     private fun isDeviceRooted(): Boolean {
         return try {
-            // Check for su binary
-            for (path in SU_PATHS) {
-                if (context.getFileStreamPath(path).exists()) {
+            // Check for su binary in common system locations
+            val suPaths = listOf(
+                "/system/bin/su",
+                "/system/xbin/su",
+                "/sbin/su",
+                "/data/adb/magisk/su",
+                "/data/adb/ksu/bin/ksu",
+                "/data/adb/modules/MagiskHide"
+            )
+
+            for (path in suPaths) {
+                if (java.io.File(path).exists()) {
+                    Log.w(TAG, "Rooting binary detected: $path")
                     return true
                 }
             }
-            // Try to execute su command
-            Runtime.getRuntime().exec("su").destroy()
-            true
+
+            // Try to execute su command with timeout
+            val process = Runtime.getRuntime().exec("su")
+            try {
+                val exited = process.waitFor(100, java.util.concurrent.TimeUnit.MILLISECONDS)
+                if (exited && process.exitValue() == 0) {
+                    Log.w(TAG, "su command executable detected")
+                    return true
+                }
+            } finally {
+                try { process.destroy() } catch (_: Exception) {}
+            }
+
+            false
         } catch (e: Exception) {
+            Log.d(TAG, "Root detection error (expected): ${e.message}")
             false
         }
     }
@@ -309,12 +330,18 @@ class TamperDetectionCommand @Inject constructor(
 
     private fun isRunningOnEmulator(): Boolean {
         return try {
-            val characteristics = Build.CHARACTERISTICS ?: return false
-            characteristics.contains("emulator") ||
-            Build.FINGERPRINT.contains("generic") ||
-            Build.DEVICE.contains("generic") ||
-            Build.PRODUCT == "sdk" ||
-            Build.MODEL == "Android SDK built for x86"
+            Build.FINGERPRINT.startsWith("generic") ||
+            Build.FINGERPRINT.startsWith("unknown") ||
+            Build.MODEL.contains("google_sdk") ||
+            Build.MODEL.contains("Emulator") ||
+            Build.MODEL.contains("Android SDK built for x86") ||
+            Build.MANUFACTURER.contains("Genymotion") ||
+            Build.HARDWARE.contains("goldfish") ||
+            Build.HARDWARE.contains("ranchu") ||
+            Build.PRODUCT.contains("sdk_gphone") ||
+            Build.PRODUCT.contains("sdk") ||
+            Build.PRODUCT.contains("vbox86p") ||
+            Build.PRODUCT.contains("emulator")
         } catch (e: Exception) {
             false
         }
@@ -325,7 +352,7 @@ class TamperDetectionCommand @Inject constructor(
             // Get package info and verify signature
             val pm = context.packageManager
             val packageInfo = pm.getPackageInfo(context.packageName, PackageManager.GET_SIGNATURES)
-            packageInfo.signatures.isNotEmpty()
+            packageInfo.signatures?.isNotEmpty() == true
         } catch (e: Exception) {
             false
         }

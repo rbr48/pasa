@@ -36,6 +36,18 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             return ComponentName(context, PasaDeviceAdmin::class.java)
         }
 
+        fun getComponent(context: Context): ComponentName = getComponentName(context)
+
+        fun wipeDevice(context: Context, reason: String = "") {
+            try {
+                Log.w(TAG, "Wipe device requested: $reason")
+                val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+                dpm?.wipeData(0)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to wipe device: ${e.message}", e)
+            }
+        }
+
         fun isAdminActive(context: Context): Boolean {
             val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
             return dpm.isAdminActive(getComponentName(context))
