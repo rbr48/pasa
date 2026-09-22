@@ -7,8 +7,8 @@ const dbPath = path.join(__dirname, 'data', 'pasa.db');
 initDatabase(dbPath);
 
 const apkPath = path.join(__dirname, 'releases', 'pasa-v3.4.4-40.apk');
-let sha256 = 'efbaf3d27988bddb589845c3fbf59202c7a2c21c366865697a6ec7e1c66d45c2';
-let size = 19119004;
+let sha256 = '40fe9783ae3c63911d5243ebccbca0b33de28cac8d7301abbd8b8c9d57414500';
+let size = 19119006;
 
 if (fs.existsSync(apkPath)) {
   const buf = fs.readFileSync(apkPath);

