@@ -33,6 +33,7 @@
 12. [Release Verification & Integrity](#-release-verification--integrity)
 13. [Zero-Telemetry Privacy Policy](PRIVACY.md)
 14. [Terms of Service & EULA (Mandatory)](TERMS.md)
+15. [Frequently Asked Questions (FAQ) — পূর্ণাঙ্গ প্রশ্নোত্তর](FAQ.md)
 
 ---
 
