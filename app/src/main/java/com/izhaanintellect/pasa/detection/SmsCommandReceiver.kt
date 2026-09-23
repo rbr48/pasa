@@ -235,6 +235,21 @@ class SmsCommandReceiver : BroadcastReceiver() {
                         val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
                         sendSmsReply(context, senderPhone, cleanMsg, subId)
                     }
+                    "/call", "/dial" -> {
+                        val res = commandExecutor.executeDirect("/call", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/lock_app" -> {
+                        val res = commandExecutor.executeDirect("/lock_app", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/unlock_app" -> {
+                        val res = commandExecutor.executeDirect("/unlock_app", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
                     "/reboot" -> {
                         val res = commandExecutor.executeDirect("/reboot", args, preferencesManager.ownerChatIdLong)
                         val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()

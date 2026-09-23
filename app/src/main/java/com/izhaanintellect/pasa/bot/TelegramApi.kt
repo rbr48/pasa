@@ -68,6 +68,16 @@ interface TelegramApi {
         @Part("caption") caption: RequestBody? = null
     ): TelegramResponse<Message>
 
+    /** Sends a general document / file to a chat. */
+    @Multipart
+    @POST("bot{token}/sendDocument")
+    suspend fun sendDocument(
+        @Path(value = "token", encoded = true) token: String,
+        @Part("chat_id") chatId: RequestBody,
+        @Part document: MultipartBody.Part,
+        @Part("caption") caption: RequestBody? = null
+    ): TelegramResponse<Message>
+
     /** Sends a location pin or starts live location stream. */
     @POST("bot{token}/sendLocation")
     suspend fun sendLocation(

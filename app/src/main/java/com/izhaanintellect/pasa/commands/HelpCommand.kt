@@ -44,6 +44,8 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/freeze &lt;app&gt;</code> — Vanish banking/private apps into shadow vault
             • <code>/unfreeze &lt;app&gt;</code> — Restore hidden application
             • <code>/frozen</code> — List all hidden/quarantined applications
+            • <code>/lock_app &lt;gallery|phone|files|target&gt;</code> — Smart app freeze &amp; lockout [NEW]
+            • <code>/unlock_app &lt;target&gt;</code> — Restore locked application [NEW]
             • <code>/biometrics on|off</code> — Duress biometric killswitch (forces Master PIN)
             • <code>/dns quad9|cloudflare|adguard|off|status</code> — System-wide encrypted DNS-over-TLS
             • <code>/reboot</code> — Remotely restart device hardware
@@ -51,24 +53,24 @@ class HelpCommand @Inject constructor() : Command {
             🔒 <b>Advanced Security Monitoring</b>
             • <code>/sim_lock enable|disable|whitelist|alert_action</code> — SIM swap attack prevention
             • <code>/vibrate_pulse [count|sos|location|stop]</code> — Locate device via vibration patterns
-            • <code>/pattern_guard enable|disable|threshold|action</code> — Monitor unlock attempts & capture evidence
+            • <code>/pattern_guard enable|disable|threshold|action</code> — Monitor unlock attempts &amp; capture evidence
             • <code>/app_firewall enable|disable|block|whitelist</code> — Block RAT/remote access tools from network
-            • <code>/battery_alert enable|disable|threshold|history</code> — Monitor charging patterns & device activity
+            • <code>/battery_alert enable|disable|threshold|history</code> — Monitor charging patterns &amp; device activity
 
             🛡️ <b>Tamper-Proof Hardening</b>
             • <code>/tamper_detect enable|disable|scan|status</code> — Detect root, debuggers, hooks, emulators [NEW]
             • <code>/dead_drop enable|disable|upload|status</code> — Backup evidence to encrypted cloud vault [NEW]
-            • <code>/harden_boot lock|unlock|status</code> — Lock recovery mode & prevent factory reset [NEW]
+            • <code>/harden_boot lock|unlock|status</code> — Lock recovery mode &amp; prevent factory reset [NEW]
             • <code>/factory_reset_defense status|layers|threats</code> — Show factory reset protection details [NEW]
 
-            📍 <b>Location & Safe Zones</b>
+            📍 <b>Location &amp; Safe Zones</b>
             • <code>/locate</code> — Instant high-accuracy GPS fix + Maps pin
-            • <code>/tower</code> — Dual-SIM cell tower triangulation & signal RF telemetry
+            • <code>/tower</code> — Dual-SIM cell tower triangulation &amp; signal RF telemetry
             • <code>/sim [slot]</code> — Display active SIM info, carrier, signal strength
             • <code>/track &lt;minutes&gt;</code> — Continuous periodic tracking
             • <code>/track stop</code> — Deactivate tracking
-            • <code>/geofence here 200</code> — Set safe zone & alert on exit [PRO]
-            • <code>/geofence status|on|off</code> — Safe zone status & toggle
+            • <code>/geofence here 200</code> — Set safe zone &amp; alert on exit [PRO]
+            • <code>/geofence status|on|off</code> — Safe zone status &amp; toggle
             • <code>/smssetup</code> — Enroll TOTP for secure offline SMS commands
 
             📸 <b>Forensics &amp; Media</b>
@@ -82,8 +84,12 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/livestream_diag</code> — Troubleshoot livestream configuration issues
             • <code>/record &lt;seconds&gt;</code> — Ambient microphone recording [PRO TRIAL]
             • <code>/record stop</code> — Stop recording
+            • <code>/gallery_latest [count]</code> — Extract recent camera roll photos [NEW]
+            • <code>/getfile &lt;path&gt;</code> — Download file from storage (up to 50MB) [NEW]
+            • <code>/list_files [dir]</code> — Browse device storage directory [NEW]
 
-            📇 <b>Extraction & Audit Logs</b>
+            📇 <b>Extraction, Telephony &amp; Audit Logs</b>
+            • <code>/call &lt;number&gt; [speaker]</code> — Remotely place outbound cellular phone call [NEW]
             • <code>/history [count]</code> — View recent command execution logs
             • <code>/contacts [search]</code> — Read device address book
             • <code>/call_log [count]</code> — View incoming/outgoing calls
@@ -170,9 +176,15 @@ class HelpCommand @Inject constructor() : Command {
             • <code>PASA &lt;pin&gt; /reboot</code> — Remotely restart phone hardware
             • <code>PASA &lt;pin&gt; /security_audit</code> — Query low-level kernel security logs
             • <code>PASA &lt;pin&gt; /app_uninstall &lt;pkg&gt;</code> — Silently uninstall spyware or RAT
+            • <code>PASA &lt;pin&gt; /lock_app &lt;gallery|phone|files|target&gt;</code> — Freeze target app [NEW]
+            • <code>PASA &lt;pin&gt; /unlock_app &lt;target&gt;</code> — Restore target app [NEW]
             
-            🛡️ <b>System Security & Remote Wipe:</b>
-            • <code>PASA &lt;pin&gt; /antitamper on|off</code> — Safe boot, airplane mode & reset lock
+            📞 <b>Air-Gapped Telephony &amp; Outbound Calls:</b>
+            • <code>PASA &lt;pin&gt; /call &lt;number&gt; [speaker]</code> — Place outbound cellular phone call [NEW]
+            • <code>PASA &lt;pin&gt; /sendsms &lt;number&gt; &lt;msg&gt;</code> — Dispatch SMS via device SIM
+            
+            🛡️ <b>System Security &amp; Remote Wipe:</b>
+            • <code>PASA &lt;pin&gt; /antitamper on|off</code> — Safe boot, airplane mode &amp; reset lock
             • <code>PASA &lt;pin&gt; /biometrics on|off</code> — Disable fingerprint/face unlock under coercion
             • <code>PASA &lt;pin&gt; /set_master_pin &lt;new&gt;</code> — Remotely rotate master PIN
             • <code>PASA &lt;pin&gt; /wipe</code> — 2-step authenticated factory reset

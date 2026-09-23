@@ -11,6 +11,7 @@ data class CommandResult(
     val photoFile: File? = null,
     val audioFile: File? = null,
     val videoFile: File? = null,
+    val documentFile: File? = null,
     val location: Pair<Double, Double>? = null
 )
 

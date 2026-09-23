@@ -211,10 +211,17 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                 Manifest.permission.SEND_SMS,
                 Manifest.permission.RECEIVE_SMS,
                 Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.READ_CONTACTS
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.CALL_PHONE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
             )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 perms.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                perms.add(Manifest.permission.READ_MEDIA_IMAGES)
+                perms.add(Manifest.permission.READ_MEDIA_VIDEO)
+                perms.add(Manifest.permission.READ_MEDIA_AUDIO)
             }
 
             val results = mutableMapOf<String, Boolean>()

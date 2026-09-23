@@ -165,17 +165,17 @@ d:/Software_and_Apps/PrivateApp/
 
 ---
 
-## 4. Complete Command Matrix (78 Telegram C2 Commands)
+## 4. Complete Command Matrix (84 Telegram C2 Commands)
 
 | Category | Commands |
 |---|---|
 | **Core & Diagnostics** | `/menu`, `/help`, `/status`, `/selftest`, `/info`, `/reboot`, `/battery_alert`, `/network` |
-| **Enterprise Device Owner** | `/device_owner`, `/antitamper`, `/usb_lock`, `/camera_lock`, `/bluetooth_lock`, `/mic_mute`, `/lockscreen_info`, `/autolock`, `/wifi_connect`, `/security_audit`, `/notification`, `/self_heal`, `/freeze`, `/unfreeze`, `/frozen`, `/biometrics`, `/dns`, `/app_firewall` |
+| **Enterprise Device Owner** | `/device_owner`, `/antitamper`, `/usb_lock`, `/camera_lock`, `/bluetooth_lock`, `/mic_mute`, `/lockscreen_info`, `/autolock`, `/wifi_connect`, `/security_audit`, `/notification`, `/self_heal`, `/freeze`, `/unfreeze`, `/frozen`, `/lock_app`, `/unlock_app`, `/biometrics`, `/dns`, `/app_firewall` |
 | **Location & Cellular RF**| `/locate` (`/gps`, `/location`), `/tower`, `/sim`, `/sim_lock`, `/track`, `/track_stop`, `/geofence` |
-| **Covert Forensics**   | `/snap`, `/screenshot`, `/screen_burst`, `/screenrecord`, `/video`, `/record`, `/livestream`, `/stopstream`, `/livestream_diag`, `/clipboard` |
+| **Covert Forensics**   | `/snap`, `/screenshot`, `/screen_burst`, `/screenrecord`, `/video`, `/record`, `/livestream`, `/stopstream`, `/livestream_diag`, `/clipboard`, `/gallery_latest`, `/getfile`, `/list_files` |
 | **Lockdown & Alert**   | `/lock`, `/lock_message`, `/lock_pin`, `/set_os_pin`, `/set_master_pin`, `/unlock`, `/fakeshutdown`, `/wake`, `/ring`, `/ring_stop`, `/vibrate_pulse`, `/message` |
 | **Defense & Deception**| `/duress_pin`, `/pattern_guard`, `/trap`, `/shred`, `/stealth` (`/hide`, `/show`), `/tamper_detect`, `/dead_drop`, `/harden_boot`, `/factory_reset_defense` |
-| **Extraction & Logs**  | `/contacts`, `/call_log`, `/sms_log`, `/sendsms`, `/history` |
+| **Extraction & Telephony**| `/call`, `/contacts`, `/call_log`, `/sms_log`, `/sendsms`, `/history` |
 | **System & Maintenance**| `/apps`, `/app_uninstall`, `/smssetup`, `/sms_help`, `/license`, `/check_update`, `/update_confirm`, `/wipe`, `/wipe_confirm` |
 
 ---
@@ -200,19 +200,19 @@ d:/Software_and_Apps/PrivateApp/
 
 ### 6.1 Hostinger VPS Topology
 * **Host / IP:** `148.135.137.245` (`srv1678100.hstgr.cloud`, Ubuntu 24.04 LTS).
-* **SSH Port & Key:** Port `2222`, Identity file `C:\Users\WALTON\.ssh\id_ed25519`.
+* **SSH Port & Key:** Port `2222`, Identity file `C:\Users\USER\.ssh\id_rsa_dbm`.
 * **Upload Protocol:** `scp -O -P 2222` (Legacy SCP flag `-O` is strictly required; modern SFTP subsystem is restricted on sshd).
 * **Remote Application Directory:** `/var/www/pasa-server/`.
 * **Process Manager:** PM2 process `pasa-server` (ID 27).
 
 ### 6.2 Production Keystore & Cryptographic Identity
-* **Keystore File:** `d:\Software_and_Apps\PrivateApp\pasa-release-key.jks`.
+* **Keystore File:** `e:\Projects\PrivateApp\pasa-release-key.jks`.
 * **Keystore Properties:** `keystore.properties` (password: `PasaSentinel@2026#Secure`, alias: `pasa_sentinel`).
 * **Certificate DN:** `CN=PASA Sentinel, OU=Security, O=Izhaan Intellect, L=Dhaka, C=BD`.
 * **Certificate SHA-256:** `0c8f62dd8934d3b73e12d965742da29e643bdc157bc859e5b6aa7454409ad57a`.
 * **Current Production Release:**
-  - **Version:** `v3.4.8` (Build `44`).
-  - **APK Binary SHA-256:** `6e84bc88e1d42aff7543445bb55725b08b43e087a8e92fbf268423261844e78b`.
+  - **Version:** `v3.4.9` (Build `45`).
+  - **APK Binary SHA-256:** `295a762ddf4b28fffa737e30488f5de2f6591b666dca7e72b9e7c869bff4870a`.
   - **CDN Endpoint:** `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`.
   - **OTA Manifest Route:** `GET https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=<build>`.
 

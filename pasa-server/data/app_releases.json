@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 45,
+    "versionName": "3.4.9",
+    "releaseDate": "2026-09-23",
+    "fileName": "pasa-v3.4.9-45.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.4.9-45.apk",
+    "sha256": "295a762ddf4b28fffa737e30488f5de2f6591b666dca7e72b9e7c869bff4870a",
+    "size": 19151323,
+    "mandatory": false,
+    "releaseNotes": "v3.4.9: Remote Outbound Calling, Smart App Lockout & Storage Forensics Suite — Remotely dial any phone number with automatic speakerphone routing (/call <number> [speaker]), smart keyword app freezing for Gallery, Phone, and Storage (/lock_app, /unlock_app), recent camera roll extraction direct to Telegram (/gallery_latest [count]), storage file downloader up to 50MB (/getfile <path>), storage directory browser (/list_files [dir]), air-gapped SMS dialing and app locking fallback (PASA <PIN> /call, /lock_app), and interactive 6-hub Telegram console wizards."
+  },
+  {
     "versionCode": 42,
     "versionName": "3.4.6",
     "releaseDate": "2026-09-22",
