@@ -116,6 +116,14 @@ class AppLockCommand @Inject constructor(
             return CommandResult(false, "❌ <b>Device Owner Required:</b> Run <code>/device_owner</code>.")
         }
 
+        if (target.startsWith("/")) {
+            return CommandResult(
+                success = false,
+                message = "❌ <b>Invalid Target:</b> '<code>$target</code>' is a command, not an application.\n" +
+                        "To lock an app, use: <code>/lock_app gallery</code>, <code>phone</code>, <code>files</code>, or a package name."
+            )
+        }
+
         val packagesToLock = resolveTargetPackages(target)
         if (packagesToLock.isEmpty()) {
             return CommandResult(
@@ -166,6 +174,14 @@ class AppLockCommand @Inject constructor(
         val target = args.joinToString(" ").trim()
         if (target.isBlank()) {
             return CommandResult(false, "❓ <b>Usage:</b> <code>/unlock_app &lt;gallery|phone|files|target&gt;</code>")
+        }
+
+        if (target.startsWith("/")) {
+            return CommandResult(
+                success = false,
+                message = "❌ <b>Invalid Target:</b> '<code>$target</code>' is a command, not an application.\n" +
+                        "To unlock an app, use: <code>/unlock_app gallery</code>, <code>phone</code>, <code>files</code>, or a package name."
+            )
         }
 
         val packagesToUnlock = resolveTargetPackages(target, checkFrozenFirst = true)

@@ -2203,6 +2203,33 @@ async function handleTelegramUpdate(token, update) {
   // 1. Check Active Conversational State (Wizard inputs) FIRST
   const activeState = getChatState(chatId);
   if (activeState) {
+    if (rawText.toLowerCase() === '/cancel') {
+      clearChatState(chatId);
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '❌ Action cancelled.',
+        parse_mode: 'HTML',
+        reply_markup: DASHBOARD_KEYBOARD
+      });
+      return;
+    }
+
+    // Auto-cancel wizard if user sends a slash command or taps persistent keyboard
+    const isFilePath = activeState.state === 'WAITING_FOR_GETFILE_PATH' && 
+      (rawText.startsWith('/sdcard') || rawText.startsWith('/storage') || rawText.startsWith('/data') || (rawText.startsWith('/') && rawText.includes('/', 1)));
+
+    const isKeyboardOrCommand = rawText.startsWith('/') ||
+      rawText.startsWith('📊') || rawText.startsWith('📍') || rawText.startsWith('🚨') ||
+      rawText.startsWith('📸') || rawText.startsWith('📱') || rawText.startsWith('🎥') ||
+      rawText.startsWith('🔒') || rawText.startsWith('🎛️') || rawText.startsWith('👑') ||
+      rawText.startsWith('💬') || rawText.startsWith('🛡️') || rawText.startsWith('🔑') ||
+      rawText.toLowerCase() === 'menu' || rawText.toLowerCase() === 'help' || rawText.toLowerCase() === 'dashboard';
+
+    if (isKeyboardOrCommand && !isFilePath) {
+      console.log(`[Wizard Auto-Cancel] User sent "${rawText}" while in wizard state "${activeState.state}". Cancelling wizard.`);
+      clearChatState(chatId);
+      // Fall through to regular command execution!
+    } else {
     if (activeState.state === 'WAITING_FOR_SCREEN_MESSAGE') {
       clearChatState(chatId);
       await dispatchCommandToDevice(token, chatId, '/message', [rawText]);
@@ -2359,6 +2386,7 @@ async function handleTelegramUpdate(token, update) {
         });
       }
       return;
+    }
     }
   }
 
