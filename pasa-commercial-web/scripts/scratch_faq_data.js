@@ -292,7 +292,7 @@ const faqData = [
     qBn: "চোর যদি ল্যাবে নিয়ে ফোনের ব্যাক-কভার খুলে টেস্ট পয়েন্ট শর্ট করে কোয়ালকম EDL মোডে (9008) বা মিডিয়াটেক BROM মোডে ফেলে পিসি দিয়ে রম ফ্ল্যাশ করে দেয়?",
     aEn: `<p><strong>Technical Reality & 3-Tier Active Countermeasures:</strong></p>
 <p><em>Acknowledging the physical reality:</em> Qualcomm Emergency Download Mode (EDL 9008) and MediaTek BootROM (BROM) operate directly at the CPU silicon level before the Android OS ever boots. When the OS is not executing, no software running in user-space can issue in-session commands.</p>
-<p><strong>However, PASA v3.5.1 thwarts this attack with 3 proactive countermeasures:</strong></p>
+<p><strong>However, PASA Sentinel thwarts this attack with 3 proactive countermeasures:</strong></p>
 <ol>
   <li><strong>Heat-Gun Thermal Anomaly Trap (<code>/thermal</code>):</strong> To access motherboard test points, technicians must apply heat-guns/blowers (80°C–100°C) to loosen adhesive. PASA actively monitors battery thermal sensors; if temperatures exceed 48°C while locked, it instantly kills USB data pins, triggers kiosk mode, snaps mugshots of the technician, and broadcasts an emergency SOS.</li>
   <li><strong>Anti-Fastboot OEM Bootloader Hardening:</strong> PASA permanently locks <code>setOemUnlockAllowed(component, false)</code>. Fastboot flashing commands return: <code>FAILED: Flashing Unlock is not allowed</code>.</li>
@@ -300,7 +300,7 @@ const faqData = [
 </ol>`,
     aBn: `<p><strong>কারিগরি বাস্তবতা ও ৩ স্তরের সক্রিয় প্রতিহত ব্যবস্থা:</strong></p>
 <p><em>বাস্তবতা স্বীকার:</em> কোয়ালকম ইমার্জেন্সি ডাউনলোড মোড (EDL 9008) বা মিডিয়াটেক BootROM (BROM) মোড কাজ করে সরাসরি প্রসেসরের হার্ডওয়্যার সিলিকন চিপ লেভেলে—অ্যান্ড্রয়েড ওএস রান করারও পূর্বে। ওএস যখন রানই করছে না, তখন পৃথিবীর কোনো সফটওয়্যারের পক্ষেই ওই মোডের ভেতরে ঢুকে কমান্ড চালানো সম্ভব নয়।</p>
-<p><strong>কিন্তু পাসা v3.5.1 এই আক্রমণকে ৩টি সক্রিয় কাউন্টার-মেজার দিয়ে প্রতিহত করে:</strong></p>
+<p><strong>কিন্তু পাসা সেন্টিনেল এই আক্রমণকে ৩টি সক্রিয় কাউন্টার-মেজার দিয়ে প্রতিহত করে:</strong></p>
 <ol>
   <li><strong>হিট-গান থার্মাল অ্যানোমালি ট্র্যাপ (<code>/thermal</code>):</strong> মাদারবোর্ডের টেস্ট পয়েন্টে চিমটা ছোঁয়াতে হলে টেকনিশিয়ানকে প্রথমে ব্লোয়ার বা হিটগান দিয়ে ফোনের ব্যাক-কভারের গ্লু গলাতে হয় (৮০°-১০০° সে.)। পাসা ব্যাকগ্রাউন্ডে ফোনের ব্যাটারি থার্মাল সেন্সর মনিটর করে। লক অবস্থায় তাপমাত্রা ৪৮° সেলসিয়াস ছাড়ালেই পাসা মুহূর্তের মধ্যে ইউএসবি ডেটা পিন হার্ডওয়্যার লেভেলে কিল করে দেয়, কিয়স্ক লক সক্রিয় করে এবং টেকনিশিয়ানের চেহারার ছবি তুলে জরুরি টেলিগ্রাম এসওএস পাঠায়।</li>
   <li><strong>অটো-বুটলোডার হার্ডেনিং (Anti-Fastboot Lockout):</strong> পাসার ডিভাইস ওনার <code>setOemUnlockAllowed(component, false)</code> স্থায়ীভাবে লক করে রাখে। ফলে ফাস্টবুট বা ক্যাবল কানেক্ট করে আনলক করতে গেলে সিস্টেম কমান্ড ফিরিয়ে দেয়: <code>FAILED: Flashing Unlock is not allowed</code>।</li>

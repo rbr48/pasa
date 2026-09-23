@@ -27,8 +27,8 @@ function generateHtml() {
     --bg-muted: #f1f5f9;         /* slate-100 */
     --bg-subtle: #e2e8f0;        /* slate-200 */
 
-    --border: #e2e8f0;           /* slate-200 */
-    --border-hover: #cbd5e1;     /* slate-300 */
+    --border: #cbd5e1;           /* slate-300: High-contrast crisp border */
+    --border-hover: #94a3b8;     /* slate-400 */
     --border-primary: #dc2626;   /* red-600 */
     --border-cyan: #0284c7;      /* sky-600 */
 
@@ -44,13 +44,13 @@ function generateHtml() {
 
     /* High-Contrast WCAG AAA Typography */
     --text: #0f172a;             /* slate-900: Deep charcoal */
-    --text-dim: #334155;         /* slate-700: Body copy */
-    --text-faint: #64748b;       /* slate-500: Auxiliary */
-    --text-muted: #94a3b8;       /* slate-400 */
+    --text-dim: #1e293b;         /* slate-800: Crisp body copy */
+    --text-faint: #475569;       /* slate-600: High-contrast auxiliary */
+    --text-muted: #64748b;       /* slate-500 */
 
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
-    --shadow-md: 0 4px 14px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
-    --shadow-lg: 0 10px 25px -4px rgba(0,0,0,0.08), 0 4px 10px -2px rgba(0,0,0,0.04);
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+    --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.07), 0 1px 3px rgba(15, 23, 42, 0.04);
+    --shadow-lg: 0 10px 25px -4px rgba(15, 23, 42, 0.1), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
 
     --font: 'Inter', -apple-system, sans-serif;
     --font-bn: 'Tiro Bangla', 'Inter', -apple-system, sans-serif;
@@ -86,6 +86,7 @@ function generateHtml() {
   .wrap-narrow { max-width: 860px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10; }
 
   /* ── Top Status Strip ── */
+  /* ── Top Status Strip ── */
   .top-strip {
     background: #ffffff;
     border-bottom: 1px solid var(--border);
@@ -93,16 +94,16 @@ function generateHtml() {
     color: var(--text-faint); position: relative; z-index: 101;
   }
   .top-strip-inner {
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
   }
   .pulse-dot {
     width: 8px; height: 8px; border-radius: 50%; background: var(--emerald);
-    box-shadow: 0 0 8px var(--emerald); display: inline-block;
+    box-shadow: 0 0 8px var(--emerald); display: inline-block; flex-shrink: 0;
   }
   .top-status-badge {
-    display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--text); letter-spacing: 0.02em;
   }
-  .top-specs { display: flex; gap: 16px; font-weight: 600; }
+  .top-specs { display: flex; gap: 18px; font-weight: 700; }
   .top-specs span { color: var(--cyan); }
 
   /* ── Navigation ── */
@@ -127,9 +128,9 @@ function generateHtml() {
   }
   .brand-tag {
     font-family: var(--mono); font-size: 9.5px; font-weight: 700;
-    color: var(--crimson); background: var(--crimson-subtle);
-    padding: 2px 6px; border-radius: 4px; border: 1px solid #fecaca;
-    letter-spacing: 0.05em; display: inline-block;
+    color: var(--text-faint); background: var(--bg-muted);
+    padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border);
+    letter-spacing: 0.06em; display: inline-block; text-transform: uppercase;
   }
   .nav-menu {
     display: flex; align-items: center; gap: 20px;
@@ -146,25 +147,29 @@ function generateHtml() {
   
   /* Language Switcher */
   .lang-switcher {
-    display: flex; background: var(--bg-muted); padding: 3px; border-radius: 8px;
-    border: 1px solid var(--border);
+    display: flex; background: #f1f5f9; padding: 3px; border-radius: 8px;
+    border: 1px solid #cbd5e1;
   }
   .lang-btn {
-    border: none; background: transparent; padding: 4px 10px; font-size: 12px;
-    font-weight: 700; color: var(--text-faint); border-radius: 6px; cursor: pointer;
-    transition: all 0.15s; font-family: var(--font);
+    border: none; background: transparent; padding: 5px 12px; font-size: 12px;
+    font-weight: 700; color: #64748b; border-radius: 6px; cursor: pointer;
+    transition: all 0.15s ease; font-family: var(--font);
   }
   .lang-btn.active {
-    background: #ffffff; color: var(--text); box-shadow: var(--shadow-sm);
+    background: #0f172a; color: #ffffff; box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
   }
-  .lang-btn:hover:not(.active) { color: var(--text); }
+  .lang-btn:hover:not(.active) { color: #0f172a; background: rgba(0,0,0,0.04); }
 
-  .nav-cta {
-    background: var(--crimson); color: #fff; padding: 8px 16px; border-radius: 8px;
-    font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center;
-    gap: 6px; transition: background 0.15s;
+  .nav-cta-secondary {
+    background: #ffffff; color: var(--text); padding: 7px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 700; font-family: var(--mono); text-decoration: none;
+    display: flex; align-items: center; gap: 6px; border: 1.5px solid var(--border-hover);
+    box-shadow: var(--shadow-sm); transition: all 0.15s ease;
   }
-  .nav-cta:hover { background: var(--crimson-hover); }
+  .nav-cta-secondary:hover {
+    border-color: var(--cyan); color: var(--cyan); background: var(--cyan-subtle);
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
+  }
 
   /* Mobile Drawer */
   .mobile-toggle {
@@ -193,65 +198,149 @@ function generateHtml() {
   @media (max-width: 900px) {
     .nav-menu { display: none; }
     .mobile-toggle { display: block; }
+    .top-strip-inner { justify-content: center; text-align: center; }
     .top-specs { display: none; }
   }
 
   /* ── Hero Section ── */
   .hero {
-    padding: 70px 0 50px; text-align: center; position: relative;
+    padding: 72px 0 60px; text-align: center; position: relative;
     background: radial-gradient(circle at 50% 20%, rgba(2, 132, 199, 0.05), transparent 70%);
+    margin-bottom: 20px;
   }
   .badge-tag {
     display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono);
-    font-size: 11px; font-weight: 700; color: var(--cyan); background: var(--cyan-subtle);
-    border: 1px solid #bae6fd; padding: 4px 12px; border-radius: 20px; margin-bottom: 22px;
+    font-size: 11.5px; font-weight: 700; color: var(--cyan); background: var(--cyan-subtle);
+    border: 1.5px solid #bae6fd; padding: 5px 14px; border-radius: 20px; margin-bottom: 24px;
+    letter-spacing: 0.03em; box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08);
   }
   .hero-title {
-    font-size: clamp(28px, 4.5vw, 50px); font-weight: 900; line-height: 1.18;
+    font-size: clamp(28px, 4.5vw, 48px); font-weight: 900; line-height: 1.16;
     letter-spacing: -0.02em; margin-bottom: 18px; color: var(--text);
   }
   .hero-sub {
-    font-size: clamp(15px, 1.8vw, 17.5px); color: var(--text-dim); max-width: 760px;
-    margin: 0 auto 32px; line-height: 1.6;
+    font-size: clamp(15.5px, 1.8vw, 17.5px); color: var(--text-dim); max-width: 760px;
+    margin: 0 auto 34px; line-height: 1.62; font-weight: 450;
   }
   .hero-cta-group {
     display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px;
-    margin-bottom: 40px;
+    margin-bottom: 44px;
   }
   .btn-primary {
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    color: #fff; padding: 13px 26px; border-radius: 10px; font-weight: 700; font-size: 14.5px;
+    color: #fff; padding: 13px 28px; border-radius: 10px; font-weight: 700; font-size: 14.5px;
     text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
-    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3); border: 1px solid rgba(255,255,255,0.15);
-    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.32); border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .btn-primary:hover {
-    transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220, 38, 38, 0.45);
+    transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220, 38, 38, 0.48);
   }
   .btn-ghost {
-    background: #ffffff; color: var(--text-dim); padding: 13px 22px;
-    border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none;
-    display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm); transition: all 0.2s ease;
+    background: #ffffff; color: var(--text); padding: 13px 24px;
+    border-radius: 10px; font-weight: 700; font-size: 14.5px; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid #94a3b8;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .btn-ghost:hover {
     color: var(--cyan); border-color: var(--cyan); background: var(--cyan-subtle);
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.15); transform: translateY(-2px);
+  }
+  .btn-setup {
+    background: #ffffff; color: var(--cyan); padding: 13px 22px;
+    border-radius: 10px; font-weight: 700; font-size: 14.5px; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--cyan);
+    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.1); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-setup:hover {
+    background: var(--cyan-subtle); box-shadow: 0 4px 14px rgba(2, 132, 199, 0.2);
+    transform: translateY(-2px);
   }
 
-  /* Specs Bar */
+  /* ── 1-Click Device Owner Setup Section ── */
+  .setup-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;
+    margin-bottom: 36px;
+  }
+  .setup-card {
+    background: #ffffff; border: 1.5px solid var(--border); border-radius: 14px;
+    padding: 28px 24px; position: relative; box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease; display: flex; flex-direction: column;
+  }
+  .setup-card:hover {
+    border-color: var(--cyan); transform: translateY(-2px); box-shadow: var(--shadow-md);
+  }
+  .setup-step-num {
+    position: absolute; top: 18px; right: 20px; font-family: var(--mono);
+    font-size: 13px; font-weight: 800; color: var(--text-faint);
+    background: var(--bg-muted); width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);
+  }
+  .setup-icon {
+    width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center;
+    justify-content: center; background: var(--crimson-subtle); border: 1px solid #fecaca;
+    color: var(--crimson); margin-bottom: 18px;
+  }
+  .setup-icon.cyan { background: var(--cyan-subtle); border-color: #bae6fd; color: var(--cyan); }
+  .setup-icon.emerald { background: var(--emerald-subtle); border-color: #a7f3d0; color: var(--emerald); }
+  .setup-card-title {
+    font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px;
+  }
+  .setup-card-desc {
+    font-size: 13.5px; color: var(--text-dim); line-height: 1.55;
+  }
+  .setup-cta-banner {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1.5px solid var(--border); border-radius: 14px; padding: 28px 32px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .setup-cta-badge {
+    display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono);
+    font-size: 11px; font-weight: 700; color: var(--cyan); margin-bottom: 8px;
+  }
+  .setup-cta-title {
+    font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px;
+  }
+  .setup-cta-desc {
+    font-size: 13.5px; color: var(--text-dim); max-width: 620px; line-height: 1.5;
+  }
+
+  /* Specs Bar (Clean 4-column desktop, 2x2 tablet, 1-col mobile) */
   .specs-bar {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;
-    background: #ffffff; border: 1px solid var(--border);
-    border-radius: 12px; padding: 18px 22px; max-width: 980px; margin: 0 auto;
-    text-align: left; box-shadow: var(--shadow-sm);
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    background: #ffffff; border: 1.5px solid #cbd5e1;
+    border-radius: 12px; padding: 20px 24px; max-width: 1040px; margin: 0 auto;
+    text-align: left; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  }
+  @media (max-width: 960px) {
+    .specs-bar {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      padding: 18px 20px;
+    }
+  }
+  @media (max-width: 560px) {
+    .specs-bar {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 16px;
+    }
   }
   .spec-item {
-    border-left: 3px solid var(--cyan); padding-left: 12px;
+    border-left: 3.5px solid var(--cyan); padding: 4px 0 4px 14px;
+    display: flex; flex-direction: column; justify-content: center; min-width: 0;
   }
   .spec-item.crimson { border-left-color: var(--crimson); }
   .spec-item.emerald { border-left-color: var(--emerald); }
-  .spec-label { font-family: var(--mono); font-size: 10.5px; color: var(--text-faint); text-transform: uppercase; font-weight: 600; }
-  .spec-val { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 3px; }
+  .spec-label {
+    font-family: var(--mono); font-size: 11px; color: var(--text-faint);
+    text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .spec-val {
+    font-size: 13.5px; font-weight: 700; color: var(--text); margin-top: 4px; line-height: 1.35;
+  }
 
   /* ── Section Structure ── */
   .section { padding: 75px 0; border-bottom: 1px solid var(--border); position: relative; }
@@ -637,14 +726,21 @@ function generateHtml() {
     display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
   }
   .concierge-pill {
-    background: #ffffff; border: 1px solid var(--border); border-radius: 24px;
-    padding: 10px 18px; display: flex; align-items: center; gap: 8px; font-weight: 700;
-    font-size: 13px; color: var(--text); cursor: pointer; box-shadow: var(--shadow-lg);
-    transition: all 0.2s;
+    background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 24px;
+    padding: 9px 16px; display: flex; align-items: center; gap: 8px; font-weight: 700;
+    font-size: 13px; color: var(--text); cursor: pointer; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .concierge-pill:hover { border-color: var(--cyan); color: var(--cyan); }
+  .concierge-pill:hover {
+    border-color: var(--cyan); color: var(--cyan); transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(2, 132, 199, 0.2);
+  }
+  @media (max-width: 768px) {
+    .floating-concierge { bottom: 16px; right: 16px; }
+    .concierge-pill { padding: 8px 14px; font-size: 12px; }
+  }
   .concierge-card {
-    display: none; background: #ffffff; border: 1px solid var(--border); border-radius: 12px;
+    display: none; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px;
     padding: 14px; box-shadow: var(--shadow-lg); flex-direction: column; gap: 8px; width: 220px;
   }
   .concierge-card.open { display: flex; }
@@ -686,7 +782,7 @@ function generateHtml() {
   <div class="wrap top-strip-inner">
     <div class="top-status-badge">
       <span class="pulse-dot"></span>
-      <span data-i18n="top_status">PASA SENTINEL ONLINE // v3.5.1 (BUILD 47)</span>
+      <span data-i18n="top_status">PASA SENTINEL ONLINE // SOVEREIGN C2 ACTIVE</span>
     </div>
     <div class="top-specs">
       <div>ANTI-UNINSTALL: <span>KNOX SUPERVISOR</span></div>
@@ -703,7 +799,7 @@ function generateHtml() {
       <img src="/assets/img/logo.png" alt="PASA Sentinel Logo" class="brand-logo-img">
       <div>
         <div class="brand-text">PASA SENTINEL</div>
-        <span class="brand-tag">SOVEREIGN DEFENSE</span>
+        <span class="brand-tag">MIL-SPEC OS DEFENSE</span>
       </div>
     </a>
 
@@ -711,6 +807,7 @@ function generateHtml() {
     <div class="nav-menu">
       <a href="#benefits" class="nav-link" data-i18n="nav_benefits">Advantages</a>
       <a href="#pillars" class="nav-link" data-i18n="nav_pillars">Architecture</a>
+      <a href="#setup-kit" class="nav-link" data-i18n="nav_setup_kit">Setup Kit</a>
       <a href="#features" class="nav-link" data-i18n="nav_features">Capabilities</a>
       <a href="#commands" class="nav-link" data-i18n="nav_commands">86 C2 Commands</a>
       <a href="#comparison" class="nav-link" data-i18n="nav_comparison">Comparison</a>
@@ -724,9 +821,9 @@ function generateHtml() {
         <button class="lang-btn active" id="btnEn" onclick="setLanguage('en')">EN</button>
         <button class="lang-btn" id="btnBn" onclick="setLanguage('bn')">বাংলা</button>
       </div>
-      <a href="/releases/pasa-latest.apk" class="nav-cta">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
-        <span data-i18n="nav_download">Download APK</span>
+      <a href="/releases/pasa-latest.apk" class="nav-cta-secondary" title="Download Tactical APK">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
+        <span data-i18n="nav_download_pill">Get APK</span>
       </a>
       <button class="mobile-toggle" onclick="toggleMobileDrawer()" aria-label="Open Navigation">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -744,14 +841,15 @@ function generateHtml() {
   </div>
   <a href="#benefits" onclick="toggleMobileDrawer()" data-i18n="nav_benefits">Advantages</a>
   <a href="#pillars" onclick="toggleMobileDrawer()" data-i18n="nav_pillars">Architecture</a>
+  <a href="#setup-kit" onclick="toggleMobileDrawer()" data-i18n="nav_setup_kit">Setup Kit</a>
   <a href="#features" onclick="toggleMobileDrawer()" data-i18n="nav_features">Capabilities</a>
   <a href="#commands" onclick="toggleMobileDrawer()" data-i18n="nav_commands">86 C2 Commands</a>
   <a href="#comparison" onclick="toggleMobileDrawer()" data-i18n="nav_comparison">Comparison</a>
   <a href="#faq" onclick="toggleMobileDrawer()" data-i18n="nav_faq">Master FAQ</a>
   <a href="#pricing" onclick="toggleMobileDrawer()" data-i18n="nav_pricing">Licensing</a>
   <div style="margin-top:auto;padding-top:20px;">
-    <a href="/releases/pasa-latest.apk" class="btn-primary" style="width:100%;justify-content:center;" data-i18n="nav_download">
-      Download APK (v3.5.1)
+    <a href="/releases/pasa-latest.apk" class="btn-primary" style="width:100%;justify-content:center;" data-i18n="hero_cta_apk">
+      Download Tactical APK
     </a>
   </div>
 </div>
@@ -771,10 +869,15 @@ function generateHtml() {
     <div class="hero-cta-group">
       <a href="/releases/pasa-latest.apk" class="btn-primary">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
-        <span data-i18n="hero_cta_apk">Download Tactical APK (v3.5.1)</span>
+        <span data-i18n="hero_cta_apk">Download Tactical APK</span>
+      </a>
+      <a href="/releases/PASA-Device-Owner-Setup-Kit.zip" class="btn-setup" title="Download Windows Device Owner Setup Kit">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <span data-i18n="hero_cta_setup">Device Owner Setup Kit (PC)</span>
       </a>
       <a href="#features" class="btn-ghost">
-        <span data-i18n="hero_cta_explore">Explore Capabilities</span> ↓
+        <span data-i18n="hero_cta_explore">Explore Capabilities</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
       </a>
     </div>
 
@@ -947,8 +1050,77 @@ function generateHtml() {
   </div>
 </section>
 
+<!-- ── 1-CLICK DEVICE OWNER SETUP KIT ── -->
+<section id="setup-kit" class="section" style="background:#ffffff;">
+  <div class="wrap">
+    <div class="section-hdr">
+      <span class="section-tag" data-i18n="setup_tag">WINDOWS 1-CLICK PROVISIONING WIZARD</span>
+      <h2 class="section-title" data-i18n="setup_title">Empower Your Android With Unbreakable Device Owner Privileges</h2>
+      <p class="section-lede" data-i18n="setup_lede">
+        Zero command-line expertise required. Our guided Windows setup kit automatically handles ADB pairing, cleans account restrictions, and grants Knox Device Owner supervisor permission in under 60 seconds.
+      </p>
+    </div>
+
+    <!-- 3-Step Setup Process Grid -->
+    <div class="setup-grid">
+      <div class="setup-card">
+        <div class="setup-step-num">1</div>
+        <div class="setup-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <h3 class="setup-card-title" data-i18n="setup_s1_title">Install Tactical APK</h3>
+        <p class="setup-card-desc" data-i18n="setup_s1_desc">
+          Download and install PASA Sentinel directly on your Android device (Android 8.0–16). Open the app and grant required permissions.
+        </p>
+      </div>
+
+      <div class="setup-card">
+        <div class="setup-step-num">2</div>
+        <div class="setup-icon cyan">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v8m0 0-3-3m3 3 3-3"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/><rect x="8" y="10" width="8" height="4" rx="1"/></svg>
+        </div>
+        <h3 class="setup-card-title" data-i18n="setup_s2_title">Download PC Setup Kit</h3>
+        <p class="setup-card-desc" data-i18n="setup_s2_desc">
+          Download the lightweight Windows ZIP kit on your PC. Extract it to any folder and double-click <strong>PASA Device Owner Setup.bat</strong>.
+        </p>
+      </div>
+
+      <div class="setup-card">
+        <div class="setup-step-num">3</div>
+        <div class="setup-icon emerald">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        </div>
+        <h3 class="setup-card-title" data-i18n="setup_s3_title">Plug In &amp; Activate</h3>
+        <p class="setup-card-desc" data-i18n="setup_s3_desc">
+          Connect your phone via USB with USB Debugging enabled. The automated wizard provisions Device Owner status in one click. Uninstallation is now permanently blocked!
+        </p>
+      </div>
+    </div>
+
+    <!-- Setup Kit CTA Banner -->
+    <div class="setup-cta-banner">
+      <div class="setup-cta-info">
+        <div class="setup-cta-badge">
+          <span class="pulse-dot"></span>
+          <span>OFFICIAL WINDOWS UTILITY // COMPATIBLE WITH WIN 10 &amp; 11</span>
+        </div>
+        <h3 class="setup-cta-title" data-i18n="setup_banner_title">Ready to Lock Down Your Hardware?</h3>
+        <p class="setup-cta-desc" data-i18n="setup_banner_desc">
+          Includes automated Google platform-tools ADB downloader, account checker, and uninstallation supervisor provisioning.
+        </p>
+      </div>
+      <div class="setup-cta-actions">
+        <a href="/releases/PASA-Device-Owner-Setup-Kit.zip" class="btn-primary" style="white-space:nowrap;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-i18n="btn_download_kit">Download Windows Setup Kit (.ZIP)</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── INTERACTIVE 8-HUB DEFENSE EXPLORER ── -->
-<section id="features" class="section" style="background:#ffffff;">
+<section id="features" class="section">
   <div class="wrap">
     <div class="section-hdr">
       <span class="section-tag" data-i18n="feat_tag">TACTICAL DEFENSE ARSENAL</span>
@@ -1112,7 +1284,7 @@ function generateHtml() {
           <h3 class="plan-name" data-i18n="plan_eval_title">Tactical Evaluation</h3>
           <p class="plan-desc" data-i18n="plan_eval_desc">Test core telemetry and verification on your personal hardware.</p>
           <div class="plan-price">FREE</div>
-          <div class="plan-period" data-i18n="plan_eval_period">3-Day Evaluation Period</div>
+          <div class="plan-period" data-i18n="plan_eval_period">7-Day Tactical Evaluation</div>
           <ul class="plan-features">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_eval_1">Essential Telegram C2 Commands</span></li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_eval_2">Headless Camera Capture Test</span></li>
@@ -1338,20 +1510,23 @@ const rawCommands = ${JSON.stringify(commandsMatrix)};
 
 const translations = {
   en: {
-    top_status: "PASA SENTINEL ONLINE // v3.5.1 (BUILD 47)",
+    top_status: "PASA SENTINEL ONLINE // SOVEREIGN C2 ACTIVE",
     nav_benefits: "Advantages",
     nav_pillars: "Architecture",
+    nav_setup_kit: "Setup Kit",
     nav_features: "Capabilities",
     nav_commands: "86 C2 Commands",
     nav_comparison: "Comparison",
     nav_faq: "Master FAQ",
     nav_pricing: "Licensing",
-    nav_download: "Download APK",
+    nav_download: "Download Tactical APK",
+    nav_download_pill: "Get APK",
 
     hero_badge: "SOVEREIGN MOBILE DEFENSE // ANDROID 8.0 – 16",
     hero_title: "YOUR PHONE WILL NEVER SURRENDER.",
     hero_sub: "When standard trackers go blind in 10 seconds, PASA Sentinel enforces Knox-grade hardware lockdown, captures perpetrator forensics headlessly, and protects your sovereign personal data.",
-    hero_cta_apk: "Download Tactical APK (v3.5.1)",
+    hero_cta_apk: "Download Tactical APK",
+    hero_cta_setup: "Device Owner Setup Kit (PC)",
     hero_cta_explore: "Explore Capabilities",
 
     spec_uninstall: "Uninstallation Defense",
@@ -1386,6 +1561,19 @@ const translations = {
     p2_desc: "Zero photos, zero GPS tracks, and zero audio recordings are stored on our servers or cloud databases. Evidence streams directly to your private Telegram bot and is shredded from device RAM immediately.",
     p3_title: "Air-Gapped Cellular SMS C2",
     p3_desc: "Maintains full remote control even when mobile data, Wi-Fi, and location are shut off. Authenticated via RFC 6238 TOTP tokens or master PIN, returning live GPS and status pins via cellular SMS.",
+
+    setup_tag: "WINDOWS 1-CLICK PROVISIONING WIZARD",
+    setup_title: "Empower Your Android With Unbreakable Device Owner Privileges",
+    setup_lede: "Zero command-line expertise required. Our guided Windows setup kit automatically handles ADB pairing, cleans account restrictions, and grants Knox Device Owner supervisor permission in under 60 seconds.",
+    setup_s1_title: "Install Tactical APK",
+    setup_s1_desc: "Download and install PASA Sentinel directly on your Android device (Android 8.0–16). Open the app and grant required permissions.",
+    setup_s2_title: "Download PC Setup Kit",
+    setup_s2_desc: "Download the lightweight Windows ZIP kit on your PC. Extract it to any folder and double-click PASA Device Owner Setup.bat.",
+    setup_s3_title: "Plug In & Activate",
+    setup_s3_desc: "Connect your phone via USB with USB Debugging enabled. The automated wizard provisions Device Owner status in one click. Uninstallation is now permanently blocked!",
+    setup_banner_title: "Ready to Lock Down Your Hardware?",
+    setup_banner_desc: "Includes automated Google platform-tools ADB downloader, account checker, and uninstallation supervisor provisioning.",
+    btn_download_kit: "Download Windows Setup Kit (.ZIP)",
 
     feat_tag: "TACTICAL DEFENSE ARSENAL",
     feat_title: "8-Hub Covert Defense Capabilities",
@@ -1431,7 +1619,7 @@ const translations = {
     badge_most_popular: "MOST POPULAR DEFENSE",
     plan_eval_title: "Tactical Evaluation",
     plan_eval_desc: "Test core telemetry and verification on your personal hardware.",
-    plan_eval_period: "3-Day Evaluation Period",
+    plan_eval_period: "7-Day Tactical Evaluation",
     btn_start_eval: "Activate via Bot",
     plan_pro_title: "Pro Lifetime Shield",
     plan_pro_desc: "Complete sovereign defense suite for 1 Android device forever.",
@@ -1476,20 +1664,23 @@ const translations = {
     footer_bio: "Sovereign Android anti-theft defense & covert intelligence agent. Zero Google Play dependencies, zero cloud media storage, Knox-grade uninstallation lockout. Engineered by Izhaan Intellect."
   },
   bn: {
-    top_status: "পাসা সেন্টিনেল অনলাইন // v3.5.1 (বিল্ড ৪৭)",
+    top_status: "পাসা সেন্টিনেল অনলাইন // সার্বভৌম ডিফেন্স সক্রিয়",
     nav_benefits: "সুবিধাসমূহ",
     nav_pillars: "আর্কিটেকচার",
+    nav_setup_kit: "সেটআপ কিট",
     nav_features: "ফিচারসমূহ",
     nav_commands: "৮৬টি কমান্ড",
     nav_comparison: "তুলনা",
     nav_faq: "প্রশ্নোত্তর",
     nav_pricing: "লাইসেন্সিং",
-    nav_download: "এপিকে ডাউনলোড",
+    nav_download: "ট্যাকটিক্যাল এপিকে ডাউনলোড",
+    nav_download_pill: "এপিকে নিন",
 
     hero_badge: "সার্বভৌম মোবাইল ডিফেন্স // অ্যান্ড্রয়েড ৮.০ – ১৬",
     hero_title: "আপনার ফোন আর কখনোই আত্মসমর্পণ করবে না।",
     hero_sub: "চুরি হওয়ার ১০ সেকেন্ডের মধ্যে যখন সাধারণ ট্র্যাকার অন্ধ হয়ে যায়—পাসা সেন্টিনেল নক্স-গ্রেড হার্ডওয়্যার লকডাউন চাপিয়ে অপরাধীর আসল পরিচয় শিকার করে এবং আপনার ব্যক্তিগত ডেটা রক্ষা করে।",
-    hero_cta_apk: "ট্যাকটিক্যাল এপিকে ডাউনলোড (v3.5.1)",
+    hero_cta_apk: "ট্যাকটিক্যাল এপিকে ডাউনলোড",
+    hero_cta_setup: "ডিভাইস ওনার সেটআপ কিট (পিসি)",
     hero_cta_explore: "ফিচারসমূহ দেখুন",
 
     spec_uninstall: "আনইন্সটল প্রতিরোধ",
@@ -1524,6 +1715,19 @@ const translations = {
     p2_desc: "আমাদের সার্ভার বা কোনো ক্লাউড ডাটাবেজে ব্যবহারকারীর একটি ছবি, জিপিএস ট্র্যাক বা অডিও ফাইলও সংরক্ষণ করা হয় না। সমস্ত প্রমাণ সরাসরি আপনার নিজস্ব টেলিগ্রাম বটে চলে যায়।",
     p3_title: "এয়ার-গ্যাপড সেলুলার এসএমএস সি২",
     p3_desc: "মোবাইল ডাটা, ওয়াইফাই এবং লোকেশন বন্ধ থাকলেও সেলুলার নেটওয়ার্কের মাধ্যমে ফোন সম্পূর্ণ নিয়ন্ত্রণে থাকে। ক্রিপ্টোগ্রাফিক TOTP ও মাস্টার পিন দিয়ে এসএমএস কমান্ড পরিচালিত হয়।",
+
+    setup_tag: "উইন্ডোজ ১-ক্লিক প্রোভিশনিং উইজার্ড",
+    setup_title: "আপনার ফোনে নিশ্চিত করুন স্থায়ী ডিভাইস ওনার প্রিভিলেজ",
+    setup_lede: "কোনো জটিল কমান্ড-লাইন বা কোডিং জ্ঞান ছাড়াই উইন্ডোজ সেটআপ কিটের মাধ্যমে মাত্র ৬০ সেকেন্ডে স্বয়ংক্রিয়ভাবে নক্স ডিভাইস ওনার পারমিশন সেটআপ করুন।",
+    setup_s1_title: "ট্যাকটিক্যাল এপিকে ইনস্টল",
+    setup_s1_desc: "আপনার অ্যান্ড্রয়েড ফোনে (অ্যান্ড্রয়েড ৮.০–১৬) সরাসরি পাসা সেন্টিনেল এপিকে ডাউনলোড ও ইনস্টল করুন।",
+    setup_s2_title: "পিসি সেটআপ কিট ডাউনলোড",
+    setup_s2_desc: "কম্পিউটারে উইন্ডোজ সেটআপ কিট জিপ ফাইলটি ডাউনলোড করে আনজিপ করুন এবং PASA Device Owner Setup.bat ফাইলটি রান করুন।",
+    setup_s3_title: "ইউএসবি ক্যাবল প্লাগইন ও অ্যাক্টিভেশন",
+    setup_s3_desc: "ইউএসবি ডিবাগিং অন করে ক্যাবল দিয়ে ফোন যুক্ত করুন। স্বয়ংক্রিয় উইজার্ড ১-ক্লিকেই পার্মানেন্ট ডিভাইস ওনার নিযুক্ত করবে—আনইন্সটল পুরোপুরি অসম্ভব হয়ে যাবে!",
+    setup_banner_title: "আপনার ফোন চিরতরে সুরক্ষিত করতে প্রস্তুত?",
+    setup_banner_desc: "স্বয়ংক্রিয় গুগল প্ল্যাটফর্ম-টুলস এডিবি ডাউনলোডার ও অ্যাকাউন্ট চেকার সহ পূর্ণাঙ্গ প্রোভিশনিং উইজার্ড।",
+    btn_download_kit: "উইন্ডোজ সেটআপ কিট ডাউনলোড (.ZIP)",
 
     feat_tag: "ট্যাকটিক্যাল ডিফেন্স ক্ষমতা",
     feat_title: "৮টি অপারেশানাল ডিফেন্স হাবের পূর্ণাঙ্গ ক্ষমতা",
@@ -1569,7 +1773,7 @@ const translations = {
     badge_most_popular: "সর্বাধিক জনপ্রিয় ডিফেন্স",
     plan_eval_title: "ট্যাকটিক্যাল ট্রায়াল",
     plan_eval_desc: "আপনার নিজস্ব হ্যান্ডসেটে টেলিমেট্রি ও কার্যকারিতা যাচাই করুন।",
-    plan_eval_period: "৩ দিনের পূর্ণ মূল্যায়ন মেয়াদ",
+    plan_eval_period: "৭ দিনের ট্যাকটিক্যাল ট্রায়াল",
     btn_start_eval: "বটের মাধ্যমে শুরু করুন",
     plan_pro_title: "প্রো লাইফটাইম শিল্ড",
     plan_pro_desc: "১টি অ্যান্ড্রয়েড ডিভাইসের জন্য স্থায়ী ও সার্বভৌম আজীবন প্রতিরক্ষা।",
