@@ -1,6 +1,6 @@
 # 🛡️ PASA Sentinel — Agent Directives & Architecture
 
-Please see [GEMINI.md](file:///d:/Software_and_Apps/PrivateApp/GEMINI.md) for the comprehensive technical specification, file map, and operational rules.
+Please see [GEMINI.md](file:///e:/Projects/PrivateApp/GEMINI.md) for the comprehensive technical specification, file map, and operational rules.
 
 ### Quick Reference:
 - **Zero-Storage Rule:** Never write surveillance media or GPS coordinates to server disk. All user evidence is direct-to-Telegram and shredded immediately from device RAM/cache.

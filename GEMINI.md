@@ -18,7 +18,7 @@ This document serves as the permanent memory, architectural specification, and o
 ## 2. Directory Structure & Component Map
 
 ```
-d:/Software_and_Apps/PrivateApp/
+e:/Projects/PrivateApp/
 ├── app/                                 # Native Android Application (Kotlin, Gradle 8.7, AGP 8.5.1)
 │   ├── build.gradle.kts                 # compileSdk=36, minSdk=26, targetSdk=36, Hilt, Room, CameraX, Tink
 │   └── src/
@@ -156,6 +156,10 @@ d:/Software_and_Apps/PrivateApp/
   - Screen broadcast message (`wizard:msg:custom`)
   - Lockscreen emergency banner (`wizard:lockscreen_info`)
   - Direct outbound SMS dispatcher (`wizard:sendsms`)
+  - Emergency SIM alert phone (`wizard:sim_phone`)
+  - Remote outbound phone call (`wizard:call`)
+  - Smart app lockout (`wizard:lock_app`, `wizard:unlock_app`)
+  - Remote storage file downloader (`wizard:getfile`)
   - Coercion decoy Duress PIN (`wizard:duress:set`)
   - Multi-pass cryptographic file shredder (`wizard:shred`)
   - Pro license activation (`wizard:license:activate`)
