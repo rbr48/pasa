@@ -36,6 +36,7 @@ interface PasaBackendApi {
         @Part("commandId") commandId: RequestBody?,
         @Part("message") message: RequestBody?,
         @Part photo: MultipartBody.Part? = null,
+        @Part photos: List<MultipartBody.Part>? = null,
         @Part audio: MultipartBody.Part? = null,
         @Part video: MultipartBody.Part? = null,
         @Part evidence: MultipartBody.Part? = null,

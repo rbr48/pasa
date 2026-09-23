@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 48,
+    "versionName": "3.5.2",
+    "releaseDate": "2026-09-23",
+    "fileName": "pasa-v3.5.2-48.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.2-48.apk",
+    "sha256": "5f7b61d70a6cdc1addd222f7c582a2574a6aeca0b6148f6b79f2b17bf7568eea",
+    "size": 19151339,
+    "mandatory": false,
+    "releaseNotes": "v3.5.2: Multi-Photo Gallery Extraction Fix — Native Telegram photo album (sendMediaGroup) multi-photo delivery pipeline with sequential sendPhoto fallback, complete evidence vaulting for multi-image forensic payloads, and zero-storage server relay."
+  },
+  {
     "versionCode": 47,
     "versionName": "3.5.1",
     "releaseDate": "2026-09-23",

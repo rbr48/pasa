@@ -12,7 +12,8 @@ data class CommandResult(
     val audioFile: File? = null,
     val videoFile: File? = null,
     val documentFile: File? = null,
-    val location: Pair<Double, Double>? = null
+    val location: Pair<Double, Double>? = null,
+    val photoFiles: List<File>? = null
 )
 
 /**

