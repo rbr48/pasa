@@ -561,6 +561,9 @@ async function registerTelegramBotCommands(token) {
     { command: "info", description: "ℹ️ Hardware specs, SIM details & OS version" },
     { command: "locate", description: "📍 Acquire instant GPS fix & Google Maps pin" },
     { command: "tower", description: "📡 Cell tower triangulation & signal RF telemetry" },
+    { command: "sim", description: "📶 Active SIM slots, carrier name & signal RF" },
+    { command: "sim_lock", description: "🛡️ SIM swap guard & ICCID whitelist lock" },
+    { command: "sendsms", description: "✉️ Send outbound SMS directly via SIM slot" },
     { command: "track", description: "🛰️ Start continuous live GPS tracking" },
     { command: "track_stop", description: "🛑 Stop continuous GPS tracking" },
     { command: "geofence", description: "🌐 Configure safe zone radius & breach alerts" },
@@ -577,25 +580,40 @@ async function registerTelegramBotCommands(token) {
     { command: "lock_message", description: "💬 Set urgent alert message on lockscreen" },
     { command: "lock_pin", description: "🔑 Lock phone with custom 4-8 digit PIN" },
     { command: "set_os_pin", description: "🔐 Overwrite hardware OS lockscreen PIN (Device Owner)" },
-    { command: "set_master_pin", description: "🔑 Update PASA Master Emergency PIN/Password" },
+    { command: "set_master_pin", description: "🔑 Set cryptographic master PIN for remote control" },
     { command: "unlock", description: "🔓 Dismiss Lost Mode & unlock device screen" },
     { command: "fakeshutdown", description: "🕶️ Fake shutdown: blackout screen & silent traps" },
     { command: "wake", description: "☀️ Restore device from Fake Shutdown blackout" },
     { command: "ring", description: "🚨 Trigger maximum volume emergency siren" },
     { command: "ring_stop", description: "🔇 Silence active emergency alarm siren" },
+    { command: "vibrate_pulse", description: "📳 Locate device silently via tactile vibrations" },
+    { command: "pattern_guard", description: "👁️ Failed pattern/PIN intrusion monitor & mugshot" },
+    { command: "app_firewall", description: "🧱 Block RAT & spyware network outbound telemetry" },
+    { command: "battery_alert", description: "🔋 Monitor abnormal drain & charging disconnects" },
+    { command: "harden_boot", description: "🔒 Lock recovery mode & prevent unauthorized reset" },
+    { command: "tamper_detect", description: "🔍 Scan for root, debuggers, hooks & emulators" },
+    { command: "dead_drop", description: "☁️ Backup evidence to encrypted local/cloud vault" },
     { command: "message", description: "📢 Display urgent fullscreen alert on device" },
     { command: "duress_pin", description: "🆘 Set decoy coercion PIN for emergency SOS" },
     { command: "trap", description: "🛡️ Arm sensor traps (snatch, charger, pocket)" },
     { command: "shred", description: "🗑️ Cryptographically shred sensitive files" },
     { command: "device_owner", description: "👑 Check Device Owner & Kiosk hardware lock" },
     { command: "antitamper", description: "🛡️ Safe boot, airplane mode & factory reset lock" },
-    { command: "usb_lock", description: "🔌 Kill USB data pins (AC charge only) [Android 12+]" },
-    { command: "self_heal", description: "👑 Permanently lock & grant all permissions" },
-    { command: "dns", description: "🛡️ Enforce system-wide Private DNS-over-TLS (Device Owner)" },
-    { command: "freeze", description: "🧊 Conceal banking/private app into shadow vault" },
-    { command: "unfreeze", description: "☀️ Restore frozen application from vault" },
-    { command: "frozen", description: "📦 List all frozen/hidden applications" },
-    { command: "biometrics", description: "🧬 Duress biometric killswitch (forces Master PIN)" },
+    { command: "usb_lock", description: "🔌 Cut USB data signaling pins (charge only)" },
+    { command: "camera_lock", description: "📷 Hardware camera killswitch (anti-spy lockout)" },
+    { command: "bluetooth_lock", description: "📡 Hardware Bluetooth & sharing killswitch" },
+    { command: "mic_mute", description: "🔇 Hardware master audio mute (HAL level)" },
+    { command: "lockscreen_info", description: "📱 Pin contact/recovery info to OS lockscreen" },
+    { command: "autolock", description: "⏱️ Enforce screen inactivity autolock timeout" },
+    { command: "wifi_connect", description: "📶 Emergency Wi-Fi auto-provisioning while locked" },
+    { command: "security_audit", description: "📑 Inspect kernel OS security audit logs" },
+    { command: "notification", description: "🔕 Permanent notification drawer suppression" },
+    { command: "self_heal", description: "✨ Permanently lock app permissions as managed" },
+    { command: "freeze", description: "🧊 Vanish banking & private apps into shadow vault" },
+    { command: "unfreeze", description: "🔥 Restore hidden applications to launcher" },
+    { command: "frozen", description: "📦 List currently frozen shadow vault apps" },
+    { command: "biometrics", description: "🚫 Biometric coercion killswitch (forces Master PIN)" },
+    { command: "dns", description: "🛡️ Enforce system-wide Private DNS-over-TLS" },
     { command: "reboot", description: "🔄 Remotely restart phone hardware (Device Owner)" },
     { command: "stealth", description: "👁️ Toggle PASA app icon in launcher" },
     { command: "hide", description: "🔇 Hide PASA app icon from phone launcher" },
@@ -646,8 +664,8 @@ const PERSISTENT_REPLY_KEYBOARD = {
   keyboard: [
     [{ text: '📊 Status' }, { text: '📍 Locate' }, { text: '🚨 Siren' }],
     [{ text: '📸 Photo' }, { text: '📱 Screen' }, { text: '🎥 Video' }],
-    [{ text: '🎙️ Audio' }, { text: '🔒 Lock' }, { text: '🛡️ Traps' }],
-    [{ text: '🎛️ Control Panel' }, { text: '💬 Message' }, { text: '🔑 License' }]
+    [{ text: '🔒 Lock' }, { text: '🎛️ Hub Menu' }, { text: '👑 Device Owner' }],
+    [{ text: '💬 Message' }, { text: '🛡️ Traps' }, { text: '🔑 License' }]
   ],
   resize_keyboard: true,
   is_persistent: true
@@ -675,40 +693,24 @@ function clearChatState(chatId) {
 const DASHBOARD_KEYBOARD = {
   inline_keyboard: [
     [
-      { text: '📍 Instant GPS', callback_data: 'cmd:locate' },
-      { text: '📊 Live Status', callback_data: 'cmd:status' }
+      { text: '📍 Location & RF', callback_data: 'menu:location_hub' },
+      { text: '📸 Covert Forensics', callback_data: 'menu:forensics_hub' }
     ],
     [
-      { text: '📸 Snap Photo', callback_data: 'menu:snap' },
-      { text: '📱 Screen Capture', callback_data: 'menu:screen' }
+      { text: '🚨 Lockdown & Siren', callback_data: 'menu:lockdown_hub' },
+      { text: '👑 Device Owner Suite', callback_data: 'menu:device_owner_hub' }
     ],
     [
-      { text: '🎥 Record Video', callback_data: 'menu:video' },
-      { text: '🎙️ Audio Forensics', callback_data: 'menu:record' }
+      { text: '🛡️ Traps & Security', callback_data: 'menu:traps_hub' },
+      { text: '📇 Extraction & Logs', callback_data: 'menu:data_hub' }
     ],
     [
-      { text: '🔒 Lock Device', callback_data: 'menu:lock' },
-      { text: '🚨 Alarm Siren', callback_data: 'menu:ring' }
-    ],
-    [
-      { text: '💬 Screen Message', callback_data: 'menu:message' },
-      { text: '🛡️ Sensor Traps', callback_data: 'menu:traps' }
-    ],
-    [
-      { text: '📍 Live Tracking', callback_data: 'menu:track' },
-      { text: '🌐 Network Info', callback_data: 'cmd:network' }
-    ],
-    [
-      { text: '📋 Clipboard', callback_data: 'cmd:clipboard' },
-      { text: '📶 SIM Telemetry', callback_data: 'cmd:sim' }
-    ],
-    [
-      { text: '📦 Installed Apps', callback_data: 'cmd:apps' },
-      { text: '🔄 Check Update', callback_data: 'cmd:check_update' }
+      { text: '📊 Full Telemetry Status', callback_data: 'cmd:status' },
+      { text: '🔄 Check OTA Update', callback_data: 'cmd:check_update' }
     ],
     [
       { text: '🔑 License & Pro', callback_data: 'menu:license' },
-      { text: '⚙️ Security Tools', callback_data: 'menu:tools' }
+      { text: '📖 Help & All Commands', callback_data: 'cmd:help' }
     ]
   ]
 };
@@ -972,8 +974,274 @@ const SUBMENUS = {
         ]
       ]
     }
+  },
+  'menu:location_hub': {
+    text:
+      `📍 <b>Location & Cellular RF Telemetry Hub</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `Acquire high-precision satellite positioning, indoor cell tower triangulation, and cellular RF telemetry:\n\n` +
+      `• <b>Instant GPS Fix:</b> Forcibly powers on hardware GNSS radio and generates pinpoint Google Maps coordinate link.\n` +
+      `• <b>Cell Tower Triangulation:</b> Reads multi-SIM MCC, MNC, LAC/TAC, CID, and RSSI (dBm) for zero-satellite indoor tracking.\n` +
+      `• <b>Continuous Live Tracking:</b> Autonomous periodic telemetry beacon (2 min / 5 min intervals).\n` +
+      `• <b>Safezone Geofence:</b> Arms radial boundary alerting upon perimeter departure.\n` +
+      `• <b>SIM Telemetry:</b> Reports active carriers, SIM slots, subscription IDs, and signal strengths.\n\n` +
+      `<i>Select action:</i>`,
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '📍 Instant GPS Fix', callback_data: 'cmd:locate' },
+          { text: '📡 Cell Tower Triangulation', callback_data: 'cmd:tower' }
+        ],
+        [
+          { text: '🛰️ Continuous Live Tracking', callback_data: 'menu:track' },
+          { text: '🌐 Safezone Geofence', callback_data: 'cmd:geofence' }
+        ],
+        [
+          { text: '📶 SIM & Radio Telemetry', callback_data: 'cmd:sim' },
+          { text: '🛡️ SIM Swap Guard', callback_data: 'cmd:sim_lock' }
+        ],
+        [
+          { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
+  'menu:forensics_hub': {
+    text:
+      `📸 <b>Covert Forensics & Surveillance Suite</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `Headless, zero-display surveillance streams direct-to-Telegram with instant memory shredding:\n\n` +
+      `• <b>Stealth Photos:</b> Zero-blackout front selfie or rear lens capture.\n` +
+      `• <b>Silent Screenshot:</b> Non-intrusive Accessibility capture without dialogs.\n` +
+      `• <b>Screen Burst:</b> 5–10 frame composite storyboard showing intruder behavior.\n` +
+      `• <b>HD Screenrecord:</b> Covert MP4 screen capture (15s–30s).\n` +
+      `• <b>Stealth Video:</b> Silent CameraX headless video recording.\n` +
+      `• <b>Livestream:</b> Near-realtime progressive camera stream.\n` +
+      `• <b>Ambient Mic:</b> High-fidelity PCM/AAC room wiretap.\n` +
+      `• <b>Clipboard:</b> Read live clipboard memory.\n\n` +
+      `<i>Select forensic tool:</i>`,
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '🤳 Front Selfie', callback_data: 'cmd:snap:front' },
+          { text: '📷 Rear Camera', callback_data: 'cmd:snap:back' },
+          { text: '📸 Dual Snap', callback_data: 'cmd:snap:both' }
+        ],
+        [
+          { text: '📱 Screenshot', callback_data: 'cmd:screenshot' },
+          { text: '🎞️ Screen Burst (5f)', callback_data: 'cmd:screen_burst:5' }
+        ],
+        [
+          { text: '🎥 Record Video (15s)', callback_data: 'cmd:video:front:15' },
+          { text: '📹 Screen Record (15s)', callback_data: 'cmd:screenrecord:15' }
+        ],
+        [
+          { text: '🎙️ Ambient Mic (30s)', callback_data: 'cmd:record:30' },
+          { text: '🔴 Live Stream (5f)', callback_data: 'cmd:livestream:front:5' }
+        ],
+        [
+          { text: '📋 Read Clipboard', callback_data: 'cmd:clipboard' },
+          { text: '⚙️ More Capture Options', callback_data: 'menu:screen' }
+        ],
+        [
+          { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
+  'menu:lockdown_hub': {
+    text:
+      `🚨 <b>Emergency Lockdown & Alarm Hub</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `Instant physical lockout, tactile localization, and deception defenses:\n\n` +
+      `• <b>Lock Screen:</b> Enforces full-screen Kiosk defense overlay with recovery banner.\n` +
+      `• <b>Custom PIN Lock:</b> Sets 4–8 digit one-time lockout PIN.\n` +
+      `• <b>Emergency Siren:</b> Sounds deafening alarm bypassing silent & vibrate modes.\n` +
+      `• <b>Tactile Locator:</b> Secret rhythmic vibration patterns without audible alert.\n` +
+      `• <b>Fake Shutdown:</b> Simulates OEM power-off with 0-nit blackout canvas.\n` +
+      `• <b>Screen Banner:</b> Broadcasts urgent return message onto display.\n\n` +
+      `<i>Select lockout action:</i>`,
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '🔒 Instant Lock', callback_data: 'cmd:lock' },
+          { text: '🔓 Remote Unlock', callback_data: 'cmd:unlock' }
+        ],
+        [
+          { text: '🔑 Set Custom PIN Lock', callback_data: 'wizard:lock:custom' },
+          { text: '💬 Lockscreen Message', callback_data: 'menu:message' }
+        ],
+        [
+          { text: '🚨 Sound Siren (30s)', callback_data: 'cmd:ring:30' },
+          { text: '🔕 Stop Siren', callback_data: 'cmd:ring_stop' }
+        ],
+        [
+          { text: '📳 Tactile SOS Vibrate', callback_data: 'cmd:vibrate_pulse:sos' },
+          { text: '📳 Pulse Vibrate', callback_data: 'cmd:vibrate_pulse:pulse' }
+        ],
+        [
+          { text: '🕶️ Fake Shutdown (Blackout)', callback_data: 'cmd:fakeshutdown' },
+          { text: '☀️ Wake Device', callback_data: 'cmd:wake' }
+        ],
+        [
+          { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
+  'menu:device_owner_hub': {
+    text:
+      `👑 <b>Enterprise Knox Device Owner Suite</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `Low-level hardware policies, HAL-level killswitches, and anti-forensics:\n\n` +
+      `• <b>Hardware Camera Lock:</b> Disables all front and rear cameras OS-wide.\n` +
+      `• <b>Bluetooth Lock:</b> Disallows all Bluetooth pairings and file transfers.\n` +
+      `• <b>Hardware Mic Mute:</b> Mutes all audio recording at the HAL level.\n` +
+      `• <b>USB Data Pin Killswitch:</b> Cuts data pins (defeats GrayKey, Cellebrite, juice-jacking).\n` +
+      `• <b>Lockscreen Info:</b> Pins permanent owner contact info to OS keyguard.\n` +
+      `• <b>Autolock:</b> Enforces custom screen inactivity timeout policy.\n` +
+      `• <b>Wi-Fi Provisioning:</b> Forces connection to known Wi-Fi while locked.\n` +
+      `• <b>Security Audit:</b> Inspects kernel security logs (ADB shells, KeyStore tampered).\n` +
+      `• <b>Encrypted DNS:</b> Enforces system-wide DNS-over-TLS (Quad9/Cloudflare).\n` +
+      `• <b>Remote Reboot:</b> Restarts phone hardware remotely.\n\n` +
+      `<i>Select Device Owner policy:</i>`,
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '📷 Cam Lock ON', callback_data: 'cmd:camera_lock:on' },
+          { text: '🔓 Cam Lock OFF', callback_data: 'cmd:camera_lock:off' }
+        ],
+        [
+          { text: '📡 BT Lock ON', callback_data: 'cmd:bluetooth_lock:on' },
+          { text: '🔓 BT Lock OFF', callback_data: 'cmd:bluetooth_lock:off' }
+        ],
+        [
+          { text: '🔇 Mic Mute ON', callback_data: 'cmd:mic_mute:on' },
+          { text: '🔊 Mic Mute OFF', callback_data: 'cmd:mic_mute:off' }
+        ],
+        [
+          { text: '🔌 USB Lock ON', callback_data: 'cmd:usb_lock:on' },
+          { text: '🔓 USB Lock OFF', callback_data: 'cmd:usb_lock:off' }
+        ],
+        [
+          { text: '📱 Lockscreen Banner', callback_data: 'wizard:lockscreen_info' },
+          { text: '⏱️ Autolock (30s)', callback_data: 'cmd:autolock:30' }
+        ],
+        [
+          { text: '📑 Security Audit Log', callback_data: 'cmd:security_audit' },
+          { text: '🔄 Remote Reboot', callback_data: 'cmd:reboot' }
+        ],
+        [
+          { text: '🛡️ Anti-Tamper ON', callback_data: 'cmd:antitamper:on' },
+          { text: '🌐 Encrypted DNS (Quad9)', callback_data: 'cmd:dns:quad9' }
+        ],
+        [
+          { text: '👑 Verify DO Status', callback_data: 'cmd:device_owner' },
+          { text: '✨ Self-Heal Permissions', callback_data: 'cmd:self_heal' }
+        ],
+        [
+          { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
+  'menu:traps_hub': {
+    text:
+      `🛡️ <b>Autonomous Sensor Traps & Anti-Theft Hub</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `Autonomous on-device edge detection triggers instantly without remote commands:\n\n` +
+      `• <b>Kinetic Snatch Trap:</b> Accelerometer detects violent grabs (>2.6G), locks phone, snaps mugshot, and alerts.\n` +
+      `• <b>Charger Disconnect Trap:</b> Alerts immediately if AC power is unplugged while locked.\n` +
+      `• <b>Pocket / Bag Extraction:</b> Triggers if proximity sensor is uncovered while locked without unlock.\n` +
+      `• <b>Failed Pattern Guard:</b> Snaps stealth selfies upon repeated wrong PIN / pattern attempts.\n` +
+      `• <b>SIM Swap Guard:</b> Locks device if unknown SIM card is inserted.\n` +
+      `• <b>App Network Firewall:</b> Isolates malicious background apps from outbound telemetry.\n` +
+      `• <b>Battery Drain Alert:</b> Alerts on rapid battery drain detecting background wiretaps.\n` +
+      `• <b>Decoy Duress PIN:</b> Coercion unlock that opens sterile decoy OS and broadcasts SOS.\n\n` +
+      `<i>Manage sensor traps:</i>`,
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '🟢 Arm All Traps', callback_data: 'cmd:trap:on' },
+          { text: '🔴 Disarm All Traps', callback_data: 'cmd:trap:off' }
+        ],
+        [
+          { text: '🏃 Snatch Trap', callback_data: 'cmd:trap:snatch' },
+          { text: '🔌 Charger Trap', callback_data: 'cmd:trap:charger' }
+        ],
+        [
+          { text: '👁️ Pattern Guard (3 tries)', callback_data: 'cmd:pattern_guard:enable' },
+          { text: '🛡️ SIM Swap Guard', callback_data: 'cmd:sim_lock:enable' }
+        ],
+        [
+          { text: '🧱 App Firewall ON', callback_data: 'cmd:app_firewall:enable' },
+          { text: '🔋 Battery Alert ON', callback_data: 'cmd:battery_alert:enable' }
+        ],
+        [
+          { text: '🆘 Decoy Duress PIN', callback_data: 'menu:duress' },
+          { text: '🔍 Anti-Tamper Scan', callback_data: 'cmd:tamper_detect' }
+        ],
+        [
+          { text: '📊 Traps Telemetry Status', callback_data: 'cmd:trap:status' },
+          { text: '👁️ Stealth Launcher Cloak', callback_data: 'menu:stealth' }
+        ],
+        [
+          { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
+  'menu:data_hub': {
+    text:
+      `📇 <b>Extraction, Telemetry & System Logs Hub</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `Extract forensic data, inspect communications, manage apps, and review audit trails:\n\n` +
+      `• <b>Contacts:</b> Query device address book names & phone numbers.\n` +
+      `• <b>Call History:</b> View recent incoming, outgoing, and missed calls.\n` +
+      `• <b>SMS Inbox:</b> View recent SMS text messages and 2FA OTP codes.\n` +
+      `• <b>Direct Outbound SMS:</b> Dispatch SMS message via SIM slot directly.\n` +
+      `• <b>Audit Trail:</b> Inspect recent command execution history.\n` +
+      `• <b>Installed Apps:</b> List installed applications and package identifiers.\n` +
+      `• <b>Network Telemetry:</b> Current IP, Wi-Fi SSID, and cellular network status.\n\n` +
+      `<i>Select extraction option:</i>`,
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '👥 Contacts', callback_data: 'cmd:contacts' },
+          { text: '📞 Call Log', callback_data: 'cmd:call_log' }
+        ],
+        [
+          { text: '💬 SMS Inbox', callback_data: 'cmd:sms_log' },
+          { text: '✉️ Send Outbound SMS', callback_data: 'wizard:sendsms' }
+        ],
+        [
+          { text: '📜 Command Audit Trail', callback_data: 'cmd:history' },
+          { text: '📦 Installed Apps', callback_data: 'cmd:apps' }
+        ],
+        [
+          { text: '🌐 Network Telemetry', callback_data: 'cmd:network' },
+          { text: '📲 SMS TOTP Setup', callback_data: 'cmd:smssetup' }
+        ],
+        [
+          { text: '🗑️ File Shredder', callback_data: 'menu:shred' },
+          { text: '⚠️ Remote Factory Wipe', callback_data: 'menu:wipe' }
+        ],
+        [
+          { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
   }
 };
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 function getActiveDeviceForChat(token, chatId) {
   const matching = Object.values(devices)
@@ -983,19 +1251,51 @@ function getActiveDeviceForChat(token, chatId) {
 }
 
 function buildDashboardText(chatId, activeDev) {
-  const deviceLine = activeDev
-    ? `Active Device: <b>${activeDev.deviceName || 'Android'}</b> (<code>${activeDev.deviceId}</code>)\nLast Check-in: ${Math.floor((Date.now() - (activeDev.lastSeen || 0)) / 1000)}s ago`
-    : '⚠️ No device registered yet. Complete setup on your Android phone.';
+  let statusBadge = '🔴 Offline';
+  let deviceDetails = '';
 
-  return `
-🛡️ <b>PASA Sentinel (Private Android Security Agent)</b>
-<i>Control Plane: Ed25519 Hardened Gateway v2.0</i>
-━━━━━━━━━━━━━━━━━━━━
-<b>Your Chat ID:</b> <code>${chatId}</code>
-${deviceLine}
-━━━━━━━━━━━━━━━━━━━━
-Tap a button below to dispatch cryptographically signed commands or access forensic tools instantly:
-`.trim();
+  if (activeDev) {
+    const diffSec = Math.floor((Date.now() - (activeDev.lastSeen || 0)) / 1000);
+    if (diffSec < 90) {
+      statusBadge = `🟢 Online (${diffSec}s ago)`;
+    } else if (diffSec < 600) {
+      statusBadge = `🟡 Idle (${Math.floor(diffSec / 60)}m ago)`;
+    } else {
+      const hours = Math.floor(diffSec / 3600);
+      statusBadge = hours > 0 ? `🔴 Offline (${hours}h ago)` : `🔴 Offline (${Math.floor(diffSec / 60)}m ago)`;
+    }
+
+    let licBadge = '⏳ Standard / Trial';
+    try {
+      const lic = licensing.getDeviceLicenseStatus(activeDev.deviceId);
+      if (lic.tier === 'PRO_LIFETIME') licBadge = '💎 Pro Lifetime';
+      else if (lic.tier === 'PRO_ANNUAL') licBadge = '⭐ Pro Annual';
+      else if (lic.tier === 'PRO_ENTERPRISE') licBadge = '🏢 Enterprise';
+      else if (lic.tier === 'FREE_TRIAL') licBadge = `⏳ Trial (${lic.daysLeft}d left)`;
+    } catch (_) {}
+
+    const hwKeyBadge = activeDev.publicKeyJwk ? '🛡️ StrongBox TEE' : '🔒 Software Keystore';
+
+    deviceDetails =
+      `📱 <b>Linked Device:</b> <b>${escapeHtml(activeDev.deviceName || 'Android Device')}</b>\n` +
+      `🆔 <b>Device ID:</b> <code>${escapeHtml(activeDev.deviceId)}</code>\n` +
+      `📡 <b>Connection:</b> ${statusBadge}\n` +
+      `👑 <b>Security Posture:</b> ${licBadge} | ${hwKeyBadge}`;
+  } else {
+    deviceDetails =
+      `⚠️ <b>No Active Device Linked</b>\n` +
+      `<i>Complete initial setup on your Android device to bind this Telegram console.</i>`;
+  }
+
+  return (
+    `🛡️ <b>PASA SENTINEL — COMMAND CONSOLE</b>\n` +
+    `<i>Sovereign Mobile Defense & Covert Counter-Surveillance</i>\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `👤 <b>Operator Chat ID:</b> <code>${chatId}</code>\n` +
+    `${deviceDetails}\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `Select a command center hub below to dispatch authenticated actions:`
+  ).trim();
 }
 
 async function dispatchCommandToDevice(token, chatId, command, args = [], notifyTelegram = true) {
@@ -1514,6 +1814,34 @@ async function handleTelegramUpdate(token, update) {
       return;
     }
 
+    // Lockscreen Emergency Banner Wizard
+    if (data === 'wizard:lockscreen_info') {
+      setChatState(chatId, 'WAITING_FOR_LOCKSCREEN_INFO');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '📱 <b>Set Lockscreen Emergency Info</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with the owner contact or recovery message you want pinned to the Android lockscreen display:\n\n<i>Example:</i> <code>Owner: John Doe (+1-555-0199). If found, please return.</code>',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
+    // Send SMS Wizard
+    if (data === 'wizard:sendsms') {
+      setChatState(chatId, 'WAITING_FOR_SENDSMS');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '✉️ <b>Send Outbound SMS via Device</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with the recipient phone number and message in format:\n<code>&lt;number&gt; &lt;message&gt;</code>\n\n<i>Example:</i> <code>+1234567890 Hello from PASA Sentinel</code>',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
     // Cancel Active Wizard
     if (data === 'cancel:wizard') {
       clearChatState(chatId);
@@ -1602,6 +1930,29 @@ async function handleTelegramUpdate(token, update) {
       const target = activeState.data?.target || 'downloads';
       clearChatState(chatId);
       await dispatchCommandToDevice(token, chatId, '/shred', [rawText, target]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_LOCKSCREEN_INFO') {
+      clearChatState(chatId);
+      await dispatchCommandToDevice(token, chatId, '/lockscreen_info', [rawText]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_SENDSMS') {
+      clearChatState(chatId);
+      const parts = rawText.split(/\s+/);
+      const number = parts[0];
+      const smsBody = parts.slice(1).join(' ');
+      if (!number || !smsBody) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>Invalid Format:</b> Please provide both recipient number and message (e.g. <code>+1234567890 Hello</code>).',
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      await dispatchCommandToDevice(token, chatId, '/sendsms', [number, smsBody]);
       return;
     }
 
@@ -1738,14 +2089,20 @@ async function handleTelegramUpdate(token, update) {
   }
 
 
-  // Handle /start, /help, /menu or Persistent Keyboard Control Panel button
+  // Handle /help explicitly (dispatches complete 77-command categorized manual)
+  if (lowerText === '/help' || lowerText === 'help') {
+    await dispatchCommandToDevice(token, chatId, '/help', []);
+    return;
+  }
+
+  // Handle /start, /menu or Persistent Keyboard Hub Menu button
   if (
     lowerText === '/start' ||
-    lowerText === '/help' ||
     lowerText === '/menu' ||
     lowerText === 'menu' ||
-    lowerText === 'help' ||
-    lowerText.includes('control panel')
+    lowerText.includes('hub menu') ||
+    lowerText.includes('control panel') ||
+    lowerText === 'dashboard'
   ) {
     const activeDev = getActiveDeviceForChat(token, chatId);
     const helpText = buildDashboardText(chatId, activeDev);
@@ -1764,6 +2121,47 @@ async function handleTelegramUpdate(token, update) {
       text: helpText,
       parse_mode: 'HTML',
       reply_markup: DASHBOARD_KEYBOARD
+    });
+    return;
+  }
+
+  // Handle Hub Shortcut Words
+  if (lowerText.includes('device owner') || lowerText === '👑 device owner') {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:device_owner_hub'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:device_owner_hub'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText.includes('location hub') || lowerText === '📍 location & rf') {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:location_hub'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:location_hub'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText.includes('forensics hub') || lowerText === '📸 covert forensics') {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:forensics_hub'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:forensics_hub'].keyboard
+    });
+    return;
+  }
+
+  if (lowerText.includes('data hub') || lowerText.includes('extraction & logs') || lowerText === '📇 extraction & logs') {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:data_hub'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:data_hub'].keyboard
     });
     return;
   }
@@ -1844,9 +2242,9 @@ async function handleTelegramUpdate(token, update) {
   if (lowerText === '🔒 lock') {
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
-      text: SUBMENUS['menu:lock'].text,
+      text: SUBMENUS['menu:lockdown_hub'].text,
       parse_mode: 'HTML',
-      reply_markup: SUBMENUS['menu:lock'].keyboard
+      reply_markup: SUBMENUS['menu:lockdown_hub'].keyboard
     });
     return;
   }
@@ -1884,9 +2282,9 @@ async function handleTelegramUpdate(token, update) {
   if (lowerText.includes('trap')) {
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
-      text: SUBMENUS['menu:traps'].text,
+      text: SUBMENUS['menu:traps_hub'].text,
       parse_mode: 'HTML',
-      reply_markup: SUBMENUS['menu:traps'].keyboard
+      reply_markup: SUBMENUS['menu:traps_hub'].keyboard
     });
     return;
   }
