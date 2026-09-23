@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 47,
+    "versionName": "3.5.1",
+    "releaseDate": "2026-09-23",
+    "fileName": "pasa-v3.5.1-47.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.1-47.apk",
+    "sha256": "7b080c0f02fd32b1b06c8cf72d1490d1aa814fd5d02483f452b411e6ecf6c3e8",
+    "size": 19151328,
+    "mandatory": false,
+    "releaseNotes": "v3.5.1: Deep Hardware Anti-EDL & Bootloader Hardening Suite — Anti-EDL Dead Man's Switch (/deadman) autonomous offline countdown auto-destruct timer (triggers irreversible dpm.wipeData(0) cryptographic factory reset if stolen phone is isolated offline without owner contact), Thermal Anomaly Trap (/thermal) detecting heat-gun back-cover ungluing (>48°C) for Qualcomm 9008 EDL / MediaTek BROM test-point attacks (instantly severs USB data pins via setUsbDataSignalingEnabled(false), locks Knox Kiosk, snaps mugshot, and alerts Telegram SOS), permanent OEM unlock lockout hardening (setOemUnlockAllowed(false), DISALLOW_DEBUGGING_FEATURES, DEVELOPMENT_SETTINGS_ENABLED=0 blocking fastboot flashing), full air-gapped SMS control (/deadman, /thermal), and interactive Telegram console traps hub integration."
+  },
+  {
     "versionCode": 46,
     "versionName": "3.5.0",
     "releaseDate": "2026-09-23",

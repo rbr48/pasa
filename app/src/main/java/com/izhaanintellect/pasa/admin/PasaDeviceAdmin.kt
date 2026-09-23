@@ -138,7 +138,8 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                 UserManager.DISALLOW_NETWORK_RESET to "Network Reset Block",
                 UserManager.DISALLOW_MOUNT_PHYSICAL_MEDIA to "OTG / Media Mount Block",
                 UserManager.DISALLOW_USB_FILE_TRANSFER to "USB MTP File Transfer Block",
-                UserManager.DISALLOW_CONFIG_LOCATION to "Location Toggle Tamper Lock"
+                UserManager.DISALLOW_CONFIG_LOCATION to "Location Toggle Tamper Lock",
+                UserManager.DISALLOW_DEBUGGING_FEATURES to "USB ADB Debugging Block"
             )
 
             for ((restriction, name) in restrictions) {
@@ -153,6 +154,29 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                     Log.w(TAG, "Failed to toggle restriction $restriction: ${e.message}")
                     results[name] = false
                 }
+            }
+
+            // Lock OEM Bootloader Unlocking if supported by firmware
+            try {
+                val method = dpm.javaClass.getMethod("setOemUnlockAllowed", ComponentName::class.java, Boolean::class.javaPrimitiveType)
+                method.invoke(dpm, component, !enabled)
+                results["OEM Bootloader Unlock Disabled"] = true
+            } catch (e: Exception) {
+                Log.d(TAG, "setOemUnlockAllowed not supported: ${e.message}")
+            }
+
+            // Disable Developer Options in Global Settings
+            try {
+                if (enabled) {
+                    android.provider.Settings.Global.putInt(
+                        context.contentResolver,
+                        android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
+                        0
+                    )
+                    results["Developer Options Disabled"] = true
+                }
+            } catch (e: Exception) {
+                Log.d(TAG, "Disable developer options error: ${e.message}")
             }
 
             try {

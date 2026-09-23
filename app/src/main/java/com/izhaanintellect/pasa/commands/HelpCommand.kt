@@ -107,7 +107,9 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/fakeshutdown</code> — Simulated power-off blackout [PRO]
             • <code>/wake</code> — Exit blackout screen deception
             • <code>/duress_pin &lt;pin&gt;</code> — Configure duress distress trigger [PRO]
-            • <code>/trap &lt;on|off|status&gt;</code> — Anti-snatch / charger / pocket traps [PRO]
+            • <code>/trap &lt;on|off|status&gt;</code> — Anti-snatch / charger / pocket / thermal traps [PRO]
+            • <code>/thermal [on|off|threshold|status]</code> — Anti-EDL heat-gun anomaly trap [NEW]
+            • <code>/deadman [enable|disable|hours|status]</code> — Anti-EDL offline auto-destruct timer [NEW]
             • <code>/shred &lt;path&gt;</code> — Cryptographically shred sensitive files [PRO]
 
             📊 <b>Telemetry & System</b>

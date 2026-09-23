@@ -265,6 +265,16 @@ class SmsCommandReceiver : BroadcastReceiver() {
                         val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
                         sendSmsReply(context, senderPhone, cleanMsg, subId)
                     }
+                    "/deadman", "/dead_man" -> {
+                        val res = commandExecutor.executeDirect("/deadman", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/thermal" -> {
+                        val res = commandExecutor.executeDirect("/thermal", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
                     "/status" -> {
                         val bm = context.getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager
                         val battery = bm?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
@@ -289,6 +299,8 @@ class SmsCommandReceiver : BroadcastReceiver() {
                                 "• PASA <pin> /wifi_connect <ssid> [pass]\n" +
                                 "• PASA <pin> /lockscreen_info <msg>\n" +
                                 "• PASA <pin> /autolock <sec>\n" +
+                                "• PASA <pin> /deadman [enable|disable|status]\n" +
+                                "• PASA <pin> /thermal [on|off|status]\n" +
                                 "• PASA <pin> /app_uninstall <pkg>\n" +
                                 "• PASA <pin> /reboot\n" +
                                 "• PASA <pin> /antitamper [on|off]\n" +

@@ -1172,6 +1172,8 @@ const SUBMENUS = {
       `• <b>SIM Swap Guard:</b> Locks device if unknown SIM card is inserted.\n` +
       `• <b>App Network Firewall:</b> Isolates malicious background apps from outbound telemetry.\n` +
       `• <b>Battery Drain Alert:</b> Alerts on rapid battery drain detecting background wiretaps.\n` +
+      `• <b>Dead Man's Switch:</b> Irreversible cryptographic auto-destruct if held offline without owner heartbeat.\n` +
+      `• <b>Thermal Anomaly Trap:</b> Detects heat-gun back-cover ungluing (>48°C), severs USB pins & locks Kiosk.\n` +
       `• <b>Decoy Duress PIN:</b> Coercion unlock that opens sterile decoy OS and broadcasts SOS.\n\n` +
       `<i>Manage sensor traps:</i>`,
     keyboard: {
@@ -1179,6 +1181,10 @@ const SUBMENUS = {
         [
           { text: '🟢 Arm All Traps', callback_data: 'cmd:trap:on' },
           { text: '🔴 Disarm All Traps', callback_data: 'cmd:trap:off' }
+        ],
+        [
+          { text: '💀 Dead Man Switch', callback_data: 'wizard:deadman' },
+          { text: '🔥 Thermal Trap', callback_data: 'wizard:thermal' }
         ],
         [
           { text: '🏃 Snatch Trap', callback_data: 'cmd:trap:snatch' },
@@ -2009,6 +2015,92 @@ async function handleTelegramUpdate(token, update) {
       return;
     }
 
+    // Dead Man's Switch Wizard
+    if (data === 'wizard:deadman') {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text:
+          `💀 <b>Dead Man's Switch (Anti-EDL Auto-Destruct)</b>\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+          `Designed to defeat forensic labs attempting Qualcomm 9008 EDL / MediaTek BROM test-point attacks.\n\n` +
+          `If the device is kept offline in theft lockdown without owner contact for the configured duration, it triggers an irreversible cryptographic factory purge (<code>dpm.wipeData(0)</code>).\n\n` +
+          `<i>Note: Every time you unlock your phone or send any command, the timer automatically resets.</i>\n\n` +
+          `Choose an action:`,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '🟢 Arm (6 Hours)', callback_data: 'cmd:deadman:enable' },
+              { text: '🔴 Disarm Timer', callback_data: 'cmd:deadman:disable' }
+            ],
+            [
+              { text: '⏳ Set 12h', callback_data: 'cmd:deadman:hours:12' },
+              { text: '⏳ Set 24h', callback_data: 'cmd:deadman:hours:24' }
+            ],
+            [
+              { text: '💓 Reset Heartbeat', callback_data: 'cmd:deadman:heartbeat' },
+              { text: '📊 Countdown Status', callback_data: 'cmd:deadman:status' }
+            ],
+            [
+              { text: '✏️ Custom Hours (1-72h)', callback_data: 'wizard:deadman:custom' }
+            ],
+            [
+              { text: '❌ Close', callback_data: 'cancel:wizard' }
+            ]
+          ]
+        }
+      });
+      return;
+    }
+
+    if (data === 'wizard:deadman:custom') {
+      setChatState(chatId, 'WAITING_FOR_DEADMAN_HOURS');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '⏳ <b>Set Dead Man\'s Switch Timeout</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with the number of hours (between 1 and 72) before auto-destruct engages if phone is held offline in theft mode:\n\n<i>Example:</i> <code>6</code> or <code>12</code>',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
+    // Thermal Anomaly Trap Wizard
+    if (data === 'wizard:thermal') {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text:
+          `🔥 <b>Thermal Anomaly Trap (Anti-Heat-Gun Defense)</b>\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+          `Detects abnormal battery heating (>48°C) while locked, which occurs when a thief applies a heat-gun to unglue the phone's back glass to short Qualcomm 9008 EDL or MediaTek BROM test points.\n\n` +
+          `<b>Immediate Countermeasures:</b>\n` +
+          `• Hardware USB data pins physically severed (anti-flashing)\n` +
+          `• Knox Kiosk Lost Mode enforced\n` +
+          `• Mugshot captured and sent to Telegram SOS\n\n` +
+          `Choose an action:`,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '🟢 Arm Thermal Trap', callback_data: 'cmd:thermal:on' },
+              { text: '🔴 Disarm Thermal Trap', callback_data: 'cmd:thermal:off' }
+            ],
+            [
+              { text: '🌡️ Set 45°C', callback_data: 'cmd:thermal:threshold:45' },
+              { text: '🌡️ Set 48°C (Recommended)', callback_data: 'cmd:thermal:threshold:48' },
+              { text: '🌡️ Set 52°C', callback_data: 'cmd:thermal:threshold:52' }
+            ],
+            [
+              { text: '📊 Thermal Status', callback_data: 'cmd:thermal:status' },
+              { text: '❌ Close', callback_data: 'cancel:wizard' }
+            ]
+          ]
+        }
+      });
+      return;
+    }
+
     // 1-Tap Copyable SMS Template Responses
     if (data.startsWith('sms_template:')) {
       const type = data.split(':')[1];
@@ -2218,6 +2310,21 @@ async function handleTelegramUpdate(token, update) {
       const phoneNumber = rawText.trim();
       if (!phoneNumber) return;
       await dispatchCommandToDevice(token, chatId, '/sim_lock', ['phone', phoneNumber]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_DEADMAN_HOURS') {
+      clearChatState(chatId);
+      const hours = parseInt(rawText.trim(), 10);
+      if (isNaN(hours) || hours < 1 || hours > 72) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '⚠️ <b>Invalid Hours:</b> Must be a number between 1 and 72 (e.g. <code>6</code>).',
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      await dispatchCommandToDevice(token, chatId, '/deadman', ['hours', String(hours)]);
       return;
     }
 

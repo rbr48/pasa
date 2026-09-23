@@ -86,6 +86,11 @@ class PreferencesManager @Inject constructor(
         private const val KEY_TAMPER_DETECTION_THREATS_FOUND = "tamper_detection_threats_found"
         private const val KEY_HARDENING_VERSION = "hardening_version"
         private const val KEY_DEAD_DROP_ENABLED = "dead_drop_enabled"
+        private const val KEY_DEAD_MAN_ENABLED = "dead_man_switch_enabled"
+        private const val KEY_DEAD_MAN_TIMEOUT_HOURS = "dead_man_timeout_hours"
+        private const val KEY_LAST_OWNER_HEARTBEAT = "last_owner_heartbeat_time"
+        private const val KEY_THERMAL_TRAP_ENABLED = "thermal_trap_enabled"
+        private const val KEY_THERMAL_TRAP_THRESHOLD = "thermal_trap_threshold"
         private const val KEY_BOOT_HARDENED_LOCKED = "boot_hardened_locked"
         private const val KEY_LAST_SHUTDOWN_TIME = "last_shutdown_time"
         private const val KEY_LAST_BOOT_TIME = "last_boot_time"
@@ -474,6 +479,26 @@ class PreferencesManager @Inject constructor(
     var isDeadDropEnabled: Boolean
         get() = prefs.getBoolean(KEY_DEAD_DROP_ENABLED, false)
         set(value) = prefs.edit().putBoolean(KEY_DEAD_DROP_ENABLED, value).apply()
+
+    var isDeadManSwitchEnabled: Boolean
+        get() = prefs.getBoolean(KEY_DEAD_MAN_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_DEAD_MAN_ENABLED, value).apply()
+
+    var deadManTimeoutHours: Int
+        get() = prefs.getInt(KEY_DEAD_MAN_TIMEOUT_HOURS, 6)
+        set(value) = prefs.edit().putInt(KEY_DEAD_MAN_TIMEOUT_HOURS, value.coerceIn(1, 72)).apply()
+
+    var lastOwnerHeartbeatTime: Long
+        get() = prefs.getLong(KEY_LAST_OWNER_HEARTBEAT, System.currentTimeMillis())
+        set(value) = prefs.edit().putLong(KEY_LAST_OWNER_HEARTBEAT, value).apply()
+
+    var isThermalTrapEnabled: Boolean
+        get() = prefs.getBoolean(KEY_THERMAL_TRAP_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_THERMAL_TRAP_ENABLED, value).apply()
+
+    var thermalTrapThresholdCelsius: Int
+        get() = prefs.getInt(KEY_THERMAL_TRAP_THRESHOLD, 48)
+        set(value) = prefs.edit().putInt(KEY_THERMAL_TRAP_THRESHOLD, value.coerceIn(40, 65)).apply()
 
     var isBootHardenedLocked: Boolean
         get() = prefs.getBoolean(KEY_BOOT_HARDENED_LOCKED, false)

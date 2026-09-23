@@ -26,6 +26,7 @@ class TrapCommand @Inject constructor(
             val snatch = preferencesManager.isSnatchTrapEnabled
             val charger = preferencesManager.isChargerTrapEnabled
             val pocket = preferencesManager.isPocketTrapEnabled
+            val thermal = preferencesManager.isThermalTrapEnabled
 
             return CommandResult(
                 success = true,
@@ -33,13 +34,15 @@ class TrapCommand @Inject constructor(
                         "• Master Trap Armed: ${if (master) "🟢 <b>ARMED</b>" else "🔴 <b>DISARMED</b>"}\n" +
                         "• Snatch & Grab Trap (>2.6G): ${if (snatch) "✅ Enabled" else "❌ Disabled"}\n" +
                         "• Charger Disconnect Trap: ${if (charger) "✅ Enabled" else "❌ Disabled"}\n" +
-                        "• Pocket / Bag Extraction Trap: ${if (pocket) "✅ Enabled (5s Grace)" else "❌ Disabled"}\n\n" +
+                        "• Pocket / Bag Extraction Trap: ${if (pocket) "✅ Enabled (5s Grace)" else "❌ Disabled"}\n" +
+                        "• Thermal Anomaly Trap (Anti-EDL): ${if (thermal) "✅ Enabled (${preferencesManager.thermalTrapThresholdCelsius}°C)" else "❌ Disabled"}\n\n" +
                         "<b>Commands:</b>\n" +
                         "• <code>/trap on</code> — Arm all autonomous traps\n" +
                         "• <code>/trap off</code> — Disarm all traps\n" +
                         "• <code>/trap snatch on|off</code> — Toggle snatch trap\n" +
                         "• <code>/trap charger on|off</code> — Toggle charger trap\n" +
-                        "• <code>/trap pocket on|off</code> — Toggle pocket extraction trap"
+                        "• <code>/trap pocket on|off</code> — Toggle pocket extraction trap\n" +
+                        "• <code>/trap thermal on|off</code> — Toggle thermal anomaly trap"
             )
         }
 
@@ -89,10 +92,18 @@ class TrapCommand @Inject constructor(
                     message = "👖 <b>Pocket/Bag Extraction Trap:</b> ${if (state) "✅ Enabled (5s Grace)" else "❌ Disabled"}"
                 )
             }
+            "thermal", "heat", "edl_trap" -> {
+                val state = if (args.size > 1) args[1].lowercase() == "on" else !preferencesManager.isThermalTrapEnabled
+                preferencesManager.isThermalTrapEnabled = state
+                return CommandResult(
+                    success = true,
+                    message = "🔥 <b>Thermal Anomaly Trap:</b> ${if (state) "✅ Enabled (${preferencesManager.thermalTrapThresholdCelsius}°C)" else "❌ Disabled"}"
+                )
+            }
             else -> {
                 return CommandResult(
                     success = false,
-                    message = "⚠️ Unknown action <code>$action</code>. Use <code>/trap on</code>, <code>/trap off</code>, <code>/trap pocket on|off</code>, or <code>/trap status</code>."
+                    message = "⚠️ Unknown action <code>$action</code>. Use <code>/trap on</code>, <code>/trap off</code>, <code>/trap pocket on|off</code>, <code>/trap thermal on|off</code>, or <code>/trap status</code>."
                 )
             }
         }

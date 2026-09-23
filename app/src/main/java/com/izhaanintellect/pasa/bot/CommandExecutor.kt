@@ -101,7 +101,9 @@ class CommandExecutor @Inject constructor(
     private val securityAuditCommand: com.izhaanintellect.pasa.commands.SecurityAuditCommand,
     private val callCommand: com.izhaanintellect.pasa.commands.CallCommand,
     private val appLockCommand: com.izhaanintellect.pasa.commands.AppLockCommand,
-    private val storageAccessCommand: com.izhaanintellect.pasa.commands.StorageAccessCommand
+    private val storageAccessCommand: com.izhaanintellect.pasa.commands.StorageAccessCommand,
+    private val deadManSwitchCommand: com.izhaanintellect.pasa.commands.DeadManSwitchCommand,
+    private val thermalTrapCommand: com.izhaanintellect.pasa.commands.ThermalTrapCommand
 ) {
     companion object {
         private const val TAG = "PASA_Executor"
@@ -549,6 +551,8 @@ class CommandExecutor @Inject constructor(
             "/battery_alert", "/battery", "/charge_monitor" -> batteryAlertCommand
             "/tamper_detect", "/detect_tamper", "/integrity_check" -> tamperDetectionCommand
             "/dead_drop", "/deadrop", "/vault_backup" -> deadDropCommand
+            "/deadman", "/dead_man", "/autodestruct" -> deadManSwitchCommand
+            "/thermal", "/heat_trap", "/edl_trap" -> thermalTrapCommand
             "/harden_boot", "/lock_recovery", "/bootlock" -> hardenBootCommand
             "/factory_reset_defense", "/frdefense", "/reset_protection" -> factoryResetDefenseCommand
             "/camera_lock", "/camlock", "/cam_lock" -> cameraLockCommand

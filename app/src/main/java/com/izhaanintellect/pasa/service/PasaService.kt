@@ -3,9 +3,12 @@ package com.izhaanintellect.pasa.service
 import android.app.AlarmManager
 import android.app.Notification
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
+import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -21,6 +24,11 @@ import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.detection.MotionDetector
 import com.izhaanintellect.pasa.detection.PasaWatchdogReceiver
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import com.izhaanintellect.pasa.update.OtaUpdateManager
 import com.izhaanintellect.pasa.location.LocationTracker
 import com.izhaanintellect.pasa.ui.SetupActivity
@@ -99,6 +107,9 @@ class PasaService : LifecycleService() {
     private var pollingJob: Job? = null
     private var isRunning = false
     private var wakeLock: PowerManager.WakeLock? = null
+    private var thermalAndHeartbeatReceiver: BroadcastReceiver? = null
+    private var deadManJob: Job? = null
+    private var lastThermalAlertTime = 0L
 
     fun acquireWakeLock(timeoutMs: Long = 60_000L) {
         try {
@@ -299,6 +310,8 @@ class PasaService : LifecycleService() {
             motionDetector.startMonitoring()
             trapManager.startMonitoring()
             geofenceManager.startMonitoring()
+            registerHardwareMonitors()
+            startDeadManWatchdog()
 
             // Check for OTA updates on service start (notify owner if update is ready)
             lifecycleScope.launch(Dispatchers.IO) {
@@ -339,6 +352,11 @@ class PasaService : LifecycleService() {
         serviceRef = null
         isRunning = false
         pollingJob?.cancel()
+        deadManJob?.cancel()
+        thermalAndHeartbeatReceiver?.let {
+            try { unregisterReceiver(it) } catch (_: Exception) {}
+        }
+        thermalAndHeartbeatReceiver = null
         motionDetector.stopMonitoring()
         trapManager.stopMonitoring()
         geofenceManager.stopMonitoring()
@@ -469,6 +487,7 @@ class PasaService : LifecycleService() {
 
                     if (commandReceivedInCycle) {
                         lastCommandReceivedAt = System.currentTimeMillis()
+                        preferencesManager.lastOwnerHeartbeatTime = System.currentTimeMillis()
                         delay(500L) // Immediate follow-up for next queued command
                     } else if (polledSuccessfully) {
                         // Long-poll already waited on server; re-poll quickly to maintain active connection
@@ -540,6 +559,153 @@ class PasaService : LifecycleService() {
             Log.i(TAG, "Watchdog restart broadcast scheduled in 5s via PasaWatchdogReceiver")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to schedule restart", e)
+        }
+    }
+
+    private fun registerHardwareMonitors() {
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_BATTERY_CHANGED)
+            addAction(Intent.ACTION_USER_PRESENT)
+        }
+
+        thermalAndHeartbeatReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                when (intent.action) {
+                    Intent.ACTION_USER_PRESENT -> {
+                        preferencesManager.lastOwnerHeartbeatTime = System.currentTimeMillis()
+                        Log.d(TAG, "Device physically unlocked (USER_PRESENT) — Dead Man's Switch heartbeat refreshed")
+                    }
+                    Intent.ACTION_BATTERY_CHANGED -> {
+                        checkThermalAnomaly(intent)
+                    }
+                }
+            }
+        }
+
+        try {
+            registerReceiver(thermalAndHeartbeatReceiver, filter)
+            Log.i(TAG, "Hardware thermal & heartbeat receiver registered")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to register thermal/heartbeat receiver: ${e.message}")
+        }
+    }
+
+    private fun checkThermalAnomaly(intent: Intent) {
+        if (!preferencesManager.isThermalTrapEnabled) return
+        val km = getSystemService(Context.KEYGUARD_SERVICE) as? android.app.KeyguardManager
+        val isLocked = km?.isKeyguardLocked == true || preferencesManager.isLostModeActive
+        if (!isLocked) return
+
+        val tempRaw = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)
+        if (tempRaw <= 0) return
+        val tempC = tempRaw / 10
+        val threshold = preferencesManager.thermalTrapThresholdCelsius
+
+        if (tempC >= threshold) {
+            val now = System.currentTimeMillis()
+            if (now - lastThermalAlertTime > 300_000L) { // 5-min alert cooldown
+                lastThermalAlertTime = now
+                Log.w(TAG, "🔥 CRITICAL THERMAL ANOMALY: Battery temp = ${tempC}°C >= ${threshold}°C while locked!")
+                lifecycleScope.launch(Dispatchers.IO) {
+                    handleThermalAlert(tempC, threshold)
+                }
+            }
+        }
+    }
+
+    private suspend fun handleThermalAlert(tempC: Int, threshold: Int) {
+        // 1. Instantly sever USB Data Pins via Knox Device Owner (Android 12+) to block EDL 9008 / BROM
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(this)
+        ) {
+            try {
+                com.izhaanintellect.pasa.admin.PasaDeviceAdmin.setUsbDataSignaling(this, false)
+                Log.i(TAG, "Hardware USB data pins severed via Thermal Anomaly Trap")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to sever USB data pins: ${e.message}")
+            }
+        }
+
+        // 2. Lock screen / Enforce Lost Mode
+        try {
+            if (com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(this)) {
+                val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+                dpm?.lockNow()
+            }
+        } catch (_: Exception) {}
+
+        // 3. Stealth front photo
+        var photoFile: File? = null
+        try {
+            photoFile = com.izhaanintellect.pasa.camera.StealthCaptureBridge.capturePhoto(this, useFront = true, timeoutMs = 8000L).file
+        } catch (e: Exception) {
+            Log.w(TAG, "Thermal trap mugshot capture failed: ${e.message}")
+        }
+
+        // 4. Send Telegram SOS
+        val alertText = "🔥 <b>CRITICAL HARDWARE THERMAL ANOMALY DETECTED!</b>\n" +
+                "━━━━━━━━━━━━━━━━━━━━\n" +
+                "🌡️ Battery Temperature: <b>${tempC}°C</b> (Threshold: ${threshold}°C)\n" +
+                "⚠️ <b>Suspected Threat:</b> Back-cover heat-gun attack (perpetrator attempting physical access to Qualcomm 9008 EDL / MediaTek BROM test points).\n\n" +
+                "🛡️ <b>Autonomous Defenses Deployed:</b>\n" +
+                "• Hardware USB Data Pins physically severed (anti-EDL/BROM)\n" +
+                "• Knox screen lock enforced\n" +
+                "• Intruder mugshot captured"
+
+        try {
+            val chatId = preferencesManager.ownerChatIdLong
+            val botToken = preferencesManager.botToken
+            if (photoFile != null && photoFile.exists() && photoFile.length() > 0) {
+                val reqBody = photoFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                val part = MultipartBody.Part.createFormData("photo", photoFile.name, reqBody)
+                val chatIdBody = chatId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+                val captionBody = alertText.toRequestBody("text/plain".toMediaTypeOrNull())
+                telegramApi.sendPhoto(botToken, chatIdBody, part, captionBody)
+            } else {
+                telegramApi.sendMessage(
+                    botToken,
+                    com.izhaanintellect.pasa.bot.SendMessageRequest(
+                        chatId = chatId,
+                        text = alertText
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to send thermal anomaly Telegram alert: ${e.message}")
+        } finally {
+            try { photoFile?.delete() } catch (_: Exception) {}
+        }
+    }
+
+    private fun startDeadManWatchdog() {
+        deadManJob = lifecycleScope.launch(Dispatchers.IO) {
+            while (isActive && isRunning) {
+                delay(300_000L) // Check every 5 minutes
+                try {
+                    if (!preferencesManager.isDeadManSwitchEnabled) continue
+                    if (!com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(this@PasaService)) continue
+
+                    val km = getSystemService(Context.KEYGUARD_SERVICE) as? android.app.KeyguardManager
+                    val isLocked = km?.isKeyguardLocked == true || preferencesManager.isLostModeActive
+                    if (!isLocked) {
+                        preferencesManager.lastOwnerHeartbeatTime = System.currentTimeMillis()
+                        continue
+                    }
+
+                    val lastHeartbeat = preferencesManager.lastOwnerHeartbeatTime
+                    val timeoutMs = preferencesManager.deadManTimeoutHours * 3600 * 1000L
+                    val elapsed = System.currentTimeMillis() - lastHeartbeat
+
+                    if (elapsed >= timeoutMs) {
+                        Log.e(TAG, "💀 DEAD MAN'S SWITCH EXPIRED! Elapsed: ${elapsed / 3600000}h >= ${preferencesManager.deadManTimeoutHours}h. PURGING DEVICE DATA NOW!")
+                        val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+                        dpm?.wipeData(0)
+                        break
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error in Dead Man's Switch watchdog: ${e.message}")
+                }
+            }
         }
     }
 }

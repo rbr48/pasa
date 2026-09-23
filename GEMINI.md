@@ -163,11 +163,13 @@ e:/Projects/PrivateApp/
   - Coercion decoy Duress PIN (`wizard:duress:set`)
   - Multi-pass cryptographic file shredder (`wizard:shred`)
   - Pro license activation (`wizard:license:activate`)
+  - Anti-EDL Dead Man's Switch timeout (`wizard:deadman`)
+  - Heat-gun Thermal Anomaly Trap config (`wizard:thermal`)
 * **1-Tap Copyable SMS Templates:** Interactive template generator (`sms_template:*`) outputting ready-to-send monospace SMS strings for air-gapped emergency control.
 
 ---
 
-## 4. Complete Command Matrix (84 Telegram C2 Commands)
+## 4. Complete Command Matrix (86 Telegram C2 Commands)
 
 | Category | Commands |
 |---|---|
@@ -176,7 +178,7 @@ e:/Projects/PrivateApp/
 | **Location & Cellular RF**| `/locate` (`/gps`, `/location`), `/tower`, `/sim`, `/sim_lock`, `/track`, `/track_stop`, `/geofence` |
 | **Covert Forensics**   | `/snap`, `/screenshot`, `/screen_burst`, `/screenrecord`, `/video`, `/record`, `/livestream`, `/stopstream`, `/livestream_diag`, `/clipboard`, `/gallery_latest`, `/getfile`, `/list_files` |
 | **Lockdown & Alert**   | `/lock`, `/lock_message`, `/lock_pin`, `/set_os_pin`, `/set_master_pin`, `/unlock`, `/fakeshutdown`, `/wake`, `/ring`, `/ring_stop`, `/vibrate_pulse`, `/message` |
-| **Defense & Deception**| `/duress_pin`, `/pattern_guard`, `/trap`, `/shred`, `/stealth` (`/hide`, `/show`), `/tamper_detect`, `/dead_drop`, `/harden_boot`, `/factory_reset_defense` |
+| **Defense & Deception**| `/duress_pin`, `/pattern_guard`, `/trap`, `/thermal`, `/deadman` (`/dead_drop`), `/shred`, `/stealth` (`/hide`, `/show`), `/tamper_detect`, `/harden_boot`, `/factory_reset_defense` |
 | **Extraction & Telephony**| `/call`, `/contacts`, `/call_log`, `/sms_log`, `/sendsms`, `/history` |
 | **System & Maintenance**| `/apps`, `/app_uninstall`, `/smssetup`, `/sms_help`, `/license`, `/check_update`, `/update_confirm`, `/wipe`, `/wipe_confirm` |
 
@@ -213,8 +215,8 @@ e:/Projects/PrivateApp/
 * **Certificate DN:** `CN=PASA Sentinel, OU=Security, O=Izhaan Intellect, L=Dhaka, C=BD`.
 * **Certificate SHA-256:** `0c8f62dd8934d3b73e12d965742da29e643bdc157bc859e5b6aa7454409ad57a`.
 * **Current Production Release:**
-  - **Version:** `v3.5.0` (Build `46`).
-  - **APK Binary SHA-256:** `bf577b164e2b786102f037264abe6816e443a1ffa063abfb21835f21f8ebe20f`.
+  - **Version:** `v3.5.1` (Build `47`).
+  - **APK Binary SHA-256:** `7b080c0f02fd32b1b06c8cf72d1490d1aa814fd5d02483f452b411e6ecf6c3e8`.
   - **CDN Endpoint:** `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`.
   - **OTA Manifest Route:** `GET https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=<build>`.
 
