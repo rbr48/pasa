@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 49,
+    "versionName": "3.5.3",
+    "releaseDate": "2026-09-23",
+    "fileName": "pasa-v3.5.3-49.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.3-49.apk",
+    "sha256": "d858897f9c7ac9a4618fad0d38a4f62dffa49defd963ebf19dca4adb4231c72a",
+    "size": 19167710,
+    "mandatory": false,
+    "releaseNotes": "v3.5.3: Smart Storage Browser & 1-Tap Extraction — Auto-filtering of .trashed-* clutter files, chronological sorting (newest files/photos first), 1-tap copyable /getfile <number> commands, stateful directory tracking, folder shortcuts (camera, downloads, pictures, docs, whatsapp), and full non-image document delivery to Telegram."
+  },
+  {
     "versionCode": 48,
     "versionName": "3.5.2",
     "releaseDate": "2026-09-23",

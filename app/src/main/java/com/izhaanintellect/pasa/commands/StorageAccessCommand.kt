@@ -40,11 +40,18 @@ class StorageAccessCommand @Inject constructor(
 
     override val name = "/gallery_latest"
     override val description = "Extract recent gallery photos or download files from storage"
-    override val usage = "/gallery_latest [count] | /getfile <path> | /list_files [dir]"
+    override val usage = "/gallery_latest [count] | /getfile <#|name|path> | /list_files [dir|shortcut]"
 
     companion object {
         private const val TAG = "PASA_StorageAccess"
         private const val MAX_UPLOAD_BYTES = 50 * 1024 * 1024L // 50MB Telegram Bot API limit
+
+        // Stateful tracking of last listed directory and files for effortless 1-tap extraction
+        @Volatile private var lastListedDirectory: File? = null
+        @Volatile private var lastListedFiles: List<File> = emptyList()
+
+        fun getLastListedFiles(): List<File> = lastListedFiles
+        fun getLastListedDirectory(): File? = lastListedDirectory
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
@@ -89,15 +96,21 @@ class StorageAccessCommand @Inject constructor(
             val cacheDir = File(context.cacheDir, "gallery_temp").apply { mkdirs() }
 
             do {
+                val displayName = cursor.getString(nameColumn) ?: ""
+                // Skip OEM and Google Photos trashed or hidden media
+                if (displayName.startsWith(".trashed-") || displayName.startsWith(".")) {
+                    continue
+                }
+
                 val id = cursor.getLong(idColumn)
-                val displayName = cursor.getString(nameColumn) ?: "photo_${id}.jpg"
+                val safeName = if (displayName.isNotBlank()) displayName else "photo_${id}.jpg"
                 val dateAdded = cursor.getLong(dateColumn) * 1000L
                 val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date(dateAdded))
 
                 val contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
 
                 // Copy stream to temp cache file for transmission
-                val tempFile = File(cacheDir, "pasa_gal_${id}_$displayName")
+                val tempFile = File(cacheDir, "pasa_gal_${id}_$safeName")
                 try {
                     context.contentResolver.openInputStream(contentUri)?.use { input ->
                         FileOutputStream(tempFile).use { output ->
@@ -134,50 +147,92 @@ class StorageAccessCommand @Inject constructor(
 
     suspend fun executeGetFile(args: List<String>, chatId: Long): CommandResult = withContext(Dispatchers.IO) {
         if (args.isEmpty()) {
+            val lastDirNote = lastListedDirectory?.let {
+                "\n📂 <b>Active Directory:</b> <code>${it.absolutePath}</code>\n" +
+                if (lastListedFiles.isNotEmpty()) "🔢 <b>Available Numbers:</b> <code>1</code> to <code>${lastListedFiles.size}</code> (e.g. <code>/getfile 1</code>)\n" else ""
+            } ?: ""
+
             return@withContext CommandResult(
                 success = false,
                 message = """
                     📁 <b>Remote File Extraction</b>
                     ━━━━━━━━━━━━━━━━━━━━
-                    Extract any file from internal or external storage directly to Telegram.
+                    Extract any file from storage directly to Telegram.$lastDirNote
+                    ⚡ <b>Quick Usage:</b>
+                    • <code>/getfile 1</code> (download by number from last <code>/list_files</code>)
+                    • <code>/getfile filename.jpg</code> (download from active folder)
+                    • <code>/getfile /absolute/path/to/file</code>
 
-                    ⚠️ <b>Usage:</b>
-                    • <code>/getfile &lt;absolute_path&gt;</code>
-
-                    <b>Examples:</b>
-                    • <code>/getfile /sdcard/Download/document.pdf</code>
-                    • <code>/getfile /sdcard/DCIM/Camera/IMG_001.jpg</code>
-
-                    ℹ️ <i>Telegram Bot API supports file uploads up to 50MB.</i>
+                    💡 <b>Tip:</b> Run <code>/list_files camera</code> to browse photos and get 1-tap download numbers.
                 """.trimIndent()
             )
         }
 
-        val path = args.joinToString(" ").trim()
-        val file = File(path)
+        val rawInput = args.joinToString(" ").trim()
+        val index = rawInput.toIntOrNull()
 
-        if (!file.exists()) {
+        val targetFile: File = when {
+            // Case 1: Numeric index referencing last /list_files result
+            index != null -> {
+                val files = lastListedFiles
+                if (files.isEmpty()) {
+                    return@withContext CommandResult(
+                        success = false,
+                        message = "❌ <b>No Active File List:</b> Run <code>/list_files</code> first to populate file numbers, or provide an absolute path."
+                    )
+                }
+                if (index !in 1..files.size) {
+                    return@withContext CommandResult(
+                        success = false,
+                        message = "❌ <b>Invalid File Number:</b> <code>$index</code> is out of range. Choose between <code>1</code> and <code>${files.size}</code>."
+                    )
+                }
+                files[index - 1]
+            }
+
+            // Case 2: Relative filename or path
+            !rawInput.startsWith("/") -> {
+                val candidateInLastDir = lastListedDirectory?.let { File(it, rawInput) }
+                val sdcard = Environment.getExternalStorageDirectory()
+                val candidateInSdcard = File(sdcard, rawInput)
+                val candidateInCamera = File(File(sdcard, "DCIM/Camera"), rawInput)
+                val candidateInDownload = File(File(sdcard, "Download"), rawInput)
+
+                when {
+                    candidateInLastDir != null && candidateInLastDir.exists() -> candidateInLastDir
+                    candidateInCamera.exists() -> candidateInCamera
+                    candidateInDownload.exists() -> candidateInDownload
+                    candidateInSdcard.exists() -> candidateInSdcard
+                    else -> candidateInLastDir ?: File(sdcard, rawInput)
+                }
+            }
+
+            // Case 3: Absolute path
+            else -> File(rawInput)
+        }
+
+        if (!targetFile.exists()) {
             return@withContext CommandResult(
                 success = false,
-                message = "❌ <b>File Not Found:</b> <code>$path</code> does not exist on the device."
+                message = "❌ <b>File Not Found:</b> <code>${targetFile.absolutePath}</code> does not exist on device."
             )
         }
 
-        if (file.isDirectory) {
+        if (targetFile.isDirectory) {
             return@withContext CommandResult(
                 success = false,
-                message = "❌ <b>Target is a Directory:</b> Use <code>/list_files $path</code> to browse its contents."
+                message = "❌ <b>Target is a Directory:</b> Use <code>/list_files ${targetFile.absolutePath}</code> to browse its contents."
             )
         }
 
-        if (!file.canRead()) {
+        if (!targetFile.canRead()) {
             return@withContext CommandResult(
                 success = false,
-                message = "❌ <b>Permission Denied:</b> Cannot read <code>$path</code>. Ensure storage permissions are granted."
+                message = "❌ <b>Permission Denied:</b> Cannot read <code>${targetFile.absolutePath}</code>. Check storage permissions."
             )
         }
 
-        val sizeBytes = file.length()
+        val sizeBytes = targetFile.length()
         if (sizeBytes > MAX_UPLOAD_BYTES) {
             val sizeMb = String.format(Locale.US, "%.1f", sizeBytes / (1024.0 * 1024.0))
             return@withContext CommandResult(
@@ -187,70 +242,206 @@ class StorageAccessCommand @Inject constructor(
         }
 
         val sizeFormatted = formatFileSize(sizeBytes)
-        val isImage = listOf("jpg", "jpeg", "png", "webp", "gif").any { file.extension.equals(it, ignoreCase = true) }
+        val ext = targetFile.extension.lowercase(Locale.ROOT)
+        val isImage = ext in listOf("jpg", "jpeg", "png", "webp", "gif")
+        val isVideo = ext in listOf("mp4", "mkv", "webm", "3gp", "avi")
+        val isAudio = ext in listOf("mp3", "m4a", "wav", "aac", "ogg", "flac")
+        val modDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date(targetFile.lastModified()))
 
-        if (isImage) {
-            CommandResult(
+        when {
+            isImage -> CommandResult(
                 success = true,
-                message = "🖼️ <b>File Extracted:</b> <code>${file.name}</code> ($sizeFormatted)",
-                photoFile = file
+                message = "🖼️ <b>Photo Extracted:</b> <code>${targetFile.name}</code>\n📊 <b>Size:</b> $sizeFormatted | <b>Date:</b> $modDate\n📁 <code>${targetFile.absolutePath}</code>",
+                photoFile = targetFile
             )
-        } else {
-            CommandResult(
+            isVideo -> CommandResult(
                 success = true,
-                message = "📄 <b>File Extracted:</b> <code>${file.name}</code> ($sizeFormatted)",
-                documentFile = file
+                message = "🎥 <b>Video Extracted:</b> <code>${targetFile.name}</code>\n📊 <b>Size:</b> $sizeFormatted | <b>Date:</b> $modDate\n📁 <code>${targetFile.absolutePath}</code>",
+                videoFile = targetFile
+            )
+            isAudio -> CommandResult(
+                success = true,
+                message = "🎙️ <b>Audio Extracted:</b> <code>${targetFile.name}</code>\n📊 <b>Size:</b> $sizeFormatted | <b>Date:</b> $modDate\n📁 <code>${targetFile.absolutePath}</code>",
+                audioFile = targetFile
+            )
+            else -> CommandResult(
+                success = true,
+                message = "📄 <b>File Extracted:</b> <code>${targetFile.name}</code>\n📊 <b>Size:</b> $sizeFormatted | <b>Date:</b> $modDate\n📁 <code>${targetFile.absolutePath}</code>",
+                documentFile = targetFile
             )
         }
     }
 
     suspend fun executeListFiles(args: List<String>): CommandResult = withContext(Dispatchers.IO) {
-        val defaultDir = File(Environment.getExternalStorageDirectory(), "DCIM/Camera")
-        val targetPath = if (args.isNotEmpty()) args.joinToString(" ").trim() else defaultDir.absolutePath
-        val dir = File(targetPath)
-
-        if (!dir.exists()) {
-            // Fallback to SD card root if default DCIM doesn't exist
-            val fallback = Environment.getExternalStorageDirectory()
-            if (args.isEmpty() && fallback.exists()) {
-                return@withContext listDirectory(fallback)
-            }
-            return@withContext CommandResult(false, "❌ <b>Directory Not Found:</b> <code>$targetPath</code>")
+        val showAll = args.any {
+            it.equals("--all", ignoreCase = true) ||
+            it.equals("-a", ignoreCase = true) ||
+            it.equals("all", ignoreCase = true) ||
+            it.equals("trash", ignoreCase = true)
+        }
+        val cleanArgs = args.filterNot {
+            it.equals("--all", ignoreCase = true) ||
+            it.equals("-a", ignoreCase = true) ||
+            it.equals("all", ignoreCase = true) ||
+            it.equals("trash", ignoreCase = true)
         }
 
-        if (!dir.isDirectory) {
-            return@withContext CommandResult(false, "❌ <code>$targetPath</code> is a file, not a directory. Use <code>/getfile</code>.")
+        val sdcard = Environment.getExternalStorageDirectory()
+        val defaultDir = File(sdcard, "DCIM/Camera")
+
+        val targetDir: File = if (cleanArgs.isEmpty()) {
+            if (defaultDir.exists() && defaultDir.isDirectory) defaultDir else sdcard
+        } else {
+            val query = cleanArgs.joinToString(" ").trim()
+            resolveDirectory(query, sdcard)
         }
 
-        return@withContext listDirectory(dir)
+        if (!targetDir.exists()) {
+            return@withContext CommandResult(
+                false,
+                "❌ <b>Directory Not Found:</b> <code>${targetDir.absolutePath}</code>\n\n💡 <i>Try shortcuts: <code>/list_files camera</code>, <code>downloads</code>, <code>pictures</code>, <code>sdcard</code></i>"
+            )
+        }
+
+        if (!targetDir.isDirectory) {
+            return@withContext CommandResult(
+                false,
+                "❌ <code>${targetDir.absolutePath}</code> is a file, not a directory. Use <code>/getfile ${targetDir.absolutePath}</code> to download."
+            )
+        }
+
+        return@withContext listDirectory(targetDir, showAll)
     }
 
-    private fun listDirectory(dir: File): CommandResult {
-        val files = dir.listFiles()
-        if (files == null) {
+    private fun resolveDirectory(query: String, sdcard: File): File {
+        val qLower = query.lowercase(Locale.ROOT)
+        return when (qLower) {
+            "camera" -> File(sdcard, "DCIM/Camera")
+            "dcim" -> File(sdcard, "DCIM")
+            "download", "downloads" -> File(sdcard, "Download")
+            "pictures", "photos" -> File(sdcard, "Pictures")
+            "documents", "docs" -> File(sdcard, "Documents")
+            "screenshots" -> {
+                val picScreenshots = File(sdcard, "Pictures/Screenshots")
+                val dcimScreenshots = File(sdcard, "DCIM/Screenshots")
+                if (picScreenshots.exists()) picScreenshots else dcimScreenshots
+            }
+            "whatsapp" -> {
+                val waMedia = File(sdcard, "Android/media/com.whatsapp/WhatsApp/Media")
+                val waOld = File(sdcard, "WhatsApp/Media")
+                if (waMedia.exists()) waMedia else waOld
+            }
+            "root", "sdcard", "internal", "home" -> sdcard
+            "..", "up", "back" -> lastListedDirectory?.parentFile ?: sdcard
+            else -> {
+                // 1. Direct absolute path
+                if (query.startsWith("/")) {
+                    File(query)
+                } else {
+                    // 2. Relative to last listed directory
+                    val relativeToLast = lastListedDirectory?.let { File(it, query) }
+                    if (relativeToLast != null && relativeToLast.exists() && relativeToLast.isDirectory) {
+                        relativeToLast
+                    } else {
+                        // 3. Relative to sdcard root
+                        val relativeToSdcard = File(sdcard, query)
+                        if (relativeToSdcard.exists() && relativeToSdcard.isDirectory) {
+                            relativeToSdcard
+                        } else {
+                            relativeToLast ?: relativeToSdcard
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun listDirectory(dir: File, showAll: Boolean): CommandResult {
+        val allEntries = dir.listFiles()
+        if (allEntries == null) {
             return CommandResult(false, "❌ Unable to read directory <code>${dir.absolutePath}</code>. Check permissions.")
         }
 
-        val sorted = files.sortedWith(compareBy({ !it.isDirectory }, { it.name.lowercase() }))
-        val sb = StringBuilder("📁 <b>Directory Listing:</b> <code>${dir.absolutePath}</code>\n━━━━━━━━━━━━━━━━━━━━\n")
+        // Subdirectories
+        val subdirs = allEntries
+            .filter { it.isDirectory && (showAll || !it.name.startsWith(".")) }
+            .sortedBy { it.name.lowercase(Locale.ROOT) }
 
-        val totalShown = sorted.take(25)
-        for (f in totalShown) {
-            val modDate = SimpleDateFormat("MM-dd HH:mm", Locale.US).format(Date(f.lastModified()))
-            if (f.isDirectory) {
-                val childCount = f.list()?.size ?: 0
-                sb.append("📁 <b>${f.name}/</b>  [<i>$childCount items</i>, $modDate]\n")
-            } else {
+        // Files
+        val allFiles = allEntries.filter { !it.isDirectory }
+        val trashedOrHiddenCount = allFiles.count { it.name.startsWith(".trashed-") || it.name.startsWith(".") }
+
+        val activeFiles = allFiles
+            .filter { showAll || (!it.name.startsWith(".trashed-") && !it.name.startsWith(".")) }
+            .sortedByDescending { it.lastModified() } // NEWEST FIRST
+
+        // Cache state for 1-tap /getfile <number>
+        lastListedDirectory = dir
+        lastListedFiles = activeFiles
+
+        val sb = StringBuilder()
+        sb.append("📁 <b>Folder:</b> <code>${dir.absolutePath}</code>\n")
+        sb.append("📊 <b>Items:</b> ${subdirs.size} folder(s), ${activeFiles.size} active file(s)")
+        if (!showAll && trashedOrHiddenCount > 0) {
+            sb.append(" <i>($trashedOrHiddenCount trash/hidden filtered)</i>")
+        }
+        sb.append("\n━━━━━━━━━━━━━━━━━━━━\n")
+
+        // 1. Subfolders section
+        if (subdirs.isNotEmpty()) {
+            sb.append("📂 <b>Subfolders:</b>\n")
+            val shownDirs = subdirs.take(8)
+            for (sub in shownDirs) {
+                val childCount = sub.list()?.size ?: 0
+                sb.append("📁 <b>${sub.name}/</b>  [<i>$childCount</i>] — <code>/list_files ${sub.name}</code>\n")
+            }
+            if (subdirs.size > 8) {
+                sb.append("   <i>...and ${subdirs.size - 8} more folders</i>\n")
+            }
+            sb.append("\n")
+        }
+
+        // 2. Active Files section (Newest first, numbered for 1-tap download)
+        if (activeFiles.isEmpty()) {
+            sb.append("<i>(No active files in this folder)</i>\n")
+        } else {
+            sb.append("📄 <b>Files (Newest First):</b>\n")
+            val shownFiles = activeFiles.take(15)
+            for ((index, f) in shownFiles.withIndex()) {
+                val num = index + 1
                 val size = formatFileSize(f.length())
-                sb.append("📄 <code>${f.name}</code>  ($size, $modDate)\n")
+                val modDate = SimpleDateFormat("MM-dd HH:mm", Locale.US).format(Date(f.lastModified()))
+                val ext = f.extension.lowercase(Locale.ROOT)
+                val icon = when {
+                    ext in listOf("jpg", "jpeg", "png", "webp", "gif") -> "🖼️"
+                    ext in listOf("mp4", "mkv", "webm", "3gp") -> "🎥"
+                    ext in listOf("mp3", "m4a", "wav", "aac") -> "🎙️"
+                    ext in listOf("pdf", "doc", "docx", "txt") -> "📑"
+                    ext in listOf("zip", "rar", "tar", "gz") -> "📦"
+                    ext == "apk" -> "📱"
+                    else -> "📄"
+                }
+
+                sb.append("$icon <b>[$num]</b> <code>${f.name}</code>\n")
+                sb.append("   └ $size • $modDate • 📥 <code>/getfile $num</code>\n")
+            }
+
+            if (activeFiles.size > 15) {
+                sb.append("\n<i>...and ${activeFiles.size - 15} more files.</i>\n")
             }
         }
 
-        if (files.size > 25) {
-            sb.append("\n<i>...and ${files.size - 25} more items.</i>")
+        // 3. Quick Tips Footer
+        sb.append("\n━━━━━━━━━━━━━━━━━━━━\n")
+        sb.append("⚡ <b>1-Tap Download:</b> Tap any <code>/getfile &lt;num&gt;</code> above.\n")
+        if (!showAll && trashedOrHiddenCount > 0) {
+            sb.append("🗑️ <b>Show Trash:</b> <code>/list_files --all</code>\n")
         }
+        if (dir.parentFile != null && dir.absolutePath != Environment.getExternalStorageDirectory().absolutePath) {
+            sb.append("⬆️ <b>Parent Folder:</b> <code>/list_files ..</code>\n")
+        }
+        sb.append("🧭 <b>Shortcuts:</b> <code>/list_files camera</code> | <code>downloads</code> | <code>pictures</code> | <code>docs</code>")
 
-        sb.append("\n💡 <i>To download a file: <code>/getfile &lt;full_path&gt;</code></i>")
         return CommandResult(success = true, message = sb.toString())
     }
 

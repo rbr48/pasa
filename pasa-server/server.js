@@ -1251,10 +1251,11 @@ const SUBMENUS = {
           { text: '🗑️ File Shredder', callback_data: 'menu:shred' }
         ],
         [
-          { text: '📞 Remote Call (Speaker)', callback_data: 'wizard:call' },
+          { text: '📂 Browse Storage Files', callback_data: 'cmd:list_files' },
           { text: '📁 Download Storage File', callback_data: 'wizard:getfile' }
         ],
         [
+          { text: '📞 Remote Call (Speaker)', callback_data: 'wizard:call' },
           { text: '⚠️ Remote Factory Wipe', callback_data: 'menu:wipe' }
         ],
         [
@@ -1992,7 +1993,7 @@ async function handleTelegramUpdate(token, update) {
       setChatState(chatId, 'WAITING_FOR_GETFILE_PATH');
       await callTelegram(token, 'sendMessage', {
         chat_id: chatId,
-        text: '📁 <b>Download Storage File</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with the absolute file path on the device:\n<i>Example:</i> <code>/sdcard/DCIM/Camera/photo.jpg</code> or <code>/sdcard/Download/doc.pdf</code>',
+        text: '📁 <b>Download Storage File</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with the file number (from <code>/list_files</code>), filename, or absolute path:\n\n<i>Examples:</i>\n• <code>1</code> (to download item #1 from last folder listing)\n• <code>IMG_2026.jpg</code> (from active folder)\n• <code>/sdcard/Download/doc.pdf</code>',
         parse_mode: 'HTML',
         reply_markup: {
           inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
@@ -2931,7 +2932,8 @@ async function handleTelegramUpdate(token, update) {
     'screenrecord', 'burst', 'screen', 'selftest', 'health', 'diagnostics',
     'lock_message', 'lock_pin', 'set_os_pin', 'reset_pin', 'app_uninstall', 'wipe_confirm', 'track', 'track_stop',
     'ring_stop', 'shred', 'trap', 'duress_pin', 'stealth', 'hide', 'show',
-    'livestream', 'stopstream', 'stream', 'reboot', 'restart'
+    'livestream', 'stopstream', 'stream', 'reboot', 'restart',
+    'list_files', 'getfile', 'gallery_latest'
   ];
   if (directCmds.includes(command)) {
     await dispatchCommandToDevice(token, chatId, '/' + command, args);
@@ -3305,6 +3307,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
   { name: 'photo', maxCount: 10 },
   { name: 'audio', maxCount: 1 },
   { name: 'video', maxCount: 1 },
+  { name: 'document', maxCount: 1 },
   { name: 'evidence', maxCount: 10 }
 ]), async (req, res) => {
   const allUploadedFiles = [];
@@ -3345,12 +3348,14 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       hasPhoto: !!(files.photo && files.photo.length > 0),
       hasAudio: !!(files.audio && files.audio.length > 0),
       hasVideo: !!(files.video && files.video.length > 0),
+      hasDocument: !!(files.document && files.document.length > 0),
       hasLocation: !!(latitude && longitude)
     });
 
     const hasMedia = !!((files.photo && files.photo.length > 0) ||
                         (files.audio && files.audio.length > 0) ||
-                        (files.video && files.video.length > 0));
+                        (files.video && files.video.length > 0) ||
+                        (files.document && files.document.length > 0));
 
     // 1. Deliver text message (only if no media, so media caption carries the message cleanly)
     if (message && chatId && !hasMedia) {
@@ -3534,17 +3539,33 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       }
     }
 
+    // 5. Deliver document if extracted (e.g. /getfile)
+    if (files.document && files.document.length > 0 && chatId) {
+      const docFile = files.document[0];
+      const fileBuffer = docFile.buffer || (docFile.path && fs.existsSync(docFile.path) ? fs.readFileSync(docFile.path) : null);
+      if (fileBuffer) {
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        const blob = new Blob([fileBuffer], { type: docFile.mimetype || 'application/octet-stream' });
+        formData.append('document', blob, docFile.originalname || 'extracted_file');
+        formData.append('caption', message || '📄 Extracted file');
+        await callTelegram(token, 'sendDocument', null, true, formData);
+      }
+    }
+
     // Fallback: If device uploaded evidence vault file without media
     if (files.evidence && files.evidence.length > 0 && !hasMedia && chatId) {
       for (const ev of files.evidence) {
         try {
           const formData = new FormData();
           formData.append('chat_id', chatId);
-          const fileBuffer = fs.readFileSync(ev.path);
-          const blob = new Blob([fileBuffer], { type: ev.mimetype || 'application/octet-stream' });
-          formData.append('document', blob, path.basename(ev.path));
-          formData.append('caption', message || '🔒 Encrypted Evidence Vault file');
-          await callTelegram(token, 'sendDocument', null, true, formData);
+          const fileBuffer = ev.buffer || (ev.path && fs.existsSync(ev.path) ? fs.readFileSync(ev.path) : null);
+          if (fileBuffer) {
+            const blob = new Blob([fileBuffer], { type: ev.mimetype || 'application/octet-stream' });
+            formData.append('document', blob, ev.originalname || path.basename(ev.path || 'evidence.vault'));
+            formData.append('caption', message || '🔒 Encrypted Evidence Vault file');
+            await callTelegram(token, 'sendDocument', null, true, formData);
+          }
         } catch (e) {
           console.error('Failed to relay evidence document to Telegram:', e);
         }

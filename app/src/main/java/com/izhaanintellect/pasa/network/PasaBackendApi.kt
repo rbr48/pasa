@@ -40,6 +40,7 @@ interface PasaBackendApi {
         @Part audio: MultipartBody.Part? = null,
         @Part video: MultipartBody.Part? = null,
         @Part evidence: MultipartBody.Part? = null,
+        @Part document: MultipartBody.Part? = null,
         @Part("latitude") latitude: RequestBody? = null,
         @Part("longitude") longitude: RequestBody? = null
     ): SimpleBackendResponse
