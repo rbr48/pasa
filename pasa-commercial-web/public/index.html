@@ -1331,17 +1331,25 @@ let currentLang = 'en';
 let currentFaqCategory = 'all';
 
 function setLanguage(lang) {
+  if (lang !== 'en' && lang !== 'bn') {
+    lang = 'en';
+  }
   currentLang = lang;
   document.documentElement.setAttribute('data-lang', lang);
   document.documentElement.lang = lang;
 
-  document.getElementById('btnEn').classList.toggle('active', lang === 'en');
-  document.getElementById('btnBn').classList.toggle('active', lang === 'bn');
+  const btnEn = document.getElementById('btnEn');
+  const btnBn = document.getElementById('btnBn');
+  if (btnEn) btnEn.classList.toggle('active', lang === 'en');
+  if (btnBn) btnBn.classList.toggle('active', lang === 'bn');
 
-  const dict = translations[lang];
+  const dict = (typeof translations !== 'undefined' && translations && translations[lang]) 
+    ? translations[lang] 
+    : ((typeof translations !== 'undefined' && translations && translations.en) ? translations.en : {});
+
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (dict[key]) {
+    if (key && dict && dict[key] !== undefined) {
       el.textContent = dict[key];
     }
   });
@@ -1353,9 +1361,21 @@ function setLanguage(lang) {
       : 'Search questions (e.g., Knox, battery, police, root, SIM)...';
   }
 
-  renderFaqPills();
-  renderFaq();
-  try { localStorage.setItem('pasa_lang', lang); } catch (e) {}
+  try {
+    renderFaqPills();
+  } catch (e) {
+    console.error('FAQ pills render error:', e);
+  }
+
+  try {
+    renderFaq();
+  } catch (e) {
+    console.error('FAQ render error:', e);
+  }
+
+  try { 
+    localStorage.setItem('pasa_lang', lang); 
+  } catch (e) {}
 }
 
 function toggleMobileDrawer() {
@@ -1380,7 +1400,7 @@ function copyBinanceUid() {
 
 function renderFaqPills() {
   const pillsContainer = document.getElementById('faqPills');
-  if (!pillsContainer) return;
+  if (!pillsContainer || typeof rawFaq === 'undefined' || !Array.isArray(rawFaq)) return;
 
   const isBn = currentLang === 'bn';
   const categories = [
@@ -1389,7 +1409,7 @@ function renderFaqPills() {
 
   const seen = new Set();
   rawFaq.forEach(f => {
-    if (!seen.has(f.category)) {
+    if (f && f.category && !seen.has(f.category)) {
       seen.add(f.category);
       categories.push({
         id: f.category,
@@ -1418,18 +1438,19 @@ function filterFaq() {
 
 function renderFaq() {
   const container = document.getElementById('faqAccordion');
-  if (!container) return;
+  if (!container || typeof rawFaq === 'undefined' || !Array.isArray(rawFaq)) return;
 
   const query = (document.getElementById('faqSearch')?.value || '').toLowerCase().trim();
   const isBn = currentLang === 'bn';
 
   const filtered = rawFaq.filter(item => {
+    if (!item) return false;
     if (currentFaqCategory !== 'all' && item.category !== currentFaqCategory) {
       return false;
     }
     if (!query) return true;
-    const qText = (isBn ? item.qBn : item.qEn).toLowerCase();
-    const aText = (isBn ? item.aBn : item.aEn).toLowerCase();
+    const qText = ((isBn ? item.qBn : item.qEn) || '').toLowerCase();
+    const aText = ((isBn ? item.aBn : item.aEn) || '').toLowerCase();
     return qText.includes(query) || aText.includes(query);
   });
 
@@ -1441,8 +1462,8 @@ function renderFaq() {
   }
 
   container.innerHTML = filtered.map((item, idx) => {
-    const q = isBn ? item.qBn : item.qEn;
-    const a = isBn ? item.aBn : item.aEn;
+    const q = (isBn ? item.qBn : item.qEn) || '';
+    const a = (isBn ? item.aBn : item.aEn) || '';
     return `
       <div class="faq-item" id="faqItem_${idx}">
         <div class="faq-q" onclick="toggleFaq(${idx})">
@@ -1463,12 +1484,18 @@ function toggleFaq(idx) {
   if (!item || !ans) return;
 
   const isOpen = item.classList.contains('open');
-  item.classList.toggle('open');
+  item.classList.toggle('open', !isOpen);
   ans.style.display = isOpen ? 'none' : 'block';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('pasa_lang') || 'en';
+  let saved = 'en';
+  try {
+    const val = localStorage.getItem('pasa_lang');
+    if (val === 'bn' || val === 'en') {
+      saved = val;
+    }
+  } catch (e) {}
   setLanguage(saved);
 });
 </script>
