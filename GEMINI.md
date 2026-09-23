@@ -135,16 +135,37 @@ d:/Software_and_Apps/PrivateApp/
 * **Dual-SIM Routing:** Dynamically extracts `subscriptionId` from incoming SMS and dispatches responses via the receiving SIM's `SmsManager`.
 * **Direct Outbound Cellular SMS (`/sendsms`):** Transmits SMS messages directly via cellular radio (`/sendsms [sim1|sim2] <number> <msg>`). Used to verify unknown device phone numbers via caller ID when carriers do not store the MSISDN on the SIM card chip.
 * **SIM & Cellular Carrier Telemetry (`/sim`):** Displays active SIM slots, carrier names, subscription IDs, signal strength levels, network types (2G/3G/4G/5G), and MCC/MNC codes.
-* **Complete Air-Gapped Command Coverage:** Every single command responds via SMS: `/locate`, `/status`, `/usb_lock`, `/camera_lock`, `/bluetooth_lock`, `/mic_mute`, `/wifi_connect`, `/lockscreen_info`, `/autolock`, `/app_uninstall`, `/reboot`, `/security_audit`, `/antitamper`, `/biometrics`, `/ring`, `/ring_stop`, `/lock`, `/unlock`, `/fakeshutdown`, `/wake`, `/set_master_pin <pin>`, `/wipe`, `/wipe_confirm`. All SMS responses are stripped of HTML tags for clean SMS delivery.
+* **Air-Gapped SMS Fallback Guide (`/sms_help`):** Comprehensive on-device and Telegram offline cheatsheet with 1-tap copyable monospace templates (`<code>PASA <PIN> /locate</code>`, etc.) and step-by-step TOTP enrollment guidance (`/smssetup`).
+* **Complete Air-Gapped Command Coverage:** Every single command responds via SMS: `/locate`, `/status`, `/usb_lock`, `/camera_lock`, `/bluetooth_lock`, `/mic_mute`, `/wifi_connect`, `/lockscreen_info`, `/autolock`, `/app_uninstall`, `/reboot`, `/security_audit`, `/antitamper`, `/biometrics`, `/ring`, `/ring_stop`, `/lock`, `/unlock`, `/fakeshutdown`, `/wake`, `/set_master_pin <pin>`, `/wipe`, `/wipe_confirm`, `/sms_help`. All SMS responses are stripped of HTML tags for clean SMS delivery.
 
 ### 3.7 Commercial Licensing & Cryptography
 * **Ed25519 Offline Verification:** License keys (`PASA-PRO-XXXX-XXXX`, `PASA-LIFE-XXXX-XXXX`) issue an Ed25519-signed certificate payload. The Android client verifies the signature offline using the embedded public key in <0.2ms.
 * **Payment Gateways:** Binance Pay (UID `756303714`, Nickname `RBR48`) and bKash personal integration.
 * **7-Day Guarantee:** Unconditional 24-hour refund policy built into customer support operations.
 
+### 3.8 Executive Telegram Bot C2 & 6-Hub Modular Architecture
+* **Live Telemetry & Status Badges:** Executive header showing device name, live connection latency (`🟢 Online <90s` / `🟡 Idle <10m` / `🔴 Offline`), cryptographic identity (`🛡️ StrongBox TEE` vs software), and license status (`💎 Pro Lifetime`, `⭐ Pro Annual`, `🏢 Enterprise`, `⏳ Trial`).
+* **Modular 6-Category Navigation:** Restructured `/menu` dashboard into 6 core operational command hubs:
+  1. `📍 Location & Cellular RF` (`menu:location_hub`)
+  2. `📸 Covert Forensics` (`menu:forensics_hub`)
+  3. `🚨 Lockdown & Siren` (`menu:lockdown_hub`)
+  4. `👑 Enterprise Knox Device Owner Suite` (`menu:device_owner_hub`)
+  5. `🛡️ Autonomous Traps & Anti-Theft` (`menu:traps_hub`)
+  6. `📇 Extraction, Telemetry & System Logs` (`menu:data_hub`)
+* **Ergonomic Persistent Keyboard:** Pinned 4x3 bottom keyboard providing instant 1-tap access to primary emergency actions (`Status`, `Locate`, `Siren`, `Photo`, `Screen`, `Video`, `Lock`, `Hub Menu`, `Device Owner`, `Message`, `Traps`, `License`).
+* **Interactive Guided Wizards:** Conversational state machine with 5-minute session lifetimes supporting guided inputs:
+  - Custom lock PIN (`wizard:lock:custom`)
+  - Screen broadcast message (`wizard:msg:custom`)
+  - Lockscreen emergency banner (`wizard:lockscreen_info`)
+  - Direct outbound SMS dispatcher (`wizard:sendsms`)
+  - Coercion decoy Duress PIN (`wizard:duress:set`)
+  - Multi-pass cryptographic file shredder (`wizard:shred`)
+  - Pro license activation (`wizard:license:activate`)
+* **1-Tap Copyable SMS Templates:** Interactive template generator (`sms_template:*`) outputting ready-to-send monospace SMS strings for air-gapped emergency control.
+
 ---
 
-## 4. Complete Command Matrix (77 Telegram C2 Commands)
+## 4. Complete Command Matrix (78 Telegram C2 Commands)
 
 | Category | Commands |
 |---|---|
@@ -155,7 +176,7 @@ d:/Software_and_Apps/PrivateApp/
 | **Lockdown & Alert**   | `/lock`, `/lock_message`, `/lock_pin`, `/set_os_pin`, `/set_master_pin`, `/unlock`, `/fakeshutdown`, `/wake`, `/ring`, `/ring_stop`, `/vibrate_pulse`, `/message` |
 | **Defense & Deception**| `/duress_pin`, `/pattern_guard`, `/trap`, `/shred`, `/stealth` (`/hide`, `/show`), `/tamper_detect`, `/dead_drop`, `/harden_boot`, `/factory_reset_defense` |
 | **Extraction & Logs**  | `/contacts`, `/call_log`, `/sms_log`, `/sendsms`, `/history` |
-| **System & Maintenance**| `/apps`, `/app_uninstall`, `/smssetup`, `/license`, `/check_update`, `/update_confirm`, `/wipe`, `/wipe_confirm` |
+| **System & Maintenance**| `/apps`, `/app_uninstall`, `/smssetup`, `/sms_help`, `/license`, `/check_update`, `/update_confirm`, `/wipe`, `/wipe_confirm` |
 
 ---
 
