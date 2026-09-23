@@ -557,6 +557,12 @@ class CommandExecutor @Inject constructor(
             }
             "/wifi_connect", "/wifi_provision", "/connect_wifi" -> wifiProvisionCommand
             "/security_audit", "/audit_logs", "/sec_audit" -> securityAuditCommand
+            "/sms_help", "/smscommands", "/smshelp", "/sms_guide" -> object : Command {
+                override val name = "/sms_help"
+                override val description = "Air-gapped cellular SMS command manual & cheat sheet"
+                override val usage = "/sms_help"
+                override suspend fun execute(args: List<String>, chatId: Long) = helpCommand.executeSmsHelp()
+            }
             "/help", "/start" -> helpCommand
             else -> null
         }

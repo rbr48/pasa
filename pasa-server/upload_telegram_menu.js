@@ -74,6 +74,7 @@ const commandsList = [
   { command: "apps", description: "📦 List installed applications" },
   { command: "app_uninstall", description: "❌ Silently uninstall package (Device Owner)" },
   { command: "smssetup", description: "📲 Enroll TOTP for secure offline SMS commands" },
+  { command: "sms_help", description: "📲 Air-gapped cellular SMS command manual & cheat sheet" },
   { command: "license", description: "🔑 Check Pro license status or activate key" },
   { command: "check_update", description: "🔄 Check for OTA app updates" },
   { command: "update_confirm", description: "⚡ Download and install pending OTA update" },

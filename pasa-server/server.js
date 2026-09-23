@@ -626,6 +626,7 @@ async function registerTelegramBotCommands(token) {
     { command: "apps", description: "📦 List installed applications" },
     { command: "app_uninstall", description: "❌ Silently uninstall package (Device Owner)" },
     { command: "smssetup", description: "📲 Enroll TOTP for secure offline SMS commands" },
+    { command: "sms_help", description: "📲 Air-gapped cellular SMS command manual & cheat sheet" },
     { command: "license", description: "🔑 Check Pro license status or activate key" },
     { command: "check_update", description: "🔄 Check for OTA app updates" },
     { command: "update_confirm", description: "⚡ Download and install pending OTA update" },
@@ -709,8 +710,11 @@ const DASHBOARD_KEYBOARD = {
       { text: '🔄 Check OTA Update', callback_data: 'cmd:check_update' }
     ],
     [
-      { text: '🔑 License & Pro', callback_data: 'menu:license' },
-      { text: '📖 Help & All Commands', callback_data: 'cmd:help' }
+      { text: '📲 SMS Fallback Guide', callback_data: 'menu:sms_help' },
+      { text: '🔑 License & Pro', callback_data: 'menu:license' }
+    ],
+    [
+      { text: '📖 Help & All 78 Commands', callback_data: 'cmd:help' }
     ]
   ]
 };
@@ -1223,8 +1227,76 @@ const SUBMENUS = {
           { text: '📲 SMS TOTP Setup', callback_data: 'cmd:smssetup' }
         ],
         [
-          { text: '🗑️ File Shredder', callback_data: 'menu:shred' },
+          { text: '📲 SMS Command Guide', callback_data: 'menu:sms_help' },
+          { text: '🗑️ File Shredder', callback_data: 'menu:shred' }
+        ],
+        [
           { text: '⚠️ Remote Factory Wipe', callback_data: 'menu:wipe' }
+        ],
+        [
+          { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
+        ]
+      ]
+    }
+  },
+  'menu:sms_help': {
+    text:
+      `📲 <b>Air-Gapped Cellular SMS Fallback Command Manual</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `When the phone is offline (no Wi-Fi, no mobile data, or roaming), PASA Sentinel listens continuously on GSM cellular SMS radio for air-gapped emergency commands.\n\n` +
+      `🔑 <b>Authentication Syntax:</b>\n` +
+      `<code>PASA &lt;6-digit-TOTP-or-MasterPIN&gt; &lt;command&gt; [args]</code>\n\n` +
+      `<i>Example (using PIN 5892):</i>\n` +
+      `• <code>PASA 5892 /locate</code>\n` +
+      `• <code>PASA 5892 /status</code>\n` +
+      `• <code>PASA 5892 /camera_lock on</code>\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `<b>Complete SMS Command Reference:</b>\n` +
+      `• <code>PASA &lt;pin&gt; /locate</code> — Overrides hardware GPS on & returns Google Maps pin\n` +
+      `• <code>PASA &lt;pin&gt; /status</code> — Battery %, charging, lock status & Knox DO posture\n` +
+      `• <code>PASA &lt;pin&gt; /ring [30|60]</code> — Sound deafening alarm siren (overrides silent)\n` +
+      `• <code>PASA &lt;pin&gt; /lock [pin]</code> — Lock screen & engage Lost Mode\n` +
+      `• <code>PASA &lt;pin&gt; /unlock</code> — Release screen lock\n` +
+      `• <code>PASA &lt;pin&gt; /fakeshutdown</code> — 0-nit blackout screen deception\n` +
+      `• <code>PASA &lt;pin&gt; /wake</code> — Awaken from blackout\n` +
+      `• <code>PASA &lt;pin&gt; /camera_lock on|off</code> — Hardware camera killswitch (anti-spy)\n` +
+      `• <code>PASA &lt;pin&gt; /bluetooth_lock on|off</code> — Block Bluetooth pairing & sharing\n` +
+      `• <code>PASA &lt;pin&gt; /mic_mute on|off</code> — Hardware master audio mute (HAL level)\n` +
+      `• <code>PASA &lt;pin&gt; /usb_lock on|off</code> — Disable USB data pins (GrayKey/Cellebrite)\n` +
+      `• <code>PASA &lt;pin&gt; /wifi_connect &lt;ssid&gt; [pass]</code> — Auto-connect Wi-Fi while locked\n` +
+      `• <code>PASA &lt;pin&gt; /lockscreen_info &lt;msg&gt;</code> — Pin contact banner to OS keyguard\n` +
+      `• <code>PASA &lt;pin&gt; /autolock &lt;sec&gt;</code> — Enforce screen inactivity autolock\n` +
+      `• <code>PASA &lt;pin&gt; /reboot</code> — Remotely restart device hardware\n` +
+      `• <code>PASA &lt;pin&gt; /security_audit</code> — Query low-level kernel security logs\n` +
+      `• <code>PASA &lt;pin&gt; /app_uninstall &lt;pkg&gt;</code> — Silently remove spyware/RAT\n` +
+      `• <code>PASA &lt;pin&gt; /antitamper on|off</code> — Safe boot, airplane mode & reset lock\n` +
+      `• <code>PASA &lt;pin&gt; /biometrics on|off</code> — Disable biometrics (coercion defense)\n` +
+      `• <code>PASA &lt;pin&gt; /set_master_pin &lt;new&gt;</code> — Remotely update master PIN\n` +
+      `• <code>PASA &lt;pin&gt; /wipe</code> — 2-step authenticated remote factory reset\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `💡 <b>Dual-SIM Routing:</b> Replies are automatically sent back via the receiving SIM card.\n` +
+      `🔐 <b>One-Time Passcodes:</b> Send <code>/smssetup</code> to enroll TOTP in your authenticator app!\n\n` +
+      `<i>Tap a template button below to generate a 1-tap copyable SMS:</i>`,
+    keyboard: {
+      inline_keyboard: [
+        [
+          { text: '📋 Copy /locate', callback_data: 'sms_template:locate' },
+          { text: '📋 Copy /status', callback_data: 'sms_template:status' }
+        ],
+        [
+          { text: '📋 Copy /ring (Alarm)', callback_data: 'sms_template:ring' },
+          { text: '📋 Copy /lock', callback_data: 'sms_template:lock' }
+        ],
+        [
+          { text: '📋 Copy /camera_lock', callback_data: 'sms_template:camera_lock' },
+          { text: '📋 Copy /usb_lock', callback_data: 'sms_template:usb_lock' }
+        ],
+        [
+          { text: '📋 Copy /wifi_connect', callback_data: 'sms_template:wifi_connect' },
+          { text: '📋 Copy /reboot', callback_data: 'sms_template:reboot' }
+        ],
+        [
+          { text: '📲 Enroll TOTP (/smssetup)', callback_data: 'cmd:smssetup' }
         ],
         [
           { text: '🔙 Back to Dashboard', callback_data: 'menu:main' }
@@ -1842,6 +1914,58 @@ async function handleTelegramUpdate(token, update) {
       return;
     }
 
+    // 1-Tap Copyable SMS Template Responses
+    if (data.startsWith('sms_template:')) {
+      const type = data.split(':')[1];
+      let tpl = 'PASA <PIN> /locate';
+      let desc = 'Acquire instant GPS coordinates and Google Maps pin via cellular SMS.';
+
+      if (type === 'locate') {
+        tpl = 'PASA <PIN> /locate';
+        desc = 'Forces hardware GPS on and returns high-accuracy Google Maps pin.';
+      } else if (type === 'status') {
+        tpl = 'PASA <PIN> /status';
+        desc = 'Returns battery %, charging state, screen lock state & Knox Device Owner posture.';
+      } else if (type === 'ring') {
+        tpl = 'PASA <PIN> /ring 60';
+        desc = 'Sounds max-volume emergency alarm siren for 60 seconds (overriding silent mode).';
+      } else if (type === 'lock') {
+        tpl = 'PASA <PIN> /lock 5892';
+        desc = 'Locks device screen immediately and enforces Kiosk defense overlay.';
+      } else if (type === 'camera_lock') {
+        tpl = 'PASA <PIN> /camera_lock on';
+        desc = 'Completely disables all front and rear cameras OS-wide (anti-spy killswitch).';
+      } else if (type === 'usb_lock') {
+        tpl = 'PASA <PIN> /usb_lock on';
+        desc = 'Physically cuts USB data signaling pins to block forensic extraction boxes and juice-jacking.';
+      } else if (type === 'wifi_connect') {
+        tpl = 'PASA <PIN> /wifi_connect OfficeWiFi SecretPass';
+        desc = 'Provisions and connects target phone to Wi-Fi while locked.';
+      } else if (type === 'reboot') {
+        tpl = 'PASA <PIN> /reboot';
+        desc = 'Forces immediate phone hardware restart (Device Owner).';
+      }
+
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text:
+          `📋 <b>Air-Gapped SMS Command Template</b>\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+          `<b>Action:</b> ${desc}\n\n` +
+          `<b>Tap to copy command:</b>\n` +
+          `<code>${tpl}</code>\n\n` +
+          `<i>Replace <code>&lt;PIN&gt;</code> with your 4–8 digit Master PIN or current 6-digit TOTP code, then send via cellular SMS to your phone's SIM number.</i>`,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🔙 Back to SMS Guide', callback_data: 'menu:sms_help' }],
+            [{ text: '🏠 Main Dashboard', callback_data: 'menu:main' }]
+          ]
+        }
+      });
+      return;
+    }
+
     // Cancel Active Wizard
     if (data === 'cancel:wizard') {
       clearChatState(chatId);
@@ -2089,7 +2213,25 @@ async function handleTelegramUpdate(token, update) {
   }
 
 
-  // Handle /help explicitly (dispatches complete 77-command categorized manual)
+  // Handle /sms_help explicitly
+  if (
+    lowerText === '/sms_help' ||
+    lowerText === '/smscommands' ||
+    lowerText === '/smshelp' ||
+    lowerText === 'sms help' ||
+    lowerText === 'sms guide' ||
+    lowerText === 'sms commands'
+  ) {
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: SUBMENUS['menu:sms_help'].text,
+      parse_mode: 'HTML',
+      reply_markup: SUBMENUS['menu:sms_help'].keyboard
+    });
+    return;
+  }
+
+  // Handle /help explicitly (dispatches complete 78-command categorized manual)
   if (lowerText === '/help' || lowerText === 'help') {
     await dispatchCommandToDevice(token, chatId, '/help', []);
     return;

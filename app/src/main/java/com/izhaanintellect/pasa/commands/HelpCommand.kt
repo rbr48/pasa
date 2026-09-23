@@ -116,10 +116,71 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/license [activate &lt;key&gt;]</code> — Check tier & activate Pro key
             • <code>/hide</code> / <code>/show</code> — Toggle app icon in launcher
             
+            📱 <b>Air-Gapped Cellular SMS Fallback</b>
+            • <code>/sms_help</code> — Comprehensive guide & copyable templates for offline SMS control
+            • Format: <code>PASA &lt;pin&gt; &lt;command&gt; [args]</code>
+            • Examples: <code>PASA 5892 /locate</code> | <code>PASA 5892 /status</code> | <code>PASA 5892 /lock</code>
+            • Device Owner: <code>PASA 5892 /camera_lock on</code> | <code>PASA 5892 /usb_lock on</code> | <code>PASA 5892 /reboot</code>
+            • <code>/smssetup</code> — Enroll TOTP for secure offline rotating 6-digit passcodes
+
             ━━━━━━━━━━━━━━━━━━━━
             💡 <i>Commands only respond to the authorized owner.</i>
         """.trimIndent()
 
         return CommandResult(success = true, message = helpText)
+    }
+
+    /**
+     * Dedicated SMS Fallback Command Manual & Cheatsheet
+     */
+    fun executeSmsHelp(): CommandResult {
+        val text = """
+            📲 <b>PASA Sentinel — Air-Gapped SMS Command Manual</b>
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━
+            When cellular data or Wi-Fi is disabled, severed, or jammed, PASA Sentinel operates air-gapped via direct GSM cellular SMS messages.
+            
+            🔑 <b>Authentication Syntax:</b>
+            <code>PASA &lt;6-digit-TOTP-or-MasterPIN&gt; &lt;command&gt; [args]</code>
+            
+            <i>Example (Master PIN: 5892):</i>
+            • <code>PASA 5892 /locate</code>
+            • <code>PASA 5892 /status</code>
+            • <code>PASA 5892 /camera_lock on</code>
+            
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━
+            📡 <b>Location & Diagnostics:</b>
+            • <code>PASA &lt;pin&gt; /locate</code> — Overrides hardware GPS on & returns Maps pin
+            • <code>PASA &lt;pin&gt; /status</code> — Battery %, charging state, lock status & DO posture
+            
+            🚨 <b>Emergency Lockdown & Sirens:</b>
+            • <code>PASA &lt;pin&gt; /lock [pin]</code> — Lock device screen with custom or default PIN
+            • <code>PASA &lt;pin&gt; /unlock</code> — Release screen lock & dismiss Lost Mode
+            • <code>PASA &lt;pin&gt; /ring [30|60]</code> — Sound full-volume alarm siren (overrides silent)
+            • <code>PASA &lt;pin&gt; /fakeshutdown</code> — 0-nit blackout screen deception
+            • <code>PASA &lt;pin&gt; /wake</code> — Restore display from blackout
+            
+            👑 <b>Knox Device Owner Killswitches:</b>
+            • <code>PASA &lt;pin&gt; /camera_lock on|off</code> — Hardware camera killswitch (anti-spy)
+            • <code>PASA &lt;pin&gt; /bluetooth_lock on|off</code> — Disallow Bluetooth pairing & file transfer
+            • <code>PASA &lt;pin&gt; /mic_mute on|off</code> — Hardware master audio mute (HAL level)
+            • <code>PASA &lt;pin&gt; /usb_lock on|off</code> — Disable USB data pins (blocks forensic boxes)
+            • <code>PASA &lt;pin&gt; /wifi_connect &lt;ssid&gt; [pass]</code> — Connect Wi-Fi while locked
+            • <code>PASA &lt;pin&gt; /lockscreen_info &lt;msg&gt;</code> — Pin contact message to lockscreen
+            • <code>PASA &lt;pin&gt; /autolock &lt;sec&gt;</code> — Enforce screen inactivity autolock timeout
+            • <code>PASA &lt;pin&gt; /reboot</code> — Remotely restart phone hardware
+            • <code>PASA &lt;pin&gt; /security_audit</code> — Query low-level kernel security logs
+            • <code>PASA &lt;pin&gt; /app_uninstall &lt;pkg&gt;</code> — Silently uninstall spyware or RAT
+            
+            🛡️ <b>System Security & Remote Wipe:</b>
+            • <code>PASA &lt;pin&gt; /antitamper on|off</code> — Safe boot, airplane mode & reset lock
+            • <code>PASA &lt;pin&gt; /biometrics on|off</code> — Disable fingerprint/face unlock under coercion
+            • <code>PASA &lt;pin&gt; /set_master_pin &lt;new&gt;</code> — Remotely rotate master PIN
+            • <code>PASA &lt;pin&gt; /wipe</code> — 2-step authenticated factory reset
+            
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━
+            💡 <b>Dual-SIM Routing:</b> Outbound SMS replies are automatically routed through the exact SIM card slot that received the incoming command.
+            📲 <b>TOTP Enrollment:</b> Run <code>/smssetup</code> to link your authenticator app for rotating one-time offline authentication!
+        """.trimIndent()
+        return CommandResult(success = true, message = text)
     }
 }

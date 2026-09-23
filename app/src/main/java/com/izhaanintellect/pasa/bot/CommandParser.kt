@@ -67,6 +67,7 @@ class CommandParser @Inject constructor() {
                 clean.contains("harden boot") || clean.contains("lock recovery") -> Pair("/harden_boot", parts.drop(1))
                 clean.contains("factory reset") || clean.contains("reset protection") -> Pair("/factory_reset_defense", parts.drop(1))
                 clean.contains("license") || clean.contains("pro key") -> Pair("/license", parts.drop(1))
+                clean.contains("sms help") || clean == "sms" || clean == "sms commands" || clean == "sms guide" -> Pair("/sms_help", emptyList())
                 clean.contains("control panel") || clean == "menu" || clean == "help" -> Pair("/help", emptyList())
                 else -> return null
             }
