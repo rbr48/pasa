@@ -246,19 +246,25 @@ const faqData = [
     category: "hardware",
     categoryNameEn: "Extreme Hardware & EDL/BROM",
     categoryNameBn: "চরম হার্ডওয়্যার ও ইডিএল",
-    qEn: "What if the thief boots into Recovery Mode and executes a Hard Factory Reset?",
-    qBn: "চোর যদি রিকভারি মোডে (Recovery Mode) নিয়ে হার্ড রিসেট মেরে দেয়?",
-    aEn: `<p>PASA counters recovery attacks through 3 resilient layers:</p>
+    qEn: "What if the thief boots into Fastboot Mode to hard-flash a ROM or executes a Recovery Reset?",
+    qBn: "চোর যদি ফাস্টবুট মোডে (Fastboot Mode) নিয়ে হার্ড ফ্ল্যাশ মারে বা রিকভারি মোডে রিসেট দেয়?",
+    aEn: `<p><strong>Technical Reality & Multi-Tier Hardware Hardening:</strong></p>
+<p>To flash custom ROMs or partitions via Fastboot, the device <strong>Bootloader must be Unlocked</strong>. On a locked bootloader, Fastboot unconditionally rejects any write commands (<code>FAILED: Device is locked</code>).</p>
+<p>PASA Sentinel defends against bootloader flashing through 4 hardware-backed layers:</p>
 <ol>
-  <li><strong>Recovery Hardening:</strong> PASA's boot hardening policy (<code>/harden_boot</code>) and Device Owner flag <code>DISALLOW_FACTORY_RESET</code> block recovery wipe calls.</li>
-  <li><strong>Hardware FRP (Factory Reset Protection):</strong> Even if wiped on unbranded hardware, Google's cryptographic FRP lock engages immediately upon boot, rendering the device an inoperable brick without original credentials.</li>
-  <li><strong>Samsung Knox Enterprise Persistence:</strong> On Samsung Knox enterprise hardware, Device Owner policies persist across firmware resets.</li>
+  <li><strong>Anti-Fastboot OEM Bootloader Hardening (<code>/harden_boot</code>):</strong> Device Owner permanently locks <code>UserManager.DISALLOW_OEM_UNLOCK</code>. The "OEM Unlocking" toggle in Developer Options is permanently disabled and grayed out. If the thief connects to a PC and runs <code>fastboot oem unlock</code>, the hardware rejects it: <code>FAILED: OEM unlock is not allowed by device management policy</code>.</li>
+  <li><strong>Recovery Mode Factory Reset Block:</strong> Device Owner sets <code>UserManager.DISALLOW_FACTORY_RESET</code>, preventing wipe operations from recovery and enforcing strict hardware FRP (Factory Reset Protection).</li>
+  <li><strong>USB Data Pin Severing (<code>/usb_lock</code>):</strong> On Android 12+, physical USB data pins are severed, preventing PC bridge enumeration.</li>
+  <li><strong>Cryptographic Data Annihilation (File-Based Encryption):</strong> Even if a black-market technician uses paid authorized service EDL accounts to force-flash a factory ROM, Android's <strong>File-Based Encryption (AES-256-XTS)</strong> keys stored in the hardware RPMB / TEE are instantly destroyed. The thief receives an empty, wiped phone, but <strong>zero bytes of personal photos, banking info, or files can ever be recovered or leaked.</strong></li>
 </ol>`,
-    aBn: `<p>পাসার ডিফেন্স লেয়ার একে তিনভাবে প্রতিহত করে:</p>
+    aBn: `<p><strong>কারিগরি বাস্তবতা ও বহুস্তরের হার্ডওয়্যার ডিফেন্স:</strong></p>
+<p>ফাস্টবুট (Fastboot) দিয়ে কম্পিউটারের মাধ্যমে কোনো রম বা কার্নেল ফ্ল্যাশ করতে হলে ডিভাইসের <strong>Bootloader Unlocked</strong> থাকা আবশ্যক। বুটলোডার লক থাকা অবস্থায় ফাস্টবুট যেকোনো ফ্ল্যাশ রিকোয়েস্ট সরাসরি রিজেক্ট করে (<code>FAILED: Device is locked</code>)।</p>
+<p>পাসা সেন্টিনেল ফাস্টবুট ও রিকভারি আক্রমণকে ৪টি স্তরে প্রতিহত করে:</p>
 <ol>
-  <li><strong>রিকভারি ব্লক ও হার্ডেনিং:</strong> পাসার অ্যাডভান্সড বুট হার্ডেনিং (<code>/harden_boot</code>) এবং ডিভাইস ওনার পলিসি <code>DISALLOW_FACTORY_RESET</code> সিস্টেমে সক্রিয় থাকে।</li>
-  <li><strong>ফ্যাক্টরি রিসেট প্রোটেকশন (FRP):</strong> যদি কোনোভাবে আন-ব্র্যান্ডেড ফোনে রিকভারি থেকে ওয়াইপ করাও হয়, বুট হওয়ার পর গুগল হার্ডওয়্যার ক্রিপ্টোগ্রাফিক FRP লক ডিভাইসে সক্রিয় হয়ে যায়, যা মূল মালিকের ক্রেডেনশিয়াল ছাড়া ফোন রান করতে দেয় না।</li>
-  <li><strong>স্যামসাং নক্স এন্টারপ্রাইজ পারসিস্টেন্স:</strong> স্যামসাং নক্স ডিভাইসে ডিভাইস ওনার রিসেটের পরেও অক্ষত থাকে।</li>
+  <li><strong>অ্যান্টি-ফাস্টবুট বুটলোডার লকআউট (<code>/harden_boot</code>):</strong> পাসা ডিভাইস ওনার হিসেবে ওএস-এ <code>UserManager.DISALLOW_OEM_UNLOCK</code> স্থায়ীভাবে এনফোর্স করে। সেটিংসের "OEM Unlocking" অপশনটি স্থায়ীভাবে ধূসর ও নিষ্ক্রিয় হয়ে যায়। চোর পিসিতে লাগিয়ে <code>fastboot oem unlock</code> কমান্ড দিলেও ফোনের মাদারবোর্ড সরাসরি বাতিল করে দেয়: <code>FAILED: OEM unlock is not allowed by device management policy</code>।</li>
+  <li><strong>রিকভারি মোড হার্ড রিসেট ব্লক:</strong> ডিভাইস ওনার পলিসি <code>UserManager.DISALLOW_FACTORY_RESET</code> রিকভারি মোড দিয়ে ডেটা ওয়াইপ করা আটকে দেয় এবং গুগলের হার্ডওয়্যার FRP সক্রিয় রাখে।</li>
+  <li><strong>ইউএসবি ডেটা পিন কিলসুইচ (<code>/usb_lock</code>):</strong> Android 12+ ফিজিক্যাল ইউএসবি ডেটা পিন বন্ধ করে দিয়ে পিসির সাথে ফাস্টবুট বা এডিবি যোগাযোগ বিচ্ছিন্ন করে।</li>
+  <li><strong>ক্রিপ্টোগ্রাফিক ডেটা সুরক্ষা (File-Based Encryption):</strong> চোর যদি পেইড অথোরাইজড ল্যাব অ্যাকাউন্ট দিয়ে কোনোভাবে ফোন ফ্ল্যাশ করেও ফেলে, তবে অ্যান্ড্রয়েডের <strong>AES-256-XTS</strong> এনক্রিপশন কী প্রসেসরের RPMB/কীস্টোর থেকে চিরতরে ধ্বংস হয়ে যায়। চোর কেবল একটি খালি ফোন পাবে, কিন্তু আপনার ছবি, বিকাশ বা ব্যক্তিগত তথ্যের <strong>একটি বাইটও উদ্ধার করা কোনো ফরেনসিক ল্যাবের পক্ষেও সম্ভব নয়।</strong></li>
 </ol>`
   },
   {
@@ -367,17 +373,19 @@ const faqData = [
     categoryNameBn: "স্টিলথ নজরদারি ও ফরেনসিক্স",
     qEn: "When capturing photos or video of the thief, will there be flash, shutter sound, or screen flickers?",
     qBn: "চোরের ছবি বা ভিডিও তোলার সময় কি ক্যামেরার ফ্ল্যাশ জ্বলবে, শাটার সাউন্ড হবে বা স্ক্রিন অন হবে? চোর কি কিছু বুঝতে পারবে?",
-    aEn: `<p><strong>Zero Shutter Sound, Zero Flash, Zero Display Flicker (100% Headless CameraX Architecture):</strong></p>
+    aEn: `<p><strong>Zero Shutter Sound, Zero Flash, Zero Display Flicker (Headless CameraX Architecture):</strong></p>
 <ul>
   <li><strong>No Transparent Overlay:</strong> CameraX binds directly to background ServiceLifecycleOwner without any activity or screen preview.</li>
   <li><strong>Zero Display Dimming:</strong> Even if the thief is looking at the screen, the display will not flicker, dim, or black out.</li>
   <li><strong>Hardware Muted:</strong> Shutter sounds are muted at the HAL layer, and flash LEDs remain permanently dark.</li>
+  <li><strong>Android 12+ Privacy Indicator (Green Dot) Note:</strong> Android OS kernel renders a temporary green dot indicator in the status bar while the sensor is active. However, because PASA captures in a fraction of a second and immediately tears down the camera session without displaying any UI previews, the perpetrator has zero time to notice before their mugshot is safely transmitted to Telegram.</li>
 </ul>`,
-    aBn: `<p><strong>একদমই না। এটি ১০০% সাইলেন্ট ও হেডলেস (Zero-Blackout Headless CameraX Architecture):</strong></p>
+    aBn: `<p><strong>কোনো সাউন্ড বা স্ক্রিন ফ্লিকার নেই (Zero-Blackout Headless CameraX Architecture):</strong></p>
 <ul>
-  <li><strong>কোনো অ্যাক্টিভিটি নেই:</strong> সাধারণ অ্যাপের মতো স্ক্রিনের ওপর কোনো ক্যামেরা প্রিভিউ বা ট্রান্সপারেন্ট উইন্ডো আসে না। ক্যামেরা এক্স সার্ভিসলাইফসাইকেলের সাথে সরাসরি ব্যাকগ্রাউন্ডে বাইন্ড থাকে।</li>
-  <li><strong>কোনো ডিসপ্লে ব্ল্যাকআউট বা ফ্লিকার নেই:</strong> চোর যদি ডিসপ্লে দেখছিলও, স্ক্রিন কাঁপবে না বা নিভবে না।</li>
-  <li><strong>শব্দহীন:</strong> ওএস ক্যামেরা শাটার সাউন্ড সম্পূর্ণ মিউট করা থাকে এবং ফ্ল্যাশলাইট কখনোই অন হয় না।</li>
+  <li><strong>কোনো প্রিভিউ উইন্ডো নেই:</strong> স্ক্রিনের ওপর কোনো ক্যামেরা প্রিভিউ বা পপআপ উইন্ডো আসে না। ক্যামেরা সরাসরি ব্যাকগ্রাউন্ড সার্ভিসের সাথে যুক্ত থাকে।</li>
+  <li><strong>ডিসপ্লে নিভবে না:</strong> চোর স্ক্রিনের দিকে তাকিয়ে থাকলেও স্ক্রিন কাঁপবে না বা নিভবে না।</li>
+  <li><strong>শব্দহীন:</strong> ওএস ক্যামেরা শাটার সাউন্ড সম্পূর্ণ মিউট থাকে এবং ফ্ল্যাশলাইট বন্ধ থাকে।</li>
+  <li><strong>অ্যান্ড্রয়েড ১২+ প্রাইভেসি গ্রিন ডট সতর্কতা:</strong> Android 12+ ওএসের কার্নেল সিকিউরিটির কারণে ক্যামেরা চলার সময় স্ট্যাটাস বারে এক মুহূর্তের জন্য ছোট সবুজ ডট (Privacy Indicator) দৃশ্যমান হতে পারে। তবে পাসা মিলি-সেকেন্ডের মধ্যে হেডলেস ক্যাপচার শেষ করে ক্যামেরা বন্ধ করে দেয়, ফলে চোর কিছু বোঝার আগেই তার মুখমণ্ডলের ছবি সরাসরি টেলিগ্রামে পৌঁছে যায়।</li>
 </ul>`
   },
   {
@@ -504,8 +512,12 @@ const faqData = [
     categoryNameBn: "সেন্সর ট্র্যাপ ও ডিসেপশন",
     qEn: "How does Fake Shutdown deceive the perpetrator?",
     qBn: "ফেক শাটডাউন (Fake Shutdown) কীভাবে চোরকে বিভ্রান্ত করে?",
-    aEn: `<p>When a thief triggers power-off, PASA renders an authentic manufacturer shutdown animation and lowers display brightness to 0-nit pitch black. Screen taps silently capture front-camera mugshots and log GPS beacons. Wake the phone remotely with <code>/wake</code> or via a secret multi-tap touch pattern.</p>`,
-    aBn: `<p>চোর পাওয়ার বাটন চাপলে ফোন আসল অফিসিয়াল পাওয়ার-অফ অ্যানিমেশন দেখায় এবং স্ক্রিন পুরোপুরি ব্ল্যাকআউট (০-নিট) করে দেয়। চোর স্ক্রিন স্পর্শ করলেই ফ্রন্ট ক্যামেরা সাইলেন্টলি চোরের ছবি তুলে জিপিএস ট্র্যাকসহ টেলিগ্রামে পাঠাতে থাকে। টেলিগ্রাম থেকে <code>/wake</code> পাঠালে বা স্ক্রিনে বিশেষ ছন্দে মাল্টি-ট্যাপ করলেই ফোন স্বাভাবিক স্ক্রিনে ফিরে আসে।</p>`
+    aEn: `<p><strong>Tactical Delay Tactic & Psychological Deception:</strong></p>
+<p>When a thief triggers standard power-down via the power button, PASA intercepts the intent, renders an authentic manufacturer power-off animation, and plunges the display into an unresponsive 0-nit pitch black canvas. Screen taps covertly capture front-camera mugshots and log GPS beacons.</p>
+<p><strong>Hardware Button Reality (PMIC Force Reboot):</strong> If an experienced thief holds <em>Power + Volume Down</em> physically for 10–15 seconds, the processor's PMIC electrical circuit will force a hardware reboot. To neutralize this, PASA Sentinel is engineered with <strong>Direct Boot Architecture (<code>directBootAware="true"</code>)</strong>: the moment the hardware powers back on, PASA auto-resurrects in Device Encrypted Storage *before the phone is unlocked*, immediately re-locking kiosk security and re-establishing cellular SMS C2.</p>`,
+    aBn: `<p><strong>মনস্তাত্ত্বিক বিলম্ব কৌশল (Tactical Delay Tactic):</strong></p>
+<p>চোর পাওয়ার বাটন চেপে ফোন বন্ধ করতে গেলে পাসা অফিসিয়াল শাটডাউন অ্যানিমেশন দেখিয়ে ডিসপ্লে ০-নিট কালো স্ক্রিনে নিয়ে যায়। চোর নিশ্চিত থাকে যে ফোন বন্ধ, অথচ ব্যাকগ্রাউন্ডে ক্যামেরা ও জিপিএস পুরোদমে সচল থাকে।</p>
+<p><strong>হার্ডওয়্যার বাটন ও পিএমআইসি রিবুট বাস্তবতা:</strong> চোর যদি ফিজিক্যাল <em>Power + Volume Down</em> বাটন ১০–১৫ সেকেন্ড চেপে ধরে রাখে, তবে প্রসেসরের PMIC সার্কিট হার্ডওয়্যার ফোর্সড রিবুট নেবেই। কিন্তু পাসা সেন্টিনেল এই সংকট সমাধান করেছে <strong>ডিরেক্ট বুট আর্কিটেকচার (Direct Boot Awareness)</strong> দিয়ে। ফোন রিবুট হয়ে চালু হওয়ার পর কোনো লকস্ক্রিন পাসওয়ার্ড দেওয়ার আগেই পাসা সিস্টেম স্টোরেজ থেকে স্বয়ংক্রিয়ভাবে সক্রিয় হয়ে কিয়স্ক লকডাউন ফিরিয়ে আনে এবং এসএমএস সি২ সচল করে।</p>`
   },
   {
     category: "traps",
@@ -571,25 +583,26 @@ const faqData = [
     categoryNameBn: "আইনি বৈধতা ও লাইসেন্স",
     qEn: "If my phone is stolen, will the police / CID / RAB accept PASA's evidence for GD and FIR filing?",
     qBn: "ফোন চুরি হলে জিডি (GD) করা বা পুলিশ/র‍্যাবের কাছে এই প্রমাণ নিয়ে গেলে কি তারা এটাকে আইনসম্মতভাবে গ্রহণ করবে?",
-    aEn: `<p><strong>100% Legally Admissible & Highly Recommended by Investigators.</strong></p>
-<p>PASA is your personal device security guard, not a surveillance wiretap on others. PASA provides evidence ready for law enforcement:</p>
+    aEn: `<p><strong>Tactical Recovery Intelligence & Law Enforcement Investigation Aid:</strong></p>
+<p>PASA Sentinel is your sovereign device defense agent, not an unlawful wiretap. It generates actionable intelligence specifically tailored for police, CID, and RAB investigation units:</p>
 <ol>
-  <li>Hardware IMEI and device serial.</li>
-  <li>Timestamped GNSS satellite GPS coordinates & Google Maps pins.</li>
-  <li>Connected 4G/5G cell tower IDs (Cell-ID & LAC/TAC).</li>
-  <li>High-definition perpetrator facial photographs.</li>
-  <li><strong>The thief's own phone number via Caller ID from the unauthorized SIM alert.</strong></li>
-</ol>`,
-    aBn: `<p><strong>হ্যাঁ, শতভাগ আইনসম্মত ও কার্যকরী।</strong></p>
-<p>পাসা কোনো অবৈধ হ্যাকিং টুল নয়; এটি মালিকের নিজস্ব ডিভাইসের নিরাপত্তা গার্ড। চুরির পর পাসা যেসব তথ্য দেয়:</p>
+  <li>Hardware IMEI and device serial numbers matching original purchase receipts.</li>
+  <li>Timestamped GNSS satellite GPS coordinates & Google Maps pins showing exact device movement.</li>
+  <li>Connected 4G/5G cell tower IDs (MCC, MNC, Cell-ID, LAC/TAC) for physical triangulation.</li>
+  <li>High-definition perpetrator facial photographs captured during unauthorized access.</li>
+  <li><strong>The thief's own mobile phone number via Caller ID from unauthorized foreign SIM insertion.</strong></li>
+</ol>
+<p><em>Legal Note:</em> While direct court admissibility of surveillance media is governed by local telecommunication and evidence acts, police and rapid-action teams rely directly on PASA's live telemetry and Caller IDs to track down suspects, conduct physical raids, and recover stolen property.</p>`,
+    aBn: `<p><strong>আইনশৃঙ্খলা বাহিনীর জন্য ট্যাকটিক্যাল রিকভারি ইন্টেলিজেন্স:</strong></p>
+<p>পাসা কোনো অবৈধ হ্যাকিং টুল নয়; এটি মালিকের নিজস্ব ডিভাইসের নিরাপত্তা গার্ড। চুরির পর পাসা পুলিশ, সিআইডি ও র‍্যাবের তদন্তের জন্য সুনির্দিষ্ট ক্লু তৈরি করে দেয়:</p>
 <ol>
   <li>ডিভাইসের আসল আইএমইআই (IMEI) ও সিরিয়াল নম্বর।</li>
   <li>টাইমস্ট্যাম্পসহ স্যাটেলাইট জিপিএস কোঅর্ডিনেট ও গুগল ম্যাপের পিন।</li>
-  <li>কানেক্টেড মোবাইল টাওয়ার আইডি (Cell-ID & LAC)।</li>
+  <li>কানেক্টেড মোবাইল টাওয়ার আইডি (Cell-ID & LAC/TAC)।</li>
   <li>চোর বা টেকনিশিয়ানের চেহারার স্পষ্ট ফ্রন্ট ক্যামেরা ছবি।</li>
   <li>চোরের নিজের সিম কার্ডের ফোন নম্বর (Caller ID)।</li>
 </ol>
-<p>থানায় জিডি করার সময় বা পুলিশের আইটি ক্রাইম বিভাগে এই তথ্যগুলো সরাসরি জমা দিলে যেকোনো তদন্তকারী কর্মকর্তা চোর ও ফোন শনাক্ত করতে সর্বোচ্চ সুবিধা পান।</p>`
+<p><em>আইনি বিষয়:</em> আদালতে সাক্ষ্যমূল্য স্থানীয় টেলিযোগাযোগ ও ডিজিটাল নিরাপত্তা আইনের ওপর নির্ভরশীল হলেও, তদন্তকারী পুলিশ ও গোয়েন্দা কর্মকর্তারা চোরকে দ্রুত চিহ্নিত করতে, রেইড দিতে এবং ডিভাইস উদ্ধার করতে এই লাইভ লোকেশন ও কলার আইডিকে সবচেয়ে কার্যকর ক্লু হিসেবে ব্যবহার করেন।</p>`
   },
   {
     category: "legal",

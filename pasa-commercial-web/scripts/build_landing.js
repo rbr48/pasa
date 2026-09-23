@@ -341,40 +341,40 @@ function generateHtml() {
     background: rgba(255,255,255,0.25); color: #ffffff;
   }
   .features-grid-rich {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 20px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;
   }
   .feature-card-rich {
-    background: #ffffff; border: 1px solid var(--border); border-radius: 14px;
-    padding: 24px 22px; display: flex; flex-direction: column; justify-content: space-between;
+    background: #ffffff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between;
     box-shadow: var(--shadow-sm); transition: all 0.2s ease;
   }
   .feature-card-rich:hover {
     border-color: #cbd5e1; transform: translateY(-2px); box-shadow: var(--shadow-md);
   }
   .feature-header {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
   }
   .feature-tag {
     font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--cyan);
-    padding: 2px 8px; border-radius: 4px; background: var(--cyan-subtle); border: 1px solid #bae6fd;
+    padding: 2px 7px; border-radius: 4px; background: var(--cyan-subtle); border: 1px solid #bae6fd;
   }
-  .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
-  .feature-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; }
+  .feature-title { font-size: 15.5px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .feature-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
   .threat-box {
     background: #fef2f2; border: 1px solid #fee2e2; border-left: 3px solid var(--crimson);
-    border-radius: 8px; padding: 10px 12px; margin-top: 14px; font-size: 12.5px; color: #991b1b;
-    line-height: 1.5;
+    border-radius: 6px; padding: 8px 10px; margin-top: 10px; font-size: 12px; color: #991b1b;
+    line-height: 1.45;
   }
   .threat-title {
-    font-weight: 700; font-family: var(--mono); font-size: 10.5px; text-transform: uppercase;
+    font-weight: 700; font-family: var(--mono); font-size: 10px; text-transform: uppercase;
     margin-bottom: 2px; display: flex; align-items: center; gap: 5px; color: var(--crimson);
   }
   .cmd-badges {
-    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; align-items: center;
+    display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; align-items: center;
   }
   .cmd-badge {
     background: var(--bg-muted); border: 1px solid var(--border); color: var(--text);
-    padding: 3px 8px; border-radius: 6px; font-family: var(--mono); font-size: 11.5px; font-weight: 600;
+    padding: 2px 7px; border-radius: 5px; font-family: var(--mono); font-size: 11px; font-weight: 600;
     cursor: pointer; transition: all 0.15s;
   }
   .cmd-badge:hover {
@@ -383,20 +383,20 @@ function generateHtml() {
 
   /* ── 86-Command Interactive Matrix ── */
   .cmd-controls {
-    max-width: 900px; margin: 0 auto 30px; display: flex; flex-direction: column; gap: 14px;
+    max-width: 900px; margin: 0 auto 24px; display: flex; flex-direction: column; gap: 12px;
   }
   .cmd-search {
     width: 100%; background: #ffffff; border: 1px solid var(--border-hover);
-    border-radius: 10px; padding: 13px 18px; color: var(--text); font-size: 14.5px;
+    border-radius: 10px; padding: 12px 18px; color: var(--text); font-size: 14px;
     outline: none; font-family: var(--font); transition: all 0.2s; box-shadow: var(--shadow-sm);
   }
   .cmd-search:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12); }
   .cmd-pills {
-    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    display: flex; flex-wrap: wrap; gap: 7px; justify-content: center;
   }
   .cmd-pill {
     background: #ffffff; border: 1px solid var(--border); color: var(--text-dim);
-    padding: 7px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 600;
+    padding: 6px 13px; border-radius: 20px; font-size: 12px; font-weight: 600;
     cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-sm);
   }
   .cmd-pill:hover:not(.active) { color: var(--text); background: var(--bg-muted); }
@@ -404,20 +404,28 @@ function generateHtml() {
     background: var(--crimson); color: #ffffff; border-color: var(--crimson);
     box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
   }
+  .cmd-status-wrap {
+    display: flex; justify-content: center; margin-bottom: 12px;
+  }
+  .cmd-search-status {
+    font-family: var(--mono); font-size: 12px; color: var(--cyan); font-weight: 600;
+    background: var(--cyan-subtle); padding: 5px 14px; border-radius: 20px;
+    border: 1px solid #bae6fd;
+  }
   .cmd-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px;
   }
   .cmd-card {
-    background: #ffffff; border: 1px solid var(--border); border-radius: 10px;
-    padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between;
+    background: #ffffff; border: 1px solid var(--border); border-radius: 9px;
+    padding: 13px 15px; display: flex; flex-direction: column; justify-content: space-between;
     transition: all 0.15s ease; box-shadow: var(--shadow-sm);
   }
   .cmd-card:hover { border-color: var(--cyan); box-shadow: var(--shadow-md); }
   .cmd-hdr {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px;
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 6px;
   }
   .cmd-token {
-    font-family: var(--mono); font-size: 13.5px; font-weight: 700; color: var(--cyan);
+    font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--cyan);
     display: flex; align-items: center; gap: 6px;
   }
   .cmd-params {
@@ -427,28 +435,44 @@ function generateHtml() {
     display: flex; gap: 4px;
   }
   .tag-tg {
-    background: #e0f2fe; color: #0369a1; font-family: var(--mono); font-size: 9.5px;
-    font-weight: 700; padding: 2px 6px; border-radius: 4px; border: 1px solid #bae6fd;
+    background: #e0f2fe; color: #0369a1; font-family: var(--mono); font-size: 9px;
+    font-weight: 700; padding: 2px 5px; border-radius: 4px; border: 1px solid #bae6fd;
   }
   .tag-sms {
-    background: #ecfdf5; color: #047857; font-family: var(--mono); font-size: 9.5px;
-    font-weight: 700; padding: 2px 6px; border-radius: 4px; border: 1px solid #a7f3d0;
+    background: #ecfdf5; color: #047857; font-family: var(--mono); font-size: 9px;
+    font-weight: 700; padding: 2px 5px; border-radius: 4px; border: 1px solid #a7f3d0;
   }
   .cmd-body {
-    font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px;
+    font-size: 12.5px; color: var(--text-dim); line-height: 1.45; margin-bottom: 10px;
   }
   .cmd-footer {
-    display: flex; align-items: center; justify-content: space-between; font-size: 11px;
+    display: flex; align-items: center; justify-content: space-between; font-size: 10.5px;
     font-family: var(--mono); color: var(--text-faint); border-top: 1px dashed var(--border);
-    padding-top: 10px;
+    padding-top: 8px;
   }
   .btn-copy-cmd {
-    background: var(--bg-muted); border: 1px solid var(--border); border-radius: 6px;
-    padding: 3px 8px; font-family: var(--mono); font-size: 11px; font-weight: 600;
+    background: var(--bg-muted); border: 1px solid var(--border); border-radius: 5px;
+    padding: 2px 7px; font-family: var(--mono); font-size: 10.5px; font-weight: 600;
     color: var(--text-dim); cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
     transition: all 0.15s;
   }
   .btn-copy-cmd:hover { background: var(--cyan-subtle); color: var(--cyan); border-color: var(--cyan); }
+
+  /* ── Compact Expand / Collapse Button Container ── */
+  .expand-btn-container {
+    grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 22px;
+  }
+  .btn-expand-more {
+    background: #ffffff; border: 1.5px solid var(--border-hover); border-radius: 30px;
+    padding: 10px 24px; font-size: 13px; font-weight: 700; color: var(--text);
+    cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+    box-shadow: var(--shadow-sm); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: var(--font);
+  }
+  .btn-expand-more:hover {
+    background: var(--bg-muted); border-color: var(--cyan); color: var(--cyan);
+    box-shadow: var(--shadow-md); transform: translateY(-1px);
+  }
 
   /* ── Comparison Table ── */
   .table-container {
@@ -964,6 +988,10 @@ function generateHtml() {
       <div class="cmd-pills" id="commandPills">
         <!-- Rendered dynamically by JS -->
       </div>
+    </div>
+
+    <div class="cmd-status-wrap">
+      <div id="commandSearchStatus" class="cmd-search-status" style="display:none;"></div>
     </div>
 
     <div class="cmd-grid" id="commandsContainer">
@@ -1589,8 +1617,10 @@ const translations = {
 
 let currentLang = 'en';
 let currentFaqCategory = 'all';
-let currentFeatureHub = 'all';
-let currentCommandCategory = 'all';
+let currentFeatureHub = 'knox';
+let currentCommandCategory = 'core';
+let showAllFeatures = false;
+let showAllCommands = false;
 
 function setLanguage(lang) {
   if (lang !== 'en' && lang !== 'bn') {
@@ -1684,16 +1714,23 @@ function renderFeatureHubTabs() {
   let totalCards = 0;
   rawHubs.forEach(h => { totalCards += (h.cards ? h.cards.length : 0); });
 
-  const tabs = [
-    { id: 'all', label: isBn ? 'সকল ফিচার (' + totalCards + ')' : 'All Capabilities (' + totalCards + ')' }
-  ];
+  const hubOrder = ['knox', 'forensics', 'deception', 'location', 'traps', 'sms', 'privacy', 'diagnostics'];
+  const tabs = [];
 
-  rawHubs.forEach(h => {
-    const count = h.cards ? h.cards.length : 0;
-    tabs.push({
-      id: h.id,
-      label: (isBn ? h.nameBn : h.nameEn) + ' (' + count + ')'
-    });
+  hubOrder.forEach(hid => {
+    const h = rawHubs.find(item => item.id === hid);
+    if (h) {
+      const count = h.cards ? h.cards.length : 0;
+      tabs.push({
+        id: h.id,
+        label: (isBn ? h.nameBn : h.nameEn) + ' (' + count + ')'
+      });
+    }
+  });
+
+  tabs.push({
+    id: 'all',
+    label: isBn ? 'সকল ফিচার (' + totalCards + ')' : 'All Capabilities (' + totalCards + ')'
   });
 
   tabsContainer.innerHTML = tabs.map(tab => {
@@ -1704,8 +1741,17 @@ function renderFeatureHubTabs() {
 
 function setFeatureHub(hubId) {
   currentFeatureHub = hubId;
+  showAllFeatures = false;
   renderFeatureHubTabs();
   renderFeatureCards();
+}
+
+function toggleExpandFeatures() {
+  showAllFeatures = !showAllFeatures;
+  renderFeatureCards();
+  if (!showAllFeatures) {
+    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
 function renderFeatureCards() {
@@ -1713,17 +1759,25 @@ function renderFeatureCards() {
   if (!container || typeof rawHubs === 'undefined') return;
   const isBn = currentLang === 'bn';
 
-  let displayCards = [];
+  let allMatchingCards = [];
   rawHubs.forEach(hub => {
     if (currentFeatureHub !== 'all' && hub.id !== currentFeatureHub) return;
     if (Array.isArray(hub.cards)) {
       hub.cards.forEach(c => {
-        displayCards.push({ ...c, hubIcon: hub.icon, hubName: isBn ? hub.nameBn : hub.nameEn });
+        allMatchingCards.push({ ...c, hubIcon: hub.icon, hubName: isBn ? hub.nameBn : hub.nameEn });
       });
     }
   });
 
-  container.innerHTML = displayCards.map(c => {
+  let displayCards = allMatchingCards;
+  let showExpandBtn = false;
+
+  if (currentFeatureHub === 'all' && !showAllFeatures && allMatchingCards.length > 9) {
+    displayCards = allMatchingCards.slice(0, 9);
+    showExpandBtn = true;
+  }
+
+  const cardsHtml = displayCards.map(c => {
     const title = (isBn ? c.titleBn : c.titleEn) || '';
     const desc = (isBn ? c.descBn : c.descEn) || '';
     const threat = (isBn ? c.threatBn : c.threatEn) || '';
@@ -1762,6 +1816,32 @@ function renderFeatureCards() {
       </div>
     \`;
   }).join('');
+
+  let expandBtnHtml = '';
+  if (currentFeatureHub === 'all') {
+    if (showExpandBtn) {
+      const remaining = allMatchingCards.length - 9;
+      expandBtnHtml = \`
+        <div class="expand-btn-container">
+          <button class="btn-expand-more" onclick="toggleExpandFeatures()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            \${isBn ? ('সবগুলো ৪৫টি ফিচার দেখুন (' + remaining + 'টি আরও)') : ('Show All 45 Capabilities (' + remaining + ' More)')}
+          </button>
+        </div>
+      \`;
+    } else if (showAllFeatures && allMatchingCards.length > 9) {
+      expandBtnHtml = \`
+        <div class="expand-btn-container">
+          <button class="btn-expand-more" onclick="toggleExpandFeatures()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="15" x2="12" y2="9"/><line x1="6" y1="15" x2="12" y2="9"/></svg>
+            \${isBn ? 'সংক্ষেপ করুন' : 'Show Less'}
+          </button>
+        </div>
+      \`;
+    }
+  }
+
+  container.innerHTML = cardsHtml + expandBtnHtml;
 }
 
 /* ── 86-Command Matrix Logic ── */
@@ -1771,18 +1851,18 @@ function renderCommandPills() {
   const isBn = currentLang === 'bn';
 
   const catMap = {
-    all: { en: 'All Commands (' + rawCommands.length + ')', bn: 'সকল কমান্ড (' + rawCommands.length + ')' },
-    core: { en: 'Core', bn: 'কোর' },
-    knox: { en: 'Device Owner', bn: 'ডিভাইস ওনার' },
-    location: { en: 'Location & RF', bn: 'লোকেশন ও আরএফ' },
-    forensics: { en: 'Covert Forensics', bn: 'ফরেনসিক নজরদারি' },
-    lockdown: { en: 'Lockdown', bn: 'লকডাউন' },
-    traps: { en: 'Traps & Deception', bn: 'ট্র্যাপ ও ডিফেন্স' },
-    telephony: { en: 'Telephony', bn: 'টেলিফোনি' },
-    system: { en: 'System & Maintenance', bn: 'সিস্টেম' }
+    core: { en: 'Core (' + rawCommands.filter(c => c.cat === 'core').length + ')', bn: 'কোর (' + rawCommands.filter(c => c.cat === 'core').length + ')' },
+    knox: { en: 'Device Owner (' + rawCommands.filter(c => c.cat === 'knox').length + ')', bn: 'ডিভাইস ওনার (' + rawCommands.filter(c => c.cat === 'knox').length + ')' },
+    forensics: { en: 'Covert Forensics (' + rawCommands.filter(c => c.cat === 'forensics').length + ')', bn: 'ফরেনসিক (' + rawCommands.filter(c => c.cat === 'forensics').length + ')' },
+    location: { en: 'Location & RF (' + rawCommands.filter(c => c.cat === 'location').length + ')', bn: 'লোকেশন ও আরএফ (' + rawCommands.filter(c => c.cat === 'location').length + ')' },
+    lockdown: { en: 'Lockdown (' + rawCommands.filter(c => c.cat === 'lockdown').length + ')', bn: 'লকডাউন (' + rawCommands.filter(c => c.cat === 'lockdown').length + ')' },
+    traps: { en: 'Traps & Deception (' + rawCommands.filter(c => c.cat === 'traps').length + ')', bn: 'ট্র্যাপ ও ডিফেন্স (' + rawCommands.filter(c => c.cat === 'traps').length + ')' },
+    telephony: { en: 'Telephony (' + rawCommands.filter(c => c.cat === 'telephony').length + ')', bn: 'টেলিফোনি (' + rawCommands.filter(c => c.cat === 'telephony').length + ')' },
+    system: { en: 'System (' + rawCommands.filter(c => c.cat === 'system').length + ')', bn: 'সিস্টেম (' + rawCommands.filter(c => c.cat === 'system').length + ')' },
+    all: { en: 'All Commands (' + rawCommands.length + ')', bn: 'সকল কমান্ড (' + rawCommands.length + ')' }
   };
 
-  const cats = ['all', 'core', 'knox', 'location', 'forensics', 'lockdown', 'traps', 'telephony', 'system'];
+  const cats = ['core', 'knox', 'forensics', 'location', 'lockdown', 'traps', 'telephony', 'system', 'all'];
 
   pillsContainer.innerHTML = cats.map(cat => {
     const active = currentCommandCategory === cat ? 'active' : '';
@@ -1793,6 +1873,11 @@ function renderCommandPills() {
 
 function setCommandCategory(catId) {
   currentCommandCategory = catId;
+  showAllCommands = false;
+  const searchInput = document.getElementById('commandSearch');
+  if (searchInput && searchInput.value) {
+    searchInput.value = '';
+  }
   renderCommandPills();
   renderCommands();
 }
@@ -1801,22 +1886,52 @@ function filterCommands() {
   renderCommands();
 }
 
+function toggleExpandCommands() {
+  showAllCommands = !showAllCommands;
+  renderCommands();
+  if (!showAllCommands) {
+    document.getElementById('commands')?.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
 function renderCommands() {
   const container = document.getElementById('commandsContainer');
+  const statusEl = document.getElementById('commandSearchStatus');
   if (!container || typeof rawCommands === 'undefined') return;
   const isBn = currentLang === 'bn';
   const query = (document.getElementById('commandSearch')?.value || '').toLowerCase().trim();
 
-  const filtered = rawCommands.filter(c => {
-    if (!c) return false;
-    if (currentCommandCategory !== 'all' && c.cat !== currentCommandCategory) return false;
-    if (!query) return true;
-    const cmdStr = (c.cmd || '').toLowerCase();
-    const descEn = (c.descEn || '').toLowerCase();
-    const descBn = (c.descBn || '').toLowerCase();
-    const params = (c.params || '').toLowerCase();
-    return cmdStr.includes(query) || descEn.includes(query) || descBn.includes(query) || params.includes(query);
-  });
+  let filtered = [];
+  const isSearchActive = query.length > 0;
+
+  if (isSearchActive) {
+    filtered = rawCommands.filter(c => {
+      if (!c) return false;
+      const cmdStr = (c.cmd || '').toLowerCase();
+      const descEn = (c.descEn || '').toLowerCase();
+      const descBn = (c.descBn || '').toLowerCase();
+      const params = (c.params || '').toLowerCase();
+      const cat = (c.cat || '').toLowerCase();
+      return cmdStr.includes(query) || descEn.includes(query) || descBn.includes(query) || params.includes(query) || cat.includes(query);
+    });
+
+    if (statusEl) {
+      statusEl.style.display = 'inline-block';
+      statusEl.innerHTML = isBn 
+        ? ('অনুসন্ধান ফলাফল: <strong>' + filtered.length + 'টি</strong> কমান্ড পাওয়া গেছে ("' + query + '")')
+        : ('Search Results: Found <strong>' + filtered.length + '</strong> matching commands for "' + query + '"');
+    }
+  } else {
+    if (statusEl) {
+      statusEl.style.display = 'none';
+      statusEl.textContent = '';
+    }
+    filtered = rawCommands.filter(c => {
+      if (!c) return false;
+      if (currentCommandCategory !== 'all' && c.cat !== currentCommandCategory) return false;
+      return true;
+    });
+  }
 
   if (filtered.length === 0) {
     container.innerHTML = \`<div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--text-faint);font-size:14.5px;">
@@ -1825,11 +1940,18 @@ function renderCommands() {
     return;
   }
 
-  container.innerHTML = filtered.map(c => {
+  let displayCommands = filtered;
+  let showExpandBtn = false;
+
+  if (!isSearchActive && currentCommandCategory === 'all' && !showAllCommands && filtered.length > 12) {
+    displayCommands = filtered.slice(0, 12);
+    showExpandBtn = true;
+  }
+
+  const cardsHtml = displayCommands.map(c => {
     const desc = isBn ? c.descBn : c.descEn;
     const tgBadge = c.tg ? '<span class="tag-tg">TELEGRAM</span>' : '';
     const smsBadge = c.sms ? '<span class="tag-sms">SMS</span>' : '';
-    const copySyntax = c.cmd + (c.params ? ' ' + c.params : '');
 
     return \`
       <div class="cmd-card">
@@ -1837,7 +1959,7 @@ function renderCommands() {
           <div class="cmd-hdr">
             <div class="cmd-token">
               \${c.cmd}
-              \${c.params ? \`<span class="cmd-params">\${c.params}</span>\` : ''}
+              \${c.params ? ('<span class="cmd-params">' + c.params + '</span>') : ''}
             </div>
             <div class="cmd-channel-tags">\${tgBadge}\${smsBadge}</div>
           </div>
@@ -1853,6 +1975,32 @@ function renderCommands() {
       </div>
     \`;
   }).join('');
+
+  let expandBtnHtml = '';
+  if (!isSearchActive && currentCommandCategory === 'all') {
+    if (showExpandBtn) {
+      const remaining = filtered.length - 12;
+      expandBtnHtml = \`
+        <div class="expand-btn-container">
+          <button class="btn-expand-more" onclick="toggleExpandCommands()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            \${isBn ? ('সবগুলো ৮৬টি কমান্ড দেখুন (' + remaining + 'টি আরও)') : ('Show All 86 Commands (' + remaining + ' More)')}
+          </button>
+        </div>
+      \`;
+    } else if (showAllCommands && filtered.length > 12) {
+      expandBtnHtml = \`
+        <div class="expand-btn-container">
+          <button class="btn-expand-more" onclick="toggleExpandCommands()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="15" x2="12" y2="9"/><line x1="6" y1="15" x2="12" y2="9"/></svg>
+            \${isBn ? 'সংক্ষেপ করুন' : 'Show Less'}
+          </button>
+        </div>
+      \`;
+    }
+  }
+
+  container.innerHTML = cardsHtml + expandBtnHtml;
 }
 
 /* ── FAQ Logic ── */

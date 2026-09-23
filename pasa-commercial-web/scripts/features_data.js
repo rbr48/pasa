@@ -145,6 +145,16 @@ const featureHubs = [
         threatEn: "Guarantees critical forensics and SMS fallbacks can never be revoked by unauthorized users.",
         threatBn: "অ্যাপের জরুরি কোনো পারমিশন কখনো বন্ধ হবে না—এটি স্বয়ংক্রিয়ভাবে নিজেই পারমিশন রিস্টোর করে।",
         commands: ["/self_heal", "/device_owner"]
+      },
+      {
+        tag: "BOOTLOADER LOCK",
+        titleEn: "Anti-Fastboot OEM Bootloader Lockout",
+        titleBn: "অ্যান্টি-ফাস্টবুট বুটলোডার লকআউট",
+        descEn: "Device Owner permanently enforces DISALLOW_OEM_UNLOCK. Grays out 'OEM Unlocking' in Settings, causing PC commands like 'fastboot oem unlock' or flashing attempts to be rejected by the hardware.",
+        descBn: "ডিভাইস ওনার ওএস-এ 'OEM Unlocking' স্থায়ীভাবে নিষ্ক্রিয় করে দেয়। ফলে চোর পিসিতে লাগিয়ে 'fastboot oem unlock' বা কোনো রম ফ্ল্যাশ করার চেষ্টা করলে হার্ডওয়্যার তা সরাসরি বাতিল করে।",
+        threatEn: "Blocks computer-based Fastboot flashing and custom ROM overrides.",
+        threatBn: "কম্পিউটার বা ক্যাবল দিয়ে ফাস্টবুটে ঢুকে নতুন রম ফ্ল্যাশ করা অসম্ভব করে তোলে।",
+        commands: ["/harden_boot", "/factory_reset_defense"]
       }
     ]
   },
