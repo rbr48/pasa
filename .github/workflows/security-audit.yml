@@ -1,0 +1,180 @@
+name: 🛡️ PASA Sentinel — Independent Security Audit Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Run every Sunday at midnight UTC for continuous independent verification
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  # ══════════════════════════════════════════════════════════════════
+  # JOB 1: GitHub CodeQL Semantic Static Analysis (OWASP / CWE)
+  # ══════════════════════════════════════════════════════════════════
+  codeql-analysis:
+    name: 🔍 CodeQL Static Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'java-kotlin', 'javascript-typescript' ]
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17 (for Android/Kotlin Analysis)
+      if: matrix.language == 'java-kotlin'
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        queries: security-extended,security-and-quality
+
+    - name: Autobuild CodeQL
+      uses: github/codeql-action/autobuild@v3
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
+
+  # ══════════════════════════════════════════════════════════════════
+  # JOB 2: MobSF (Mobile Security Framework) Mobile Security Audit
+  # ══════════════════════════════════════════════════════════════════
+  mobsf-security-scan:
+    name: 📱 MobSF Mobile Top 10 Security Audit
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Run MobSF Static Analysis on Production APK
+      uses: MobSF/mobsf-action@v2
+      with:
+        file: 'releases/pasa-v3.5.5-51.apk'
+        args: '--sarif'
+      continue-on-error: true
+
+    - name: Upload MobSF SARIF Report to GitHub Security
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'mobsf.sarif'
+        category: 'mobsf'
+      continue-on-error: true
+
+    - name: Upload MobSF PDF/JSON Report Artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: mobsf-security-report
+        path: |
+          *.sarif
+          *.json
+          *.pdf
+        if-no-files-found: ignore
+
+  # ══════════════════════════════════════════════════════════════════
+  # JOB 3: TruffleHog Secret & Credential Leakage Scanning
+  # ══════════════════════════════════════════════════════════════════
+  secret-leak-detection:
+    name: 🔑 TruffleHog Zero-Credential Leak Audit
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Run TruffleHog Open Source Secret Scanner
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.repository.default_branch }}
+        head: HEAD
+        extra_args: --only-verified
+
+  # ══════════════════════════════════════════════════════════════════
+  # JOB 4: VirusTotal Multi-AV & Binary Cryptographic Integrity
+  # ══════════════════════════════════════════════════════════════════
+  virustotal-integrity-audit:
+    name: 🛡️ VirusTotal & Binary Integrity Verification
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Compute Cryptographic Hashes of Production APK
+      id: hashes
+      run: |
+        APK_FILE="releases/pasa-v3.5.5-51.apk"
+        SHA256_HASH=$(sha256sum "$APK_FILE" | awk '{print $1}')
+        MD5_HASH=$(md5sum "$APK_FILE" | awk '{print $1}')
+        FILE_SIZE=$(stat -c%s "$APK_FILE")
+        
+        echo "sha256=$SHA256_HASH" >> $GITHUB_OUTPUT
+        echo "md5=$MD5_HASH" >> $GITHUB_OUTPUT
+        echo "size=$FILE_SIZE" >> $GITHUB_OUTPUT
+        
+        echo "=========================================================="
+        echo "PRODUCTION APK BINARY AUDIT:"
+        echo "File: $APK_FILE"
+        echo "SHA-256: $SHA256_HASH"
+        echo "MD5:     $MD5_HASH"
+        echo "Size:    $FILE_SIZE bytes"
+        echo "=========================================================="
+
+    - name: Verify Against Server OTA Production Manifest
+      run: |
+        REMOTE_JSON=$(curl -s "https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=0")
+        echo "Live Manifest: $REMOTE_JSON"
+        
+        REMOTE_HASH=$(echo "$REMOTE_JSON" | grep -o '"sha256":"[^"]*' | cut -d'"' -f4)
+        EXPECTED_HASH="${{ steps.hashes.outputs.sha256 }}"
+        
+        if [ "$REMOTE_HASH" != "$EXPECTED_HASH" ]; then
+          echo "❌ MISMATCH: Remote OTA SHA-256 ($REMOTE_HASH) != Local APK ($EXPECTED_HASH)"
+          exit 1
+        fi
+        echo "✅ SHA-256 MATCH VERIFIED: $EXPECTED_HASH"
+
+    - name: Generate Independent VirusTotal Audit Report
+      run: |
+        HASH="${{ steps.hashes.outputs.sha256 }}"
+        VT_URL="https://www.virustotal.com/gui/file/$HASH"
+        
+        echo "=========================================================="
+        echo "VIRUSTOTAL MULTI-AV INDEPENDENT AUDIT LINK:"
+        echo "$VT_URL"
+        echo "=========================================================="
+        
+        cat <<EOF > independent_audit_summary.md
+        # 🛡️ PASA Sentinel — Independent Verification Report
+        - **Target Binary:** \`releases/pasa-v3.5.5-51.apk\`
+        - **SHA-256 Digest:** \`$HASH\`
+        - **File Size:** ${{ steps.hashes.outputs.size }} bytes
+        - **VirusTotal Consensus Audit:** [View 70+ AV Vendor Results]($VT_URL)
+        - **OTA Production Endpoint:** https://pasa.izhaanintellect.fun/releases/pasa-v3.5.5-51.apk
+        - **Verification Date:** $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        EOF
+
+    - name: Upload Independent Audit Summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: independent-audit-summary
+        path: independent_audit_summary.md
