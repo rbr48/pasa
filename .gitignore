@@ -19,5 +19,6 @@ npm-debug.log*
 pasa-server/data/
 pasa-server/uploads/
 pasa-server/releases/
+pasa-commercial-web/public/releases/
 *.mp4
 *.avi
