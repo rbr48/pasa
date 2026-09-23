@@ -25,7 +25,7 @@ e:/Projects/PrivateApp/
 │       ├── main/
 │       │   ├── AndroidManifest.xml      # Permissions, receivers, foreground service declarations, file providers
 │       │   ├── java/com/izhaanintellect/pasa/
-│       │   │   ├── PasaApp.kt           # App entrypoint, Hilt init, notification channels, watchdog restart
+│       │   │   ├── PasaApp.kt           # App entrypoint, Hilt init, notification channels, watchdog restart, global UncaughtExceptionHandler
 │       │   │   ├── accessibility/       # A11y screenshot capture & Duress PIN lockscreen keypad interceptor
 │       │   │   ├── admin/               # DeviceAdminReceiver, escrow password tokens, kiosk mode, reboot
 │       │   │   ├── audio/               # AudioRecorderManager (PCM/AAC ambient wiretaps)
@@ -54,21 +54,36 @@ e:/Projects/PrivateApp/
 │   ├── landingPage.js                   # Serves commercial landing page
 │   ├── update_releases_v*.js            # Release publishing scripts
 │   └── releases/                        # Hosted signed APKs for OTA distribution
-├── pasa-commercial-web/                 # Commercial Marketing & Pricing Frontend
-│   └── public/assets/                   # CSS, JS, Branding assets
+├── pasa-commercial-web/                 # Commercial Marketing & Pricing Frontend (Docker/Nginx)
+│   ├── Dockerfile                       # Builds nginx:alpine container
+│   ├── docker-compose.yml               # Exposes port 8165 → container port 80
+│   ├── nginx.conf                       # Static file serving with gzip and caching
+│   ├── scripts/
+│   │   └── build_landing.js             # Node.js build script generating index.html from data objects
+│   └── public/                          # Static web root served by Nginx
+│       ├── index.html                   # "The Intercept Room" operations console (bilingual EN/BN)
+│       ├── favicon.png                  # PASA logo (2.1 MB PNG)
+│       ├── assets/img/logo.png          # Branding logo
+│       ├── releases/                    # Symlinked/copied release binaries (gitignored)
+│       │   ├── pasa-latest.apk          # Current production APK
+│       │   └── PASA-Device-Owner-Setup-Kit.zip
+│       ├── privacy.html                 # Privacy policy
+│       └── terms.html                   # Terms of service
 ├── pasa-setup-kit/                      # Windows Device Owner Setup Kit (non-technical user wizard)
 │   ├── PASA Device Owner Setup.bat      # Double-click launcher — runs setup.ps1 with Bypass policy
 │   ├── setup.ps1                        # 6-step guided PowerShell wizard (ADB download → DPM provisioning)
 │   └── README.md                        # Full docs: T&Cs, why accounts must be removed, troubleshooting
 ├── releases/                            # Git-tracked release binaries & distribution packages
-│   ├── pasa-v3.5.4-50.apk               # Current signed production APK
+│   ├── pasa-v3.5.5-51.apk              # Current signed production APK
 │   ├── pasa-latest.apk                  # Symlink → current APK
-│   └── PASA-Setup-Kit-v3.5.4.zip        # Windows setup kit (12 KB, no APK bundled — APK CDN-fetched)
+│   ├── PASA-Device-Owner-Setup-Kit.zip  # Current Windows setup kit (12 KB, no APK bundled)
+│   └── PASA-Setup-Kit-v3.5.4.zip       # Legacy versioned kit
 ├── PRIVACY.md                           # Sovereign Zero-Telemetry & Zero-Storage Guarantee
 ├── TERMS.md                             # Legal Terms of Service & EULA
 ├── keystore.properties                  # Keystore signing credentials
 └── pasa-release-key.jks                 # Production release signing key
 ```
+
 
 ---
 
@@ -222,8 +237,7 @@ e:/Projects/PrivateApp/
 * **Certificate DN:** `CN=PASA Sentinel, OU=Security, O=Izhaan Intellect, L=Dhaka, C=BD`.
 * **Certificate SHA-256:** `0c8f62dd8934d3b73e12d965742da29e643bdc157bc859e5b6aa7454409ad57a`.
 * **Current Production Release:**
-  - **Version:** `v3.5.4` (Build `50`).
-  - **APK Binary SHA-256:** `f7c3cf4cf309b0412dee985672c125db4fc5d865645e2bc3a4917dfdf8092553`.
+  - **Version:** `v3.5.5` (Build `51`).
   - **CDN Endpoint:** `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`.
   - **OTA Manifest Route:** `GET https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=<build>`.
 
@@ -239,12 +253,12 @@ e:/Projects/PrivateApp/
    ```
 3. **Binary & Server Script Sync to VPS:**
    ```powershell
-   scp -O -P 2222 -i ~/.ssh/id_ed25519 pasa-server/server.js pasa-server/upload_telegram_menu.js pasa-server/update_releases_v<ver>.js root@148.135.137.245:/var/www/pasa-server/
-   scp -O -P 2222 -i ~/.ssh/id_ed25519 releases/pasa-v<ver>-<build>.apk root@148.135.137.245:/var/www/pasa-server/releases/
+   scp -O -P 2222 -i ~/.ssh/id_rsa_dbm pasa-server/server.js pasa-server/upload_telegram_menu.js root@148.135.137.245:/var/www/pasa-server/
+   scp -O -P 2222 -i ~/.ssh/id_rsa_dbm releases/pasa-v<ver>-<build>.apk root@148.135.137.245:/var/www/pasa-server/releases/
    ```
 4. **Remote Activation & Symlinks:**
    ```bash
-   ssh -p 2222 -i ~/.ssh/id_ed25519 root@148.135.137.245 "cd /var/www/pasa-server/releases && ln -sf pasa-v<ver>-<build>.apk pasa-latest.apk && ln -sf pasa-v<ver>-<build>.apk pasa-v<ver>.apk && cd /var/www/pasa-server && node update_releases_v<ver>.js && node upload_telegram_menu.js && pm2 restart pasa-server"
+   ssh -p 2222 -i ~/.ssh/id_rsa_dbm root@148.135.137.245 "cd /var/www/pasa-server/releases && ln -sf pasa-v<ver>-<build>.apk pasa-latest.apk && cd /var/www/pasa-server && pm2 restart pasa-server"
    ```
 5. **Git Repository Push:**
    Commit with author `M S Rana <shohagrana15193@gmail.com>` and push to `origin main`.
@@ -252,8 +266,8 @@ e:/Projects/PrivateApp/
 ### 6.4 Windows Device Owner Setup Kit
 * **Purpose:** Guided wizard for non-technical customers to provision Device Owner without any command-line knowledge.
 * **Kit Location:** `pasa-setup-kit/` (tracked in git).
-* **Distribution ZIP:** `releases/PASA-Setup-Kit-v3.5.4.zip` (12 KB — no APK bundled).
-* **Public Download URL:** `https://pasa.izhaanintellect.fun/download/setup-kit` (auto-serves latest kit).
+* **Distribution ZIP:** `releases/PASA-Device-Owner-Setup-Kit.zip` (12 KB — no APK bundled).
+* **Public Download URL:** `https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip`.
 * **API Metadata:** `GET https://pasa.izhaanintellect.fun/api/app/setup-kit/info` → JSON with filename, sizeBytes, sizeMB, updatedAt, downloadUrl.
 * **Wizard Steps (setup.ps1):**
   1. **ADB Setup** — checks PATH / known SDK locations / kit `adb/` subfolder; auto-downloads from `dl.google.com/android/repository/platform-tools-latest-windows.zip` if missing.
@@ -262,10 +276,42 @@ e:/Projects/PrivateApp/
   4. **Smart Install** — calls `GET /api/app/latest?current_version_code=0`, reads installed versionCode via `adb shell dumpsys package`; **skips download entirely if installed build ≥ server build**; SHA-256 integrity verified before install.
   5. **Device Owner** — runs `adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin`; parses result for known error strings with user-friendly remediation.
   6. **Verification** — confirms install + Device Owner active; shows next-step instructions.
-* **Server Routes (server.js):**
-  - `GET /download/setup-kit` — streams latest `PASA-Setup-Kit-*.zip` from `releases/` (sorted by mtime).
-  - `GET /api/app/setup-kit` — alias for above.
-  - `GET /api/app/setup-kit/info` — public JSON metadata endpoint.
 * **Safety:** ZIP contains no APK, no secrets, no credentials. All network calls go to `dl.google.com` (ADB) and `pasa.izhaanintellect.fun` (APK). No phone data transmitted to any server. Safe to share publicly.
-* **Updating Kit:** When releasing a new PASA version, rebuild ZIP with `Compress-Archive -Path pasa-setup-kit\* -DestinationPath releases\PASA-Setup-Kit-vX.Y.Z.zip` and SCP to VPS `releases/`. No code changes needed — wizard always pulls latest APK from server at runtime.
+* **Updating Kit:** When releasing a new PASA version, rebuild ZIP with `Compress-Archive -Path pasa-setup-kit\* -DestinationPath releases\PASA-Device-Owner-Setup-Kit.zip` and SCP to VPS `releases/`. No code changes needed — wizard always pulls latest APK from server at runtime.
+
+### 6.5 Commercial Web Landing Page (Docker/Nginx)
+* **Container Name:** `pasa-commercial-app` (nginx:alpine, port `127.0.0.1:8165 → 80`).
+* **Host Directory:** `/opt/pasa-commercial-web/public/` (NOT bind-mounted — files must be `docker cp`'d into the container).
+* **Live Domain:** `https://pasa.izhaanintellect.fun/` (Cloudflare proxy, dynamic cache bypass).
+* **Design Language:** "The Intercept Room" — dark operations console with:
+  - Left module rail with live UTC clock, status dot, sound FX toggle, and EN/বাং language switcher.
+  - 3D parallax holographic smartphone mockup with 60fps facial biometric tracking canvas.
+  - "🚨 REPLAY SNATCH INTERCEPT" interactive simulation with Web Audio synthesized SFX (shutter click, stamp thud, alarm tone, sonar chirp).
+  - 4-exhibit evidence wall (pin cards with red thread vector graphics).
+  - 8-hub tabbed capabilities arsenal with threat mitigation badges.
+  - 86-command terminal with search, category pills, and 1-tap copy.
+  - Comparison matrix vs Google Find My Device and Play Store apps.
+  - Intel briefing FAQ with 38 questions across 6 category tabs.
+  - 3-tier pricing (Free Tactical Evaluation / Pro Lifetime $25 / Enterprise Fleet $99).
+  - Bilingual (108 EN + 108 BN `data-i18n` translation keys, 0 missing).
+* **Deployment Workflow:**
+  1. Build HTML: `node pasa-commercial-web/scripts/build_landing.js` (or deploy pre-built HTML directly).
+  2. Upload: `scp -O -P 2222 -i ~/.ssh/id_rsa_dbm pasa-commercial-web/public/index.html root@148.135.137.245:/opt/pasa-commercial-web/public/index.html`
+  3. Docker cp: `ssh ... "docker cp /opt/pasa-commercial-web/public/index.html pasa-commercial-app:/usr/share/nginx/html/index.html"`
+  4. Releases: Copy APK and setup kit to `/opt/pasa-commercial-web/public/releases/` then `docker cp` the releases directory.
+* **Nginx Config:** Gzip on, `try_files $uri $uri/ $uri.html /index.html`, 30-day cache for static assets.
+
+---
+
+## 7. Licensing Enforcement (v3.5.5+)
+
+* **Strict 7-Day Trial Hard Lockout:** After 7-day trial expiration, ALL features are completely disabled. No single command executes without an active Pro or Enterprise license.
+* **Red Countdown Banner:** Telegram bot displays a persistent 1-line red banner at the top of every response showing trial days remaining (e.g., `🔴 TRIAL: 5d 12h remaining`).
+* **License Tiers:**
+  - `⏳ Trial` — 7 days, core commands only.
+  - `💎 Pro Lifetime` — $25 / ৳3,000 BDT, all 86 commands, lifetime OTA.
+  - `🏢 Enterprise` — $99 / ৳12,000 BDT, 5 devices, dedicated relay server.
+* **Offline Verification:** Ed25519-signed license certificates verified client-side in <0.2ms with no network dependency.
+* **Payment Gateways:** Binance Pay (UID `756303714`), bKash (via WhatsApp concierge +880 1728 284848).
+* **Refund Policy:** Unconditional 24-hour 100% money-back guarantee.
 
