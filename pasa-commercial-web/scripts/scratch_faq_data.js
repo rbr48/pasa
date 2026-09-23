@@ -597,8 +597,8 @@ const faqData = [
     categoryNameBn: "আইনি বৈধতা ও লাইসেন্স",
     qEn: "Is PASA Sentinel a monthly subscription?",
     qBn: "পাসা সেন্টিনেলের লাইসেন্স কি প্রতি মাসের সাবস্ক্রিপশন?",
-    aEn: `<p><strong>No monthly fees or recurring traps.</strong> We provide a Lifetime Pro License ($19 / ৳2,200 BDT) with lifetime OTA updates, verified offline via cryptographic Ed25519 digital signatures.</p>`,
-    aBn: `<p>না। কমার্শিয়াল অ্যাপগুলোর মতো প্রতি মাসে বা বছরে বড় অঙ্কের ফি নেওয়া আমরা সমর্থন করি না। <strong>লাইফটাইম প্রো লাইসেন্স:</strong> একবারের জন্য একটি লাইসেন্স কি কিনলে আজীবন সব ফিচার এবং আনলিমিটেড আপডেট পাওয়া যায়। লাইসেন্সটি ক্রিপ্টোগ্রাফিক Ed25519 অফলাইন চাবি দিয়ে যাচাই করা হয়।</p>`
+    aEn: `<p><strong>No monthly fees or recurring traps.</strong> We provide a Lifetime Pro License ($25 / ৳3,000 BDT) with lifetime OTA updates, verified offline via cryptographic Ed25519 digital signatures.</p>`,
+    aBn: `<p>না। কমার্শিয়াল অ্যাপগুলোর মতো প্রতি মাসে বা বছরে বড় অঙ্কের ফি নেওয়া আমরা সমর্থন করি না। <strong>লাইফটাইম প্রো লাইসেন্স ($২৫ / ৩,০০০ টাকা):</strong> একবারের জন্য একটি লাইসেন্স কি কিনলে আজীবন সব ফিচার এবং আনলিমিটেড আপডেট পাওয়া যায়। লাইসেন্সটি ক্রিপ্টোগ্রাফিক Ed25519 অফলাইন চাবি দিয়ে যাচাই করা হয়।</p>`
   },
   {
     category: "legal",

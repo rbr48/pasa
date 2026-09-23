@@ -16,21 +16,21 @@
     --bg-void: #060b18;
     --surface: #0a1024;
     --surface-elevated: #0f1738;
-    --surface-card: rgba(15, 23, 50, 0.7);
+    --surface-card: rgba(15, 23, 50, 0.72);
     --border: rgba(255, 255, 255, 0.08);
-    --border-glow: rgba(6, 182, 212, 0.3);
-    --border-crimson: rgba(239, 68, 68, 0.35);
+    --border-glow: rgba(6, 182, 212, 0.35);
+    --border-crimson: rgba(239, 68, 68, 0.4);
 
     /* Cyber & Threat Palette */
     --crimson: #ef4444;
-    --crimson-glow: rgba(239, 68, 68, 0.18);
+    --crimson-glow: rgba(239, 68, 68, 0.2);
     --crimson-deep: #991b1b;
     --cyan: #06b6d4;
-    --cyan-glow: rgba(6, 182, 212, 0.18);
+    --cyan-glow: rgba(6, 182, 212, 0.2);
     --amber: #f59e0b;
-    --amber-glow: rgba(245, 158, 11, 0.18);
+    --amber-glow: rgba(245, 158, 11, 0.2);
     --emerald: #10b981;
-    --emerald-glow: rgba(16, 185, 129, 0.18);
+    --emerald-glow: rgba(16, 185, 129, 0.2);
 
     --text: #f8fafc;
     --text-dim: #94a3b8;
@@ -68,7 +68,7 @@
   }
   .scanline {
     position: fixed; top: 0; left: 0; width: 100%; height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.35), transparent);
+    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.4), transparent);
     animation: scanline 8s linear infinite; pointer-events: none; z-index: 2;
   }
   @keyframes scanline {
@@ -90,7 +90,7 @@
     overflow: hidden; white-space: nowrap; flex: 1; max-width: 900px; margin: 0 auto;
   }
   .ticker-content {
-    display: inline-block; animation: marquee 30s linear infinite;
+    display: inline-block; animation: marquee 32s linear infinite;
   }
   @keyframes marquee {
     0% { transform: translateX(0); }
@@ -104,7 +104,7 @@
   /* Navigation */
   nav.nav {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(20px);
+    background: rgba(3, 7, 18, 0.9); backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
   }
   .nav-inner {
@@ -115,7 +115,7 @@
   }
   .brand-badge {
     width: 38px; height: 38px; border-radius: 8px;
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(6, 182, 212, 0.2));
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(6, 182, 212, 0.2));
     border: 1px solid var(--border-crimson); display: flex; align-items: center; justify-content: center;
   }
   .brand-badge svg { width: 22px; height: 22px; color: var(--crimson); }
@@ -126,10 +126,10 @@
     font-family: var(--mono); font-size: 9.5px; color: var(--cyan); letter-spacing: 0.1em; text-transform: uppercase;
   }
 
-  .nav-menu { display: flex; align-items: center; gap: 8px; }
+  .nav-menu { display: flex; align-items: center; gap: 6px; }
   .nav-link {
     color: var(--text-dim); text-decoration: none; font-size: 13.5px; font-weight: 500;
-    padding: 8px 14px; border-radius: 6px; transition: all 0.2s;
+    padding: 8px 12px; border-radius: 6px; transition: all 0.2s;
   }
   .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
 
@@ -283,10 +283,157 @@
     background: rgba(16, 185, 129, 0.15); color: var(--emerald); font-weight: 700;
   }
 
-  /* ── Crime Scene Investigation Cases (CID Vibe) ── */
-  .section-hdr {
-    text-align: center; margin-bottom: 56px; position: relative;
+  /* ── Interactive Live Forensic Terminal Simulator (CID Console) ── */
+  .terminal-section {
+    padding: 70px 0; background: linear-gradient(180deg, var(--bg-void) 0%, #030611 100%);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
   }
+  .terminal-card {
+    background: #02040a; border: 1px solid var(--border-glow); border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.15);
+    overflow: hidden; max-width: 960px; margin: 0 auto;
+  }
+  .terminal-hdr {
+    background: rgba(15, 23, 50, 0.9); padding: 12px 18px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .terminal-dots { display: flex; gap: 8px; }
+  .terminal-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .terminal-dot.r { background: #ef4444; }
+  .terminal-dot.y { background: #f59e0b; }
+  .terminal-dot.g { background: #10b981; }
+  .terminal-title {
+    font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--cyan); letter-spacing: 0.05em;
+  }
+  .terminal-chip-bar {
+    background: rgba(6, 11, 24, 0.7); padding: 10px 18px; border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  }
+  .term-chip {
+    background: rgba(15, 23, 50, 0.8); border: 1px solid var(--border); color: var(--text-dim);
+    font-family: var(--mono); font-size: 11.5px; padding: 4px 10px; border-radius: 5px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .term-chip:hover {
+    border-color: var(--cyan); color: var(--cyan); background: rgba(6, 182, 212, 0.1);
+  }
+  .terminal-screen {
+    padding: 24px; min-height: 240px; max-height: 380px; overflow-y: auto;
+    font-family: var(--mono); font-size: 13px; line-height: 1.6; color: #38bdf8;
+    background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 80%);
+  }
+  .term-line { margin-bottom: 6px; }
+  .term-prompt { color: #f8fafc; font-weight: 700; }
+  .term-success { color: #34d399; }
+  .term-alert { color: #f87171; }
+  .term-warn { color: #fbbf24; }
+  .terminal-input-row {
+    display: flex; align-items: center; gap: 10px; padding: 12px 20px;
+    background: rgba(10, 16, 36, 0.95); border-top: 1px solid var(--border);
+  }
+  .term-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-family: var(--mono); font-size: 13.5px; color: #fff;
+  }
+
+  /* ── 10-Second Thief Timeline Comparison ── */
+  .timeline-section { padding: 90px 0; }
+  .comp-split {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px;
+    margin-top: 48px;
+  }
+  .comp-col {
+    border-radius: 14px; padding: 32px 26px; border: 1px solid var(--border);
+    background: var(--surface-card); backdrop-filter: blur(14px); position: relative;
+  }
+  .comp-col.vulnerable {
+    border-color: var(--border-crimson);
+    background: linear-gradient(180deg, rgba(239, 68, 68, 0.06) 0%, rgba(15, 23, 50, 0.8) 100%);
+  }
+  .comp-col.protected {
+    border-color: var(--border-glow);
+    background: linear-gradient(180deg, rgba(6, 182, 212, 0.06) 0%, rgba(15, 23, 50, 0.8) 100%);
+  }
+  .comp-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
+    padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  }
+  .comp-badge {
+    font-family: var(--mono); font-size: 11px; font-weight: 800; padding: 4px 10px;
+    border-radius: 4px; text-transform: uppercase;
+  }
+  .timeline-steps { list-style: none; display: flex; flex-direction: column; gap: 18px; }
+  .timeline-step { display: flex; gap: 14px; align-items: flex-start; }
+  .step-time {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 800; min-width: 48px;
+    padding: 3px 6px; border-radius: 4px; text-align: center;
+  }
+  .step-content h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 4px; }
+  .step-content p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+  /* ── Knox Enterprise Defense Matrix (Comparison Table) ── */
+  .matrix-section {
+    padding: 80px 0; background: rgba(6, 11, 24, 0.6); border-top: 1px solid var(--border);
+  }
+  .matrix-table-wrap {
+    overflow-x: auto; margin-top: 40px; border-radius: 12px; border: 1px solid var(--border);
+  }
+  .matrix-table {
+    width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px;
+  }
+  .matrix-table th, .matrix-table td {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+  }
+  .matrix-table th {
+    background: rgba(15, 23, 50, 0.95); font-family: var(--mono); font-size: 12px;
+    font-weight: 700; color: var(--text); letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .matrix-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+  .matrix-table td.col-pasa {
+    background: rgba(6, 182, 212, 0.06); font-weight: 700; color: #fff;
+    border-left: 1px solid var(--border-glow); border-right: 1px solid var(--border-glow);
+  }
+  .matrix-table th.col-pasa {
+    background: rgba(6, 182, 212, 0.15); color: var(--cyan);
+    border-left: 1px solid var(--border-glow); border-right: 1px solid var(--border-glow);
+  }
+  .check-icon { color: var(--emerald); font-weight: 800; font-size: 16px; margin-right: 6px; }
+  .cross-icon { color: var(--crimson); font-weight: 800; font-size: 16px; margin-right: 6px; }
+
+  /* ── Interactive Vulnerability Self-Assessment Widget ── */
+  .audit-section {
+    padding: 80px 0; background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-void) 100%);
+  }
+  .audit-box {
+    background: var(--surface-card); border: 1px solid var(--border-crimson);
+    border-radius: 16px; padding: 36px 30px; max-width: 860px; margin: 0 auto;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5); backdrop-filter: blur(14px);
+  }
+  .audit-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .audit-item:last-child { border-bottom: none; }
+  .audit-q { font-size: 15px; font-weight: 600; color: var(--text); }
+  .audit-toggle {
+    display: flex; gap: 6px; background: rgba(10, 16, 36, 0.8); padding: 4px; border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .audit-btn {
+    background: transparent; border: none; color: var(--text-dim); font-family: var(--mono);
+    font-size: 11.5px; font-weight: 700; padding: 5px 12px; border-radius: 6px; cursor: pointer;
+  }
+  .audit-btn.active.yes { background: #ef4444; color: #fff; }
+  .audit-btn.active.no { background: #10b981; color: #fff; }
+  .audit-result-bar {
+    margin-top: 24px; padding: 18px; border-radius: 10px; background: rgba(3, 7, 18, 0.7);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 14px;
+  }
+  .audit-score-num { font-size: 26px; font-weight: 900; color: var(--crimson); font-family: var(--mono); }
+
+  /* ── Crime Scene Investigation Cases (CID Vibe) ── */
+  .section-hdr { text-align: center; margin-bottom: 56px; position: relative; }
   .section-tag {
     font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--cyan);
     letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; display: inline-block;
@@ -294,9 +441,7 @@
   .section-title {
     font-size: clamp(28px, 4vw, 42px); font-weight: 800; letter-spacing: -0.01em; margin-bottom: 16px;
   }
-  .section-lede {
-    font-size: 16.5px; color: var(--text-dim); max-width: 680px; margin: 0 auto;
-  }
+  .section-lede { font-size: 16.5px; color: var(--text-dim); max-width: 680px; margin: 0 auto; }
 
   .cases-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;
@@ -326,12 +471,8 @@
     font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--crimson);
     text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 5px;
   }
-  .case-title {
-    font-size: 18.5px; font-weight: 700; margin-bottom: 12px; line-height: 1.35;
-  }
-  .case-desc {
-    font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 18px; flex: 1;
-  }
+  .case-title { font-size: 18.5px; font-weight: 700; margin-bottom: 12px; line-height: 1.35; }
+  .case-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 18px; flex: 1; }
   .case-counter {
     background: rgba(3, 7, 18, 0.6); border: 1px solid var(--border);
     border-radius: 8px; padding: 12px 14px; font-family: var(--mono); font-size: 12px;
@@ -339,18 +480,14 @@
   .case-counter-title {
     color: var(--emerald); font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;
   }
-  .case-counter-desc {
-    color: var(--text-dim); font-size: 11.5px; line-height: 1.5;
-  }
+  .case-counter-desc { color: var(--text-dim); font-size: 11.5px; line-height: 1.5; }
 
   /* ── 86 C2 Commands Hub Console ── */
   .c2-section {
     padding: 80px 0; background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-void) 100%);
     border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
   }
-  .hub-tabs {
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 36px;
-  }
+  .hub-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 36px; }
   .hub-tab {
     background: rgba(15, 23, 50, 0.6); border: 1px solid var(--border); color: var(--text-dim);
     padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
@@ -361,29 +498,21 @@
     box-shadow: 0 0 16px rgba(6, 182, 212, 0.25);
   }
   .hub-tab:hover:not(.active) { background: rgba(255,255,255,0.06); color: var(--text); }
-  .hub-pill-badge {
-    background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 10px; font-size: 10.5px;
-  }
+  .hub-pill-badge { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 10px; font-size: 10.5px; }
 
-  .c2-hub-panel {
-    display: none; animation: fadeIn 0.3s ease;
-  }
+  .c2-hub-panel { display: none; animation: fadeIn 0.3s ease; }
   .c2-hub-panel.active { display: block; }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .cmd-chips-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;
-  }
+  .cmd-chips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
   .cmd-chip {
     background: rgba(10, 16, 36, 0.7); border: 1px solid var(--border);
     border-radius: 8px; padding: 12px 14px; transition: all 0.2s;
   }
-  .cmd-chip:hover {
-    border-color: var(--border-glow); background: rgba(15, 23, 50, 0.9);
-  }
+  .cmd-chip:hover { border-color: var(--border-glow); background: rgba(15, 23, 50, 0.9); }
   .cmd-name {
     font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--cyan);
     margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;
@@ -392,35 +521,25 @@
     font-size: 9.5px; padding: 1px 5px; border-radius: 3px; background: rgba(239, 68, 68, 0.15);
     color: var(--crimson); text-transform: uppercase;
   }
-  .cmd-desc {
-    font-size: 12px; color: var(--text-dim); line-height: 1.45;
-  }
+  .cmd-desc { font-size: 12px; color: var(--text-dim); line-height: 1.45; }
 
   /* ── Master FAQ Section (Accordion + Search + Filter) ── */
-  .faq-section {
-    padding: 90px 0 120px; position: relative;
-  }
+  .faq-section { padding: 90px 0 120px; position: relative; }
   .faq-filter-bar {
     max-width: 900px; margin: 0 auto 36px; display: flex; flex-direction: column; gap: 16px;
   }
-  .faq-search-box {
-    position: relative; width: 100%;
-  }
+  .faq-search-box { position: relative; width: 100%; }
   .faq-search-input {
     width: 100%; background: rgba(15, 23, 50, 0.8); border: 1px solid var(--border);
     border-radius: 12px; padding: 14px 20px 14px 48px; color: var(--text);
     font-size: 15px; font-family: var(--font); outline: none; transition: all 0.2s;
   }
-  .faq-search-input:focus {
-    border-color: var(--cyan); box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
-  }
+  .faq-search-input:focus { border-color: var(--cyan); box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
   .faq-search-icon {
     position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
     width: 18px; height: 18px; color: var(--text-faint); pointer-events: none;
   }
-  .faq-cat-pills {
-    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
-  }
+  .faq-cat-pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
   .cat-pill {
     background: rgba(10, 16, 36, 0.6); border: 1px solid var(--border);
     color: var(--text-dim); padding: 7px 14px; border-radius: 20px; font-size: 12.5px;
@@ -432,9 +551,7 @@
   }
   .cat-pill:hover:not(.active) { background: rgba(255,255,255,0.08); color: var(--text); }
 
-  .faq-accordion {
-    max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px;
-  }
+  .faq-accordion { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
   .faq-item {
     background: var(--surface-card); border: 1px solid var(--border);
     border-radius: 12px; overflow: hidden; transition: all 0.25s ease;
@@ -448,20 +565,14 @@
     padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;
     cursor: pointer; gap: 16px; user-select: none;
   }
-  .faq-q-text {
-    font-size: 16px; font-weight: 600; line-height: 1.45; color: var(--text);
-  }
+  .faq-q-text { font-size: 16px; font-weight: 600; line-height: 1.45; color: var(--text); }
   .faq-toggle-icon {
-    width: 20px; height: 20px; min-width: 20px; color: var(--cyan);
-    transition: transform 0.25s ease;
+    width: 20px; height: 20px; min-width: 20px; color: var(--cyan); transition: transform 0.25s ease;
   }
-  .faq-item.open .faq-toggle-icon {
-    transform: rotate(180deg); color: var(--crimson);
-  }
+  .faq-item.open .faq-toggle-icon { transform: rotate(180deg); color: var(--crimson); }
   .faq-answer {
     padding: 0 24px 22px; color: var(--text-dim); font-size: 14.5px; line-height: 1.7;
-    display: none; border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: 4px;
-    padding-top: 16px;
+    display: none; border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: 4px; padding-top: 16px;
   }
   .faq-item.open .faq-answer { display: block; }
   .faq-answer p { margin-bottom: 12px; }
@@ -506,9 +617,7 @@
   }
   .pricing-plan { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
   .pricing-desc { font-size: 13.5px; color: var(--text-dim); margin-bottom: 24px; min-height: 42px; }
-  .pricing-price {
-    font-size: 42px; font-weight: 900; line-height: 1; margin-bottom: 6px; color: var(--text);
-  }
+  .pricing-price { font-size: 42px; font-weight: 900; line-height: 1; margin-bottom: 6px; color: var(--text); }
   .pricing-currency { font-size: 18px; color: var(--text-dim); font-weight: 600; }
   .pricing-period { font-size: 13px; color: var(--text-faint); margin-bottom: 24px; }
   .pricing-features { list-style: none; margin-bottom: 32px; flex: 1; }
@@ -516,31 +625,45 @@
     font-size: 13.5px; color: var(--text-dim); margin-bottom: 12px;
     display: flex; align-items: flex-start; gap: 10px;
   }
-  .pricing-features li svg {
-    width: 16px; height: 16px; min-width: 16px; color: var(--emerald); margin-top: 3px;
-  }
+  .pricing-features li svg { width: 16px; height: 16px; min-width: 16px; color: var(--emerald); margin-top: 3px; }
 
   /* Payment Channels Strip */
   .payment-channels {
-    margin-top: 48px; background: rgba(10, 16, 36, 0.7); border: 1px solid var(--border);
-    border-radius: 14px; padding: 24px; display: flex; flex-wrap: wrap; justify-content: space-around;
-    align-items: center; gap: 20px;
+    margin-top: 48px; background: rgba(10, 16, 36, 0.8); border: 1px solid var(--border);
+    border-radius: 14px; padding: 26px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;
   }
   .pay-method {
-    display: flex; align-items: center; gap: 12px;
+    display: flex; align-items: center; gap: 14px; background: rgba(15, 23, 50, 0.6);
+    border: 1px solid rgba(255,255,255,0.06); padding: 14px 18px; border-radius: 10px;
+    transition: all 0.2s;
   }
-  .pay-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.06); }
-  .pay-title { font-weight: 700; font-size: 13.5px; }
-  .pay-sub { font-family: var(--mono); font-size: 12px; color: var(--cyan); }
+  .pay-method:hover { border-color: var(--border-glow); background: rgba(15, 23, 50, 0.9); }
+  .pay-icon {
+    width: 40px; height: 40px; min-width: 40px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.06);
+  }
+  .pay-title { font-weight: 700; font-size: 14px; color: var(--text); }
+  .pay-sub { font-family: var(--mono); font-size: 12px; color: var(--cyan); margin-top: 2px; }
+  .pay-action-btn {
+    font-size: 11px; font-weight: 700; text-decoration: none; padding: 4px 10px;
+    border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(30px);
+    background: #06b6d4; color: #02040a; font-family: var(--mono); font-size: 12.5px; font-weight: 700;
+    padding: 10px 22px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* ── Footer ── */
   footer {
     background: #02040a; border-top: 1px solid var(--border); padding: 60px 0 40px;
     position: relative; z-index: 10;
   }
-  .footer-grid {
-    display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px;
-  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
   @media (max-width: 768px) {
     .footer-grid { grid-template-columns: 1fr; gap: 30px; }
     .nav-menu { display: none; }
@@ -554,9 +677,7 @@
   }
   .footer-col ul { list-style: none; }
   .footer-col li { margin-bottom: 10px; }
-  .footer-col a {
-    color: var(--text-dim); text-decoration: none; font-size: 13.5px; transition: color 0.15s;
-  }
+  .footer-col a { color: var(--text-dim); text-decoration: none; font-size: 13.5px; transition: color 0.15s; }
   .footer-col a:hover { color: var(--cyan); }
   .footer-bottom {
     border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 24px;
@@ -616,6 +737,9 @@
     </a>
 
     <div class="nav-menu">
+      <a href="#simulator" class="nav-link" data-i18n="nav_terminal">C2 Terminal</a>
+      <a href="#timeline" class="nav-link" data-i18n="nav_timeline">10s Defense</a>
+      <a href="#matrix" class="nav-link" data-i18n="nav_matrix">Defense Matrix</a>
       <a href="#scenarios" class="nav-link" data-i18n="nav_cases">Crime Cases</a>
       <a href="#commands" class="nav-link" data-i18n="nav_c2">86 C2 Hubs</a>
       <a href="#faq" class="nav-link" data-i18n="nav_faq">Forensic FAQ</a>
@@ -667,9 +791,9 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
         <span data-i18n="hero_cta_apk">Download Tactical APK (v3.5.1)</span>
       </a>
-      <a href="#scenarios" class="btn-secondary">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <span data-i18n="hero_cta_cases">Investigate Threat Scenarios</span>
+      <a href="#simulator" class="btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        <span data-i18n="hero_cta_terminal">Launch C2 Terminal</span>
       </a>
     </div>
 
@@ -702,6 +826,285 @@
           <span data-i18n="stat_val_strongbox">StrongBox / TEE</span>
           <span class="status-badge">ARMED</span>
         </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LIVE INTERACTIVE C2 TERMINAL SIMULATOR ── -->
+<section id="simulator" class="terminal-section">
+  <div class="wrap">
+    <div class="section-hdr">
+      <span class="section-tag" data-i18n="term_section_tag">LIVE CID INTELLIGENCE SIMULATOR</span>
+      <h2 class="section-title" data-i18n="term_section_title">Interactive C2 Command Console</h2>
+      <p class="section-lede" data-i18n="term_section_lede">
+        Execute real defense commands and inspect live simulated hardware responses. See how PASA operates in active crime containment.
+      </p>
+    </div>
+
+    <div class="terminal-card">
+      <div class="terminal-hdr">
+        <div class="terminal-dots">
+          <div class="terminal-dot r"></div>
+          <div class="terminal-dot y"></div>
+          <div class="terminal-dot g"></div>
+        </div>
+        <div class="terminal-title">PASA-SENTINEL-C2 // TACTICAL NODE v3.5.1 [CONNECTED]</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--emerald);">TLS_AES_256_GCM_SHA384</div>
+      </div>
+
+      <div class="terminal-chip-bar">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text-faint);" data-i18n="term_chips_label">Quick Commands:</span>
+        <button class="term-chip" onclick="simulateCmd('/locate')">/locate</button>
+        <button class="term-chip" onclick="simulateCmd('/snap front')">/snap front</button>
+        <button class="term-chip" onclick="simulateCmd('/usb_lock on')">/usb_lock on</button>
+        <button class="term-chip" onclick="simulateCmd('/thermal')">/thermal</button>
+        <button class="term-chip" onclick="simulateCmd('/deadman')">/deadman</button>
+        <button class="term-chip" onclick="simulateCmd('/fakeshutdown')">/fakeshutdown</button>
+        <button class="term-chip" onclick="simulateCmd('/freeze bkash')">/freeze bkash</button>
+        <button class="term-chip" onclick="clearTerminal()" style="color:var(--crimson);border-color:rgba(239,68,68,0.3);">[Clear]</button>
+      </div>
+
+      <div class="terminal-screen" id="termScreen">
+        <div class="term-line" style="color:var(--text-faint);">// PASA Sentinel Autonomous Cyber-Forensic Terminal Ready.</div>
+        <div class="term-line" style="color:var(--text-faint);">// Click any quick command above or type a command below.</div>
+        <div class="term-line" style="color:var(--cyan);margin-top:10px;">[KERNEL] Device Owner initialized with supervisor clearance.</div>
+        <div class="term-line term-success">[ASTRA] Hardware Keystore enrolled with StrongBox TEE.</div>
+      </div>
+
+      <div class="terminal-input-row">
+        <span class="term-prompt">sentinel@pasa:~$</span>
+        <input type="text" id="termInput" class="term-input" placeholder="Type a command (e.g. /locate, /snap, /usb_lock on)..." onkeydown="handleTermKey(event)">
+        <button onclick="submitTermInput()" class="term-chip" style="color:var(--cyan);border-color:var(--cyan);padding:6px 14px;">ENTER ↵</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 10-SECOND THIEF TIMELINE COMPARISON ── -->
+<section id="timeline" class="timeline-section">
+  <div class="wrap">
+    <div class="section-hdr">
+      <span class="section-tag" data-i18n="time_section_tag">THE FIRST 10 SECONDS OF A THEFT</span>
+      <h2 class="section-title" data-i18n="time_section_title">Why Standard Handsets Fail in 10 Seconds</h2>
+      <p class="section-lede" data-i18n="time_section_lede">
+        The moment a phone is stolen, the clock starts ticking. Here is the forensic difference between normal security and PASA Sentinel.
+      </p>
+    </div>
+
+    <div class="comp-split">
+      <!-- Vulnerable Side -->
+      <div class="comp-col vulnerable">
+        <div class="comp-header">
+          <div>
+            <h3 style="font-size:18px;font-weight:800;color:var(--crimson);" data-i18n="time_vuln_title">Standard Android / Trackers</h3>
+            <div style="font-size:12.5px;color:var(--text-dim);" data-i18n="time_vuln_sub">Google Find My Device &amp; Play Store Apps</div>
+          </div>
+          <span class="comp-badge" style="background:rgba(239,68,68,0.15);color:var(--crimson);border:1px solid var(--border-crimson);">CRITICAL DEFECT</span>
+        </div>
+
+        <ul class="timeline-steps">
+          <li class="timeline-step">
+            <span class="step-time" style="background:rgba(239,68,68,0.15);color:var(--crimson);">00:03s</span>
+            <div class="step-content">
+              <h4 data-i18n="time_v1_title">Notification Drawer Pulled Down</h4>
+              <p data-i18n="time_v1_desc">Thief swipes down from lockscreen, toggles Airplane Mode. Internet severed. Google Find My Device is now completely blind.</p>
+            </div>
+          </li>
+          <li class="timeline-step">
+            <span class="step-time" style="background:rgba(239,68,68,0.15);color:var(--crimson);">00:08s</span>
+            <div class="step-content">
+              <h4 data-i18n="time_v2_title">Power Button Pressed &amp; Held</h4>
+              <p data-i18n="time_v2_desc">Thief shuts down handset. Operating system terminates. All standard apps and background location services go dead.</p>
+            </div>
+          </li>
+          <li class="timeline-step">
+            <span class="step-time" style="background:rgba(239,68,68,0.15);color:var(--crimson);">00:30s</span>
+            <div class="step-content">
+              <h4 data-i18n="time_v3_title">SIM Card Extracted &amp; Discarded</h4>
+              <p data-i18n="time_v3_desc">Physical SIM card thrown into gutter. Device has zero cellular network connectivity and cannot be phoned.</p>
+            </div>
+          </li>
+          <li class="timeline-step">
+            <span class="step-time" style="background:rgba(239,68,68,0.15);color:var(--crimson);">02:00m</span>
+            <div class="step-content">
+              <h4 data-i18n="time_v4_title">Safe Mode Reboot &amp; Forensic Wipe</h4>
+              <p data-i18n="time_v4_desc">Thief boots into Safe Mode or connects forensic cable. Play Store security apps are easily uninstalled or data extracted.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Protected Side -->
+      <div class="comp-col protected">
+        <div class="comp-header">
+          <div>
+            <h3 style="font-size:18px;font-weight:800;color:var(--cyan);" data-i18n="time_prot_title">PASA Sentinel Autonomous Shield</h3>
+            <div style="font-size:12.5px;color:var(--text-dim);" data-i18n="time_prot_sub">Knox Device Owner &amp; Hardware Containment</div>
+          </div>
+          <span class="comp-badge" style="background:rgba(6,182,212,0.15);color:var(--cyan);border:1px solid var(--border-glow);">ARMED 100%</span>
+        </div>
+
+        <ul class="timeline-steps">
+          <li class="timeline-step">
+            <span class="step-time" style="background:rgba(6,182,212,0.15);color:var(--cyan);">00:01s</span>
+            <div class="step-content">
+              <h4 data-i18n="time_p1_title">2.65G Kinetic Snatch Triggered</h4>
+              <p data-i18n="time_p1_desc">Violent vector acceleration locks screen into Knox Kiosk within 30ms. Status bar pull-down and Airplane Mode permanently blocked.</p>
+            </div>
+          </li>
+          <li class="timeline-step">
+            <span class="step-time" style="background:rgba(6,182,212,0.15);color:var(--cyan);">00:08s</span>
+            <div class="step-content">
+              <h4 data-i18n="time_p2_title">Fake Shutdown Deception</h4>
+              <p data-i18n="time_p2_desc">Power button triggers authentic OEM power-down animation into 0-nit pitch black screen. Thief assumes phone is dead while cameras and GPS run.</p>
+            </div>
+          </li>
+          <li class="timeline-step">
+            <span class="step-time" style="background:rgba(6,182,212,0.15);color:var(--cyan);">00:30s</span>
+            <div class="step-content">
+              <h4 data-i18n="time_p3_title">Foreign SIM Caller ID Trap</h4>
+              <p data-i18n="time_p3_desc">When thief inserts their SIM, PASA uses that SIM's radio to secretly text emergency contacts—revealing the thief's phone number on Caller ID!</p>
+            </div>
+          </li>
+          <li class="timeline-step">
+            <span class="step-time" style="background:rgba(6,182,212,0.15);color:var(--cyan);">02:00m</span>
+            <div class="step-content">
+              <h4 data-i18n="time_p4_title">Hardware USB &amp; Thermal Killswitch</h4>
+              <p data-i18n="time_p4_desc">USB Data Pin Killswitch severs physical D+/D- pins against forensic boxes. Blower heat-gun triggers Thermal Trap and Dead Man auto-destruct.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── KNOX ENTERPRISE DEFENSE MATRIX ── -->
+<section id="matrix" class="matrix-section">
+  <div class="wrap">
+    <div class="section-hdr">
+      <span class="section-tag" data-i18n="matrix_section_tag">HARDWARE ARCHITECTURE COMPARISON</span>
+      <h2 class="section-title" data-i18n="matrix_section_title">Knox Device Owner vs Standard Apps</h2>
+      <p class="section-lede" data-i18n="matrix_section_lede">
+        Why Google Play Store policies prevent ordinary apps from ever matching PASA Sentinel's supervisor privileges.
+      </p>
+    </div>
+
+    <div class="matrix-table-wrap">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th data-i18n="th_feature">Security Capability</th>
+            <th data-i18n="th_google">Google Find My Device</th>
+            <th data-i18n="th_play">Play Store Anti-Theft</th>
+            <th class="col-pasa">PASA SENTINEL v3.5.1</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong data-i18n="mat_1_title">Zero Root Requirement</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_1_sub">Retains full Knox &amp; StrongBox Keystore integrity</span></td>
+            <td><span class="check-icon">✔</span> Yes</td>
+            <td><span class="cross-icon">✖</span> Often requires root</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> 100% Zero-Root (Device Owner)</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_2_title">Lockscreen Status Bar &amp; Airplane Block</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_2_sub">Prevents quick settings offline tampering</span></td>
+            <td><span class="cross-icon">✖</span> Not possible</td>
+            <td><span class="cross-icon">✖</span> Bypassed in 2 seconds</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> Enforced (setStatusBarDisabled)</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_3_title">Air-Gapped Cellular SMS C2 Fallback</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_3_sub">Operates when internet &amp; Wi-Fi are disconnected</span></td>
+            <td><span class="cross-icon">✖</span> Dead without internet</td>
+            <td><span class="cross-icon">✖</span> Banned by Play Store</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> TOTP Dynamic Cellular SMS C2</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_4_title">Remote Hardware Lockscreen PIN Reset</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_4_sub">Android 14, 15, 16 OS PIN override</span></td>
+            <td><span class="cross-icon">✖</span> Deprecated by Google</td>
+            <td><span class="cross-icon">✖</span> Completely broken</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> Cryptographic Escrow Tokens</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_5_title">Hardware USB Data Pin Killswitch</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_5_sub">Neutralizes Cellebrite &amp; GrayKey extraction</span></td>
+            <td><span class="cross-icon">✖</span> No</td>
+            <td><span class="cross-icon">✖</span> No</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> Android 12+ UsbDataSignaling</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_6_title">Anti-Uninstall &amp; Safe Mode Immunity</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_6_sub">Thief cannot delete or force-stop</span></td>
+            <td><span class="cross-icon">✖</span> Standard OS user mode</td>
+            <td><span class="cross-icon">✖</span> Removable in Safe Mode</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> Grayed-out "Managed by Org"</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_7_title">Surveillance Privacy &amp; Storage Policy</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_7_sub">Who sees your photos, audio, and GPS?</span></td>
+            <td>Central Google Cloud Logs</td>
+            <td>Third-Party Cloud Servers</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> <strong>Strategy 1: 0-Cloud Storage</strong></td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_8_title">Pricing Model</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_8_sub">Recurring costs vs permanent sovereignty</span></td>
+            <td>Free (Barebones)</td>
+            <td>$60–$120 / year recurring</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> <strong>$25 (৳3,000) Lifetime License</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── INTERACTIVE VULNERABILITY AUDIT ── -->
+<section class="audit-section">
+  <div class="wrap">
+    <div class="section-hdr">
+      <span class="section-tag" data-i18n="audit_section_tag">DEVICE SECURITY DIAGNOSTIC</span>
+      <h2 class="section-title" data-i18n="audit_section_title">Test Your Handset's Theft Vulnerability</h2>
+      <p class="section-lede" data-i18n="audit_section_lede">
+        Answer 4 questions about your phone's current settings to calculate your real-world vulnerability index.
+      </p>
+    </div>
+
+    <div class="audit-box">
+      <div class="audit-item">
+        <div class="audit-q" data-i18n="audit_q1">1. Can anyone swipe down your notification shade from the lockscreen and turn on Airplane Mode?</div>
+        <div class="audit-toggle">
+          <button class="audit-btn active yes" onclick="setAudit(1, true, this)">YES</button>
+          <button class="audit-btn no" onclick="setAudit(1, false, this)">NO</button>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-q" data-i18n="audit_q2">2. Can someone press and hold your power button to completely shut down your phone without your PIN?</div>
+        <div class="audit-toggle">
+          <button class="audit-btn active yes" onclick="setAudit(2, true, this)">YES</button>
+          <button class="audit-btn no" onclick="setAudit(2, false, this)">NO</button>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-q" data-i18n="audit_q3">3. If a thief ejects your SIM card, do you lose all ability to track or communicate with the device?</div>
+        <div class="audit-toggle">
+          <button class="audit-btn active yes" onclick="setAudit(3, true, this)">YES</button>
+          <button class="audit-btn no" onclick="setAudit(3, false, this)">NO</button>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-q" data-i18n="audit_q4">4. If forced at weapon-point to unlock your screen, will your banking apps (bKash/crypto) be visible?</div>
+        <div class="audit-toggle">
+          <button class="audit-btn active yes" onclick="setAudit(4, true, this)">YES</button>
+          <button class="audit-btn no" onclick="setAudit(4, false, this)">NO</button>
+        </div>
+      </div>
+
+      <div class="audit-result-bar">
+        <div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;" data-i18n="audit_risk_label">CURRENT THEFT VULNERABILITY INDEX:</div>
+          <div class="audit-score-num" id="auditScore">94% CRITICAL RISK</div>
+        </div>
+        <a href="#pricing" class="btn-primary" style="padding:10px 20px;font-size:13.5px;" data-i18n="audit_cta">
+          Neutralize Vulnerability with PASA
+        </a>
       </div>
     </div>
   </div>
@@ -1026,7 +1429,7 @@
         <div class="pricing-featured-badge" data-i18n="badge_most_popular">MOST POPULAR DEFENSE</div>
         <h3 class="pricing-plan" style="color:var(--crimson);" data-i18n="plan_pro_title">Pro Lifetime Shield</h3>
         <p class="pricing-desc" data-i18n="plan_pro_desc">Complete sovereign defense suite for 1 Android device forever.</p>
-        <div class="pricing-price">$19 <span class="pricing-currency">/ ৳2,200</span></div>
+        <div class="pricing-price">$25 <span class="pricing-currency">/ ৳3,000</span></div>
         <div class="pricing-period" data-i18n="plan_pro_period">One-time payment • Lifetime OTA Updates</div>
         <ul class="pricing-features">
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <strong><span data-i18n="f_pro_1">All 86 Telegram C2 Commands</span></strong></li>
@@ -1060,50 +1463,69 @@
       </div>
     </div>
 
-    <!-- Payment Channels Details Strip -->
+    <!-- Payment Channels Details Strip (bKash number removed, direct contact requested) -->
     <div class="payment-channels">
+      <!-- Binance Pay -->
       <div class="pay-method">
         <div class="pay-icon" style="color:#F0B90B;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4 6v12l8 4 8-4V6l-8-4zm0 2.24l5.88 2.94v9.64L12 19.76l-5.88-2.94V7.18L12 4.24z"/></svg>
         </div>
-        <div>
-          <div class="pay-title">Binance Pay (Instant Crypto)</div>
-          <div class="pay-sub">UID: 756303714 (RBR48)</div>
+        <div style="flex:1;">
+          <div class="pay-title">Binance Pay (Crypto)</div>
+          <div class="pay-sub" id="binanceUidText">UID: 756303714 (RBR48)</div>
+          <button onclick="copyBinanceUid()" class="pay-action-btn" style="background:rgba(240,185,11,0.15);color:#F0B90B;border:1px solid rgba(240,185,11,0.3);cursor:pointer;" data-i18n="btn_copy_uid">
+            Copy UID
+          </button>
         </div>
       </div>
 
+      <!-- bKash (Number removed, asking to contact) -->
       <div class="pay-method">
         <div class="pay-icon" style="color:#E2136E;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="2" fill="none"/></svg>
         </div>
-        <div>
-          <div class="pay-title">bKash Personal (Bangladesh)</div>
-          <div class="pay-sub">01762-033445 (Send Money)</div>
+        <div style="flex:1;">
+          <div class="pay-title" data-i18n="bkash_title">bKash Payment (Bangladesh)</div>
+          <div class="pay-sub" style="color:var(--amber);" data-i18n="bkash_sub">Contact for official bKash account</div>
+          <a href="https://wa.me/8801762033445?text=Hello%20PASA%2C%20please%20send%20me%20the%20official%20bKash%20payment%20number%20for%20license%20activation" target="_blank" class="pay-action-btn" style="background:rgba(226,19,110,0.15);color:#E2136E;border:1px solid rgba(226,19,110,0.3);" data-i18n="bkash_action_btn">
+            Request Number via WhatsApp
+          </a>
         </div>
       </div>
 
+      <!-- WhatsApp Concierge -->
       <div class="pay-method">
         <div class="pay-icon" style="color:#25D366;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.87.52 3.63 1.42 5.14L2 22l5.09-1.53a9.87 9.87 0 004.95 1.32h.01c5.46 0 9.9-4.45 9.9-9.9C21.95 6.45 17.5 2 12.04 2z"/></svg>
         </div>
-        <div>
-          <div class="pay-title">WhatsApp Concierge</div>
+        <div style="flex:1;">
+          <div class="pay-title" data-i18n="wa_title">WhatsApp Concierge</div>
           <div class="pay-sub">+880 1762-033445</div>
+          <a href="https://wa.me/8801762033445" target="_blank" class="pay-action-btn" style="background:rgba(37,211,102,0.15);color:#25D366;border:1px solid rgba(37,211,102,0.3);" data-i18n="wa_action_btn">
+            Chat Direct
+          </a>
         </div>
       </div>
 
+      <!-- Telegram Bot -->
       <div class="pay-method">
         <div class="pay-icon" style="color:#229ed9;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0z"/></svg>
         </div>
-        <div>
+        <div style="flex:1;">
           <div class="pay-title">Official Telegram Bot</div>
           <div class="pay-sub">@Pas_agent_bot</div>
+          <a href="https://t.me/Pas_agent_bot" target="_blank" class="pay-action-btn" style="background:rgba(34,158,217,0.15);color:#229ed9;border:1px solid rgba(34,158,217,0.3);">
+            Open Bot
+          </a>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<!-- Toast for Copy Notification -->
+<div id="toast" class="toast">COPIED TO CLIPBOARD</div>
 
 <!-- FOOTER -->
 <footer>
@@ -1131,6 +1553,9 @@
         <h5 data-i18n="footer_resources">Resources</h5>
         <ul>
           <li><a href="/releases/pasa-latest.apk" style="color:var(--crimson);font-weight:700;" data-i18n="footer_dl_apk">Download Latest APK (v3.5.1)</a></li>
+          <li><a href="#simulator" data-i18n="nav_terminal">C2 Terminal Simulator</a></li>
+          <li><a href="#timeline" data-i18n="nav_timeline">10-Second Thief Timeline</a></li>
+          <li><a href="#matrix" data-i18n="nav_matrix">Defense Comparison Matrix</a></li>
           <li><a href="#scenarios" data-i18n="nav_cases">Crime Cases</a></li>
           <li><a href="#commands" data-i18n="nav_c2">86 C2 Commands</a></li>
           <li><a href="#faq" data-i18n="nav_faq">Master Technical FAQ</a></li>
@@ -1142,7 +1567,7 @@
         <h5 data-i18n="footer_legal">Contact &amp; Legal</h5>
         <ul>
           <li><a href="mailto:support@izhaanintellect.fun">support@izhaanintellect.fun</a></li>
-          <li><a href="https://wa.me/8801762033445" target="_blank">WhatsApp: 01762-033445</a></li>
+          <li><a href="https://wa.me/8801762033445" target="_blank">WhatsApp: +880 1762-033445</a></li>
           <li><a href="https://t.me/Pas_agent_bot" target="_blank">Telegram: @Pas_agent_bot</a></li>
           <li><a href="/terms" target="_blank">Terms of Service &amp; EULA</a></li>
           <li><a href="/privacy" target="_blank">Privacy &amp; Zero-Storage Policy</a></li>
@@ -1164,7 +1589,7 @@
 <!-- Floating WhatsApp & Telegram Quick Contact -->
 <div class="floating-bar">
   <a href="https://wa.me/8801762033445" target="_blank" rel="noopener" class="floating-btn floating-wa" title="WhatsApp Concierge">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.87.52 3.63 1.42 5.14L2 22l5.09-1.53a9.87 9.87 0 004.95 1.32h.01c5.46 0 9.9-4.45 9.9-9.9C21.95 6.45 17.5 2 12.04 2zm5.79 14.03c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.13.11-1.82-.12-.42-.13-.96-.31-1.65-.6-2.9-1.25-4.79-4.16-4.94-4.36-.14-.2-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.27-.29.58-.36.78-.36.19 0 .39 0 .55.01.18.01.42-.07.65.5.24.58.82 2 .89 2.15.07.15.12.32.02.52-.09.2-.14.32-.28.5-.14.17-.3.38-.42.51-.14.15-.29.31-.12.61.17.29.75 1.24 1.61 2 1.11.99 2.04 1.3 2.34 1.44.29.15.47.13.64-.07.17-.21.72-.83.91-1.11.19-.29.39-.24.65-.14.27.09 1.68.79 1.97.94.29.14.48.21.55.33.07.12.07.68-.17 1.36z"/></svg>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.87.52 3.63 1.42 5.14L2 22l5.09-1.53a9.87 9.87 0 004.95 1.32h.01c5.46 0 9.9-4.45 9.9-9.9C21.95 6.45 17.5 2 12.04 2z"/></svg>
   </a>
   <a href="https://t.me/Pas_agent_bot" target="_blank" rel="noopener" class="floating-btn floating-tg" title="Official Telegram Bot">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.247l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.09 14.102l-2.95-.924c-.642-.204-.655-.642.135-.951l11.507-4.437c.537-.194 1.006.131.78.457z"/></svg>
@@ -1173,20 +1598,25 @@
 
 <!-- SCRIPTS & BILINGUAL LOGIC -->
 <script>
-const rawFaq = [{"category":"general","categoryNameEn":"General & Fundamentals","categoryNameBn":"সাধারণ ও মৌলিক ধারণাসমূহ","qEn":"Why do I need PASA Sentinel when Google Find My Device or Samsung SmartThings already exists?","qBn":"গুগলের \"Find My Device\" বা স্যামসাংয়ের \"SmartThings\" থাকতে পাসা সেন্টিনেল কেন প্রয়োজন?","aEn":"<p>Google Find My Device and Samsung SmartThings depend entirely on an active internet connection and normal user permissions. In a real-world theft, professional perpetrators execute two maneuvers within the first <strong>5 to 10 seconds</strong>:</p>\n<ol>\n  <li><strong>Swipe down the notification shade and toggle Airplane Mode</strong>, or rip out the SIM card. The instant internet connectivity drops, Google and Samsung trackers become completely blind and useless.</li>\n  <li><strong>Press and hold the power button to shut down the device.</strong></li>\n</ol>\n<p><strong>How PASA Sentinel neutralizes this vulnerability:</strong></p>\n<ul>\n  <li><strong>Lockscreen Status Bar Lockdown:</strong> Hardware Device Owner enforcement permanently blocks notification drawer pull-down (<code>setStatusBarDisabled(true)</code>) and locks out Airplane Mode (<code>DISALLOW_AIRPLANE_MODE</code>).</li>\n  <li><strong>Air-Gapped Cellular SMS C2:</strong> Even with cellular data and Wi-Fi disabled, cellular radio remains registered with nearby towers. A cryptographic SMS command triggers the satellite GNSS chip, locks GPS coordinates, and dispatches a direct Google Maps pin via SMS.</li>\n  <li><strong>Fake Shutdown Deception:</strong> When the thief attempts power-down, PASA renders an authentic OEM shutdown sequence, turns the display into a 0-nit pitch-black canvas, and continues silent camera capture and live GPS beaconing in the background.</li>\n</ul>","aBn":"<p>গুগল ফাইন্ড মাই ডিভাইস বা স্যামসাংয়ের ট্র্যাকার সম্পূর্ণভাবে সক্রিয় ইন্টারনেট সংযোগ এবং সাধারণ ইউজার মোডের ওপর নির্ভরশীল। একজন পেশাদার চোর ফোন ছিনতাই বা চুরি করার প্রথম <strong>৫ থেকে ১০ সেকেন্ডের</strong> মধ্যে দুটি কাজ করে:</p>\n<ol>\n  <li>স্ক্রিন উপর থেকে সোয়াইপ করে <strong>Airplane Mode</strong> চালু করে দেয় অথবা সিম কার্ড খুলে ছুড়ে ফেলে দেয়। ইন্টারনেট বন্ধ হওয়ার সাথে সাথে গুগল বা স্যামসাংয়ের ট্র্যাকার সম্পূর্ণ অন্ধ ও অকেজো হয়ে যায়।</li>\n  <li>পাওয়ার বাটন চেপে ফোন বন্ধ করে দেয়।</li>\n</ol>\n<p><strong>পাসা সেন্টিনেল কীভাবে এই সংকট সমাধান করে?</strong></p>\n<ul>\n  <li><strong>লকস্ক্রিন স্ট্যাটাস বার ব্লকিং:</strong> লক অবস্থায় স্ট্যাটাস বার নামানো বা কুইক সেটিংস ড্রয়ার অ্যাক্সেস পুরোপুরি বন্ধ করে দেয় (<code>setStatusBarDisabled(true)</code>) এবং এয়ারপ্লেন মোড চালু করা নিষিদ্ধ করে (<code>DISALLOW_AIRPLANE_MODE</code>)।</li>\n  <li><strong>এয়ার-গ্যাপড সেলুলার এসএমএস:</strong> ইন্টারনেট সম্পূর্ণ বন্ধ থাকলেও মোবাইল টাওয়ারের সাথে ফোন সংযুক্ত থাকে। একটি এনক্রিপ্টেড এসএমএস কমান্ড পাঠালেই ফোনের স্যাটেলাইট জিপিএস চিপ সচল হয়ে স্যাটেলাইট থেকে পিন পয়েন্ট কোঅর্ডিনেট নিয়ে সরাসরি গুগল ম্যাপের লিংক এসএমএসে পাঠায়।</li>\n  <li><strong>ফেক শাটডাউন (Fake Shutdown):</strong> চোর পাওয়ার বাটন চেপে ফোন বন্ধ করতে গেলে ফোন অফিসিয়াল পাওয়ার-অফ অ্যানিমেশন দেখিয়ে ০-নিট কালো স্ক্রিনে চলে যায়। চোর মনে করে ফোন বন্ধ, অথচ ব্যাকগ্রাউন্ডে ক্যামেরা ও জিপিএস পুরোদমে ছবি ও লাইভ লোকেশন পাঠাতে থাকে।</li>\n</ul>"},{"category":"general","categoryNameEn":"General & Fundamentals","categoryNameBn":"সাধারণ ও মৌলিক ধারণাসমূহ","qEn":"There are many anti-theft apps on Google Play Store. How is PASA different?","qBn":"গুগল প্লে স্টোরে তো অনেক অ্যান্টি-থেফট অ্যাপ আছে, পাসা তাদের চেয়ে কোথায় আলাদা?","aEn":"<p>Standard Play Store apps run in an ordinary third-party sandbox. Constrained by Google Play policies, they cannot access kernel or hardware-level APIs. A thief can simply reboot into Safe Mode and uninstall them. Furthermore, commercial apps (e.g., Prey, Cerberus, Life360) store your personal photos, call logs, and location tracks on their central cloud databases while charging aggressive annual subscription fees.</p>\n<p><strong>PASA Sentinel operates on Knox-Grade Android Enterprise Device Owner architecture:</strong></p>\n<ul>\n  <li>Granted highest supervisor OS privileges via official DevicePolicyManager.</li>\n  <li>Uninstall and Force Stop buttons are greyed out by the OS itself (<i>\"Managed by your organization\"</i>).</li>\n  <li><strong>Strategy 1 Zero-Storage Guarantee:</strong> Zero surveillance photos, zero GPS tracks, and zero audio recordings are stored on our servers. Evidence streams direct to your private Telegram bot and is shredded from device RAM immediately.</li>\n</ul>","aBn":"<p>প্লে স্টোরের সাধারণ অ্যান্টি-থেফট অ্যাপগুলো সাধারণ থার্ড-পার্টি অ্যাপ স্যান্ডবক্সে চলে। গুগলের কঠোর পলিসির কারণে তারা ফোনের অপারেটিং সিস্টেম বা হার্ডওয়্যার লেভেলে ঢুকতে পারে না। চোর খুব সহজেই সেগুলোকে 'সেফ মোড'-এ রিস্টার্ট দিয়ে ডিলিট করে দিতে পারে। তাছাড়া বেশিরভাগ কমার্শিয়াল অ্যাপ ব্যবহারকারীর ব্যক্তিগত ছবি, কল লগ এবং লাইভ ট্র্যাকিং তাদের ক্লাউড সার্ভারে জমা রাখে এবং প্রতি বছর বড় অঙ্কের রিকারিং সাবস্ক্রিপশন চার্জ কাটে।</p>\n<p>পাসা সেন্টিনেল পরিচালিত হয় <strong>অ্যান্ড্রয়েড এন্টারপ্রাইজ ডিভাইস ওনার (Knox-Grade Device Owner)</strong> আর্কিটেকচারে। এটি ওএস-এর সর্বোচ্চ সুপারভাইজার প্রিভিলেজ নিয়ে চলে, ফলে কোনো অপশন দিয়েই একে আনইন্সটল বা ডিঅ্যাক্টিভেট করা যায় না এবং এটি কোনো ক্লাউড সার্ভারে ব্যবহারকারীর ডেটা জমা রাখে না।</p>"},{"category":"general","categoryNameEn":"General & Fundamentals","categoryNameBn":"সাধারণ ও মৌলিক ধারণাসমূহ","qEn":"Is PASA Sentinel on Google Play Store? If not, is it safe to use?","qBn":"পাসা সেন্টিনেল কি গুগল প্লে স্টোরে পাওয়া যায়? না থাকলে এটি কতটা নিরাপদ?","aEn":"<p>No, PASA Sentinel is intentionally not hosted on Google Play Store. Google Play Store Developer Policies explicitly prohibit third-party apps from executing hardware-level defenses such as:</p>\n<ol>\n  <li>Remote hardware lockscreen PIN resets via escrow tokens.</li>\n  <li>Disabling physical USB data pins (preventing forensic cable extraction).</li>\n  <li>Headless background camera capture without full-screen preview overlays.</li>\n  <li>Disabling the device uninstallation mechanism.</li>\n</ol>\n<p>PASA is built on sovereign privacy: zero third-party SDKs, zero Google trackers, zero telemetry analytics, and zero ads. The entire codebase runs in high-security memory with hardware-backed StrongBox / TEE cryptographic key pairs.</p>","aBn":"<p>না, পাসা সেন্টিনেল ইচ্ছাকৃতভাবেই গুগল প্লে স্টোরে দেওয়া হয় না। কারণ:</p>\n<ol>\n  <li>প্লে স্টোরের পলিসি কোনো অ্যাপকে ওএস লকস্ক্রিন ওভাররাইট, ইউএসবি ডেটা পিন কাট, ব্যাকগ্রাউন্ড ক্যামেরা ট্রিগার, আনইন্সটল বাটন ডিসঅ্যাবল বা এসএমএস ফিল্টারিংয়ের মতো হার্ডওয়্যার লেভেল সুরক্ষার অনুমতি দেয় না।</li>\n  <li>পাসা সেন্টিনেল পরিচালিত হয় সার্বভৌম প্রাইভেসি দর্শনে—এখানে কোনো বিগ-টেক ডাটা কালেকশন নেই।</li>\n</ol>\n<p>অ্যাপটির পুরো সোর্স কোড পরিষ্কার, ওপেন-আর্কিটেকচার এবং সম্পূর্ণ হার্ডওয়্যার এনক্রিপশনে সুরক্ষিত। এতে কোনো ট্র্যাকার বা অ্যাডওয়্যার নেই।</p>"},{"category":"general","categoryNameEn":"General & Fundamentals","categoryNameBn":"সাধারণ ও মৌলিক ধারণাসমূহ","qEn":"Does installing PASA Sentinel require rooting the device?","qBn":"পাসা সেন্টিনেল ইন্সটল করতে কি ফোন রুট (Root) করতে হয়?","aEn":"<p><strong>Zero Root Required.</strong> Rooting a device actually weakens its hardware integrity by tripping Samsung Knox counters, unlocking the bootloader, and degrading TEE / StrongBox Keystore hardware security.</p>\n<p>PASA utilizes Google's official enterprise security specification: <strong>Android Enterprise Device Owner</strong>. Configured once via a clean USB ADB command (<code>adb shell dpm set-device-owner ...</code>), it attains supervisor administrative authority without altering kernel partitions or voiding hardware integrity.</p>","aBn":"<p><strong>না, কোনো রুট পারমিশন প্রয়োজন নেই (Zero Root Required)।</strong></p>\n<p>বরং ফোন রুট করলে ডিভাইসের মূল হার্ডওয়্যার সিকিউরিটি (Knox / TEE / StrongBox Keystore) নষ্ট হয়ে যায়। পাসা কাজ করে গুগল স্বীকৃত অফিসিয়াল <strong>Android Enterprise Device Owner</strong> প্রোটোকলে। কম্পিউটারের সাথে ইউএসবি ক্যাবল লাগিয়ে মাত্র একবার একটি সাধারণ এডিবি কমান্ড (<code>adb shell dpm set-device-owner ...</code>) দিলেই পাসা সর্বোচ্চ প্রশাসনিক ক্ষমতা পায়, যা রুটের চেয়েও নিরাপদ ও স্থিতিশীল।</p>"},{"category":"privacy","categoryNameEn":"Privacy & Zero-Storage","categoryNameBn":"নিরাপত্তা ও জিরো-স্টোরেজ","qEn":"The app accesses Camera, Mic, and GPS. Can PASA developers or server admins spy on my media?","qBn":"অ্যাপটি আমার ক্যামেরা, মাইক্রোফোন এবং জিপিএস ব্যবহার করে—পাসার ডেভেলপার বা কোম্পানি কি আমার ছবি বা কথা শুনতে পাবে?","aEn":"<p><strong>Never. This is our non-negotiable \"Strategy 1: Direct-to-Telegram Zero-Storage\" architectural guarantee.</strong></p>\n<ul>\n  <li><strong>No Central Cloud Vault:</strong> Unlike commercial trackers, PASA maintains zero cloud storage for customer media.</li>\n  <li><strong>Direct Pipe to Your Telegram:</strong> Captures taken via <code>/snap</code>, <code>/video</code>, <code>/screenshot</code>, or <code>/record</code> stream directly from device memory through TLS 1.3 to your authenticated private Telegram chat.</li>\n  <li><strong>Instant RAM Shredding:</strong> The instant the Telegram API acknowledges transmission, local temp buffers on the phone are cryptographically overwritten and purged (<code>photoFile.delete()</code>).</li>\n  <li><strong>VPS Ephemeral Memory Only:</strong> Server buffers exist exclusively in volatile RAM (<code>multer.memoryStorage()</code>) and are never committed to VPS disk. Zero location trails are recorded in our databases.</li>\n</ul>","aBn":"<p><strong>কখনোই না। এটি আমাদের অলঙ্ঘনীয় \"Strategy 1: Direct-to-Telegram Zero-Storage\" গ্যারান্টি।</strong></p>\n<ul>\n  <li>বাণিজ্যিক অ্যাপগুলোর মতো পাসার কোনো সেন্ট্রাল ক্লাউড স্টোরেজ নেই যেখানে ব্যবহারকারীর ছবি বা অডিও জমা হয়।</li>\n  <li>যখনই কোনো ছবি (<code>/snap</code>), ভিডিও (<code>/video</code>), স্ক্রিনশট (<code>/screenshot</code>) বা ভয়েস রেকর্ড (<code>/record</code>) নেওয়া হয়, সেটি ডিভাইস মেমোরি থেকে সরাসরি এনক্রিপ্ট হয়ে আপনার নিজস্ব প্রাইভেট টেলিগ্রাম বটে যায়।</li>\n  <li>টেলিগ্রামে পাঠানো সম্পন্ন হওয়ামাত্রই ফোনের অস্থায়ী ক্যাশ থেকে ফাইলটি মাল্টি-পাস ক্রিপ্টোগ্রাফিক শেডিংয়ের মাধ্যমে পার্মানেন্ট মুছে ফেলা হয়।</li>\n  <li>পাসার কন্ট্রোল সার্ভার কেবলমাত্র একটি ক্ষণস্থায়ী সিগনালিং গেটওয়ে (RAM-only ephemeral buffer), যা কখনোই কোনো মিডিয়া বা জিপিএস ট্রেইল হার্ডডিস্কে লেখে না।</li>\n</ul>"},{"category":"privacy","categoryNameEn":"Privacy & Zero-Storage","categoryNameBn":"নিরাপত্তা ও জিরো-স্টোরেজ","qEn":"How secure is my data on Telegram servers?","qBn":"টেলিগ্রাম সার্ভারে আমার ডেটা কতটা নিরাপদ?","aEn":"<p>Telegram Bot API communicates over hardened TLS 1.3 encryption. PASA enforces strict Chat ID authorization: commands issued from any Telegram account other than your registered Master ID are instantly dropped and flagged with <code>⛔ Access Denied</code>.</p>\n<p>With Telegram's native Two-Factor Authentication (2FA) and cloud password enabled on your personal account, unauthorized third parties cannot intercept or access your surveillance transmissions.</p>","aBn":"<p>টেলিগ্রাম বট এপিআই ব্যবহার করে এন্ড-টু-এন্ড টিএলএস (TLS 1.3) এনক্রিপশনে ডেটা ট্রান্সফার হয়। আপনার ব্যক্তিগত টেলিগ্রাম আইডি ছাড়া অন্য কোনো আইডি থেকে পাসার বটে কমান্ড পাঠালে সিস্টেম তা সরাসরি প্রত্যাখ্যান করে (<code>⛔ Access Denied</code>)। এছাড়া টেলিগ্রাম টু-ফ্যাক্টর অথেনটিকেশন (2FA) চালু থাকলে আপনার টেলিগ্রাম অ্যাকাউন্ট অননুমোদিত কেউ খুলতেও পারবে না।</p>"},{"category":"privacy","categoryNameEn":"Privacy & Zero-Storage","categoryNameBn":"নিরাপত্তা ও জিরো-স্টোরেজ","qEn":"If the phone is offline, will captured photos remain in the gallery where a thief can see them?","qBn":"ফোন অফলাইনে থাকলে যেসব ছবি বা প্রমাণ নেওয়া হয়, তা কি ফোনের গ্যালারিতে থেকে যাবে এবং চোর তা দেখে ফেলতে পারবে?","aEn":"<p><strong>No. Captured forensic media never touches the Android MediaStore or public gallery folders.</strong></p>\n<p>If evidence is captured while completely offline, it is sealed inside PASA's encrypted app sandbox using SQLCipher / Tink AES-256 GCM hardware encryption. It remains completely invisible to Google Photos, Gallery apps, and third-party file explorers. As soon as network connectivity is restored, evidence is dispatched to Telegram and immediately shredded from internal memory.</p>","aBn":"<p>না। কোনো প্রমাণ যদি অফলাইনে থাকার কারণে সরাসরি পাঠানো না যায়, তবে তা ফোনের স্ট্যান্ডার্ড গ্যালারিতে যায় না। তা অ্যাপের নিজস্ব স্যান্ডবক্সড এনক্রিপ্টেড ডাটাবেজে (SQLCipher / Tink AES-256 GCM) ক্রিপ্টোগ্রাফিক এনক্রিপশন অবস্থায় সংরক্ষিত থাকে এবং ইন্টারনেট পাওয়ার সাথে সাথে সরাসরি পাঠিয়ে দিয়ে ফোনের মেমোরি থেকে পার্মানেন্ট মুছে ফেলে। গ্যালারি বা ফাইল ম্যানেজারে এগুলো কখনোই দৃশ্যমান হয় না।</p>"},{"category":"device-owner","categoryNameEn":"Device Owner & Anti-Uninstall","categoryNameBn":"ডিভাইস ওনার ও অ্যান্টি-আনইন্সটল","qEn":"Can a thief uninstall, disable, or force-stop PASA from Android Settings?","qBn":"চোর কি ফোন হাতে পেয়ে সেটিংস থেকে পাসা সেন্টিনেল অ্যাপটি আনইন্সটল বা ডিলিট করতে পারবে না?","aEn":"<p><strong>Architecturally Impossible.</strong></p>\n<p>Because PASA Sentinel is provisioned as an Android Enterprise Device Owner, the OS renders the <strong>Uninstall</strong>, <strong>Disable</strong>, and <strong>Force Stop</strong> buttons completely disabled and greyed out. Visiting App Info displays the system label: <em>\"Managed by your organization\"</em>. Even root-style intent attacks are rejected by the Android OS framework.</p>","aBn":"<p><strong>অসম্ভব।</strong></p>\n<p>যেহেতু পাসা অ্যান্ড্রয়েড এন্টারপ্রাইজ ডিভাইস ওনার (Device Owner) হিসেবে কনফিগার করা থাকে, তাই অ্যান্ড্রয়েড ওএস লেভেলেই অ্যাপটির \"Uninstall\", \"Disable\", বা \"Force Stop\" বাটন সম্পূর্ণ ধূসর (Grayed out) হয়ে থাকে। এমনকি ফোন সেটিংসে অ্যাপ ইনফোতে গেলে লেখা থাকে: <em>\"Managed by your organization\"</em>। ওএস পাসাকে আনইন্সটল করার রিকোয়েস্ট সরাসরি ব্লক করে দেয়।</p>"},{"category":"device-owner","categoryNameEn":"Device Owner & Anti-Uninstall","categoryNameBn":"ডিভাইস ওনার ও অ্যান্টি-আনইন্সটল","qEn":"Can a thief boot the phone into Safe Mode to deactivate PASA Sentinel?","qBn":"চোর যদি সেফ মোড (Safe Mode) অন করে ফোন চালু করে, তখন কি পাসা বন্ধ হয়ে যাবে না?","aEn":"<p>No. When PASA's Anti-Tamper suite is engaged (<code>/antitamper on</code>), it enforces the hardware restriction <code>DISALLOW_SAFE_BOOT</code>. Holding physical hardware buttons during bootloader stages will not enter Safe Mode; the OS boots exclusively into its protected normal state with PASA immediately active.</p>","aBn":"<p>না। পাসার অ্যান্টি-ট্যাম্পার স্যুট (<code>/antitamper on</code>) সক্রিয় থাকলে এটি অ্যান্ড্রয়েড পলিসির <code>DISALLOW_SAFE_BOOT</code> রেস্ট্রিকশন প্রয়োগ করে। ফলে ফোনে পাওয়ার ও ভলিউম চেপে ধরলেও ওএস কখনোই সেফ মোডে বুট হবে না; এটি সরাসরি সাধারণ প্রটেক্টেড মোডেই চালু হবে।</p>"},{"category":"device-owner","categoryNameEn":"Device Owner & Anti-Uninstall","categoryNameBn":"ডিভাইস ওনার ও অ্যান্টি-আনইন্সটল","qEn":"How does the genuine phone owner uninstall the app when desired?","qBn":"ফোন মালিক নিজে যদি কখনো অ্যাপটি আনইন্সটল করতে চান, তবে কীভাবে করবেন?","aEn":"<p>The legitimate owner can safely decommission the agent at any time through two authorized workflows:</p>\n<ol>\n  <li>Send an authenticated administrative C2 decommission command via Telegram or SMS.</li>\n  <li>Connect the phone to an authorized computer via USB ADB and execute:\n    <pre><code>adb shell dpm remove-active-admin com.izhaanintellect.pasa/.admin.PasaDeviceAdmin</code></pre>\n    Once Device Owner privileges are relinquished, PASA can be uninstalled like any regular application.\n  </li>\n</ol>","aBn":"<p>মালিক নিজে যেকোনো সময় সম্পূর্ণ বৈধভাবে এটি সরাতে পারবেন:</p>\n<ol>\n  <li>টেলিগ্রাম বা এসএমএস থেকে অ্যাডমিন কমান্ড পাঠাতে পারেন অথবা</li>\n  <li>কম্পিউটার থেকে এডিবি কমান্ডের মাধ্যমে ডিভাইস ওনার রিমুভ করতে পারেন:\n    <pre><code>adb shell dpm remove-active-admin com.izhaanintellect.pasa/.admin.PasaDeviceAdmin</code></pre>\n    এরপর সাধারণ যেকোনো অ্যাপের মতো এটি আনইন্সটল করা যায়।\n  </li>\n</ol>"},{"category":"sim","categoryNameEn":"SIM & Telephony Defense","categoryNameBn":"সিম ও সেলুলার ডিফেন্স","qEn":"What happens if the thief immediately ejects the physical SIM card upon theft?","qBn":"চোর যদি চুরি করার সাথে সাথেই সিম কার্ড খুলে ফেলে দেয়, তখন পাসা কী করবে?","aEn":"<p>PASA features <strong>Autonomous SIM Ejection Knox Kiosk Lockdown</strong>:</p>\n<ol>\n  <li>Within 1 second of the SIM tray popping, PASA intercepts the hardware telephony broadcast, immediately locks the screen, and enforces Knox Kiosk Mode (<code>LOCK_TASK_FEATURE_NONE</code>).</li>\n  <li>The notification shade, home navigation, recent apps, and power menu are completely immobilized.</li>\n  <li>Satellite GNSS hardware is forcibly energized (<code>dpm.setLocationEnabled(true)</code>) and front-camera perpetrator mugshots are captured.</li>\n</ol>","aBn":"<p>পাসায় রয়েছে <strong>অটোনোমাস সিম ইজেকশন লকডাউন (Physical SIM Ejection Knox Kiosk Lockdown):</strong></p>\n<ol>\n  <li>ফোন থেকে সিম ট্রে খোলার ১ সেকেন্ডের মধ্যেই ফোনের হার্ডওয়্যার ব্রডকাস্ট ইন্টারসেপ্ট করে পাসা স্ক্রিন লক করে দেয় এবং ফুলস্ক্রিন নক্স কিয়স্ক মোড চালু করে।</li>\n  <li>নোটিফিকেশন বার, হোম বাটন, পাওয়ার মেনু এবং রিকভারি অ্যাক্সেস পুরোপুরি বন্ধ হয়ে যায়।</li>\n  <li>ইন্টারনেট বা সিম না থাকলেও ব্যাকগ্রাউন্ডে স্যাটেলাইট জিপিএস রিসিভার চিপ স্বয়ংক্রিয়ভাবে পাওয়ার-অন হয়ে যায়।</li>\n</ol>"},{"category":"sim","categoryNameEn":"SIM & Telephony Defense","categoryNameBn":"সিম ও সেলুলার ডিফেন্স","qEn":"What happens if the thief inserts their own new SIM card into the stolen phone?","qBn":"চোর যদি নিজের বা অন্য কারো নতুন সিম কার্ড ফোনে ঢুকিয়ে দেয়?","aEn":"<p><strong>This is the lethal trap for any thief!</strong></p>\n<ul>\n  <li>The second an unauthorized foreign SIM is seated, PASA silently leverages the new SIM's cellular radio to transmit an outbound emergency SMS to your designated recovery phone (<code>/sim_lock phone &lt;number&gt;</code>).</li>\n  <li>The alert payload contains the device IMEI, active carrier operator name, and live Google Maps satellite coordinates.</li>\n  <li><strong>The Master Stroke:</strong> The instant this SMS lands on your backup phone, <strong>the thief's personal mobile phone number is revealed via Caller ID!</strong> Their real-world identity is compromised, and you can now issue Air-Gapped SMS commands directly to their number to control the device.</li>\n</ul>","aBn":"<p><strong>এটি চোরের জন্য সবচেয়ে বড় ফাঁদ!</strong></p>\n<ul>\n  <li>ফোনের ভেতরে কোনো অননুমোদিত বা অচেনা সিম কার্ড প্রবেশ করানোমাত্রই পাসা ব্যাকগ্রাউন্ডে সাইলেন্টলি নতুন সিমের সেলুলার নেটওয়ার্ক ব্যবহার করে মালিকের পূর্বনির্ধারিত ইমার্জেন্সি নম্বরে (<code>/sim_lock phone &lt;number&gt;</code>) একটি স্বয়ংক্রিয় জরুরি এসএমএস পাঠিয়ে দেয়।</li>\n  <li>এই এসএমএসে ডিভাইসের আইএমইআই (IMEI), বর্তমান নেটওয়ার্ক অপারেটর এবং লাইভ গুগল ম্যাপ জিপিএস লিংক থাকে।</li>\n  <li><strong>সবচেয়ে মারাত্মক বিষয়:</strong> এই এসএমএসটি আসার সাথে সাথে মালিকের ফোনে <strong>চোরের নতুন সিমের মোবাইল নম্বর (Caller ID)</strong> সরাসরি ভেসে ওঠে! ফলে চোরের আসল পরিচয় সাথে সাথে ফাঁস হয়ে যায় এবং মালিক ওই নম্বরে এয়ার-গ্যাপড এসএমএস কমান্ড পাঠিয়ে ফোনকে পুরোপুরি নিয়ন্ত্রণ করতে পারেন।</li>\n</ul>"},{"category":"sim","categoryNameEn":"SIM & Telephony Defense","categoryNameBn":"সিম ও সেলুলার ডিফেন্স","qEn":"If using an eSIM instead of a physical SIM, can the thief delete the eSIM profile from Settings?","qBn":"ফোনে যদি ফিজিক্যাল সিমের বদলে ই-সিম (eSIM) থাকে, চোর কি সেটিংস থেকে eSIM ডিলিট বা অফ করে দিতে পারবে?","aEn":"<p>No. PASA enforces the OS restriction <code>UserManager.DISALLOW_CONFIG_MOBILE_NETWORKS</code>. Even if the thief attempts to enter settings or bypass the lockscreen, the operating system strictly forbids disabling cellular connections or wiping eSIM profiles.</p>","aBn":"<p>না। পাসার ডিভাইস ওনার রেস্ট্রিকশন <code>UserManager.DISALLOW_CONFIG_MOBILE_NETWORKS</code> সিস্টেম-লেভেলে সক্রিয় থাকে। ফলে লকস্ক্রিন কিয়স্ক ভেদ করে বা সেটিংসে ঢুকে কোনো অবস্থাতেই সেলুলার নেটওয়ার্ক বন্ধ করা বা ই-সিম প্রোফাইল মুছে ফেলা সম্ভব নয়।</p>"},{"category":"sim","categoryNameEn":"SIM & Telephony Defense","categoryNameBn":"সিম ও সেলুলার ডিফেন্স","qEn":"If no SIM is inside and internet is completely off, how can I control the phone remotely?","qBn":"চোর যদি কোনো সিম না ঢোকায় এবং ইন্টারনেট পুরোপুরি বন্ধ থাকে, তখন আমি দূর থেকে কীভাবে ফোন নিয়ন্ত্রণ করব?","aEn":"<p>If the device has an active eSIM or re-connects to any cellular signal, our <strong>Air-Gapped Cellular SMS Fallback</strong> executes flawlessly without internet.</p>\n<p>From any standard button phone or burner handset, send authenticated SMS commands:</p>\n<ul>\n  <li><code>PASA 5892 /locate</code> — Forces GNSS satellite lock and texts back a Google Maps pin.</li>\n  <li><code>PASA 5892 /lock</code> — Enforces full kiosk lockdown.</li>\n  <li><code>PASA 5892 /ring 60</code> — Triggers ear-piercing siren at 100% hardware volume.</li>\n  <li><code>PASA 5892 /wipe</code> — Triggers cryptographic zero-out factory reset.</li>\n</ul>","aBn":"<p>যদি ফোনে সেকেন্ডারি ই-সিম থাকে বা যেকোনো সেলুলার টাওয়ার কানেকশন থাকে, তবে আমাদের <strong>এয়ার-গ্যাপড এসএমএস কমান্ড (Air-Gapped Cellular SMS Fallback)</strong> সক্রিয় থাকে।</p>\n<p>আপনি যেকোনো সাধারণ বাটন ফোন থেকেও পাসওয়ার্ড দিয়ে এসএমএস পাঠাতে পারবেন। যেমন:</p>\n<ul>\n  <li><code>PASA 5892 /locate</code> — স্যাটেলাইট জিপিএস অন করে ফিরতি এসএমএসে গুগল ম্যাপের লোকেশন পাঠাবে।</li>\n  <li><code>PASA 5892 /lock</code> — ফোন সম্পূর্ণ লক করে দেবে।</li>\n  <li><code>PASA 5892 /ring</code> — ফুল ভলিউমে অ্যালার্ম বাজাবে।</li>\n  <li><code>PASA 5892 /wipe</code> — সমস্ত ডেটা ফ্যাক্টরি রিসেট করে দেবে।</li>\n</ul>"},{"category":"hardware","categoryNameEn":"Extreme Hardware & EDL/BROM","categoryNameBn":"চরম হার্ডওয়্যার ও ইডিএল","qEn":"What if the thief boots into Recovery Mode and executes a Hard Factory Reset?","qBn":"চোর যদি রিকভারি মোডে (Recovery Mode) নিয়ে হার্ড রিসেট মেরে দেয়?","aEn":"<p>PASA counters recovery attacks through 3 resilient layers:</p>\n<ol>\n  <li><strong>Recovery Hardening:</strong> PASA's boot hardening policy (<code>/harden_boot</code>) and Device Owner flag <code>DISALLOW_FACTORY_RESET</code> block recovery wipe calls.</li>\n  <li><strong>Hardware FRP (Factory Reset Protection):</strong> Even if wiped on unbranded hardware, Google's cryptographic FRP lock engages immediately upon boot, rendering the device an inoperable brick without original credentials.</li>\n  <li><strong>Samsung Knox Enterprise Persistence:</strong> On Samsung Knox enterprise hardware, Device Owner policies persist across firmware resets.</li>\n</ol>","aBn":"<p>পাসার ডিফেন্স লেয়ার একে তিনভাবে প্রতিহত করে:</p>\n<ol>\n  <li><strong>রিকভারি ব্লক ও হার্ডেনিং:</strong> পাসার অ্যাডভান্সড বুট হার্ডেনিং (<code>/harden_boot</code>) এবং ডিভাইস ওনার পলিসি <code>DISALLOW_FACTORY_RESET</code> সিস্টেমে সক্রিয় থাকে।</li>\n  <li><strong>ফ্যাক্টরি রিসেট প্রোটেকশন (FRP):</strong> যদি কোনোভাবে আন-ব্র্যান্ডেড ফোনে রিকভারি থেকে ওয়াইপ করাও হয়, বুট হওয়ার পর গুগল হার্ডওয়্যার ক্রিপ্টোগ্রাফিক FRP লক ডিভাইসে সক্রিয় হয়ে যায়, যা মূল মালিকের ক্রেডেনশিয়াল ছাড়া ফোন রান করতে দেয় না।</li>\n  <li><strong>স্যামসাং নক্স এন্টারপ্রাইজ পারসিস্টেন্স:</strong> স্যামসাং নক্স ডিভাইসে ডিভাইস ওনার রিসেটের পরেও অক্ষত থাকে।</li>\n</ol>"},{"category":"hardware","categoryNameEn":"Extreme Hardware & EDL/BROM","categoryNameBn":"চরম হার্ডওয়্যার ও ইডিএল","qEn":"What if the thief connects a USB forensic tool (Cellebrite, GrayKey, BadUSB) to suck my data?","qBn":"চোর যদি ইউএসবি কেবল লাগিয়ে কম্পিউটারের ফরেনসিক টুল (যেমন Cellebrite, GrayKey বা BadUSB) দিয়ে ডেটা চুরি করতে চায়?","aEn":"<p>PASA features the <strong>Hardware USB Data Pin Killswitch (<code>/usb_lock</code>)</strong>:</p>\n<ul>\n  <li>On Android 12+ (API 31+), Device Owner physically severs the USB controller data signaling lines (D+ and D-) at the hardware level (<code>setUsbDataSignalingEnabled(false)</code>).</li>\n  <li>When a forensic box or computer is plugged in, the device draws power for AC charging, but physical data pins remain completely non-functional. Computers detect zero drives, zero ADB interfaces, and zero storage mount points.</li>\n</ul>","aBn":"<p>পাসায় রয়েছে <strong>হার্ডওয়্যার ইউএসবি ডেটা পিন কিলসুইচ (Hardware USB Data Killswitch - <code>/usb_lock</code>):</strong></p>\n<ul>\n  <li>Android 12+ (API 31+) ডিভাইস ওনার পলিসির মাধ্যমে পাসা সরাসরি ফোনের ইউএসবি কন্ট্রোলারের ডেটা পিন (D+ / D-) হার্ডওয়্যার লেভেলে বিচ্ছিন্ন করে দেয় (<code>setUsbDataSignalingEnabled(false)</code>)।</li>\n  <li>এর ফলে কেবল লাগালে ফোন শুধুমাত্র বিদ্যুৎ টেনে চার্জ হবে, কিন্তু কোনো কম্পিউটার বা ফরেনসিক ডিভাইস ফোনের সাথে ডেটা সংযোগ স্থাপন করতে পারবে না। পিসিতে ফোন কোনো ড্রাইভ বা ডিভাইস হিসেবেই শো করবে না।</li>\n</ul>"},{"category":"hardware","categoryNameEn":"Extreme Hardware & EDL/BROM","categoryNameBn":"চরম হার্ডওয়্যার ও ইডিএল","qEn":"What if the thief takes the phone to an underground lab, opens the back cover, shorts test points for Qualcomm EDL (9008) or MediaTek BROM mode, and flashes the ROM via PC?","qBn":"চোর যদি ল্যাবে নিয়ে ফোনের ব্যাক-কভার খুলে টেস্ট পয়েন্ট শর্ট করে কোয়ালকম EDL মোডে (9008) বা মিডিয়াটেক BROM মোডে ফেলে পিসি দিয়ে রম ফ্ল্যাশ করে দেয়?","aEn":"<p><strong>Technical Reality & 3-Tier Active Countermeasures:</strong></p>\n<p><em>Acknowledging the physical reality:</em> Qualcomm Emergency Download Mode (EDL 9008) and MediaTek BootROM (BROM) operate directly at the CPU silicon level before the Android OS ever boots. When the OS is not executing, no software running in user-space can issue in-session commands.</p>\n<p><strong>However, PASA v3.5.1 thwarts this attack with 3 proactive countermeasures:</strong></p>\n<ol>\n  <li><strong>Heat-Gun Thermal Anomaly Trap (<code>/thermal</code>):</strong> To access motherboard test points, technicians must apply heat-guns/blowers (80°C–100°C) to loosen adhesive. PASA actively monitors battery thermal sensors; if temperatures exceed 48°C while locked, it instantly kills USB data pins, triggers kiosk mode, snaps mugshots of the technician, and broadcasts an emergency SOS.</li>\n  <li><strong>Anti-Fastboot OEM Bootloader Hardening:</strong> PASA permanently locks <code>setOemUnlockAllowed(component, false)</code>. Fastboot flashing commands return: <code>FAILED: Flashing Unlock is not allowed</code>.</li>\n  <li><strong>Dead Man's Switch Keystore Auto-Destruct (<code>/deadman</code>):</strong> The thief must keep the phone offline prior to lab flashing. Upon expiration of an autonomous hardware timer (e.g. 6 hours), PASA automatically wipes cryptographic Keystores and app databases (<code>dpm.wipeData(0)</code>). Even if flashed, zero bytes of user data survive.</li>\n</ol>","aBn":"<p><strong>কারিগরি বাস্তবতা ও ৩ স্তরের সক্রিয় প্রতিহত ব্যবস্থা:</strong></p>\n<p><em>বাস্তবতা স্বীকার:</em> কোয়ালকম ইমার্জেন্সি ডাউনলোড মোড (EDL 9008) বা মিডিয়াটেক BootROM (BROM) মোড কাজ করে সরাসরি প্রসেসরের হার্ডওয়্যার সিলিকন চিপ লেভেলে—অ্যান্ড্রয়েড ওএস রান করারও পূর্বে। ওএস যখন রানই করছে না, তখন পৃথিবীর কোনো সফটওয়্যারের পক্ষেই ওই মোডের ভেতরে ঢুকে কমান্ড চালানো সম্ভব নয়।</p>\n<p><strong>কিন্তু পাসা v3.5.1 এই আক্রমণকে ৩টি সক্রিয় কাউন্টার-মেজার দিয়ে প্রতিহত করে:</strong></p>\n<ol>\n  <li><strong>হিট-গান থার্মাল অ্যানোমালি ট্র্যাপ (<code>/thermal</code>):</strong> মাদারবোর্ডের টেস্ট পয়েন্টে চিমটা ছোঁয়াতে হলে টেকনিশিয়ানকে প্রথমে ব্লোয়ার বা হিটগান দিয়ে ফোনের ব্যাক-কভারের গ্লু গলাতে হয় (৮০°-১০০° সে.)। পাসা ব্যাকগ্রাউন্ডে ফোনের ব্যাটারি থার্মাল সেন্সর মনিটর করে। লক অবস্থায় তাপমাত্রা ৪৮° সেলসিয়াস ছাড়ালেই পাসা মুহূর্তের মধ্যে ইউএসবি ডেটা পিন হার্ডওয়্যার লেভেলে কিল করে দেয়, কিয়স্ক লক সক্রিয় করে এবং টেকনিশিয়ানের চেহারার ছবি তুলে জরুরি টেলিগ্রাম এসওএস পাঠায়।</li>\n  <li><strong>অটো-বুটলোডার হার্ডেনিং (Anti-Fastboot Lockout):</strong> পাসার ডিভাইস ওনার <code>setOemUnlockAllowed(component, false)</code> স্থায়ীভাবে লক করে রাখে। ফলে ফাস্টবুট বা ক্যাবল কানেক্ট করে আনলক করতে গেলে সিস্টেম কমান্ড ফিরিয়ে দেয়: <code>FAILED: Flashing Unlock is not allowed</code>।</li>\n  <li><strong>ডেড ম্যানস সুইচ অটো-ডেস্ট্রাক্ট (<code>/deadman</code>):</strong> ল্যাবে নিয়ে ফ্ল্যাশ করার আগেই চোরকে ডিভাইসটি কিছু সময় অফলাইনে রাখতে হয়। পাসার অটোনোমাস কাউন্টডাউন টাইমার নির্ধারিত সময় (যেমন: ৬ ঘণ্টা) পার হওয়ামাত্রই সিস্টেমের ক্রিপ্টোগ্রাফিক কি-স্টোর ও ডাটাবেজ স্বয়ংক্রিয়ভাবে মুছে ফেলে (<code>dpm.wipeData(0)</code>)। ফলে চোর টেস্ট পয়েন্ট শর্ট করে রম ফ্ল্যাশ করতে পারলেও ফোনে আপনার কোনো ব্যক্তিগত ডেটার একটি বাইটও আর অবশিষ্ট থাকে না।</li>\n</ol>"},{"category":"hardware","categoryNameEn":"Extreme Hardware & EDL/BROM","categoryNameBn":"চরম হার্ডওয়্যার ও ইডিএল","qEn":"What if the thief places the phone in a signal-blocking Faraday Bag or metal box?","qBn":"চোর যদি ফোন চুরি করেই কোনো সিগন্যাল-ব্লকিং ফ্যারাডে ব্যাগ বা মেটালিক বাক্সে রেখে দেয়?","aEn":"<p>This scenario is precisely why PASA includes the <strong>Autonomous Dead Man's Switch (<code>/deadman</code>)</strong>.</p>\n<p>It does not depend on remote connectivity; it runs on an on-device local hardware timer. If the phone remains isolated without owner presence or heartbeat for a preset threshold (e.g. 6 or 12 hours), PASA confirms device isolation and triggers automated cryptographic zeroization.</p>","aBn":"<p>ঠিক এই পরিস্থিতি মোকাবিলার জন্যই পাসায় রয়েছে <strong>অটোনোমাস ডেড ম্যানস সুইচ (<code>/deadman</code>):</strong></p>\n<ul>\n  <li>এটি দূরবর্তী কোনো সিগন্যালের ওপর নির্ভর করে না; এটি চলে সম্পূর্ণ অন-ডিভাইস লোকাল হার্ডওয়্যার টাইমারের ওপর।</li>\n  <li>ফোন যদি নির্দিষ্ট সময় (যেমন ৬ বা ১২ ঘণ্টা) মালিকের কোনো হার্টবিট বা আনলক ছাড়া অফলাইনে বন্দি থাকে, তবে পাসা নিজেই নিশ্চিত হয় যে ফোনটি চুরি হয়ে ল্যাবে বা ফ্যারাডে খাঁচায় রাখা হয়েছে।</li>\n  <li>সময় শেষ হওয়ামাত্রই ডিভাইসটি স্বয়ংক্রিয়ভাবে ক্রিপ্টোগ্রাফিক অটো-ওয়াইপ এক্সিকিউট করে সম্পূর্ণ ফাঁকা হয়ে যায়।</li>\n</ul>"},{"category":"hardware","categoryNameEn":"Extreme Hardware & EDL/BROM","categoryNameBn":"চরম হার্ডওয়্যার ও ইডিএল","qEn":"Can the Dead Man's Switch accidentally wipe my data during everyday normal use?","qBn":"ডেড ম্যানস সুইচ কি স্বাভাবিক ব্যবহারের সময় ভুলবশত আমার ডেটা ডিলিট করে দিতে পারে?","aEn":"<p><strong>Zero Risk of Accidental Wipe.</strong></p>\n<p>Every time you unlock your device with your fingerprint, face, or PIN during daily use (<code>ACTION_USER_PRESENT</code>), the Dead Man's timer resets back to zero. Additionally, any routine command or heartbeat sent via Telegram/SMS refreshes the timer. The wipe protocol activates only if the device remains continuously locked and isolated past the deadline.</p>","aBn":"<p><strong>কখনোই না।</strong></p>\n<p>স্বাভাবিক ব্যবহারের সময় আপনি যখনই দিনে একবারও আপনার ফিঙ্গারপ্রিন্ট বা পিন দিয়ে ফোন আনলক করবেন (<code>ACTION_USER_PRESENT</code>), ডেড ম্যানস সুইচের টাইমার স্বয়ংক্রিয়ভাবে ০ থেকে রিস্টার্ট হয়ে যায়। এছাড়া টেলিগ্রাম বা এসএমএসে যেকোনো সাধারণ কমান্ড আসলে বা <code>/deadman heartbeat</code> দিলেও টাইমার রিফ্রেশ হয়। কেবল ফোন চুরি হয়ে লক থাকা অবস্থায় দীর্ঘ সময় বিচ্ছিন্ন থাকলেই এটি কার্যকর হয়।</p>"},{"category":"lockscreen","categoryNameEn":"Lockscreen & Escrow PIN","categoryNameBn":"লকস্ক্রিন ও এসক্রো টোকেন","qEn":"Google deprecated remote password reset in Android 14, 15, and 16. How does PASA remotely reset screen lock PIN?","qBn":"Android 14, 15 ও 16-এ তো গুগল সিকিউরিটির কারণে রিমোটলি পাসওয়ার্ড পরিবর্তন করার মেথড বন্ধ করে দিয়েছে। তাহলে পাসা কীভাবে রিমোটলি স্ক্রিন লক পিন পরিবর্তন করে?","aEn":"<p>While Google deprecated legacy APIs for standard apps, Android Enterprise provides <strong>Cryptographic Hardware Escrow Token Architecture</strong>:</p>\n<ol>\n  <li>During initial setup, PASA generates a 32-byte cryptographically secure random token stored securely in the Android Keystore.</li>\n  <li>When the genuine owner first unlocks the screen, the Android Keyguard and hardware TEE/StrongBox module enroll this token (<code>setResetPasswordToken</code>).</li>\n  <li>When you issue <code>/set_os_pin &lt;new_pin&gt;</code> via Telegram or SMS, PASA submits this hardware escrow token to the OS framework, resetting the actual lockscreen PIN at the hardware level (<code>resetPasswordWithToken</code>)!</li>\n</ol>","aBn":"<p>গুগল সাধারণ অ্যাপ বা পুরানো ডিভাইস অ্যাডমিনদের জন্য সরাসরি পাসওয়ার্ড পরিবর্তনের এপিআই বন্ধ করেছে, কিন্তু এন্টারপ্রাইজ ডিভাইস ওনারদের জন্য চালু করেছে <strong>ক্রিপ্টোগ্রাফিক হার্ডওয়্যার এসক্রো টোকেন (Hardware Escrow Token Architecture):</strong></p>\n<ol>\n  <li>পাসা সেটআপের সময় একটি নিরাপদ ৩২-বাইটের সিকিউর র‍্যান্ডম টোকেন তৈরি করে অ্যান্ড্রয়েড কি-স্টোরে সংরক্ষণ করে।</li>\n  <li>প্রথমবার যখন মালিক স্ক্রিন আনলক করেন, অ্যান্ড্রয়েডের হার্ডওয়্যার সিকিউরিটি মডিউল (StrongBox / TEE) এই টোকেনটি এনরোল করে নেয় (<code>setResetPasswordToken</code>)।</li>\n  <li>পরবর্তীতে আপনি যখনই টেলিগ্রাম বা এসএমএস দিয়ে <code>/set_os_pin &lt;নতুন_পিন&gt;</code> কমান্ড দেন, পাসা ওই হার্ডওয়্যার ক্রিপ্টোগ্রাফিক টোকেন ব্যবহার করে সরাসরি ওএস লেভেলে স্ক্রিনের আসল পিন কোড পরিবর্তন করে দেয় (<code>resetPasswordWithToken</code>)!</li>\n</ol>"},{"category":"lockscreen","categoryNameEn":"Lockscreen & Escrow PIN","categoryNameBn":"লকস্ক্রিন ও এসক্রো টোকেন","qEn":"What happens if a thief repeatedly attempts wrong lockscreen PINs or patterns?","qBn":"চোর যদি বারবার ভুল প্যাটার্ন বা পিন দিয়ে ফোন আনলক করার চেষ্টা করে?","aEn":"<p>PASA engages <strong>Failed Pattern Guard (<code>/pattern_guard</code>)</strong>:</p>\n<p>Upon 3 failed unlock attempts (configurable threshold), PASA silently fires the front-facing camera, binds the capture with attempt counts, system battery, and exact timestamps, and transmits an urgent perpetrator mugshot alert to your Telegram bot.</p>","aBn":"<p>পাসার <strong>ফেইল্ড প্যাটার্ন গার্ড (Failed Pattern Guard - <code>/pattern_guard</code>):</strong></p>\n<p>ফোনের লকস্ক্রিনে ৩ বার (বা কনফিগার করা সংখ্যা) ভুল পিন বা প্যাটার্ন দিলেই ব্যাকগ্রাউন্ডে সাইলেন্টলি ফ্রন্ট ক্যামেরা দিয়ে অনুপ্রবেশকারীর মুখের স্পষ্ট ছবি তোলা হয়। ভুল চেষ্টার সংখ্যা, তারিখ ও টাইমস্ট্যাম্পসহ ছবিটি তৎক্ষণাৎ টেলিগ্রাম বটে অ্যালার্ট হিসেবে পৌঁছে যায়।</p>"},{"category":"forensics","categoryNameEn":"Covert Forensics","categoryNameBn":"স্টিলথ নজরদারি ও ফরেনসিক্স","qEn":"When capturing photos or video of the thief, will there be flash, shutter sound, or screen flickers?","qBn":"চোরের ছবি বা ভিডিও তোলার সময় কি ক্যামেরার ফ্ল্যাশ জ্বলবে, শাটার সাউন্ড হবে বা স্ক্রিন অন হবে? চোর কি কিছু বুঝতে পারবে?","aEn":"<p><strong>Zero Shutter Sound, Zero Flash, Zero Display Flicker (100% Headless CameraX Architecture):</strong></p>\n<ul>\n  <li><strong>No Transparent Overlay:</strong> CameraX binds directly to background ServiceLifecycleOwner without any activity or screen preview.</li>\n  <li><strong>Zero Display Dimming:</strong> Even if the thief is looking at the screen, the display will not flicker, dim, or black out.</li>\n  <li><strong>Hardware Muted:</strong> Shutter sounds are muted at the HAL layer, and flash LEDs remain permanently dark.</li>\n</ul>","aBn":"<p><strong>একদমই না। এটি ১০০% সাইলেন্ট ও হেডলেস (Zero-Blackout Headless CameraX Architecture):</strong></p>\n<ul>\n  <li><strong>কোনো অ্যাক্টিভিটি নেই:</strong> সাধারণ অ্যাপের মতো স্ক্রিনের ওপর কোনো ক্যামেরা প্রিভিউ বা ট্রান্সপারেন্ট উইন্ডো আসে না। ক্যামেরা এক্স সার্ভিসলাইফসাইকেলের সাথে সরাসরি ব্যাকগ্রাউন্ডে বাইন্ড থাকে।</li>\n  <li><strong>কোনো ডিসপ্লে ব্ল্যাকআউট বা ফ্লিকার নেই:</strong> চোর যদি ডিসপ্লে দেখছিলও, স্ক্রিন কাঁপবে না বা নিভবে না।</li>\n  <li><strong>শব্দহীন:</strong> ওএস ক্যামেরা শাটার সাউন্ড সম্পূর্ণ মিউট করা থাকে এবং ফ্ল্যাশলাইট কখনোই অন হয় না।</li>\n</ul>"},{"category":"forensics","categoryNameEn":"Covert Forensics","categoryNameBn":"স্টিলথ নজরদারি ও ফরেনসিক্স","qEn":"Can PASA record ambient audio or covert video streams?","qBn":"অডিও রেকর্ডিং বা লাইভস্ট্রিমিং কি সম্ভব?","aEn":"<p>Yes, comprehensive forensic media capture is fully operational:</p>\n<ul>\n  <li><code>/record &lt;seconds&gt;</code> — Captures high-clarity 16kHz AAC ambient audio wiretap clips.</li>\n  <li><code>/video front|back &lt;seconds&gt;</code> — Captures stealth front or rear covert video files.</li>\n  <li><code>/livestream [front|back]</code> — Streams recurring high-speed frames mimicking live surveillance surveillance.</li>\n</ul>","aBn":"<p>হ্যাঁ:</p>\n<ul>\n  <li><code>/record &lt;seconds&gt;</code> — ব্যাকগ্রাউন্ডে ফোনের মাইক্রোফোন চালু করে আশপাশের কথাবার্তা হাই-কোয়ালিটি অডিও ক্লিপ (16kHz AAC) হিসেবে রেকর্ড করে টেলিগ্রামে পাঠায়।</li>\n  <li><code>/video front|back &lt;seconds&gt;</code> — সামনের বা পেছনের ক্যামেরা দিয়ে স্টিলথ ভিডিও রেকর্ড করে পাঠায়।</li>\n  <li><code>/livestream [front|back]</code> — প্রতি কয়েক সেকেন্ড পর পর ক্রমান্বয়ে ভিডিও ফ্রেম ও ক্লিপ টেলিগ্রামে পাঠাতে থাকে যা লাইভ স্ট্রিমের মতো কাজ করে।</li>\n</ul>"},{"category":"forensics","categoryNameEn":"Covert Forensics","categoryNameBn":"স্টিলথ নজরদারি ও ফরেনসিক্স","qEn":"What if the stolen phone is hidden in an underground basement where GPS satellite signal cannot penetrate?","qBn":"ফোন যদি কোনো বহুতল ভবনের বেসমেন্ট বা আন্ডারগ্রাউন্ডে থাকে যেখানে কোনো জিপিএস স্যাটেলাইট সিগন্যাল পৌঁছায় না, তখন কীভাবে লোকেশন পাওয়া যাবে?","aEn":"<p>PASA activates <strong>Dual-SIM Cell Tower Triangulation (<code>/tower</code>)</strong>:</p>\n<p>Even without line-of-sight satellite signals, cellular transceivers communicate with cellular towers. The <code>/tower</code> command extracts MCC, MNC, LAC/TAC, Cell-ID, and signal levels (dBm) across both SIM slots to triangulate indoor positions precisely.</p>","aBn":"<p>পাসার <strong>ডুয়েল-সিম সেল টাওয়ার ট্রায়াঙ্গুলেশন (<code>/tower</code>):</strong></p>\n<p>স্যাটেলাইট সিগন্যাল না থাকলেও ফোনের রেডিও চিপ আশপাশের সেলুলার টাওয়ারের সাথে সংযুক্ত থাকে। <code>/tower</code> কমান্ড দিলে পাসা দুই সিমের সবকটি কানেক্টেড এবং নেইবারিং ৪জি/৫জি টাওয়ারের প্যারামিটার (MCC, MNC, LAC/TAC, Cell-ID, সিগন্যাল শক্তি dBm) স্ক্যান করে পাঠায়, যা দিয়ে ইনডোর লোকেশন নির্ভুলভাবে ম্যাপ করা যায়।</p>"},{"category":"vault","categoryNameEn":"Shadow Vault & Firewall","categoryNameBn":"শ্যাডো ভল্ট ও ফায়ারওয়াল","qEn":"I have banking apps (bKash, Nagad), crypto wallets, and WhatsApp. If forced to unlock screen, can a thief access them?","qBn":"আমার ফোনে বিকাশ, নগদ, ব্যাংক অ্যাকাউন্ট, বাইন্যান্স বা হোয়াটসঅ্যাপ আছে। চোরকে যদি আমি বাধ্য হয়ে স্ক্রিন লক পাসওয়ার্ড দিয়েও দিই, সে কি এগুলো দেখে ফেলতে পারবে?","aEn":"<p>No. PASA provides <strong>Shadow App Vault (<code>/freeze</code> / <code>/lock_app</code>)</strong>:</p>\n<ul>\n  <li>Issue <code>/freeze bkash</code> or <code>/lock_app gallery</code>, and Device Owner hides the package completely (<code>setApplicationHidden(pkg, true)</code>).</li>\n  <li>The app vanishes instantly from launcher, app drawer, and system process listings with zero data loss.</li>\n  <li>Issue <code>/unfreeze</code> or <code>/unlock_app</code> to restore it with all session data intact.</li>\n</ul>","aBn":"<p>না। পাসার রয়েছে <strong>শ্যাডো অ্যাপ ভল্ট (Shadow App Vault - <code>/freeze</code> / <code>/lock_app</code>):</strong></p>\n<ul>\n  <li>আপনি টেলিগ্রাম বা এসএমএস থেকে <code>/freeze bkash</code> বা <code>/lock_app gallery</code> দিলেই নক্স ডিভাইস ওনার ওই অ্যাপটিকে সম্পূর্ণ হাইড করে দেয় (<code>setApplicationHidden(pkg, true)</code>)।</li>\n  <li>অ্যাপটি হোমস্ক্রিন, অ্যাপ ড্রয়ার, সেটিংসের অ্যাপস লিস্ট এবং রানিং প্রসেস টেবিল থেকে পুরোপুরি ভ্যানিশ হয়ে যায়। কোনো ডেটা নষ্ট হয় না।</li>\n  <li>পরবর্তীতে আপনি ফিরে এসে <code>/unfreeze</code> বা <code>/unlock_app</code> দিলে অ্যাপটি আগের মতোই সব ডাটা নিয়ে ফিরে আসে।</li>\n</ul>"},{"category":"vault","categoryNameEn":"Shadow Vault & Firewall","categoryNameBn":"শ্যাডো ভল্ট ও ফায়ারওয়াল","qEn":"Can I remotely retrieve gallery photos or confidential documents from my stolen phone?","qBn":"চুরি হওয়ার পর ফোনের গ্যালারির ছবি বা জরুরি কোনো ফাইল কি দূর থেকে ডাউনলোড করে নেওয়া যাবে?","aEn":"<p>Yes, PASA includes full remote storage extraction tools:</p>\n<ul>\n  <li><code>/gallery_latest 5</code> — Dispatches the latest 5 camera photos straight to Telegram.</li>\n  <li><code>/getfile /sdcard/Documents/passwords.txt</code> — Downloads any file up to 50MB directly to Telegram.</li>\n  <li><code>/list_files /sdcard/Download</code> — Inspects directories remotely.</li>\n  <li><code>/shred &lt;path&gt;</code> — Permanently overwrites and destroys sensitive files with multi-pass cryptographic shredding.</li>\n</ul>","aBn":"<p>হ্যাঁ, পাসায় রয়েছে ফুল স্টোরেজ এক্সট্র্যাকশন সুবিধা:</p>\n<ul>\n  <li><code>/gallery_latest 5</code> — গ্যালারিতে থাকা সর্বশেষ ৫টি ছবি সরাসরি টেলিগ্রামে পাঠিয়ে দেবে।</li>\n  <li><code>/getfile /sdcard/Documents/passwords.txt</code> — নির্দিষ্ট কোনো ফাইল সরাসরি টেলিগ্রামে ডকুমেন্ট আকারে ডাউনলোড করে পাঠাবে (৫০ মেগাবাইট পর্যন্ত)।</li>\n  <li><code>/list_files /sdcard/Download</code> — ফোনের স্টোরেজে কী কী ফাইল আছে তার তালিকা দেখতে পারবেন।</li>\n  <li><code>/shred &lt;path&gt;</code> — অতি সংবেদনশীল ফাইল দূর থেকেই ক্রিপ্টোগ্রাফিক মাল্টি-পাস ওভাররাইট করে পার্মানেন্ট ডিলিট করতে পারবেন।</li>\n</ul>"},{"category":"vault","categoryNameEn":"Shadow Vault & Firewall","categoryNameBn":"শ্যাডো ভল্ট ও ফায়ারওয়াল","qEn":"What is the App Network Firewall and how does it work?","qBn":"অ্যাপ নেটওয়ার্ক ফায়ারওয়াল কী এবং কীভাবে কাজ করে?","aEn":"<p>The <strong>App Network Isolation Firewall (<code>/app_firewall</code>)</strong> allows you to isolate suspicious packages, RATs, or rogue software. Running <code>/app_firewall block &lt;package&gt;</code> severs all inbound and outbound network sockets for that specific app at the OS layer, terminating data exfiltration.</p>","aBn":"<p>যদি সন্দেহ হয় যে ফোনে কোনো ম্যালওয়্যার, স্পাইওয়্যার বা রিমোট অ্যাক্সেস ট্রোজান (RAT) লুকিয়ে আছে, তবে <code>/app_firewall block &lt;package&gt;</code> দিলে পাসা সিস্টেম লেভেলে ওই অ্যাপের সমস্ত ইনবাউন্ড ও আউটবাউন্ড ইন্টারনেট ট্রাফিক ব্লক করে দেয়। ফলে ম্যালওয়্যার আপনার কোনো ডেটা বাইরে পাচার করতে পারে না।</p>"},{"category":"sms","categoryNameEn":"Air-Gapped SMS & TOTP","categoryNameBn":"অফলাইন এসএমএস ও টিওটিপি","qEn":"What is the SMS command syntax and can someone else tamper with my phone via SMS?","qBn":"এসএমএস কমান্ডের ফরম্যাট কেমন এবং অন্য কেউ কি এসএমএস পাঠিয়ে ক্ষতি করতে পারবে?","aEn":"<p>Unauthorized persons cannot execute SMS commands; all commands require cryptographic authentication:</p>\n<pre><code>PASA &lt;Master_PIN_or_TOTP&gt; &lt;command&gt;</code></pre>\n<p>Examples: <code>PASA 5892 /locate</code>, <code>PASA 5892 /status</code>, <code>PASA 5892 /usb_lock on</code>, <code>PASA 5892 /fakeshutdown</code>. 3 consecutive failed attempts automatically blacklist the sender's SIM number.</p>","aBn":"<p>অন্য কেউ ভুলেও আপনার ফোন নিয়ন্ত্রণ করতে পারবে না। প্রতিটি এসএমএস কমান্ড ক্রিপ্টোগ্রাফিক্যালি অথেনটিকেটেড।</p>\n<pre><code>PASA &lt;আপনার_গোপন_পিন_বা_TOTP&gt; &lt;কমান্ড&gt;</code></pre>\n<p>উদাহরণ: <code>PASA 5892 /locate</code>, <code>PASA 5892 /status</code>, <code>PASA 5892 /usb_lock on</code>, <code>PASA 5892 /fakeshutdown</code>। ভুল পিন দিয়ে পরপর ৩ বার এসএমএস পাঠালে ওই সিমকে সিস্টেম স্বয়ংক্রিয়ভাবে সাময়িক ব্লকলিস্টে ফেলে দেয়।</p>"},{"category":"sms","categoryNameEn":"Air-Gapped SMS & TOTP","categoryNameBn":"অফলাইন এসএমএস ও টিওটিপি","qEn":"How does the dynamic TOTP (Time-based One-Time Password) SMS fallback work?","qBn":"TOTP (Time-based One-Time Password) এসএমএস ফলব্যাক কীভাবে কাজ করে?","aEn":"<p>Based on RFC 6238 (same algorithm as Google Authenticator), a rolling 6-digit cryptographic code regenerates every 30 seconds. By enrolling your authenticator app via <code>/smssetup</code>, you can issue air-gapped SMS commands using dynamic codes (<code>PASA 419582 /locate</code>). Even if an eavesdropper intercepts a past SMS, the token cannot be reused.</p>","aBn":"<p>RFC 6238 অ্যালগরিদমের ওপর ভিত্তি করে Google Authenticator-এর মতো প্রতি ৩০ সেকেন্ডে একটি নতুন ৬-সংখ্যার ডায়নামিক কোড তৈরি হয়। টেলিগ্রাম বটে <code>/smssetup</code> দিয়ে একবার কিউআর কোড স্ক্যান করে রাখলে, পরবর্তীতে ইন্টারনেট ছাড়াই কেবল ওই সময়ের ৬ ডিজিট কোড দিয়ে এসএমএস কমান্ড এক্সিকিউট করা যায় (<code>PASA 419582 /locate</code>)। ফলে কেউ আপনার ফিক্সড মাস্টার পিন দেখে ফেললেও পরবর্তীতে তা দিয়ে ফোন নিয়ন্ত্রণ করতে পারবে না।</p>"},{"category":"traps","categoryNameEn":"Autonomous Traps & Deception","categoryNameBn":"সেন্সর ট্র্যাপ ও ডিসেপশন","qEn":"How does PASA detect a sudden street snatch from my hands?","qBn":"ছিনতাইকারী যদি হাত থেকে হঠাৎ ফোন টান মেরে নিয়ে দৌড় দেয়, পাসা কীভাবে বোঝে?","aEn":"<p>PASA features <strong>Kinetic Snatch Detection</strong>:</p>\n<p>Internal accelerometer vector magnitudes are continuously evaluated: \\(\\sqrt{x^2 + y^2 + z^2} > 26.0\\text{ m/s}^2\\) (~2.65G of violent acceleration). The instant a running bike snatcher yanks the device, PASA locks the screen into Kiosk mode within milliseconds, snaps perpetrator mugshots, and broadcasts Telegram alerts.</p>","aBn":"<p>পাসার ভেতরে রয়েছে <strong>কাইনেটিক অ্যান্টি-স্ন্যাচ ট্র্যাপ (Kinetic Snatch Detection):</strong></p>\n<p>ফোনের ইন্টারনাল অ্যাক্সেলেরোমিটার ভেক্টর প্রতি মুহূর্তে মনিটর করা হয়: \\(\\sqrt{x^2 + y^2 + z^2} > 26.0\\text{ m/s}^2\\) (প্রায় ২.৬৫G ত্বরণ)। চলন্ত গাড়ি বা ছিনতাইকারীর হঠাৎ হ্যাঁচকা টান লাগামাত্রই পাসা চোখের পলকে স্ক্রিন লক করে কিয়স্ক মোড চাপিয়ে দেয়, চোরের মুখের একটি সেলফি তোলে এবং টেলিগ্রামে সতর্কবার্তা পাঠিয়ে দেয়।</p>"},{"category":"traps","categoryNameEn":"Autonomous Traps & Deception","categoryNameBn":"সেন্সর ট্র্যাপ ও ডিসেপশন","qEn":"How does Fake Shutdown deceive the perpetrator?","qBn":"ফেক শাটডাউন (Fake Shutdown) কীভাবে চোরকে বিভ্রান্ত করে?","aEn":"<p>When a thief triggers power-off, PASA renders an authentic manufacturer shutdown animation and lowers display brightness to 0-nit pitch black. Screen taps silently capture front-camera mugshots and log GPS beacons. Wake the phone remotely with <code>/wake</code> or via a secret multi-tap touch pattern.</p>","aBn":"<p>চোর পাওয়ার বাটন চাপলে ফোন আসল অফিসিয়াল পাওয়ার-অফ অ্যানিমেশন দেখায় এবং স্ক্রিন পুরোপুরি ব্ল্যাকআউট (০-নিট) করে দেয়। চোর স্ক্রিন স্পর্শ করলেই ফ্রন্ট ক্যামেরা সাইলেন্টলি চোরের ছবি তুলে জিপিএস ট্র্যাকসহ টেলিগ্রামে পাঠাতে থাকে। টেলিগ্রাম থেকে <code>/wake</code> পাঠালে বা স্ক্রিনে বিশেষ ছন্দে মাল্টি-ট্যাপ করলেই ফোন স্বাভাবিক স্ক্রিনে ফিরে আসে।</p>"},{"category":"traps","categoryNameEn":"Autonomous Traps & Deception","categoryNameBn":"সেন্সর ট্র্যাপ ও ডিসেপশন","qEn":"What if I am held at gunpoint or weapon-point and forced to unlock the phone?","qBn":"ছিনতাইকারী যদি বন্দুক বা অস্ত্রের মুখে জোর করে আমার আঙুল চেপে ফোন আনলক করিয়ে নেয়?","aEn":"<p>PASA provides two coercion defenses:</p>\n<ol>\n  <li><strong>Biometric Killswitch (<code>/biometrics off</code>):</strong> Disables fingerprint and 3D face unlock instantly via Telegram or SMS, forcing strong passphrase entry.</li>\n  <li><strong>Decoy Duress PIN (<code>/duress_pin</code>):</strong> Enter your secret Duress PIN instead of your real PIN. The phone unlocks into a sterile decoy sandbox, automatically vanishes banking apps and private chats via Device Owner, and silently broadcasts an emergency SOS to your Telegram channel.</li>\n</ol>","aBn":"<p>এর জন্য পাসায় রয়েছে দুটি দুর্ধর্ষ প্রতিরোধ ব্যবস্থা:</p>\n<ol>\n  <li><strong>বায়োমেট্রিক কিলসুইচ (<code>/biometrics off</code>):</strong> টেলিগ্রাম বা এসএমএস দিয়ে এক ক্লিকে ফিঙ্গারপ্রিন্ট ও ফেস আনলক অকেজো করে দেওয়া যায়। তখন বাধ্যতামূলক জটিল পাসওয়ার্ড ছাড়া ফোন খোলা যায় না।</li>\n  <li><strong>ডিকয় ডুরেস পিন (Decoy Duress PIN):</strong> আসল পিনের বদলে একটি পূর্বনির্ধারিত \"ডুরেস পিন\" চাপলে ফোন একটি নকল/ফাঁকা ওএস স্যান্ডবক্সে খোলে, সব ব্যাংকিং ও মেসেঞ্জার অ্যাপ পলিসি লেভেলে ভ্যানিশ হয়ে যায়, এবং ফ্রন্ট ক্যামেরা দিয়ে আক্রমণকারীর ছবি তুলে টেলিগ্রাম এসওএস পাঠানো হয়।</li>\n</ol>"},{"category":"traps","categoryNameEn":"Autonomous Traps & Deception","categoryNameBn":"সেন্সর ট্র্যাপ ও ডিসেপশন","qEn":"What if someone steals my phone from my pocket or bag on a crowded train or bus?","qBn":"বাস বা ট্রেনে কেউ পকেট বা ব্যাগ থেকে ফোন সরালে পাসা কীভাবে আটকাবে?","aEn":"<p>PASA engages the <strong>Pocket & Bag Extraction Trap (<code>/trap pocket on</code>)</strong>: Proximity sensors monitor transitions from covered to uncovered while locked. If the authentic owner does not biometric-unlock the phone within a 5-second grace window, kiosk lockdown engages, photos are taken, and alarms trigger.</p>","aBn":"<p>পাসার <strong>পকেট ও ব্যাগ এক্সট্র্যাকশন ট্র্যাপ (<code>/trap pocket on</code>):</strong> স্ক্রিন লক থাকা অবস্থায় যখন ফোন পকেটে থাকে, প্রক্সিমিটি সেন্সর আবৃত থাকে। পকেট থেকে ফোন বের করা হলে ৫ সেকেন্ডের একটি গ্রেস পিরিয়ড শুরু হয়। এর মধ্যে আসল মালিক আনলক না করলে পাসা নিশ্চিত হয় এটি পকেটমার; তাৎক্ষণিক কিয়স্ক লকডাউন সক্রিয় হয়ে সেলফি তোলে এবং অ্যালার্ম বাজায়।</p>"},{"category":"battery","categoryNameEn":"Battery & Performance","categoryNameBn":"ব্যাটারি ও পারফরম্যান্স","qEn":"Does PASA drain phone battery quickly?","qBn":"পাসা কি ফোনের চার্জ দ্রুত শেষ করে ফেলবে?","aEn":"<p><strong>No. PASA Sentinel consumes less than 1% to 1.5% of battery daily.</strong> It strictly complies with Android Doze Mode, maintaining a deep sleeping state until awakened by physical sensor triggers, SIM events, or Telegram/SMS commands.</p>","aBn":"<p><strong>না। পাসা সারাদিনে ফোনের মোট ব্যাটারির ১% থেকে ১.৫%-এর বেশি খরচ করে না।</strong> সাধারণ অবস্থায় এটি অ্যান্ড্রয়েডের সিস্টেম ডজ মোড (Doze Mode) মেনে চলে এবং স্লিপিং স্টেটে থাকে। কেবল সেন্সর ইভেন্ট বা টেলিগ্রাম/এসএমএস ট্রাফিকেই মাইক্রো-সেকেন্ডের জন্য ওয়েক-লক নেয়।</p>"},{"category":"battery","categoryNameEn":"Battery & Performance","categoryNameBn":"ব্যাটারি ও পারফরম্যান্স","qEn":"Will Xiaomi (MIUI/HyperOS), Vivo, Oppo, or Samsung kill PASA in the background?","qBn":"শাওমি (MIUI/HyperOS), ভিভো (Funtouch), অপো (ColorOS) বা স্যামসাং ফোনে কি ব্যাকগ্রাউন্ডে পাসা কিল হয়ে যাবে না?","aEn":"<p>PASA maintains persistence across aggressive OEM battery management via 3 pillars:</p>\n<ol>\n  <li><strong>Device Owner Immunity:</strong> OEM battery savers cannot force-stop Device Owner processes.</li>\n  <li><strong>Foreground Guardian Daemon:</strong> Runs a protected persistent foreground daemon.</li>\n  <li><strong>Watchdog Auto-Resurrection:</strong> AlarmManager and direct-boot receivers resurrect the service within 5 seconds if interrupted.</li>\n</ol>","aBn":"<p>না। তিনটি কারণে এটি সব ব্র্যান্ডের ফোনে স্থায়ীভাবে টিকে থাকে:</p>\n<ol>\n  <li><strong>ডিভাইস ওনার সুপ্রিমেসি:</strong> যেহেতু পাসা সিস্টেমের Device Owner, তাই চাইনিজ ব্র্যান্ডগুলোর নিজস্ব অ্যাগ্রেসিভ ব্যাটারি কিলার ডিভাইস ওনার প্রসেসকে কিল করার অনুমতি পায় না।</li>\n  <li><strong>ফোরগ্রাউন্ড গার্ডিয়ান ডিমন:</strong> পাসা একটি সুরক্ষিত সাইলেন্ট ফোরগ্রাউন্ড সার্ভিস চালায়।</li>\n  <li><strong>ওয়াচডগ অটো-রিসারেকশন:</strong> কোনো কারণে অ্যাপ বন্ধ হলেও ডিরেক্ট বুট ওয়াচডগ মাত্র ৫ সেকেন্ডের মধ্যে সার্ভিসকে পুনরায় জীবিত করে তোলে।</li>\n</ol>"},{"category":"legal","categoryNameEn":"Legal, Police & Licensing","categoryNameBn":"আইনি বৈধতা ও লাইসেন্স","qEn":"If my phone is stolen, will the police / CID / RAB accept PASA's evidence for GD and FIR filing?","qBn":"ফোন চুরি হলে জিডি (GD) করা বা পুলিশ/র‍্যাবের কাছে এই প্রমাণ নিয়ে গেলে কি তারা এটাকে আইনসম্মতভাবে গ্রহণ করবে?","aEn":"<p><strong>100% Legally Admissible & Highly Recommended by Investigators.</strong></p>\n<p>PASA is your personal device security guard, not a surveillance wiretap on others. PASA provides evidence ready for law enforcement:</p>\n<ol>\n  <li>Hardware IMEI and device serial.</li>\n  <li>Timestamped GNSS satellite GPS coordinates & Google Maps pins.</li>\n  <li>Connected 4G/5G cell tower IDs (Cell-ID & LAC/TAC).</li>\n  <li>High-definition perpetrator facial photographs.</li>\n  <li><strong>The thief's own phone number via Caller ID from the unauthorized SIM alert.</strong></li>\n</ol>","aBn":"<p><strong>হ্যাঁ, শতভাগ আইনসম্মত ও কার্যকরী।</strong></p>\n<p>পাসা কোনো অবৈধ হ্যাকিং টুল নয়; এটি মালিকের নিজস্ব ডিভাইসের নিরাপত্তা গার্ড। চুরির পর পাসা যেসব তথ্য দেয়:</p>\n<ol>\n  <li>ডিভাইসের আসল আইএমইআই (IMEI) ও সিরিয়াল নম্বর।</li>\n  <li>টাইমস্ট্যাম্পসহ স্যাটেলাইট জিপিএস কোঅর্ডিনেট ও গুগল ম্যাপের পিন।</li>\n  <li>কানেক্টেড মোবাইল টাওয়ার আইডি (Cell-ID & LAC)।</li>\n  <li>চোর বা টেকনিশিয়ানের চেহারার স্পষ্ট ফ্রন্ট ক্যামেরা ছবি।</li>\n  <li>চোরের নিজের সিম কার্ডের ফোন নম্বর (Caller ID)।</li>\n</ol>\n<p>থানায় জিডি করার সময় বা পুলিশের আইটি ক্রাইম বিভাগে এই তথ্যগুলো সরাসরি জমা দিলে যেকোনো তদন্তকারী কর্মকর্তা চোর ও ফোন শনাক্ত করতে সর্বোচ্চ সুবিধা পান।</p>"},{"category":"legal","categoryNameEn":"Legal, Police & Licensing","categoryNameBn":"আইনি বৈধতা ও লাইসেন্স","qEn":"Is PASA Sentinel a monthly subscription?","qBn":"পাসা সেন্টিনেলের লাইসেন্স কি প্রতি মাসের সাবস্ক্রিপশন?","aEn":"<p><strong>No monthly fees or recurring traps.</strong> We provide a Lifetime Pro License ($19 / ৳2,200 BDT) with lifetime OTA updates, verified offline via cryptographic Ed25519 digital signatures.</p>","aBn":"<p>না। কমার্শিয়াল অ্যাপগুলোর মতো প্রতি মাসে বা বছরে বড় অঙ্কের ফি নেওয়া আমরা সমর্থন করি না। <strong>লাইফটাইম প্রো লাইসেন্স:</strong> একবারের জন্য একটি লাইসেন্স কি কিনলে আজীবন সব ফিচার এবং আনলিমিটেড আপডেট পাওয়া যায়। লাইসেন্সটি ক্রিপ্টোগ্রাফিক Ed25519 অফলাইন চাবি দিয়ে যাচাই করা হয়।</p>"},{"category":"legal","categoryNameEn":"Legal, Police & Licensing","categoryNameBn":"আইনি বৈধতা ও লাইসেন্স","qEn":"What is the refund and warranty policy?","qBn":"কেনার পর কোনো সমস্যা হলে কি টাকা ফেরত (Refund) পাওয়া যাবে?","aEn":"<p>We back PASA with an unconditional <strong>24-Hour 100% Money-Back Guarantee</strong> and <strong>7 Days of Dedicated Personal Onboarding Support</strong>. Refunds are processed immediately via Binance Pay or bKash.</p>","aBn":"<p>হ্যাঁ। কেনার পর <strong>২৪ ঘণ্টার মধ্যে নো-কোয়েশ্চেন-আসকড ১০০% রিফান্ড গ্যারান্টি</strong> এবং <strong>৭ দিনের টেকনিক্যাল সাপোর্ট গ্যারান্টি</strong> রয়েছে। Binance Pay বা bKash-এর মাধ্যমে অনতিবিলম্বে রিফান্ড প্রসেস করা হয়।</p>"}];
+const rawFaq = [{"category":"general","categoryNameEn":"General & Fundamentals","categoryNameBn":"সাধারণ ও মৌলিক ধারণাসমূহ","qEn":"Why do I need PASA Sentinel when Google Find My Device or Samsung SmartThings already exists?","qBn":"গুগলের \"Find My Device\" বা স্যামসাংয়ের \"SmartThings\" থাকতে পাসা সেন্টিনেল কেন প্রয়োজন?","aEn":"<p>Google Find My Device and Samsung SmartThings depend entirely on an active internet connection and normal user permissions. In a real-world theft, professional perpetrators execute two maneuvers within the first <strong>5 to 10 seconds</strong>:</p>\n<ol>\n  <li><strong>Swipe down the notification shade and toggle Airplane Mode</strong>, or rip out the SIM card. The instant internet connectivity drops, Google and Samsung trackers become completely blind and useless.</li>\n  <li><strong>Press and hold the power button to shut down the device.</strong></li>\n</ol>\n<p><strong>How PASA Sentinel neutralizes this vulnerability:</strong></p>\n<ul>\n  <li><strong>Lockscreen Status Bar Lockdown:</strong> Hardware Device Owner enforcement permanently blocks notification drawer pull-down (<code>setStatusBarDisabled(true)</code>) and locks out Airplane Mode (<code>DISALLOW_AIRPLANE_MODE</code>).</li>\n  <li><strong>Air-Gapped Cellular SMS C2:</strong> Even with cellular data and Wi-Fi disabled, cellular radio remains registered with nearby towers. A cryptographic SMS command triggers the satellite GNSS chip, locks GPS coordinates, and dispatches a direct Google Maps pin via SMS.</li>\n  <li><strong>Fake Shutdown Deception:</strong> When the thief attempts power-down, PASA renders an authentic OEM shutdown sequence, turns the display into a 0-nit pitch-black canvas, and continues silent camera capture and live GPS beaconing in the background.</li>\n</ul>","aBn":"<p>গুগল ফাইন্ড মাই ডিভাইস বা স্যামসাংয়ের ট্র্যাকার সম্পূর্ণভাবে সক্রিয় ইন্টারনেট সংযোগ এবং সাধারণ ইউজার মোডের ওপর নির্ভরশীল। একজন পেশাদার চোর ফোন ছিনতাই বা চুরি করার প্রথম <strong>৫ থেকে ১০ সেকেন্ডের</strong> মধ্যে দুটি কাজ করে:</p>\n<ol>\n  <li>স্ক্রিন উপর থেকে সোয়াইপ করে <strong>Airplane Mode</strong> চালু করে দেয় অথবা সিম কার্ড খুলে ছুড়ে ফেলে দেয়। ইন্টারনেট বন্ধ হওয়ার সাথে সাথে গুগল বা স্যামসাংয়ের ট্র্যাকার সম্পূর্ণ অন্ধ ও অকেজো হয়ে যায়।</li>\n  <li>পাওয়ার বাটন চেপে ফোন বন্ধ করে দেয়।</li>\n</ol>\n<p><strong>পাসা সেন্টিনেল কীভাবে এই সংকট সমাধান করে?</strong></p>\n<ul>\n  <li><strong>লকস্ক্রিন স্ট্যাটাস বার ব্লকিং:</strong> লক অবস্থায় স্ট্যাটাস বার নামানো বা কুইক সেটিংস ড্রয়ার অ্যাক্সেস পুরোপুরি বন্ধ করে দেয় (<code>setStatusBarDisabled(true)</code>) এবং এয়ারপ্লেন মোড চালু করা নিষিদ্ধ করে (<code>DISALLOW_AIRPLANE_MODE</code>)।</li>\n  <li><strong>এয়ার-গ্যাপড সেলুলার এসএমএস:</strong> ইন্টারনেট সম্পূর্ণ বন্ধ থাকলেও মোবাইল টাওয়ারের সাথে ফোন সংযুক্ত থাকে। একটি এনক্রিপ্টেড এসএমএস কমান্ড পাঠালেই ফোনের স্যাটেলাইট জিপিএস চিপ সচল হয়ে স্যাটেলাইট থেকে পিন পয়েন্ট কোঅর্ডিনেট নিয়ে সরাসরি গুগল ম্যাপের লিংক এসএমএসে পাঠায়।</li>\n  <li><strong>ফেক শাটডাউন (Fake Shutdown):</strong> চোর পাওয়ার বাটন চেপে ফোন বন্ধ করতে গেলে ফোন অফিসিয়াল পাওয়ার-অফ অ্যানিমেশন দেখিয়ে ০-নিট কালো স্ক্রিনে চলে যায়। চোর মনে করে ফোন বন্ধ, অথচ ব্যাকগ্রাউন্ডে ক্যামেরা ও জিপিএস পুরোদমে ছবি ও লাইভ লোকেশন পাঠাতে থাকে।</li>\n</ul>"},{"category":"general","categoryNameEn":"General & Fundamentals","categoryNameBn":"সাধারণ ও মৌলিক ধারণাসমূহ","qEn":"There are many anti-theft apps on Google Play Store. How is PASA different?","qBn":"গুগল প্লে স্টোরে তো অনেক অ্যান্টি-থেফট অ্যাপ আছে, পাসা তাদের চেয়ে কোথায় আলাদা?","aEn":"<p>Standard Play Store apps run in an ordinary third-party sandbox. Constrained by Google Play policies, they cannot access kernel or hardware-level APIs. A thief can simply reboot into Safe Mode and uninstall them. Furthermore, commercial apps (e.g., Prey, Cerberus, Life360) store your personal photos, call logs, and location tracks on their central cloud databases while charging aggressive annual subscription fees.</p>\n<p><strong>PASA Sentinel operates on Knox-Grade Android Enterprise Device Owner architecture:</strong></p>\n<ul>\n  <li>Granted highest supervisor OS privileges via official DevicePolicyManager.</li>\n  <li>Uninstall and Force Stop buttons are greyed out by the OS itself (<i>\"Managed by your organization\"</i>).</li>\n  <li><strong>Strategy 1 Zero-Storage Guarantee:</strong> Zero surveillance photos, zero GPS tracks, and zero audio recordings are stored on our servers. Evidence streams direct to your private Telegram bot and is shredded from device RAM immediately.</li>\n</ul>","aBn":"<p>প্লে স্টোরের সাধারণ অ্যান্টি-থেফট অ্যাপগুলো সাধারণ থার্ড-পার্টি অ্যাপ স্যান্ডবক্সে চলে। গুগলের কঠোর পলিসির কারণে তারা ফোনের অপারেটিং সিস্টেম বা হার্ডওয়্যার লেভেলে ঢুকতে পারে না। চোর খুব সহজেই সেগুলোকে 'সেফ মোড'-এ রিস্টার্ট দিয়ে ডিলিট করে দিতে পারে। তাছাড়া বেশিরভাগ কমার্শিয়াল অ্যাপ ব্যবহারকারীর ব্যক্তিগত ছবি, কল লগ এবং লাইভ ট্র্যাকিং তাদের ক্লাউড সার্ভারে জমা রাখে এবং প্রতি বছর বড় অঙ্কের রিকারিং সাবস্ক্রিপশন চার্জ কাটে।</p>\n<p>পাসা সেন্টিনেল পরিচালিত হয় <strong>অ্যান্ড্রয়েড এন্টারপ্রাইজ ডিভাইস ওনার (Knox-Grade Device Owner)</strong> আর্কিটেকচারে। এটি ওএস-এর সর্বোচ্চ সুপারভাইজার প্রিভিলেজ নিয়ে চলে, ফলে কোনো অপশন দিয়েই একে আনইন্সটল বা ডিঅ্যাক্টিভেট করা যায় না এবং এটি কোনো ক্লাউড সার্ভারে ব্যবহারকারীর ডেটা জমা রাখে না।</p>"},{"category":"general","categoryNameEn":"General & Fundamentals","categoryNameBn":"সাধারণ ও মৌলিক ধারণাসমূহ","qEn":"Is PASA Sentinel on Google Play Store? If not, is it safe to use?","qBn":"পাসা সেন্টিনেল কি গুগল প্লে স্টোরে পাওয়া যায়? না থাকলে এটি কতটা নিরাপদ?","aEn":"<p>No, PASA Sentinel is intentionally not hosted on Google Play Store. Google Play Store Developer Policies explicitly prohibit third-party apps from executing hardware-level defenses such as:</p>\n<ol>\n  <li>Remote hardware lockscreen PIN resets via escrow tokens.</li>\n  <li>Disabling physical USB data pins (preventing forensic cable extraction).</li>\n  <li>Headless background camera capture without full-screen preview overlays.</li>\n  <li>Disabling the device uninstallation mechanism.</li>\n</ol>\n<p>PASA is built on sovereign privacy: zero third-party SDKs, zero Google trackers, zero telemetry analytics, and zero ads. The entire codebase runs in high-security memory with hardware-backed StrongBox / TEE cryptographic key pairs.</p>","aBn":"<p>না, পাসা সেন্টিনেল ইচ্ছাকৃতভাবেই গুগল প্লে স্টোরে দেওয়া হয় না। কারণ:</p>\n<ol>\n  <li>প্লে স্টোরের পলিসি কোনো অ্যাপকে ওএস লকস্ক্রিন ওভাররাইট, ইউএসবি ডেটা পিন কাট, ব্যাকগ্রাউন্ড ক্যামেরা ট্রিগার, আনইন্সটল বাটন ডিসঅ্যাবল বা এসএমএস ফিল্টারিংয়ের মতো হার্ডওয়্যার লেভেল সুরক্ষার অনুমতি দেয় না।</li>\n  <li>পাসা সেন্টিনেল পরিচালিত হয় সার্বভৌম প্রাইভেসি দর্শনে—এখানে কোনো বিগ-টেক ডাটা কালেকশন নেই।</li>\n</ol>\n<p>অ্যাপটির পুরো সোর্স কোড পরিষ্কার, ওপেন-আর্কিটেকচার এবং সম্পূর্ণ হার্ডওয়্যার এনক্রিপশনে সুরক্ষিত। এতে কোনো ট্র্যাকার বা অ্যাডওয়্যার নেই।</p>"},{"category":"general","categoryNameEn":"General & Fundamentals","categoryNameBn":"সাধারণ ও মৌলিক ধারণাসমূহ","qEn":"Does installing PASA Sentinel require rooting the device?","qBn":"পাসা সেন্টিনেল ইন্সটল করতে কি ফোন রুট (Root) করতে হয়?","aEn":"<p><strong>Zero Root Required.</strong> Rooting a device actually weakens its hardware integrity by tripping Samsung Knox counters, unlocking the bootloader, and degrading TEE / StrongBox Keystore hardware security.</p>\n<p>PASA utilizes Google's official enterprise security specification: <strong>Android Enterprise Device Owner</strong>. Configured once via a clean USB ADB command (<code>adb shell dpm set-device-owner ...</code>), it attains supervisor administrative authority without altering kernel partitions or voiding hardware integrity.</p>","aBn":"<p><strong>না, কোনো রুট পারমিশন প্রয়োজন নেই (Zero Root Required)।</strong></p>\n<p>বরং ফোন রুট করলে ডিভাইসের মূল হার্ডওয়্যার সিকিউরিটি (Knox / TEE / StrongBox Keystore) নষ্ট হয়ে যায়। পাসা কাজ করে গুগল স্বীকৃত অফিসিয়াল <strong>Android Enterprise Device Owner</strong> প্রোটোকলে। কম্পিউটারের সাথে ইউএসবি ক্যাবল লাগিয়ে মাত্র একবার একটি সাধারণ এডিবি কমান্ড (<code>adb shell dpm set-device-owner ...</code>) দিলেই পাসা সর্বোচ্চ প্রশাসনিক ক্ষমতা পায়, যা রুটের চেয়েও নিরাপদ ও স্থিতিশীল।</p>"},{"category":"privacy","categoryNameEn":"Privacy & Zero-Storage","categoryNameBn":"নিরাপত্তা ও জিরো-স্টোরেজ","qEn":"The app accesses Camera, Mic, and GPS. Can PASA developers or server admins spy on my media?","qBn":"অ্যাপটি আমার ক্যামেরা, মাইক্রোফোন এবং জিপিএস ব্যবহার করে—পাসার ডেভেলপার বা কোম্পানি কি আমার ছবি বা কথা শুনতে পাবে?","aEn":"<p><strong>Never. This is our non-negotiable \"Strategy 1: Direct-to-Telegram Zero-Storage\" architectural guarantee.</strong></p>\n<ul>\n  <li><strong>No Central Cloud Vault:</strong> Unlike commercial trackers, PASA maintains zero cloud storage for customer media.</li>\n  <li><strong>Direct Pipe to Your Telegram:</strong> Captures taken via <code>/snap</code>, <code>/video</code>, <code>/screenshot</code>, or <code>/record</code> stream directly from device memory through TLS 1.3 to your authenticated private Telegram chat.</li>\n  <li><strong>Instant RAM Shredding:</strong> The instant the Telegram API acknowledges transmission, local temp buffers on the phone are cryptographically overwritten and purged (<code>photoFile.delete()</code>).</li>\n  <li><strong>VPS Ephemeral Memory Only:</strong> Server buffers exist exclusively in volatile RAM (<code>multer.memoryStorage()</code>) and are never committed to VPS disk. Zero location trails are recorded in our databases.</li>\n</ul>","aBn":"<p><strong>কখনোই না। এটি আমাদের অলঙ্ঘনীয় \"Strategy 1: Direct-to-Telegram Zero-Storage\" গ্যারান্টি।</strong></p>\n<ul>\n  <li>বাণিজ্যিক অ্যাপগুলোর মতো পাসার কোনো সেন্ট্রাল ক্লাউড স্টোরেজ নেই যেখানে ব্যবহারকারীর ছবি বা অডিও জমা হয়।</li>\n  <li>যখনই কোনো ছবি (<code>/snap</code>), ভিডিও (<code>/video</code>), স্ক্রিনশট (<code>/screenshot</code>) বা ভয়েস রেকর্ড (<code>/record</code>) নেওয়া হয়, সেটি ডিভাইস মেমোরি থেকে সরাসরি এনক্রিপ্ট হয়ে আপনার নিজস্ব প্রাইভেট টেলিগ্রাম বটে যায়।</li>\n  <li>টেলিগ্রামে পাঠানো সম্পন্ন হওয়ামাত্রই ফোনের অস্থায়ী ক্যাশ থেকে ফাইলটি মাল্টি-পাস ক্রিপ্টোগ্রাফিক শেডিংয়ের মাধ্যমে পার্মানেন্ট মুছে ফেলা হয়।</li>\n  <li>পাসার কন্ট্রোল সার্ভার কেবলমাত্র একটি ক্ষণস্থায়ী সিগনালিং গেটওয়ে (RAM-only ephemeral buffer), যা কখনোই কোনো মিডিয়া বা জিপিএস ট্রেইল হার্ডডিস্কে লেখে না।</li>\n</ul>"},{"category":"privacy","categoryNameEn":"Privacy & Zero-Storage","categoryNameBn":"নিরাপত্তা ও জিরো-স্টোরেজ","qEn":"How secure is my data on Telegram servers?","qBn":"টেলিগ্রাম সার্ভারে আমার ডেটা কতটা নিরাপদ?","aEn":"<p>Telegram Bot API communicates over hardened TLS 1.3 encryption. PASA enforces strict Chat ID authorization: commands issued from any Telegram account other than your registered Master ID are instantly dropped and flagged with <code>⛔ Access Denied</code>.</p>\n<p>With Telegram's native Two-Factor Authentication (2FA) and cloud password enabled on your personal account, unauthorized third parties cannot intercept or access your surveillance transmissions.</p>","aBn":"<p>টেলিগ্রাম বট এপিআই ব্যবহার করে এন্ড-টু-এন্ড টিএলএস (TLS 1.3) এনক্রিপশনে ডেটা ট্রান্সফার হয়। আপনার ব্যক্তিগত টেলিগ্রাম আইডি ছাড়া অন্য কোনো আইডি থেকে পাসার বটে কমান্ড পাঠালে সিস্টেম তা সরাসরি প্রত্যাখ্যান করে (<code>⛔ Access Denied</code>)। এছাড়া টেলিগ্রাম টু-ফ্যাক্টর অথেনটিকেশন (2FA) চালু থাকলে আপনার টেলিগ্রাম অ্যাকাউন্ট অননুমোদিত কেউ খুলতেও পারবে না।</p>"},{"category":"privacy","categoryNameEn":"Privacy & Zero-Storage","categoryNameBn":"নিরাপত্তা ও জিরো-স্টোরেজ","qEn":"If the phone is offline, will captured photos remain in the gallery where a thief can see them?","qBn":"ফোন অফলাইনে থাকলে যেসব ছবি বা প্রমাণ নেওয়া হয়, তা কি ফোনের গ্যালারিতে থেকে যাবে এবং চোর তা দেখে ফেলতে পারবে?","aEn":"<p><strong>No. Captured forensic media never touches the Android MediaStore or public gallery folders.</strong></p>\n<p>If evidence is captured while completely offline, it is sealed inside PASA's encrypted app sandbox using SQLCipher / Tink AES-256 GCM hardware encryption. It remains completely invisible to Google Photos, Gallery apps, and third-party file explorers. As soon as network connectivity is restored, evidence is dispatched to Telegram and immediately shredded from internal memory.</p>","aBn":"<p>না। কোনো প্রমাণ যদি অফলাইনে থাকার কারণে সরাসরি পাঠানো না যায়, তবে তা ফোনের স্ট্যান্ডার্ড গ্যালারিতে যায় না। তা অ্যাপের নিজস্ব স্যান্ডবক্সড এনক্রিপ্টেড ডাটাবেজে (SQLCipher / Tink AES-256 GCM) ক্রিপ্টোগ্রাফিক এনক্রিপশন অবস্থায় সংরক্ষিত থাকে এবং ইন্টারনেট পাওয়ার সাথে সাথে সরাসরি পাঠিয়ে দিয়ে ফোনের মেমোরি থেকে পার্মানেন্ট মুছে ফেলে। গ্যালারি বা ফাইল ম্যানেজারে এগুলো কখনোই দৃশ্যমান হয় না।</p>"},{"category":"device-owner","categoryNameEn":"Device Owner & Anti-Uninstall","categoryNameBn":"ডিভাইস ওনার ও অ্যান্টি-আনইন্সটল","qEn":"Can a thief uninstall, disable, or force-stop PASA from Android Settings?","qBn":"চোর কি ফোন হাতে পেয়ে সেটিংস থেকে পাসা সেন্টিনেল অ্যাপটি আনইন্সটল বা ডিলিট করতে পারবে না?","aEn":"<p><strong>Architecturally Impossible.</strong></p>\n<p>Because PASA Sentinel is provisioned as an Android Enterprise Device Owner, the OS renders the <strong>Uninstall</strong>, <strong>Disable</strong>, and <strong>Force Stop</strong> buttons completely disabled and greyed out. Visiting App Info displays the system label: <em>\"Managed by your organization\"</em>. Even root-style intent attacks are rejected by the Android OS framework.</p>","aBn":"<p><strong>অসম্ভব।</strong></p>\n<p>যেহেতু পাসা অ্যান্ড্রয়েড এন্টারপ্রাইজ ডিভাইস ওনার (Device Owner) হিসেবে কনফিগার করা থাকে, তাই অ্যান্ড্রয়েড ওএস লেভেলেই অ্যাপটির \"Uninstall\", \"Disable\", বা \"Force Stop\" বাটন সম্পূর্ণ ধূসর (Grayed out) হয়ে থাকে। এমনকি ফোন সেটিংসে অ্যাপ ইনফোতে গেলে লেখা থাকে: <em>\"Managed by your organization\"</em>। ওএস পাসাকে আনইন্সটল করার রিকোয়েস্ট সরাসরি ব্লক করে দেয়।</p>"},{"category":"device-owner","categoryNameEn":"Device Owner & Anti-Uninstall","categoryNameBn":"ডিভাইস ওনার ও অ্যান্টি-আনইন্সটল","qEn":"Can a thief boot the phone into Safe Mode to deactivate PASA Sentinel?","qBn":"চোর যদি সেফ মোড (Safe Mode) অন করে ফোন চালু করে, তখন কি পাসা বন্ধ হয়ে যাবে না?","aEn":"<p>No. When PASA's Anti-Tamper suite is engaged (<code>/antitamper on</code>), it enforces the hardware restriction <code>DISALLOW_SAFE_BOOT</code>. Holding physical hardware buttons during bootloader stages will not enter Safe Mode; the OS boots exclusively into its protected normal state with PASA immediately active.</p>","aBn":"<p>না। পাসার অ্যান্টি-ট্যাম্পার স্যুট (<code>/antitamper on</code>) সক্রিয় থাকলে এটি অ্যান্ড্রয়েড পলিসির <code>DISALLOW_SAFE_BOOT</code> রেস্ট্রিকশন প্রয়োগ করে। ফলে ফোনে পাওয়ার ও ভলিউম চেপে ধরলেও ওএস কখনোই সেফ মোডে বুট হবে না; এটি সরাসরি সাধারণ প্রটেক্টেড মোডেই চালু হবে।</p>"},{"category":"device-owner","categoryNameEn":"Device Owner & Anti-Uninstall","categoryNameBn":"ডিভাইস ওনার ও অ্যান্টি-আনইন্সটল","qEn":"How does the genuine phone owner uninstall the app when desired?","qBn":"ফোন মালিক নিজে যদি কখনো অ্যাপটি আনইন্সটল করতে চান, তবে কীভাবে করবেন?","aEn":"<p>The legitimate owner can safely decommission the agent at any time through two authorized workflows:</p>\n<ol>\n  <li>Send an authenticated administrative C2 decommission command via Telegram or SMS.</li>\n  <li>Connect the phone to an authorized computer via USB ADB and execute:\n    <pre><code>adb shell dpm remove-active-admin com.izhaanintellect.pasa/.admin.PasaDeviceAdmin</code></pre>\n    Once Device Owner privileges are relinquished, PASA can be uninstalled like any regular application.\n  </li>\n</ol>","aBn":"<p>মালিক নিজে যেকোনো সময় সম্পূর্ণ বৈধভাবে এটি সরাতে পারবেন:</p>\n<ol>\n  <li>টেলিগ্রাম বা এসএমএস থেকে অ্যাডমিন কমান্ড পাঠাতে পারেন অথবা</li>\n  <li>কম্পিউটার থেকে এডিবি কমান্ডের মাধ্যমে ডিভাইস ওনার রিমুভ করতে পারেন:\n    <pre><code>adb shell dpm remove-active-admin com.izhaanintellect.pasa/.admin.PasaDeviceAdmin</code></pre>\n    এরপর সাধারণ যেকোনো অ্যাপের মতো এটি আনইন্সটল করা যায়।\n  </li>\n</ol>"},{"category":"sim","categoryNameEn":"SIM & Telephony Defense","categoryNameBn":"সিম ও সেলুলার ডিফেন্স","qEn":"What happens if the thief immediately ejects the physical SIM card upon theft?","qBn":"চোর যদি চুরি করার সাথে সাথেই সিম কার্ড খুলে ফেলে দেয়, তখন পাসা কী করবে?","aEn":"<p>PASA features <strong>Autonomous SIM Ejection Knox Kiosk Lockdown</strong>:</p>\n<ol>\n  <li>Within 1 second of the SIM tray popping, PASA intercepts the hardware telephony broadcast, immediately locks the screen, and enforces Knox Kiosk Mode (<code>LOCK_TASK_FEATURE_NONE</code>).</li>\n  <li>The notification shade, home navigation, recent apps, and power menu are completely immobilized.</li>\n  <li>Satellite GNSS hardware is forcibly energized (<code>dpm.setLocationEnabled(true)</code>) and front-camera perpetrator mugshots are captured.</li>\n</ol>","aBn":"<p>পাসায় রয়েছে <strong>অটোনোমাস সিম ইজেকশন লকডাউন (Physical SIM Ejection Knox Kiosk Lockdown):</strong></p>\n<ol>\n  <li>ফোন থেকে সিম ট্রে খোলার ১ সেকেন্ডের মধ্যেই ফোনের হার্ডওয়্যার ব্রডকাস্ট ইন্টারসেপ্ট করে পাসা স্ক্রিন লক করে দেয় এবং ফুলস্ক্রিন নক্স কিয়স্ক মোড চালু করে।</li>\n  <li>নোটিফিকেশন বার, হোম বাটন, পাওয়ার মেনু এবং রিকভারি অ্যাক্সেস পুরোপুরি বন্ধ হয়ে যায়।</li>\n  <li>ইন্টারনেট বা সিম না থাকলেও ব্যাকগ্রাউন্ডে স্যাটেলাইট জিপিএস রিসিভার চিপ স্বয়ংক্রিয়ভাবে পাওয়ার-অন হয়ে যায়।</li>\n</ol>"},{"category":"sim","categoryNameEn":"SIM & Telephony Defense","categoryNameBn":"সিম ও সেলুলার ডিফেন্স","qEn":"What happens if the thief inserts their own new SIM card into the stolen phone?","qBn":"চোর যদি নিজের বা অন্য কারো নতুন সিম কার্ড ফোনে ঢুকিয়ে দেয়?","aEn":"<p><strong>This is the lethal trap for any thief!</strong></p>\n<ul>\n  <li>The second an unauthorized foreign SIM is seated, PASA silently leverages the new SIM's cellular radio to transmit an outbound emergency SMS to your designated recovery phone (<code>/sim_lock phone &lt;number&gt;</code>).</li>\n  <li>The alert payload contains the device IMEI, active carrier operator name, and live Google Maps satellite coordinates.</li>\n  <li><strong>The Master Stroke:</strong> The instant this SMS lands on your backup phone, <strong>the thief's personal mobile phone number is revealed via Caller ID!</strong> Their real-world identity is compromised, and you can now issue Air-Gapped SMS commands directly to their number to control the device.</li>\n</ul>","aBn":"<p><strong>এটি চোরের জন্য সবচেয়ে বড় ফাঁদ!</strong></p>\n<ul>\n  <li>ফোনের ভেতরে কোনো অননুমোদিত বা অচেনা সিম কার্ড প্রবেশ করানোমাত্রই পাসা ব্যাকগ্রাউন্ডে সাইলেন্টলি নতুন সিমের সেলুলার নেটওয়ার্ক ব্যবহার করে মালিকের পূর্বনির্ধারিত ইমার্জেন্সি নম্বরে (<code>/sim_lock phone &lt;number&gt;</code>) একটি স্বয়ংক্রিয় জরুরি এসএমএস পাঠিয়ে দেয়।</li>\n  <li>এই এসএমএসে ডিভাইসের আইএমইআই (IMEI), বর্তমান নেটওয়ার্ক অপারেটর এবং লাইভ গুগল ম্যাপ জিপিএস লিংক থাকে।</li>\n  <li><strong>সবচেয়ে মারাত্মক বিষয়:</strong> এই এসএমএসটি আসার সাথে সাথে মালিকের ফোনে <strong>চোরের নতুন সিমের মোবাইল নম্বর (Caller ID)</strong> সরাসরি ভেসে ওঠে! ফলে চোরের আসল পরিচয় সাথে সাথে ফাঁস হয়ে যায় এবং মালিক ওই নম্বরে এয়ার-গ্যাপড এসএমএস কমান্ড পাঠিয়ে ফোনকে পুরোপুরি নিয়ন্ত্রণ করতে পারেন।</li>\n</ul>"},{"category":"sim","categoryNameEn":"SIM & Telephony Defense","categoryNameBn":"সিম ও সেলুলার ডিফেন্স","qEn":"If using an eSIM instead of a physical SIM, can the thief delete the eSIM profile from Settings?","qBn":"ফোনে যদি ফিজিক্যাল সিমের বদলে ই-সিম (eSIM) থাকে, চোর কি সেটিংস থেকে eSIM ডিলিট বা অফ করে দিতে পারবে?","aEn":"<p>No. PASA enforces the OS restriction <code>UserManager.DISALLOW_CONFIG_MOBILE_NETWORKS</code>. Even if the thief attempts to enter settings or bypass the lockscreen, the operating system strictly forbids disabling cellular connections or wiping eSIM profiles.</p>","aBn":"<p>না। পাসার ডিভাইস ওনার রেস্ট্রিকশন <code>UserManager.DISALLOW_CONFIG_MOBILE_NETWORKS</code> সিস্টেম-লেভেলে সক্রিয় থাকে। ফলে লকস্ক্রিন কিয়স্ক ভেদ করে বা সেটিংসে ঢুকে কোনো অবস্থাতেই সেলুলার নেটওয়ার্ক বন্ধ করা বা ই-সিম প্রোফাইল মুছে ফেলা সম্ভব নয়।</p>"},{"category":"sim","categoryNameEn":"SIM & Telephony Defense","categoryNameBn":"সিম ও সেলুলার ডিফেন্স","qEn":"If no SIM is inside and internet is completely off, how can I control the phone remotely?","qBn":"চোর যদি কোনো সিম না ঢোকায় এবং ইন্টারনেট পুরোপুরি বন্ধ থাকে, তখন আমি দূর থেকে কীভাবে ফোন নিয়ন্ত্রণ করব?","aEn":"<p>If the device has an active eSIM or re-connects to any cellular signal, our <strong>Air-Gapped Cellular SMS Fallback</strong> executes flawlessly without internet.</p>\n<p>From any standard button phone or burner handset, send authenticated SMS commands:</p>\n<ul>\n  <li><code>PASA 5892 /locate</code> — Forces GNSS satellite lock and texts back a Google Maps pin.</li>\n  <li><code>PASA 5892 /lock</code> — Enforces full kiosk lockdown.</li>\n  <li><code>PASA 5892 /ring 60</code> — Triggers ear-piercing siren at 100% hardware volume.</li>\n  <li><code>PASA 5892 /wipe</code> — Triggers cryptographic zero-out factory reset.</li>\n</ul>","aBn":"<p>যদি ফোনে সেকেন্ডারি ই-সিম থাকে বা যেকোনো সেলুলার টাওয়ার কানেকশন থাকে, তবে আমাদের <strong>এয়ার-গ্যাপড এসএমএস কমান্ড (Air-Gapped Cellular SMS Fallback)</strong> সক্রিয় থাকে।</p>\n<p>আপনি যেকোনো সাধারণ বাটন ফোন থেকেও পাসওয়ার্ড দিয়ে এসএমএস পাঠাতে পারবেন। যেমন:</p>\n<ul>\n  <li><code>PASA 5892 /locate</code> — স্যাটেলাইট জিপিএস অন করে ফিরতি এসএমএসে গুগল ম্যাপের লোকেশন পাঠাবে।</li>\n  <li><code>PASA 5892 /lock</code> — ফোন সম্পূর্ণ লক করে দেবে।</li>\n  <li><code>PASA 5892 /ring</code> — ফুল ভলিউমে অ্যালার্ম বাজাবে।</li>\n  <li><code>PASA 5892 /wipe</code> — সমস্ত ডেটা ফ্যাক্টরি রিসেট করে দেবে।</li>\n</ul>"},{"category":"hardware","categoryNameEn":"Extreme Hardware & EDL/BROM","categoryNameBn":"চরম হার্ডওয়্যার ও ইডিএল","qEn":"What if the thief boots into Recovery Mode and executes a Hard Factory Reset?","qBn":"চোর যদি রিকভারি মোডে (Recovery Mode) নিয়ে হার্ড রিসেট মেরে দেয়?","aEn":"<p>PASA counters recovery attacks through 3 resilient layers:</p>\n<ol>\n  <li><strong>Recovery Hardening:</strong> PASA's boot hardening policy (<code>/harden_boot</code>) and Device Owner flag <code>DISALLOW_FACTORY_RESET</code> block recovery wipe calls.</li>\n  <li><strong>Hardware FRP (Factory Reset Protection):</strong> Even if wiped on unbranded hardware, Google's cryptographic FRP lock engages immediately upon boot, rendering the device an inoperable brick without original credentials.</li>\n  <li><strong>Samsung Knox Enterprise Persistence:</strong> On Samsung Knox enterprise hardware, Device Owner policies persist across firmware resets.</li>\n</ol>","aBn":"<p>পাসার ডিফেন্স লেয়ার একে তিনভাবে প্রতিহত করে:</p>\n<ol>\n  <li><strong>রিকভারি ব্লক ও হার্ডেনিং:</strong> পাসার অ্যাডভান্সড বুট হার্ডেনিং (<code>/harden_boot</code>) এবং ডিভাইস ওনার পলিসি <code>DISALLOW_FACTORY_RESET</code> সিস্টেমে সক্রিয় থাকে।</li>\n  <li><strong>ফ্যাক্টরি রিসেট প্রোটেকশন (FRP):</strong> যদি কোনোভাবে আন-ব্র্যান্ডেড ফোনে রিকভারি থেকে ওয়াইপ করাও হয়, বুট হওয়ার পর গুগল হার্ডওয়্যার ক্রিপ্টোগ্রাফিক FRP লক ডিভাইসে সক্রিয় হয়ে যায়, যা মূল মালিকের ক্রেডেনশিয়াল ছাড়া ফোন রান করতে দেয় না।</li>\n  <li><strong>স্যামসাং নক্স এন্টারপ্রাইজ পারসিস্টেন্স:</strong> স্যামসাং নক্স ডিভাইসে ডিভাইস ওনার রিসেটের পরেও অক্ষত থাকে।</li>\n</ol>"},{"category":"hardware","categoryNameEn":"Extreme Hardware & EDL/BROM","categoryNameBn":"চরম হার্ডওয়্যার ও ইডিএল","qEn":"What if the thief connects a USB forensic tool (Cellebrite, GrayKey, BadUSB) to suck my data?","qBn":"চোর যদি ইউএসবি কেবল লাগিয়ে কম্পিউটারের ফরেনসিক টুল (যেমন Cellebrite, GrayKey বা BadUSB) দিয়ে ডেটা চুরি করতে চায়?","aEn":"<p>PASA features the <strong>Hardware USB Data Pin Killswitch (<code>/usb_lock</code>)</strong>:</p>\n<ul>\n  <li>On Android 12+ (API 31+), Device Owner physically severs the USB controller data signaling lines (D+ and D-) at the hardware level (<code>setUsbDataSignalingEnabled(false)</code>).</li>\n  <li>When a forensic box or computer is plugged in, the device draws power for AC charging, but physical data pins remain completely non-functional. Computers detect zero drives, zero ADB interfaces, and zero storage mount points.</li>\n</ul>","aBn":"<p>পাসায় রয়েছে <strong>হার্ডওয়্যার ইউএসবি ডেটা পিন কিলসুইচ (Hardware USB Data Killswitch - <code>/usb_lock</code>):</strong></p>\n<ul>\n  <li>Android 12+ (API 31+) ডিভাইস ওনার পলিসির মাধ্যমে পাসা সরাসরি ফোনের ইউএসবি কন্ট্রোলারের ডেটা পিন (D+ / D-) হার্ডওয়্যার লেভেলে বিচ্ছিন্ন করে দেয় (<code>setUsbDataSignalingEnabled(false)</code>)।</li>\n  <li>এর ফলে কেবল লাগালে ফোন শুধুমাত্র বিদ্যুৎ টেনে চার্জ হবে, কিন্তু কোনো কম্পিউটার বা ফরেনসিক ডিভাইস ফোনের সাথে ডেটা সংযোগ স্থাপন করতে পারবে না। পিসিতে ফোন কোনো ড্রাইভ বা ডিভাইস হিসেবেই শো করবে না।</li>\n</ul>"},{"category":"hardware","categoryNameEn":"Extreme Hardware & EDL/BROM","categoryNameBn":"চরম হার্ডওয়্যার ও ইডিএল","qEn":"What if the thief takes the phone to an underground lab, opens the back cover, shorts test points for Qualcomm EDL (9008) or MediaTek BROM mode, and flashes the ROM via PC?","qBn":"চোর যদি ল্যাবে নিয়ে ফোনের ব্যাক-কভার খুলে টেস্ট পয়েন্ট শর্ট করে কোয়ালকম EDL মোডে (9008) বা মিডিয়াটেক BROM মোডে ফেলে পিসি দিয়ে রম ফ্ল্যাশ করে দেয়?","aEn":"<p><strong>Technical Reality & 3-Tier Active Countermeasures:</strong></p>\n<p><em>Acknowledging the physical reality:</em> Qualcomm Emergency Download Mode (EDL 9008) and MediaTek BootROM (BROM) operate directly at the CPU silicon level before the Android OS ever boots. When the OS is not executing, no software running in user-space can issue in-session commands.</p>\n<p><strong>However, PASA v3.5.1 thwarts this attack with 3 proactive countermeasures:</strong></p>\n<ol>\n  <li><strong>Heat-Gun Thermal Anomaly Trap (<code>/thermal</code>):</strong> To access motherboard test points, technicians must apply heat-guns/blowers (80°C–100°C) to loosen adhesive. PASA actively monitors battery thermal sensors; if temperatures exceed 48°C while locked, it instantly kills USB data pins, triggers kiosk mode, snaps mugshots of the technician, and broadcasts an emergency SOS.</li>\n  <li><strong>Anti-Fastboot OEM Bootloader Hardening:</strong> PASA permanently locks <code>setOemUnlockAllowed(component, false)</code>. Fastboot flashing commands return: <code>FAILED: Flashing Unlock is not allowed</code>.</li>\n  <li><strong>Dead Man's Switch Keystore Auto-Destruct (<code>/deadman</code>):</strong> The thief must keep the phone offline prior to lab flashing. Upon expiration of an autonomous hardware timer (e.g. 6 hours), PASA automatically wipes cryptographic Keystores and app databases (<code>dpm.wipeData(0)</code>). Even if flashed, zero bytes of user data survive.</li>\n</ol>","aBn":"<p><strong>কারিগরি বাস্তবতা ও ৩ স্তরের সক্রিয় প্রতিহত ব্যবস্থা:</strong></p>\n<p><em>বাস্তবতা স্বীকার:</em> কোয়ালকম ইমার্জেন্সি ডাউনলোড মোড (EDL 9008) বা মিডিয়াটেক BootROM (BROM) মোড কাজ করে সরাসরি প্রসেসরের হার্ডওয়্যার সিলিকন চিপ লেভেলে—অ্যান্ড্রয়েড ওএস রান করারও পূর্বে। ওএস যখন রানই করছে না, তখন পৃথিবীর কোনো সফটওয়্যারের পক্ষেই ওই মোডের ভেতরে ঢুকে কমান্ড চালানো সম্ভব নয়।</p>\n<p><strong>কিন্তু পাসা v3.5.1 এই আক্রমণকে ৩টি সক্রিয় কাউন্টার-মেজার দিয়ে প্রতিহত করে:</strong></p>\n<ol>\n  <li><strong>হিট-গান থার্মাল অ্যানোমালি ট্র্যাপ (<code>/thermal</code>):</strong> মাদারবোর্ডের টেস্ট পয়েন্টে চিমটা ছোঁয়াতে হলে টেকনিশিয়ানকে প্রথমে ব্লোয়ার বা হিটগান দিয়ে ফোনের ব্যাক-কভারের গ্লু গলাতে হয় (৮০°-১০০° সে.)। পাসা ব্যাকগ্রাউন্ডে ফোনের ব্যাটারি থার্মাল সেন্সর মনিটর করে। লক অবস্থায় তাপমাত্রা ৪৮° সেলসিয়াস ছাড়ালেই পাসা মুহূর্তের মধ্যে ইউএসবি ডেটা পিন হার্ডওয়্যার লেভেলে কিল করে দেয়, কিয়স্ক লক সক্রিয় করে এবং টেকনিশিয়ানের চেহারার ছবি তুলে জরুরি টেলিগ্রাম এসওএস পাঠায়।</li>\n  <li><strong>অটো-বুটলোডার হার্ডেনিং (Anti-Fastboot Lockout):</strong> পাসার ডিভাইস ওনার <code>setOemUnlockAllowed(component, false)</code> স্থায়ীভাবে লক করে রাখে। ফলে ফাস্টবুট বা ক্যাবল কানেক্ট করে আনলক করতে গেলে সিস্টেম কমান্ড ফিরিয়ে দেয়: <code>FAILED: Flashing Unlock is not allowed</code>।</li>\n  <li><strong>ডেড ম্যানস সুইচ অটো-ডেস্ট্রাক্ট (<code>/deadman</code>):</strong> ল্যাবে নিয়ে ফ্ল্যাশ করার আগেই চোরকে ডিভাইসটি কিছু সময় অফলাইনে রাখতে হয়। পাসার অটোনোমাস কাউন্টডাউন টাইমার নির্ধারিত সময় (যেমন: ৬ ঘণ্টা) পার হওয়ামাত্রই সিস্টেমের ক্রিপ্টোগ্রাফিক কি-স্টোর ও ডাটাবেজ স্বয়ংক্রিয়ভাবে মুছে ফেলে (<code>dpm.wipeData(0)</code>)। ফলে চোর টেস্ট পয়েন্ট শর্ট করে রম ফ্ল্যাশ করতে পারলেও ফোনে আপনার কোনো ব্যক্তিগত ডেটার একটি বাইটও আর অবশিষ্ট থাকে না।</li>\n</ol>"},{"category":"hardware","categoryNameEn":"Extreme Hardware & EDL/BROM","categoryNameBn":"চরম হার্ডওয়্যার ও ইডিএল","qEn":"What if the thief places the phone in a signal-blocking Faraday Bag or metal box?","qBn":"চোর যদি ফোন চুরি করেই কোনো সিগন্যাল-ব্লকিং ফ্যারাডে ব্যাগ বা মেটালিক বাক্সে রেখে দেয়?","aEn":"<p>This scenario is precisely why PASA includes the <strong>Autonomous Dead Man's Switch (<code>/deadman</code>)</strong>.</p>\n<p>It does not depend on remote connectivity; it runs on an on-device local hardware timer. If the phone remains isolated without owner presence or heartbeat for a preset threshold (e.g. 6 or 12 hours), PASA confirms device isolation and triggers automated cryptographic zeroization.</p>","aBn":"<p>ঠিক এই পরিস্থিতি মোকাবিলার জন্যই পাসায় রয়েছে <strong>অটোনোমাস ডেড ম্যানস সুইচ (<code>/deadman</code>):</strong></p>\n<ul>\n  <li>এটি দূরবর্তী কোনো সিগন্যালের ওপর নির্ভর করে না; এটি চলে সম্পূর্ণ অন-ডিভাইস লোকাল হার্ডওয়্যার টাইমারের ওপর।</li>\n  <li>ফোন যদি নির্দিষ্ট সময় (যেমন ৬ বা ১২ ঘণ্টা) মালিকের কোনো হার্টবিট বা আনলক ছাড়া অফলাইনে বন্দি থাকে, তবে পাসা নিজেই নিশ্চিত হয় যে ফোনটি চুরি হয়ে ল্যাবে বা ফ্যারাডে খাঁচায় রাখা হয়েছে।</li>\n  <li>সময় শেষ হওয়ামাত্রই ডিভাইসটি স্বয়ংক্রিয়ভাবে ক্রিপ্টোগ্রাফিক অটো-ওয়াইপ এক্সিকিউট করে সম্পূর্ণ ফাঁকা হয়ে যায়।</li>\n</ul>"},{"category":"hardware","categoryNameEn":"Extreme Hardware & EDL/BROM","categoryNameBn":"চরম হার্ডওয়্যার ও ইডিএল","qEn":"Can the Dead Man's Switch accidentally wipe my data during everyday normal use?","qBn":"ডেড ম্যানস সুইচ কি স্বাভাবিক ব্যবহারের সময় ভুলবশত আমার ডেটা ডিলিট করে দিতে পারে?","aEn":"<p><strong>Zero Risk of Accidental Wipe.</strong></p>\n<p>Every time you unlock your device with your fingerprint, face, or PIN during daily use (<code>ACTION_USER_PRESENT</code>), the Dead Man's timer resets back to zero. Additionally, any routine command or heartbeat sent via Telegram/SMS refreshes the timer. The wipe protocol activates only if the device remains continuously locked and isolated past the deadline.</p>","aBn":"<p><strong>কখনোই না।</strong></p>\n<p>স্বাভাবিক ব্যবহারের সময় আপনি যখনই দিনে একবারও আপনার ফিঙ্গারপ্রিন্ট বা পিন দিয়ে ফোন আনলক করবেন (<code>ACTION_USER_PRESENT</code>), ডেড ম্যানস সুইচের টাইমার স্বয়ংক্রিয়ভাবে ০ থেকে রিস্টার্ট হয়ে যায়। এছাড়া টেলিগ্রাম বা এসএমএসে যেকোনো সাধারণ কমান্ড আসলে বা <code>/deadman heartbeat</code> দিলেও টাইমার রিফ্রেশ হয়। কেবল ফোন চুরি হয়ে লক থাকা অবস্থায় দীর্ঘ সময় বিচ্ছিন্ন থাকলেই এটি কার্যকর হয়।</p>"},{"category":"lockscreen","categoryNameEn":"Lockscreen & Escrow PIN","categoryNameBn":"লকস্ক্রিন ও এসক্রো টোকেন","qEn":"Google deprecated remote password reset in Android 14, 15, and 16. How does PASA remotely reset screen lock PIN?","qBn":"Android 14, 15 ও 16-এ তো গুগল সিকিউরিটির কারণে রিমোটলি পাসওয়ার্ড পরিবর্তন করার মেথড বন্ধ করে দিয়েছে। তাহলে পাসা কীভাবে রিমোটলি স্ক্রিন লক পিন পরিবর্তন করে?","aEn":"<p>While Google deprecated legacy APIs for standard apps, Android Enterprise provides <strong>Cryptographic Hardware Escrow Token Architecture</strong>:</p>\n<ol>\n  <li>During initial setup, PASA generates a 32-byte cryptographically secure random token stored securely in the Android Keystore.</li>\n  <li>When the genuine owner first unlocks the screen, the Android Keyguard and hardware TEE/StrongBox module enroll this token (<code>setResetPasswordToken</code>).</li>\n  <li>When you issue <code>/set_os_pin &lt;new_pin&gt;</code> via Telegram or SMS, PASA submits this hardware escrow token to the OS framework, resetting the actual lockscreen PIN at the hardware level (<code>resetPasswordWithToken</code>)!</li>\n</ol>","aBn":"<p>গুগল সাধারণ অ্যাপ বা পুরানো ডিভাইস অ্যাডমিনদের জন্য সরাসরি পাসওয়ার্ড পরিবর্তনের এপিআই বন্ধ করেছে, কিন্তু এন্টারপ্রাইজ ডিভাইস ওনারদের জন্য চালু করেছে <strong>ক্রিপ্টোগ্রাফিক হার্ডওয়্যার এসক্রো টোকেন (Hardware Escrow Token Architecture):</strong></p>\n<ol>\n  <li>পাসা সেটআপের সময় একটি নিরাপদ ৩২-বাইটের সিকিউর র‍্যান্ডম টোকেন তৈরি করে অ্যান্ড্রয়েড কি-স্টোরে সংরক্ষণ করে।</li>\n  <li>প্রথমবার যখন মালিক স্ক্রিন আনলক করেন, অ্যান্ড্রয়েডের হার্ডওয়্যার সিকিউরিটি মডিউল (StrongBox / TEE) এই টোকেনটি এনরোল করে নেয় (<code>setResetPasswordToken</code>)।</li>\n  <li>পরবর্তীতে আপনি যখনই টেলিগ্রাম বা এসএমএস দিয়ে <code>/set_os_pin &lt;নতুন_পিন&gt;</code> কমান্ড দেন, পাসা ওই হার্ডওয়্যার ক্রিপ্টোগ্রাফিক টোকেন ব্যবহার করে সরাসরি ওএস লেভেলে স্ক্রিনের আসল পিন কোড পরিবর্তন করে দেয় (<code>resetPasswordWithToken</code>)!</li>\n</ol>"},{"category":"lockscreen","categoryNameEn":"Lockscreen & Escrow PIN","categoryNameBn":"লকস্ক্রিন ও এসক্রো টোকেন","qEn":"What happens if a thief repeatedly attempts wrong lockscreen PINs or patterns?","qBn":"চোর যদি বারবার ভুল প্যাটার্ন বা পিন দিয়ে ফোন আনলক করার চেষ্টা করে?","aEn":"<p>PASA engages <strong>Failed Pattern Guard (<code>/pattern_guard</code>)</strong>:</p>\n<p>Upon 3 failed unlock attempts (configurable threshold), PASA silently fires the front-facing camera, binds the capture with attempt counts, system battery, and exact timestamps, and transmits an urgent perpetrator mugshot alert to your Telegram bot.</p>","aBn":"<p>পাসার <strong>ফেইল্ড প্যাটার্ন গার্ড (Failed Pattern Guard - <code>/pattern_guard</code>):</strong></p>\n<p>ফোনের লকস্ক্রিনে ৩ বার (বা কনফিগার করা সংখ্যা) ভুল পিন বা প্যাটার্ন দিলেই ব্যাকগ্রাউন্ডে সাইলেন্টলি ফ্রন্ট ক্যামেরা দিয়ে অনুপ্রবেশকারীর মুখের স্পষ্ট ছবি তোলা হয়। ভুল চেষ্টার সংখ্যা, তারিখ ও টাইমস্ট্যাম্পসহ ছবিটি তৎক্ষণাৎ টেলিগ্রাম বটে অ্যালার্ট হিসেবে পৌঁছে যায়।</p>"},{"category":"forensics","categoryNameEn":"Covert Forensics","categoryNameBn":"স্টিলথ নজরদারি ও ফরেনসিক্স","qEn":"When capturing photos or video of the thief, will there be flash, shutter sound, or screen flickers?","qBn":"চোরের ছবি বা ভিডিও তোলার সময় কি ক্যামেরার ফ্ল্যাশ জ্বলবে, শাটার সাউন্ড হবে বা স্ক্রিন অন হবে? চোর কি কিছু বুঝতে পারবে?","aEn":"<p><strong>Zero Shutter Sound, Zero Flash, Zero Display Flicker (100% Headless CameraX Architecture):</strong></p>\n<ul>\n  <li><strong>No Transparent Overlay:</strong> CameraX binds directly to background ServiceLifecycleOwner without any activity or screen preview.</li>\n  <li><strong>Zero Display Dimming:</strong> Even if the thief is looking at the screen, the display will not flicker, dim, or black out.</li>\n  <li><strong>Hardware Muted:</strong> Shutter sounds are muted at the HAL layer, and flash LEDs remain permanently dark.</li>\n</ul>","aBn":"<p><strong>একদমই না। এটি ১০০% সাইলেন্ট ও হেডলেস (Zero-Blackout Headless CameraX Architecture):</strong></p>\n<ul>\n  <li><strong>কোনো অ্যাক্টিভিটি নেই:</strong> সাধারণ অ্যাপের মতো স্ক্রিনের ওপর কোনো ক্যামেরা প্রিভিউ বা ট্রান্সপারেন্ট উইন্ডো আসে না। ক্যামেরা এক্স সার্ভিসলাইফসাইকেলের সাথে সরাসরি ব্যাকগ্রাউন্ডে বাইন্ড থাকে।</li>\n  <li><strong>কোনো ডিসপ্লে ব্ল্যাকআউট বা ফ্লিকার নেই:</strong> চোর যদি ডিসপ্লে দেখছিলও, স্ক্রিন কাঁপবে না বা নিভবে না।</li>\n  <li><strong>শব্দহীন:</strong> ওএস ক্যামেরা শাটার সাউন্ড সম্পূর্ণ মিউট করা থাকে এবং ফ্ল্যাশলাইট কখনোই অন হয় না।</li>\n</ul>"},{"category":"forensics","categoryNameEn":"Covert Forensics","categoryNameBn":"স্টিলথ নজরদারি ও ফরেনসিক্স","qEn":"Can PASA record ambient audio or covert video streams?","qBn":"অডিও রেকর্ডিং বা লাইভস্ট্রিমিং কি সম্ভব?","aEn":"<p>Yes, comprehensive forensic media capture is fully operational:</p>\n<ul>\n  <li><code>/record &lt;seconds&gt;</code> — Captures high-clarity 16kHz AAC ambient audio wiretap clips.</li>\n  <li><code>/video front|back &lt;seconds&gt;</code> — Captures stealth front or rear covert video files.</li>\n  <li><code>/livestream [front|back]</code> — Streams recurring high-speed frames mimicking live surveillance surveillance.</li>\n</ul>","aBn":"<p>হ্যাঁ:</p>\n<ul>\n  <li><code>/record &lt;seconds&gt;</code> — ব্যাকগ্রাউন্ডে ফোনের মাইক্রোফোন চালু করে আশপাশের কথাবার্তা হাই-কোয়ালিটি অডিও ক্লিপ (16kHz AAC) হিসেবে রেকর্ড করে টেলিগ্রামে পাঠায়।</li>\n  <li><code>/video front|back &lt;seconds&gt;</code> — সামনের বা পেছনের ক্যামেরা দিয়ে স্টিলথ ভিডিও রেকর্ড করে পাঠায়।</li>\n  <li><code>/livestream [front|back]</code> — প্রতি কয়েক সেকেন্ড পর পর ক্রমান্বয়ে ভিডিও ফ্রেম ও ক্লিপ টেলিগ্রামে পাঠাতে থাকে যা লাইভ স্ট্রিমের মতো কাজ করে।</li>\n</ul>"},{"category":"forensics","categoryNameEn":"Covert Forensics","categoryNameBn":"স্টিলথ নজরদারি ও ফরেনসিক্স","qEn":"What if the stolen phone is hidden in an underground basement where GPS satellite signal cannot penetrate?","qBn":"ফোন যদি কোনো বহুতল ভবনের বেসমেন্ট বা আন্ডারগ্রাউন্ডে থাকে যেখানে কোনো জিপিএস স্যাটেলাইট সিগন্যাল পৌঁছায় না, তখন কীভাবে লোকেশন পাওয়া যাবে?","aEn":"<p>PASA activates <strong>Dual-SIM Cell Tower Triangulation (<code>/tower</code>)</strong>:</p>\n<p>Even without line-of-sight satellite signals, cellular transceivers communicate with cellular towers. The <code>/tower</code> command extracts MCC, MNC, LAC/TAC, Cell-ID, and signal levels (dBm) across both SIM slots to triangulate indoor positions precisely.</p>","aBn":"<p>পাসার <strong>ডুয়েল-সিম সেল টাওয়ার ট্রায়াঙ্গুলেশন (<code>/tower</code>):</strong></p>\n<p>স্যাটেলাইট সিগন্যাল না থাকলেও ফোনের রেডিও চিপ আশপাশের সেলুলার টাওয়ারের সাথে সংযুক্ত থাকে। <code>/tower</code> কমান্ড দিলে পাসা দুই সিমের সবকটি কানেক্টেড এবং নেইবারিং ৪জি/৫জি টাওয়ারের প্যারামিটার (MCC, MNC, LAC/TAC, Cell-ID, সিগন্যাল শক্তি dBm) স্ক্যান করে পাঠায়, যা দিয়ে ইনডোর লোকেশন নির্ভুলভাবে ম্যাপ করা যায়।</p>"},{"category":"vault","categoryNameEn":"Shadow Vault & Firewall","categoryNameBn":"শ্যাডো ভল্ট ও ফায়ারওয়াল","qEn":"I have banking apps (bKash, Nagad), crypto wallets, and WhatsApp. If forced to unlock screen, can a thief access them?","qBn":"আমার ফোনে বিকাশ, নগদ, ব্যাংক অ্যাকাউন্ট, বাইন্যান্স বা হোয়াটসঅ্যাপ আছে। চোরকে যদি আমি বাধ্য হয়ে স্ক্রিন লক পাসওয়ার্ড দিয়েও দিই, সে কি এগুলো দেখে ফেলতে পারবে?","aEn":"<p>No. PASA provides <strong>Shadow App Vault (<code>/freeze</code> / <code>/lock_app</code>)</strong>:</p>\n<ul>\n  <li>Issue <code>/freeze bkash</code> or <code>/lock_app gallery</code>, and Device Owner hides the package completely (<code>setApplicationHidden(pkg, true)</code>).</li>\n  <li>The app vanishes instantly from launcher, app drawer, and system process listings with zero data loss.</li>\n  <li>Issue <code>/unfreeze</code> or <code>/unlock_app</code> to restore it with all session data intact.</li>\n</ul>","aBn":"<p>না। পাসার রয়েছে <strong>শ্যাডো অ্যাপ ভল্ট (Shadow App Vault - <code>/freeze</code> / <code>/lock_app</code>):</strong></p>\n<ul>\n  <li>আপনি টেলিগ্রাম বা এসএমএস থেকে <code>/freeze bkash</code> বা <code>/lock_app gallery</code> দিলেই নক্স ডিভাইস ওনার ওই অ্যাপটিকে সম্পূর্ণ হাইড করে দেয় (<code>setApplicationHidden(pkg, true)</code>)।</li>\n  <li>অ্যাপটি হোমস্ক্রিন, অ্যাপ ড্রয়ার, সেটিংসের অ্যাপস লিস্ট এবং রানিং প্রসেস টেবিল থেকে পুরোপুরি ভ্যানিশ হয়ে যায়। কোনো ডেটা নষ্ট হয় না।</li>\n  <li>পরবর্তীতে আপনি ফিরে এসে <code>/unfreeze</code> বা <code>/unlock_app</code> দিলে অ্যাপটি আগের মতোই সব ডাটা নিয়ে ফিরে আসে।</li>\n</ul>"},{"category":"vault","categoryNameEn":"Shadow Vault & Firewall","categoryNameBn":"শ্যাডো ভল্ট ও ফায়ারওয়াল","qEn":"Can I remotely retrieve gallery photos or confidential documents from my stolen phone?","qBn":"চুরি হওয়ার পর ফোনের গ্যালারির ছবি বা জরুরি কোনো ফাইল কি দূর থেকে ডাউনলোড করে নেওয়া যাবে?","aEn":"<p>Yes, PASA includes full remote storage extraction tools:</p>\n<ul>\n  <li><code>/gallery_latest 5</code> — Dispatches the latest 5 camera photos straight to Telegram.</li>\n  <li><code>/getfile /sdcard/Documents/passwords.txt</code> — Downloads any file up to 50MB directly to Telegram.</li>\n  <li><code>/list_files /sdcard/Download</code> — Inspects directories remotely.</li>\n  <li><code>/shred &lt;path&gt;</code> — Permanently overwrites and destroys sensitive files with multi-pass cryptographic shredding.</li>\n</ul>","aBn":"<p>হ্যাঁ, পাসায় রয়েছে ফুল স্টোরেজ এক্সট্র্যাকশন সুবিধা:</p>\n<ul>\n  <li><code>/gallery_latest 5</code> — গ্যালারিতে থাকা সর্বশেষ ৫টি ছবি সরাসরি টেলিগ্রামে পাঠিয়ে দেবে।</li>\n  <li><code>/getfile /sdcard/Documents/passwords.txt</code> — নির্দিষ্ট কোনো ফাইল সরাসরি টেলিগ্রামে ডকুমেন্ট আকারে ডাউনলোড করে পাঠাবে (৫০ মেগাবাইট পর্যন্ত)।</li>\n  <li><code>/list_files /sdcard/Download</code> — ফোনের স্টোরেজে কী কী ফাইল আছে তার তালিকা দেখতে পারবেন।</li>\n  <li><code>/shred &lt;path&gt;</code> — অতি সংবেদনশীল ফাইল দূর থেকেই ক্রিপ্টোগ্রাফিক মাল্টি-পাস ওভাররাইট করে পার্মানেন্ট ডিলিট করতে পারবেন।</li>\n</ul>"},{"category":"vault","categoryNameEn":"Shadow Vault & Firewall","categoryNameBn":"শ্যাডো ভল্ট ও ফায়ারওয়াল","qEn":"What is the App Network Firewall and how does it work?","qBn":"অ্যাপ নেটওয়ার্ক ফায়ারওয়াল কী এবং কীভাবে কাজ করে?","aEn":"<p>The <strong>App Network Isolation Firewall (<code>/app_firewall</code>)</strong> allows you to isolate suspicious packages, RATs, or rogue software. Running <code>/app_firewall block &lt;package&gt;</code> severs all inbound and outbound network sockets for that specific app at the OS layer, terminating data exfiltration.</p>","aBn":"<p>যদি সন্দেহ হয় যে ফোনে কোনো ম্যালওয়্যার, স্পাইওয়্যার বা রিমোট অ্যাক্সেস ট্রোজান (RAT) লুকিয়ে আছে, তবে <code>/app_firewall block &lt;package&gt;</code> দিলে পাসা সিস্টেম লেভেলে ওই অ্যাপের সমস্ত ইনবাউন্ড ও আউটবাউন্ড ইন্টারনেট ট্রাফিক ব্লক করে দেয়। ফলে ম্যালওয়্যার আপনার কোনো ডেটা বাইরে পাচার করতে পারে না।</p>"},{"category":"sms","categoryNameEn":"Air-Gapped SMS & TOTP","categoryNameBn":"অফলাইন এসএমএস ও টিওটিপি","qEn":"What is the SMS command syntax and can someone else tamper with my phone via SMS?","qBn":"এসএমএস কমান্ডের ফরম্যাট কেমন এবং অন্য কেউ কি এসএমএস পাঠিয়ে ক্ষতি করতে পারবে?","aEn":"<p>Unauthorized persons cannot execute SMS commands; all commands require cryptographic authentication:</p>\n<pre><code>PASA &lt;Master_PIN_or_TOTP&gt; &lt;command&gt;</code></pre>\n<p>Examples: <code>PASA 5892 /locate</code>, <code>PASA 5892 /status</code>, <code>PASA 5892 /usb_lock on</code>, <code>PASA 5892 /fakeshutdown</code>. 3 consecutive failed attempts automatically blacklist the sender's SIM number.</p>","aBn":"<p>অন্য কেউ ভুলেও আপনার ফোন নিয়ন্ত্রণ করতে পারবে না। প্রতিটি এসএমএস কমান্ড ক্রিপ্টোগ্রাফিক্যালি অথেনটিকেটেড।</p>\n<pre><code>PASA &lt;আপনার_গোপন_পিন_বা_TOTP&gt; &lt;কমান্ড&gt;</code></pre>\n<p>উদাহরণ: <code>PASA 5892 /locate</code>, <code>PASA 5892 /status</code>, <code>PASA 5892 /usb_lock on</code>, <code>PASA 5892 /fakeshutdown</code>। ভুল পিন দিয়ে পরপর ৩ বার এসএমএস পাঠালে ওই সিমকে সিস্টেম স্বয়ংক্রিয়ভাবে সাময়িক ব্লকলিস্টে ফেলে দেয়।</p>"},{"category":"sms","categoryNameEn":"Air-Gapped SMS & TOTP","categoryNameBn":"অফলাইন এসএমএস ও টিওটিপি","qEn":"How does the dynamic TOTP (Time-based One-Time Password) SMS fallback work?","qBn":"TOTP (Time-based One-Time Password) এসএমএস ফলব্যাক কীভাবে কাজ করে?","aEn":"<p>Based on RFC 6238 (same algorithm as Google Authenticator), a rolling 6-digit cryptographic code regenerates every 30 seconds. By enrolling your authenticator app via <code>/smssetup</code>, you can issue air-gapped SMS commands using dynamic codes (<code>PASA 419582 /locate</code>). Even if an eavesdropper intercepts a past SMS, the token cannot be reused.</p>","aBn":"<p>RFC 6238 অ্যালগরিদমের ওপর ভিত্তি করে Google Authenticator-এর মতো প্রতি ৩০ সেকেন্ডে একটি নতুন ৬-সংখ্যার ডায়নামিক কোড তৈরি হয়। টেলিগ্রাম বটে <code>/smssetup</code> দিয়ে একবার কিউআর কোড স্ক্যান করে রাখলে, পরবর্তীতে ইন্টারনেট ছাড়াই কেবল ওই সময়ের ৬ ডিজিট কোড দিয়ে এসএমএস কমান্ড এক্সিকিউট করা যায় (<code>PASA 419582 /locate</code>)। ফলে কেউ আপনার ফিক্সড মাস্টার পিন দেখে ফেললেও পরবর্তীতে তা দিয়ে ফোন নিয়ন্ত্রণ করতে পারবে না।</p>"},{"category":"traps","categoryNameEn":"Autonomous Traps & Deception","categoryNameBn":"সেন্সর ট্র্যাপ ও ডিসেপশন","qEn":"How does PASA detect a sudden street snatch from my hands?","qBn":"ছিনতাইকারী যদি হাত থেকে হঠাৎ ফোন টান মেরে নিয়ে দৌড় দেয়, পাসা কীভাবে বোঝে?","aEn":"<p>PASA features <strong>Kinetic Snatch Detection</strong>:</p>\n<p>Internal accelerometer vector magnitudes are continuously evaluated: \\(\\sqrt{x^2 + y^2 + z^2} > 26.0\\text{ m/s}^2\\) (~2.65G of violent acceleration). The instant a running bike snatcher yanks the device, PASA locks the screen into Kiosk mode within milliseconds, snaps perpetrator mugshots, and broadcasts Telegram alerts.</p>","aBn":"<p>পাসার ভেতরে রয়েছে <strong>কাইনেটিক অ্যান্টি-স্ন্যাচ ট্র্যাপ (Kinetic Snatch Detection):</strong></p>\n<p>ফোনের ইন্টারনাল অ্যাক্সেলেরোমিটার ভেক্টর প্রতি মুহূর্তে মনিটর করা হয়: \\(\\sqrt{x^2 + y^2 + z^2} > 26.0\\text{ m/s}^2\\) (প্রায় ২.৬৫G ত্বরণ)। চলন্ত গাড়ি বা ছিনতাইকারীর হঠাৎ হ্যাঁচকা টান লাগামাত্রই পাসা চোখের পলকে স্ক্রিন লক করে কিয়স্ক মোড চাপিয়ে দেয়, চোরের মুখের একটি সেলফি তোলে এবং টেলিগ্রামে সতর্কবার্তা পাঠিয়ে দেয়।</p>"},{"category":"traps","categoryNameEn":"Autonomous Traps & Deception","categoryNameBn":"সেন্সর ট্র্যাপ ও ডিসেপশন","qEn":"How does Fake Shutdown deceive the perpetrator?","qBn":"ফেক শাটডাউন (Fake Shutdown) কীভাবে চোরকে বিভ্রান্ত করে?","aEn":"<p>When a thief triggers power-off, PASA renders an authentic manufacturer shutdown animation and lowers display brightness to 0-nit pitch black. Screen taps silently capture front-camera mugshots and log GPS beacons. Wake the phone remotely with <code>/wake</code> or via a secret multi-tap touch pattern.</p>","aBn":"<p>চোর পাওয়ার বাটন চাপলে ফোন আসল অফিসিয়াল পাওয়ার-অফ অ্যানিমেশন দেখায় এবং স্ক্রিন পুরোপুরি ব্ল্যাকআউট (০-নিট) করে দেয়। চোর স্ক্রিন স্পর্শ করলেই ফ্রন্ট ক্যামেরা সাইলেন্টলি চোরের ছবি তুলে জিপিএস ট্র্যাকসহ টেলিগ্রামে পাঠাতে থাকে। টেলিগ্রাম থেকে <code>/wake</code> পাঠালে বা স্ক্রিনে বিশেষ ছন্দে মাল্টি-ট্যাপ করলেই ফোন স্বাভাবিক স্ক্রিনে ফিরে আসে।</p>"},{"category":"traps","categoryNameEn":"Autonomous Traps & Deception","categoryNameBn":"সেন্সর ট্র্যাপ ও ডিসেপশন","qEn":"What if I am held at gunpoint or weapon-point and forced to unlock the phone?","qBn":"ছিনতাইকারী যদি বন্দুক বা অস্ত্রের মুখে জোর করে আমার আঙুল চেপে ফোন আনলক করিয়ে নেয়?","aEn":"<p>PASA provides two coercion defenses:</p>\n<ol>\n  <li><strong>Biometric Killswitch (<code>/biometrics off</code>):</strong> Disables fingerprint and 3D face unlock instantly via Telegram or SMS, forcing strong passphrase entry.</li>\n  <li><strong>Decoy Duress PIN (<code>/duress_pin</code>):</strong> Enter your secret Duress PIN instead of your real PIN. The phone unlocks into a sterile decoy sandbox, automatically vanishes banking apps and private chats via Device Owner, and silently broadcasts an emergency SOS to your Telegram channel.</li>\n</ol>","aBn":"<p>এর জন্য পাসায় রয়েছে দুটি দুর্ধর্ষ প্রতিরোধ ব্যবস্থা:</p>\n<ol>\n  <li><strong>বায়োমেট্রিক কিলসুইচ (<code>/biometrics off</code>):</strong> টেলিগ্রাম বা এসএমএস দিয়ে এক ক্লিকে ফিঙ্গারপ্রিন্ট ও ফেস আনলক অকেজো করে দেওয়া যায়। তখন বাধ্যতামূলক জটিল পাসওয়ার্ড ছাড়া ফোন খোলা যায় না।</li>\n  <li><strong>ডিকয় ডুরেস পিন (Decoy Duress PIN):</strong> আসল পিনের বদলে একটি পূর্বনির্ধারিত \"ডুরেস পিন\" চাপলে ফোন একটি নকল/ফাঁকা ওএস স্যান্ডবক্সে খোলে, সব ব্যাংকিং ও মেসেঞ্জার অ্যাপ পলিসি লেভেলে ভ্যানিশ হয়ে যায়, এবং ফ্রন্ট ক্যামেরা দিয়ে আক্রমণকারীর ছবি তুলে টেলিগ্রাম এসওএস পাঠানো হয়।</li>\n</ol>"},{"category":"traps","categoryNameEn":"Autonomous Traps & Deception","categoryNameBn":"সেন্সর ট্র্যাপ ও ডিসেপশন","qEn":"What if someone steals my phone from my pocket or bag on a crowded train or bus?","qBn":"বাস বা ট্রেনে কেউ পকেট বা ব্যাগ থেকে ফোন সরালে পাসা কীভাবে আটকাবে?","aEn":"<p>PASA engages the <strong>Pocket & Bag Extraction Trap (<code>/trap pocket on</code>)</strong>: Proximity sensors monitor transitions from covered to uncovered while locked. If the authentic owner does not biometric-unlock the phone within a 5-second grace window, kiosk lockdown engages, photos are taken, and alarms trigger.</p>","aBn":"<p>পাসার <strong>পকেট ও ব্যাগ এক্সট্র্যাকশন ট্র্যাপ (<code>/trap pocket on</code>):</strong> স্ক্রিন লক থাকা অবস্থায় যখন ফোন পকেটে থাকে, প্রক্সিমিটি সেন্সর আবৃত থাকে। পকেট থেকে ফোন বের করা হলে ৫ সেকেন্ডের একটি গ্রেস পিরিয়ড শুরু হয়। এর মধ্যে আসল মালিক আনলক না করলে পাসা নিশ্চিত হয় এটি পকেটমার; তাৎক্ষণিক কিয়স্ক লকডাউন সক্রিয় হয়ে সেলফি তোলে এবং অ্যালার্ম বাজায়।</p>"},{"category":"battery","categoryNameEn":"Battery & Performance","categoryNameBn":"ব্যাটারি ও পারফরম্যান্স","qEn":"Does PASA drain phone battery quickly?","qBn":"পাসা কি ফোনের চার্জ দ্রুত শেষ করে ফেলবে?","aEn":"<p><strong>No. PASA Sentinel consumes less than 1% to 1.5% of battery daily.</strong> It strictly complies with Android Doze Mode, maintaining a deep sleeping state until awakened by physical sensor triggers, SIM events, or Telegram/SMS commands.</p>","aBn":"<p><strong>না। পাসা সারাদিনে ফোনের মোট ব্যাটারির ১% থেকে ১.৫%-এর বেশি খরচ করে না।</strong> সাধারণ অবস্থায় এটি অ্যান্ড্রয়েডের সিস্টেম ডজ মোড (Doze Mode) মেনে চলে এবং স্লিপিং স্টেটে থাকে। কেবল সেন্সর ইভেন্ট বা টেলিগ্রাম/এসএমএস ট্রাফিকেই মাইক্রো-সেকেন্ডের জন্য ওয়েক-লক নেয়।</p>"},{"category":"battery","categoryNameEn":"Battery & Performance","categoryNameBn":"ব্যাটারি ও পারফরম্যান্স","qEn":"Will Xiaomi (MIUI/HyperOS), Vivo, Oppo, or Samsung kill PASA in the background?","qBn":"শাওমি (MIUI/HyperOS), ভিভো (Funtouch), অপো (ColorOS) বা স্যামসাং ফোনে কি ব্যাকগ্রাউন্ডে পাসা কিল হয়ে যাবে না?","aEn":"<p>PASA maintains persistence across aggressive OEM battery management via 3 pillars:</p>\n<ol>\n  <li><strong>Device Owner Immunity:</strong> OEM battery savers cannot force-stop Device Owner processes.</li>\n  <li><strong>Foreground Guardian Daemon:</strong> Runs a protected persistent foreground daemon.</li>\n  <li><strong>Watchdog Auto-Resurrection:</strong> AlarmManager and direct-boot receivers resurrect the service within 5 seconds if interrupted.</li>\n</ol>","aBn":"<p>না। তিনটি কারণে এটি সব ব্র্যান্ডের ফোনে স্থায়ীভাবে টিকে থাকে:</p>\n<ol>\n  <li><strong>ডিভাইস ওনার সুপ্রিমেসি:</strong> যেহেতু পাসা সিস্টেমের Device Owner, তাই চাইনিজ ব্র্যান্ডগুলোর নিজস্ব অ্যাগ্রেসিভ ব্যাটারি কিলার ডিভাইস ওনার প্রসেসকে কিল করার অনুমতি পায় না।</li>\n  <li><strong>ফোরগ্রাউন্ড গার্ডিয়ান ডিমন:</strong> পাসা একটি সুরক্ষিত সাইলেন্ট ফোরগ্রাউন্ড সার্ভিস চালায়।</li>\n  <li><strong>ওয়াচডগ অটো-রিসারেকশন:</strong> কোনো কারণে অ্যাপ বন্ধ হলেও ডিরেক্ট বুট ওয়াচডগ মাত্র ৫ সেকেন্ডের মধ্যে সার্ভিসকে পুনরায় জীবিত করে তোলে।</li>\n</ol>"},{"category":"legal","categoryNameEn":"Legal, Police & Licensing","categoryNameBn":"আইনি বৈধতা ও লাইসেন্স","qEn":"If my phone is stolen, will the police / CID / RAB accept PASA's evidence for GD and FIR filing?","qBn":"ফোন চুরি হলে জিডি (GD) করা বা পুলিশ/র‍্যাবের কাছে এই প্রমাণ নিয়ে গেলে কি তারা এটাকে আইনসম্মতভাবে গ্রহণ করবে?","aEn":"<p><strong>100% Legally Admissible & Highly Recommended by Investigators.</strong></p>\n<p>PASA is your personal device security guard, not a surveillance wiretap on others. PASA provides evidence ready for law enforcement:</p>\n<ol>\n  <li>Hardware IMEI and device serial.</li>\n  <li>Timestamped GNSS satellite GPS coordinates & Google Maps pins.</li>\n  <li>Connected 4G/5G cell tower IDs (Cell-ID & LAC/TAC).</li>\n  <li>High-definition perpetrator facial photographs.</li>\n  <li><strong>The thief's own phone number via Caller ID from the unauthorized SIM alert.</strong></li>\n</ol>","aBn":"<p><strong>হ্যাঁ, শতভাগ আইনসম্মত ও কার্যকরী।</strong></p>\n<p>পাসা কোনো অবৈধ হ্যাকিং টুল নয়; এটি মালিকের নিজস্ব ডিভাইসের নিরাপত্তা গার্ড। চুরির পর পাসা যেসব তথ্য দেয়:</p>\n<ol>\n  <li>ডিভাইসের আসল আইএমইআই (IMEI) ও সিরিয়াল নম্বর।</li>\n  <li>টাইমস্ট্যাম্পসহ স্যাটেলাইট জিপিএস কোঅর্ডিনেট ও গুগল ম্যাপের পিন।</li>\n  <li>কানেক্টেড মোবাইল টাওয়ার আইডি (Cell-ID & LAC)।</li>\n  <li>চোর বা টেকনিশিয়ানের চেহারার স্পষ্ট ফ্রন্ট ক্যামেরা ছবি।</li>\n  <li>চোরের নিজের সিম কার্ডের ফোন নম্বর (Caller ID)।</li>\n</ol>\n<p>থানায় জিডি করার সময় বা পুলিশের আইটি ক্রাইম বিভাগে এই তথ্যগুলো সরাসরি জমা দিলে যেকোনো তদন্তকারী কর্মকর্তা চোর ও ফোন শনাক্ত করতে সর্বোচ্চ সুবিধা পান।</p>"},{"category":"legal","categoryNameEn":"Legal, Police & Licensing","categoryNameBn":"আইনি বৈধতা ও লাইসেন্স","qEn":"Is PASA Sentinel a monthly subscription?","qBn":"পাসা সেন্টিনেলের লাইসেন্স কি প্রতি মাসের সাবস্ক্রিপশন?","aEn":"<p><strong>No monthly fees or recurring traps.</strong> We provide a Lifetime Pro License ($25 / ৳3,000 BDT) with lifetime OTA updates, verified offline via cryptographic Ed25519 digital signatures.</p>","aBn":"<p>না। কমার্শিয়াল অ্যাপগুলোর মতো প্রতি মাসে বা বছরে বড় অঙ্কের ফি নেওয়া আমরা সমর্থন করি না। <strong>লাইফটাইম প্রো লাইসেন্স ($২৫ / ৩,০০০ টাকা):</strong> একবারের জন্য একটি লাইসেন্স কি কিনলে আজীবন সব ফিচার এবং আনলিমিটেড আপডেট পাওয়া যায়। লাইসেন্সটি ক্রিপ্টোগ্রাফিক Ed25519 অফলাইন চাবি দিয়ে যাচাই করা হয়।</p>"},{"category":"legal","categoryNameEn":"Legal, Police & Licensing","categoryNameBn":"আইনি বৈধতা ও লাইসেন্স","qEn":"What is the refund and warranty policy?","qBn":"কেনার পর কোনো সমস্যা হলে কি টাকা ফেরত (Refund) পাওয়া যাবে?","aEn":"<p>We back PASA with an unconditional <strong>24-Hour 100% Money-Back Guarantee</strong> and <strong>7 Days of Dedicated Personal Onboarding Support</strong>. Refunds are processed immediately via Binance Pay or bKash.</p>","aBn":"<p>হ্যাঁ। কেনার পর <strong>২৪ ঘণ্টার মধ্যে নো-কোয়েশ্চেন-আসকড ১০০% রিফান্ড গ্যারান্টি</strong> এবং <strong>৭ দিনের টেকনিক্যাল সাপোর্ট গ্যারান্টি</strong> রয়েছে। Binance Pay বা bKash-এর মাধ্যমে অনতিবিলম্বে রিফান্ড প্রসেস করা হয়।</p>"}];
 
 const translations = {
   en: {
+    nav_terminal: "C2 Terminal",
+    nav_timeline: "10s Defense",
+    nav_matrix: "Defense Matrix",
     nav_cases: "Crime Cases",
     nav_c2: "86 C2 Hubs",
     nav_faq: "Forensic FAQ",
     nav_pricing: "Licensing",
     nav_download: "Download APK",
+
     hero_badge: "CRIME SCENE INTELLIGENCE // KNOX DEVICE OWNER CLEARANCE",
     hero_title: "YOUR PHONE WILL NEVER BE SURRENDERED.",
     hero_sub: "When ordinary trackers go blind in 10 seconds, PASA Sentinel engages Knox-grade hardware lockdown, hunts the perpetrator's real identity, and protects your sovereign personal data.",
     hero_cta_apk: "Download Tactical APK (v3.5.1)",
-    hero_cta_cases: "Investigate Threat Scenarios",
+    hero_cta_terminal: "Launch C2 Terminal",
+
     stat_anti_uninstall: "UNINSTALLATION DEFENSE",
     stat_val_knox: "Knox Supervisor",
     stat_zero_storage: "SURVEILLANCE STORAGE",
@@ -1194,6 +1624,69 @@ const translations = {
     stat_c2_channels: "C2 CONTROL CHANNELS",
     stat_hardware_escrow: "HARDWARE ESCROW",
     stat_val_strongbox: "StrongBox / TEE",
+
+    term_section_tag: "LIVE CID INTELLIGENCE SIMULATOR",
+    term_section_title: "Interactive C2 Command Console",
+    term_section_lede: "Execute real defense commands and inspect live simulated hardware responses. See how PASA operates in active crime containment.",
+    term_chips_label: "Quick Commands:",
+
+    time_section_tag: "THE FIRST 10 SECONDS OF A THEFT",
+    time_section_title: "Why Standard Handsets Fail in 10 Seconds",
+    time_section_lede: "The moment a phone is stolen, the clock starts ticking. Here is the forensic difference between normal security and PASA Sentinel.",
+    time_vuln_title: "Standard Android / Trackers",
+    time_vuln_sub: "Google Find My Device & Play Store Apps",
+    time_v1_title: "Notification Drawer Pulled Down",
+    time_v1_desc: "Thief swipes down from lockscreen, toggles Airplane Mode. Internet severed. Google Find My Device is now completely blind.",
+    time_v2_title: "Power Button Pressed & Held",
+    time_v2_desc: "Thief shuts down handset. Operating system terminates. All standard apps and background location services go dead.",
+    time_v3_title: "SIM Card Extracted & Discarded",
+    time_v3_desc: "Physical SIM card thrown into gutter. Device has zero cellular network connectivity and cannot be phoned.",
+    time_v4_title: "Safe Mode Reboot & Forensic Wipe",
+    time_v4_desc: "Thief boots into Safe Mode or connects forensic cable. Play Store security apps are easily uninstalled or data extracted.",
+
+    time_prot_title: "PASA Sentinel Autonomous Shield",
+    time_prot_sub: "Knox Device Owner & Hardware Containment",
+    time_p1_title: "2.65G Kinetic Snatch Triggered",
+    time_p1_desc: "Violent vector acceleration locks screen into Knox Kiosk within 30ms. Status bar pull-down and Airplane Mode permanently blocked.",
+    time_p2_title: "Fake Shutdown Deception",
+    time_p2_desc: "Power button triggers authentic OEM power-down animation into 0-nit pitch black screen. Thief assumes phone is dead while cameras and GPS run.",
+    time_p3_title: "Foreign SIM Caller ID Trap",
+    time_p3_desc: "When thief inserts their SIM, PASA uses that SIM's radio to secretly text emergency contacts—revealing the thief's phone number on Caller ID!",
+    time_p4_title: "Hardware USB & Thermal Killswitch",
+    time_p4_desc: "USB Data Pin Killswitch severs physical D+/D- pins against forensic boxes. Blower heat-gun triggers Thermal Trap and Dead Man auto-destruct.",
+
+    matrix_section_tag: "HARDWARE ARCHITECTURE COMPARISON",
+    matrix_section_title: "Knox Device Owner vs Standard Apps",
+    matrix_section_lede: "Why Google Play Store policies prevent ordinary apps from ever matching PASA Sentinel's supervisor privileges.",
+    th_feature: "Security Capability",
+    th_google: "Google Find My Device",
+    th_play: "Play Store Anti-Theft",
+    mat_1_title: "Zero Root Requirement",
+    mat_1_sub: "Retains full Knox & StrongBox Keystore integrity",
+    mat_2_title: "Lockscreen Status Bar & Airplane Block",
+    mat_2_sub: "Prevents quick settings offline tampering",
+    mat_3_title: "Air-Gapped Cellular SMS C2 Fallback",
+    mat_3_sub: "Operates when internet & Wi-Fi are disconnected",
+    mat_4_title: "Remote Hardware Lockscreen PIN Reset",
+    mat_4_sub: "Android 14, 15, 16 OS PIN override",
+    mat_5_title: "Hardware USB Data Pin Killswitch",
+    mat_5_sub: "Neutralizes Cellebrite & GrayKey extraction",
+    mat_6_title: "Anti-Uninstall & Safe Mode Immunity",
+    mat_6_sub: "Thief cannot delete or force-stop",
+    mat_7_title: "Surveillance Privacy & Storage Policy",
+    mat_7_sub: "Who sees your photos, audio, and GPS?",
+    mat_8_title: "Pricing Model",
+    mat_8_sub: "Recurring costs vs permanent sovereignty",
+
+    audit_section_tag: "DEVICE SECURITY DIAGNOSTIC",
+    audit_section_title: "Test Your Handset's Theft Vulnerability",
+    audit_section_lede: "Answer 4 questions about your phone's current settings to calculate your real-world vulnerability index.",
+    audit_q1: "1. Can anyone swipe down your notification shade from the lockscreen and turn on Airplane Mode?",
+    audit_q2: "2. Can someone press and hold your power button to completely shut down your phone without your PIN?",
+    audit_q3: "3. If a thief ejects your SIM card, do you lose all ability to track or communicate with the device?",
+    audit_q4: "4. If forced at weapon-point to unlock your screen, will your banking apps (bKash/crypto) be visible?",
+    audit_risk_label: "CURRENT THEFT VULNERABILITY INDEX:",
+    audit_cta: "Neutralize Vulnerability with PASA",
 
     case_section_tag: "TACTICAL INCIDENT LOGS // CID DOSSIERS",
     case_section_title: "Real Theft Attacks. Lethal Defense Countermeasures.",
@@ -1279,22 +1772,34 @@ const translations = {
     f_ent_4: "Direct WhatsApp & Telegram Hotline",
     btn_contact_ent: "Contact Concierge",
 
+    btn_copy_uid: "Copy UID",
+    bkash_title: "bKash Payment (Bangladesh)",
+    bkash_sub: "Contact for official bKash account",
+    bkash_action_btn: "Request Number via WhatsApp",
+    wa_title: "WhatsApp Concierge",
+    wa_action_btn: "Chat Direct",
+
     footer_bio: "Sovereign Android anti-theft defense & covert intelligence agent. Zero Google Play dependencies, zero cloud media storage, Knox-grade uninstallation lockout. Engineered by Izhaan Intellect.",
     footer_resources: "Resources",
     footer_legal: "Contact & Legal",
     footer_dl_apk: "Download Latest APK (v3.5.1)"
   },
   bn: {
+    nav_terminal: "সি২ টার্মিনাল",
+    nav_timeline: "১০ সে. ডিফেন্স",
+    nav_matrix: "ডিফেন্স ম্যাট্রিক্স",
     nav_cases: "ক্রাইম কেস",
     nav_c2: "৮৬টি সি২ হাব",
     nav_faq: "ফরেনসিক প্রশ্নোত্তর",
     nav_pricing: "লাইসেন্সিং",
     nav_download: "এপিকে ডাউনলোড",
+
     hero_badge: "ক্রাইম সিন ইন্টেলিজেন্স // নক্স ডিভাইস ওনার ক্লিয়ারেন্স",
     hero_title: "আপনার ফোন আর কখনোই চোরের কাছে আত্মসমর্পণ করবে না।",
     hero_sub: "চুরি হওয়ার ১০ সেকেন্ডের মধ্যে যখন সাধারণ ট্র্যাকার অন্ধ হয়ে যায়—পাসা সেন্টিনেল নক্স-গ্রেড হার্ডওয়্যার লকডাউন চাপিয়ে অপরাধীর আসল পরিচয় শিকার করে এবং আপনার ব্যক্তিগত ডেটা রক্ষা করে।",
     hero_cta_apk: "ট্যাকটিক্যাল এপিকে ডাউনলোড (v3.5.1)",
-    hero_cta_cases: "আক্রমণের কেস ফাইলসমূহ দেখুন",
+    hero_cta_terminal: "সি২ টার্মিনাল ওপেন করুন",
+
     stat_anti_uninstall: "স্থায়ী আনইন্সটল প্রতিরোধ",
     stat_val_knox: "নক্স সুপারভাইজার",
     stat_zero_storage: "সার্ভেইল্যান্স স্টোরেজ",
@@ -1302,6 +1807,69 @@ const translations = {
     stat_c2_channels: "সি২ নিয়ন্ত্রণ চ্যানেল",
     stat_hardware_escrow: "হার্ডওয়্যার এসক্রো",
     stat_val_strongbox: "স্ট্রংবক্স / টিইই",
+
+    term_section_tag: "লাইভ সিআইডি ইন্টেলিজেন্স সিমুলেটর",
+    term_section_title: "ইন্টারঅ্যাক্টিভ সি২ কমান্ড কনসোল",
+    term_section_lede: "সরাসরি প্রতিরক্ষামূলক কমান্ড রান করে দেখুন কীভাবে পাসা হার্ডওয়্যার ও ওএস লেভেলে প্রতিটি হুমকি প্রতিহত করে।",
+    term_chips_label: "কুইক কমান্ডস:",
+
+    time_section_tag: "চুরির প্রথম ১০ সেকেন্ডের দৃশ্যপট",
+    time_section_title: "কেন সাধারণ ফোন মাত্র ১০ সেকেন্ডে অন্ধ হয়ে যায়",
+    time_section_lede: "ফোন চুরি হওয়া মাত্রই সেকেন্ডের খেলা শুরু হয়। দেখুন সাধারণ ফোনের সাথে পাসা সেন্টিনেলের কারিগরি পার্থক্য।",
+    time_vuln_title: "সাধারণ অ্যান্ড্রয়েড ও ট্র্যাকার অ্যাপ",
+    time_vuln_sub: "গুগল ফাইন্ড মাই ডিভাইস ও প্লে স্টোরের সাধারণ অ্যাপ",
+    time_v1_title: "লকস্ক্রিন থেকে স্ট্যাটাস বার নামানো",
+    time_v1_desc: "চোর স্ক্রিন সোয়াইপ করে এয়ারপ্লেন মোড অন করে দেয়। ইন্টারনেট বিচ্ছিন্ন হয়ে গুগল ফাইন্ড মাই ডিভাইস সম্পূর্ণ অকেজো হয়ে যায়।",
+    time_v2_title: "পাওয়ার বাটন চেপে বন্ধ করে দেওয়া",
+    time_v2_desc: "চোর পাওয়ার বাটন চেপে ফোন অফ করে দেয়। অপারেটিং সিস্টেম শাটডাউন হয়ে সমস্ত সাধারণ অ্যাপ বন্ধ হয়ে যায়।",
+    time_v3_title: "সিম কার্ড খুলে ফেলে দেওয়া",
+    time_v3_desc: "ফিজিক্যাল সিম খুলে ফেলে দিলে ফোনে সেলুলার ডাটা বন্ধ হয়ে যায় এবং ফোন আর কোনো কল বা এসএমএস পায় না।",
+    time_v4_title: "সেফ মোডে বুট বা পিসিতে ডেটা ডাম্প",
+    time_v4_desc: "চোর সেফ মোডে অন করে অ্যাপ আনইন্সটল করে দেয় অথবা ইউএসবি কেবল লাগিয়ে কম্পিউটারে ব্যক্তিগত তথ্য চুরি করে।",
+
+    time_prot_title: "পাসা সেন্টিনেল অটোনোমাস শিল্ড",
+    time_prot_sub: "নক্স ডিভাইস ওনার ও হার্ডওয়্যার কনটেইনমেন্ট",
+    time_p1_title: "২.৬৫জি কাইনেটিক স্ন্যাচ ডিটেকশন",
+    time_p1_desc: "হঠাৎ হ্যাঁচকা টান লাগামাত্রই ৩০ মিলিসেকেন্ডে কিয়স্ক লকডাউন। স্ট্যাটাস বার ড্রয়ার ও এয়ারপ্লেন মোড স্থায়ীভাবে ওএস লেভেলে ব্লক।",
+    time_p2_title: "ফেক শাটডাউন বিভ্রান্তিকর ব্ল্যাকআউট",
+    time_p2_desc: "পাওয়ার বাটন চাপলে আসল শাটডাউন অ্যানিমেশন দেখিয়ে ০-নিট কালো স্ক্রিনে চলে যায়। চোর মনে করে ফোন বন্ধ, অথচ ব্যাকগ্রাউন্ডে ক্যামেরা ও জিপিএস সচল।",
+    time_p3_title: "চোরের নিজের সিম কার্ডের ফাঁদ",
+    time_p3_desc: "চোর নিজের সিম কার্ড ঢোকানোমাত্রই পাসা ওই সিমের রেডিও দিয়ে স্বয়ংক্রিয় জরুরি এসএমএস পাঠায়—যাতে কলার আইডিতে চোরের নম্বর সরাসরি ফাঁস হয়ে যায়!",
+    time_p4_title: "হার্ডওয়্যার ইউএসবি ও থার্মাল কিলসুইচ",
+    time_p4_desc: "কম্পিউটারের কেবল লাগালেও ইউএসবি ডেটা পিন কিলসুইচ ডেটা লাইন বন্ধ রাখে। ব্যাক-কভার খুলতে হিটগান লাগালে ডেড ম্যানস সুইচ কি-স্টোর মুছে ফেলে।",
+
+    matrix_section_tag: "হার্ডওয়্যার আর্কিটেকচার তুলনা",
+    matrix_section_title: "নক্স ডিভাইস ওনার বনাম সাধারণ অ্যাপস",
+    matrix_section_lede: "কেন গুগল প্লে স্টোরের পলিসির কারণে সাধারণ কোনো অ্যাপ কখনোই পাসা সেন্টিনেলের সমকক্ষ হতে পারে না।",
+    th_feature: "নিরাপত্তা ফিচার",
+    th_google: "গুগল ফাইন্ড মাই ডিভাইস",
+    th_play: "প্লে স্টোর অ্যান্টি-থেফট",
+    mat_1_title: "জিরো রুট পারমিশন",
+    mat_1_sub: "নক্স ও স্ট্রংবক্স হার্ডওয়্যার অরিজিনাল থাকে",
+    mat_2_title: "লকস্ক্রিন স্ট্যাটাস বার ও এয়ারপ্লেন ব্লক",
+    mat_2_sub: "ইন্টারনেট অফ করার সুযোগ বন্ধ রাখে",
+    mat_3_title: "এয়ার-গ্যাপড সেলুলার এসএমএস সি২",
+    mat_3_sub: "ইন্টারনেট ও ওয়াই-ফাই ছাড়া এসএমএসে নিয়ন্ত্রণ",
+    mat_4_title: "রিমোট হার্ডওয়্যার লকস্ক্রিন পিন রিসেট",
+    mat_4_sub: "অ্যান্ড্রয়েড ১৪, ১৫, ১৬ ওএস পিন ওভাররাইড",
+    mat_5_title: "হার্ডওয়্যার ইউএসবি ডেটা পিন কিলসুইচ",
+    mat_5_sub: "Cellebrite ও GrayKey ক্যাবল ডেটা চুরি বন্ধ",
+    mat_6_title: "স্থায়ী আনইন্সটল ও সেফ মোড প্রতিরোধ",
+    mat_6_sub: "চোর কোনোভাবেই অ্যাপ মুছতে পারে না",
+    mat_7_title: "প্রাইভেসি ও নজরদারি ডেটা সংরক্ষণ",
+    mat_7_sub: "আপনার ছবি, অডিও ও লোকেশন কে দেখতে পারে?",
+    mat_8_title: "প্রাইসিং মডেল ও মূল্য",
+    mat_8_sub: "মাসিক সাবস্ক্রিপশন বনাম আজীবন মালিকানা",
+
+    audit_section_tag: "ডিভাইস সিকিউরিটি ডায়াগনস্টিক",
+    audit_section_title: "আপনার ফোনের চুরি ঝুঁকি পরীক্ষা করুন",
+    audit_section_lede: "আপনার ফোনের বর্তমান সেটিংস যাচাই করে আসল চুরি ঝুঁকি স্কোর কত তা জেনে নিন।",
+    audit_q1: "১. লকস্ক্রিন থেকে যে কেউ কি স্ট্যাটাস বার নামিয়ে এয়ারপ্লেন মোড অন করে দিতে পারে?",
+    audit_q2: "২. আপনার স্ক্রিন লক পিন ছাড়াই কি পাওয়ার বাটন চেপে যে কেউ ফোন পুরোপুরি বন্ধ করতে পারে?",
+    audit_q3: "৩. চোর আপনার সিম কার্ড খুলে ফেললে কি ফোন ট্র্যাক করার বা যোগাযোগ করার সমস্ত উপায় বন্ধ হয়ে যায়?",
+    audit_q4: "৪. অস্ত্রের মুখে জোরপূর্বক স্ক্রিন আনলক করালে কি আপনার বিকাশ ও ব্যাংকিং অ্যাপ সরাসরি চোরের সামনে উন্মুক্ত হয়ে যাবে?",
+    audit_risk_label: "আপনার বর্তমান ডিভাইস চুরি ঝুঁকি:",
+    audit_cta: "পাসার মাধ্যমে এই ঝুঁকি শূন্যে নামান",
 
     case_section_tag: "ট্যাকটিক্যাল ক্রাইম লগ // সিআইডি কেস ফাইল",
     case_section_title: "বাস্তব চুরি আক্রমণ। ভয়ংকর প্রতিরক্ষামূলক প্রতিরোধ।",
@@ -1386,6 +1954,13 @@ const translations = {
     f_ent_3: "জিরো-নলেজ ফ্লিট ম্যানেজমেন্ট",
     f_ent_4: "সরাসরি হোয়াটসঅ্যাপ ও টেলিগ্রাম হটলাইন",
     btn_contact_ent: "যোগাযোগ করুন",
+
+    btn_copy_uid: "ইউআইডি কপি করুন",
+    bkash_title: "বিকাশ পেমেন্ট (বাংলাদেশ)",
+    bkash_sub: "অফিসিয়াল বিকাশ নম্বরের জন্য যোগাযোগ করুন",
+    bkash_action_btn: "হোয়াটসঅ্যাপে নম্বর চান",
+    wa_title: "হোয়াটসঅ্যাপ কনসিয়ার্জ",
+    wa_action_btn: "সরাসরি চ্যাট",
 
     footer_bio: "সার্বভৌম অ্যান্ড্রয়েড অ্যান্টি-থেফট ডিফেন্স ও গোপন ইন্টেলিজেন্স এজেন্ট। গুগল প্লে স্টোর ও ক্লাউড স্টোরেজের ওপর শূন্য নির্ভরতা। নক্স-গ্রেড ডিভাইস ওনার সুরক্ষা। প্রস্তুতকারক: ইজহান ইন্টেলেকট।",
     footer_resources: "রিসোর্স",
@@ -1501,6 +2076,155 @@ function switchHub(hubId) {
 
   const btn = Array.from(document.querySelectorAll('.hub-tab')).find(b => b.getAttribute('onclick').includes(hubId));
   if (btn) btn.classList.add('active');
+}
+
+// ── Interactive Terminal Simulator Engine ──
+const simulatedResponses = {
+  '/locate': [
+    { text: '[COMMAND] /locate - Satellite GNSS fix requested', cls: 'term-prompt' },
+    { text: '[HAL] DevicePolicyManager energizing GNSS chipset (forced on)...', cls: 'term-line' },
+    { text: '[SATELLITE] 14 SVs locked (Galileo E01-E12 + GPS PRN 18/24) | Fix: 3D_GNSS', cls: 'term-line' },
+    { text: '[COORDS] Lat: 23.8103° N, Lon: 90.4125° E (Accuracy: 1.4m CEP)', cls: 'term-success' },
+    { text: '[MAPS] https://maps.google.com/?q=23.8103,90.4125', cls: 'term-line' },
+    { text: '[TLS 1.3] Dispatched direct-to-Telegram bot | Local RAM buffer shredded.', cls: 'term-success' }
+  ],
+  '/snap front': [
+    { text: '[COMMAND] /snap front - Stealth mugshot requested', cls: 'term-prompt' },
+    { text: '[CAM-X] CameraX headless pipeline bound to ServiceLifecycleOwner', cls: 'term-line' },
+    { text: '[OPTIC] Front lens triggered: 0ms display blackout | Shutter audio muted', cls: 'term-line' },
+    { text: '[CAPTURE] 12.2MP forensic snapshot captured into RAM buffer', cls: 'term-success' },
+    { text: '[TELEGRAM] sendPhoto executed via authenticated bot API', cls: 'term-success' },
+    { text: '[ZERO-STORE] Local temp bitmap cryptographically overwritten & purged.', cls: 'term-success' }
+  ],
+  '/usb_lock on': [
+    { text: '[COMMAND] /usb_lock on - Physical data line sever initiated', cls: 'term-prompt' },
+    { text: '[DPM] Calling setUsbDataSignalingEnabled(false) [Android 12+ API 31]', cls: 'term-line' },
+    { text: '[HAL] Physical USB D+ & D- data signaling pins TERMINATED.', cls: 'term-alert' },
+    { text: '[STATUS] AC Charging: ALLOWED | Data Transfer: DISABLED', cls: 'term-line' },
+    { text: '[FORENSIC] GrayKey, Cellebrite, BadUSB, and PC ADB neutralized.', cls: 'term-success' }
+  ],
+  '/thermal': [
+    { text: '[COMMAND] /thermal - Heat-Gun Anomaly Trap status', cls: 'term-prompt' },
+    { text: '[SENSOR] Battery thermal register: 34.2°C (Ambient Normal)', cls: 'term-line' },
+    { text: '[THRESHOLD] Trap Armed at >= 48.0°C (Detects lab glue loosening blowers)', cls: 'term-warn' },
+    { text: '[TRIGGER ACTION] On breach: USB data pins cut + Kiosk lock + Mugshot + Telegram SOS', cls: 'term-line' }
+  ],
+  '/deadman': [
+    { text: '[COMMAND] /deadman - Anti-EDL/BROM Dead Man\'s Switch', cls: 'term-prompt' },
+    { text: '[HARDWARE TIMER] Autonomous on-device countdown: 05h 42m remaining', cls: 'term-warn' },
+    { text: '[RESET EVENT] Owner unlock or Telegram/SMS command refreshes to 06h 00m', cls: 'term-line' },
+    { text: '[KILL-ACTION] On expiry: Automated cryptographic wipe (dpm.wipeData(0))', cls: 'term-alert' }
+  ],
+  '/fakeshutdown': [
+    { text: '[COMMAND] /fakeshutdown - Engaging blackout deception canvas', cls: 'term-prompt' },
+    { text: '[ANIMATION] Simulating genuine OEM power-off dialog & shutdown logo...', cls: 'term-line' },
+    { text: '[CANVAS] Display brightness dropped to 0-nit pitch black (FLAG_FULLSCREEN)', cls: 'term-alert' },
+    { text: '[TRAP] Screen touch listeners armed: stealth selfies + GPS beacons on any touch', cls: 'term-success' },
+    { text: '[WAKE] Send /wake via Telegram or SMS to exit blackout canvas', cls: 'term-line' }
+  ],
+  '/freeze bkash': [
+    { text: '[COMMAND] /freeze bkash - Shadow App Vault isolation', cls: 'term-prompt' },
+    { text: '[DPM] Invoking setApplicationHidden("com.bKash.customerapp", true)', cls: 'term-line' },
+    { text: '[STATUS] Package hidden from launcher, drawer, and process table.', cls: 'term-alert' },
+    { text: '[DATA] Zero data lost. App completely invisible to thief/coercer.', cls: 'term-success' }
+  ]
+};
+
+function simulateCmd(cmd) {
+  const screen = document.getElementById('termScreen');
+  if (!screen) return;
+
+  const responses = simulatedResponses[cmd] || [
+    { text: '[COMMAND] ' + cmd, cls: 'term-prompt' },
+    { text: '[EXECUTOR] Command accepted by PasaService background daemon', cls: 'term-line' },
+    { text: '[STATUS] Directive executed with Device Owner supervisor authority', cls: 'term-success' }
+  ];
+
+  responses.forEach((r, i) => {
+    setTimeout(() => {
+      const line = document.createElement('div');
+      line.className = 'term-line ' + (r.cls || '');
+      line.textContent = r.text;
+      screen.appendChild(line);
+      screen.scrollTop = screen.scrollHeight;
+    }, i * 180);
+  });
+}
+
+function handleTermKey(e) {
+  if (e.key === 'Enter') {
+    submitTermInput();
+  }
+}
+
+function submitTermInput() {
+  const input = document.getElementById('termInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  input.value = '';
+  simulateCmd(val);
+}
+
+function clearTerminal() {
+  const screen = document.getElementById('termScreen');
+  if (screen) {
+    screen.innerHTML = '<div class="term-line" style="color:var(--text-faint);">// Terminal buffer cleared. Ready for input.</div>';
+  }
+}
+
+// ── Vulnerability Self-Test Engine ──
+const auditState = { 1: true, 2: true, 3: true, 4: true };
+
+function setAudit(qNum, isYes, btn) {
+  auditState[qNum] = isYes;
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.audit-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Calculate score
+  let yesCount = 0;
+  for (let k in auditState) {
+    if (auditState[k]) yesCount++;
+  }
+
+  const scoreEl = document.getElementById('auditScore');
+  if (!scoreEl) return;
+
+  if (yesCount === 4) {
+    scoreEl.textContent = '94% CRITICAL RISK';
+    scoreEl.style.color = '#ef4444';
+  } else if (yesCount === 3) {
+    scoreEl.textContent = '72% HIGH RISK';
+    scoreEl.style.color = '#f59e0b';
+  } else if (yesCount === 2) {
+    scoreEl.textContent = '48% MODERATE RISK';
+    scoreEl.style.color = '#f59e0b';
+  } else if (yesCount === 1) {
+    scoreEl.textContent = '24% LOW RISK';
+    scoreEl.style.color = '#06b6d4';
+  } else {
+    scoreEl.textContent = '0% SECURED (PASA ENFORCED)';
+    scoreEl.style.color = '#34d399';
+  }
+}
+
+// ── Copy Binance UID ──
+function copyBinanceUid() {
+  const uid = '756303714';
+  navigator.clipboard.writeText(uid).then(() => {
+    showToast('BINANCE UID 756303714 COPIED');
+  }).catch(() => {
+    showToast('UID: 756303714');
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 // Initialize on DOM load
