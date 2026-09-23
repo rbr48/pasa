@@ -56,7 +56,14 @@ e:/Projects/PrivateApp/
 │   └── releases/                        # Hosted signed APKs for OTA distribution
 ├── pasa-commercial-web/                 # Commercial Marketing & Pricing Frontend
 │   └── public/assets/                   # CSS, JS, Branding assets
-├── releases/                            # Git-tracked release binaries (e.g. pasa-latest.apk)
+├── pasa-setup-kit/                      # Windows Device Owner Setup Kit (non-technical user wizard)
+│   ├── PASA Device Owner Setup.bat      # Double-click launcher — runs setup.ps1 with Bypass policy
+│   ├── setup.ps1                        # 6-step guided PowerShell wizard (ADB download → DPM provisioning)
+│   └── README.md                        # Full docs: T&Cs, why accounts must be removed, troubleshooting
+├── releases/                            # Git-tracked release binaries & distribution packages
+│   ├── pasa-v3.5.4-50.apk               # Current signed production APK
+│   ├── pasa-latest.apk                  # Symlink → current APK
+│   └── PASA-Setup-Kit-v3.5.4.zip        # Windows setup kit (12 KB, no APK bundled — APK CDN-fetched)
 ├── PRIVACY.md                           # Sovereign Zero-Telemetry & Zero-Storage Guarantee
 ├── TERMS.md                             # Legal Terms of Service & EULA
 ├── keystore.properties                  # Keystore signing credentials
@@ -241,3 +248,24 @@ e:/Projects/PrivateApp/
    ```
 5. **Git Repository Push:**
    Commit with author `M S Rana <shohagrana15193@gmail.com>` and push to `origin main`.
+
+### 6.4 Windows Device Owner Setup Kit
+* **Purpose:** Guided wizard for non-technical customers to provision Device Owner without any command-line knowledge.
+* **Kit Location:** `pasa-setup-kit/` (tracked in git).
+* **Distribution ZIP:** `releases/PASA-Setup-Kit-v3.5.4.zip` (12 KB — no APK bundled).
+* **Public Download URL:** `https://pasa.izhaanintellect.fun/download/setup-kit` (auto-serves latest kit).
+* **API Metadata:** `GET https://pasa.izhaanintellect.fun/api/app/setup-kit/info` → JSON with filename, sizeBytes, sizeMB, updatedAt, downloadUrl.
+* **Wizard Steps (setup.ps1):**
+  1. **ADB Setup** — checks PATH / known SDK locations / kit `adb/` subfolder; auto-downloads from `dl.google.com/android/repository/platform-tools-latest-windows.zip` if missing.
+  2. **Connect Phone** — guides USB Debugging activation, waits for `adb devices` authorized state (60 s timeout).
+  3. **Remove Accounts (Auto-Assisted)** — uses `adb shell dumpsys account` to detect accounts; calls `adb shell am start -a android.settings.ACCOUNT_SYNC_SETTINGS --es account_name <n> --es account_type <t>` to open each removal screen directly; filters system-internal account types that are harmless.
+  4. **Smart Install** — calls `GET /api/app/latest?current_version_code=0`, reads installed versionCode via `adb shell dumpsys package`; **skips download entirely if installed build ≥ server build**; SHA-256 integrity verified before install.
+  5. **Device Owner** — runs `adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin`; parses result for known error strings with user-friendly remediation.
+  6. **Verification** — confirms install + Device Owner active; shows next-step instructions.
+* **Server Routes (server.js):**
+  - `GET /download/setup-kit` — streams latest `PASA-Setup-Kit-*.zip` from `releases/` (sorted by mtime).
+  - `GET /api/app/setup-kit` — alias for above.
+  - `GET /api/app/setup-kit/info` — public JSON metadata endpoint.
+* **Safety:** ZIP contains no APK, no secrets, no credentials. All network calls go to `dl.google.com` (ADB) and `pasa.izhaanintellect.fun` (APK). No phone data transmitted to any server. Safe to share publicly.
+* **Updating Kit:** When releasing a new PASA version, rebuild ZIP with `Compress-Archive -Path pasa-setup-kit\* -DestinationPath releases\PASA-Setup-Kit-vX.Y.Z.zip` and SCP to VPS `releases/`. No code changes needed — wizard always pulls latest APK from server at runtime.
+
