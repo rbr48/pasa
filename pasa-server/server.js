@@ -3876,6 +3876,70 @@ app.get(['/api/app/download/:filename', '/releases/:filename'], (req, res) => {
   readStream.pipe(res);
 });
 
+// 6b-2. Download Windows Setup Kit ZIP (public) — /download/setup-kit
+app.get(['/download/setup-kit', '/api/app/setup-kit'], (req, res) => {
+  // Always serve the latest kit zip from releases directory
+  const releasesDir = RELEASES_DIR;
+  let kitPath = null;
+  let kitFilename = null;
+
+  // Find the most recently modified PASA-Setup-Kit-*.zip
+  try {
+    const files = fs.readdirSync(releasesDir)
+      .filter(f => f.startsWith('PASA-Setup-Kit') && f.endsWith('.zip'))
+      .map(f => ({ name: f, mtime: fs.statSync(path.join(releasesDir, f)).mtimeMs }))
+      .sort((a, b) => b.mtime - a.mtime);
+
+    if (files.length > 0) {
+      kitFilename = files[0].name;
+      kitPath = path.join(releasesDir, kitFilename);
+    }
+  } catch (_) {}
+
+  if (!kitPath || !fs.existsSync(kitPath)) {
+    return res.status(404).json({ ok: false, description: 'Setup Kit not found on server' });
+  }
+
+  const stat = fs.statSync(kitPath);
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', `attachment; filename="${kitFilename}"`);
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Content-Length', stat.size);
+  fs.createReadStream(kitPath).pipe(res);
+});
+
+// 6b-3. Setup Kit metadata (public) — used by landing page to show version
+app.get('/api/app/setup-kit/info', (req, res) => {
+  const releasesDir = RELEASES_DIR;
+  try {
+    const files = fs.readdirSync(releasesDir)
+      .filter(f => f.startsWith('PASA-Setup-Kit') && f.endsWith('.zip'))
+      .map(f => {
+        const st = fs.statSync(path.join(releasesDir, f));
+        return { name: f, size: st.size, updatedAt: st.mtime.toISOString() };
+      })
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+    if (files.length === 0) {
+      return res.json({ ok: false, available: false });
+    }
+
+    const kit = files[0];
+    res.json({
+      ok: true,
+      available: true,
+      filename: kit.name,
+      sizeBytes: kit.size,
+      sizeMB: (kit.size / (1024 * 1024)).toFixed(1),
+      updatedAt: kit.updatedAt,
+      downloadUrl: `${req.protocol}://${req.get('host')}/download/setup-kit`
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, description: err.message });
+  }
+});
+
+
 // 6c. Upload new APK release (admin authenticated)
 app.post('/api/app/upload', authenticateAdmin, apkUpload.single('apk'), (req, res) => {
   try {
