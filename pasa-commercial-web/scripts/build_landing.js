@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { faqData } = require('./scratch_faq_data.js');
+const { featureHubs, commandsMatrix } = require('./features_data.js');
 
 const targetHtmlPath = path.join(__dirname, '..', 'public', 'index.html');
 
@@ -76,13 +77,13 @@ function generateHtml() {
     overflow-x: hidden;
   }
 
-  /* Anchor Clearance (Header Collision Prevention) */
+  /* Anchor Clearance */
   section[id], div[id] {
     scroll-margin-top: 90px;
   }
 
-  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10; }
-  .wrap-narrow { max-width: 840px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10; }
+  .wrap-narrow { max-width: 860px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10; }
 
   /* ── Top Status Strip ── */
   .top-strip {
@@ -99,118 +100,127 @@ function generateHtml() {
     box-shadow: 0 0 8px var(--emerald); display: inline-block;
   }
   .top-status-badge {
-    display: inline-flex; align-items: center; gap: 7px; color: var(--text); font-weight: 700;
+    display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text);
   }
-  .top-specs {
-    display: flex; align-items: center; gap: 16px; font-size: 11.5px;
-  }
-  .top-specs span { color: var(--cyan); font-weight: 600; }
+  .top-specs { display: flex; gap: 16px; font-weight: 600; }
+  .top-specs span { color: var(--cyan); }
 
-  /* ── Smart Sticky Navigation (Light) ── */
-  nav.nav {
+  /* ── Navigation ── */
+  .nav {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm);
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
   }
   .nav-inner {
-    display: flex; align-items: center; justify-content: space-between; height: 68px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 70px;
   }
   .brand {
     display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text);
   }
   .brand-logo-img {
-    width: 40px; height: 40px; border-radius: 10px; object-fit: cover;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid var(--border);
+    width: 36px; height: 36px; border-radius: 8px; object-fit: cover;
   }
-  .brand-text { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; color: var(--text); }
-  .brand-tag { font-family: var(--mono); font-size: 9.5px; color: var(--cyan); letter-spacing: 0.08em; display: block; }
-
-  .nav-menu { display: flex; align-items: center; gap: 6px; }
+  .brand-text {
+    font-weight: 800; font-size: 16px; letter-spacing: -0.01em; color: var(--text);
+  }
+  .brand-tag {
+    font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    color: var(--crimson); background: var(--crimson-subtle);
+    padding: 2px 6px; border-radius: 4px; border: 1px solid #fecaca;
+    letter-spacing: 0.05em; display: inline-block;
+  }
+  .nav-menu {
+    display: flex; align-items: center; gap: 20px;
+  }
   .nav-link {
-    color: var(--text-dim); text-decoration: none; font-size: 13.5px; font-weight: 600;
-    padding: 8px 12px; border-radius: 6px; transition: all 0.15s ease;
+    font-size: 13.5px; font-weight: 600; color: var(--text-dim); text-decoration: none;
+    transition: color 0.15s ease;
   }
-  .nav-link:hover { color: var(--cyan); background: var(--bg-muted); }
+  .nav-link:hover { color: var(--cyan); }
 
-  .nav-actions { display: flex; align-items: center; gap: 12px; }
-
+  .nav-actions {
+    display: flex; align-items: center; gap: 12px;
+  }
+  
   /* Language Switcher */
   .lang-switcher {
-    display: flex; align-items: center; background: var(--bg-muted);
-    border: 1px solid var(--border); border-radius: 8px; padding: 2px;
+    display: flex; background: var(--bg-muted); padding: 3px; border-radius: 8px;
+    border: 1px solid var(--border);
   }
   .lang-btn {
-    background: transparent; border: none; color: var(--text-dim);
-    font-family: var(--mono); font-size: 11px; font-weight: 700;
-    padding: 5px 11px; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+    border: none; background: transparent; padding: 4px 10px; font-size: 12px;
+    font-weight: 700; color: var(--text-faint); border-radius: 6px; cursor: pointer;
+    transition: all 0.15s; font-family: var(--font);
   }
   .lang-btn.active {
-    background: var(--crimson); color: #fff; box-shadow: 0 1px 4px rgba(220, 38, 38, 0.3);
+    background: #ffffff; color: var(--text); box-shadow: var(--shadow-sm);
   }
   .lang-btn:hover:not(.active) { color: var(--text); }
 
   .nav-cta {
-    background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff;
-    padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
-    text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25); transition: all 0.2s;
+    background: var(--crimson); color: #fff; padding: 8px 16px; border-radius: 8px;
+    font-size: 13px; font-weight: 700; text-decoration: none; display: flex; align-items: center;
+    gap: 6px; transition: background 0.15s;
   }
-  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4); }
+  .nav-cta:hover { background: var(--crimson-hover); }
 
   /* Mobile Drawer */
   .mobile-toggle {
-    display: none; background: var(--bg-muted); border: 1px solid var(--border); color: var(--text);
-    padding: 7px 10px; border-radius: 6px; cursor: pointer;
+    display: none; background: none; border: none; cursor: pointer; color: var(--text);
   }
   .mobile-drawer {
-    position: fixed; top: 0; right: -300px; width: 280px; height: 100vh;
-    background: #ffffff; border-left: 1px solid var(--border); z-index: 200;
-    padding: 24px; display: flex; flex-direction: column; gap: 14px;
-    transition: right 0.3s ease; box-shadow: -10px 0 40px rgba(0,0,0,0.15);
+    position: fixed; top: 0; right: -280px; width: 280px; height: 100vh;
+    background: #ffffff; border-left: 1px solid var(--border); z-index: 1001;
+    padding: 24px; display: flex; flex-direction: column; gap: 16px;
+    transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: var(--shadow-lg);
   }
   .mobile-drawer.open { right: 0; }
-  .mobile-drawer-hdr { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
-  .mobile-drawer a { color: var(--text); text-decoration: none; font-size: 15px; font-weight: 600; padding: 10px 0; border-bottom: 1px solid var(--bg-muted); }
-  .mobile-drawer a:hover { color: var(--cyan); }
-  .drawer-overlay {
-    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); z-index: 190; display: none;
-    backdrop-filter: blur(4px);
+  .mobile-drawer-hdr {
+    display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
   }
-  .drawer-overlay.open { display: block; }
+  .mobile-drawer a {
+    text-decoration: none; color: var(--text); font-weight: 600; font-size: 15px; padding: 6px 0;
+  }
+  .drawer-overlay {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 1000;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .drawer-overlay.open { opacity: 1; pointer-events: auto; }
 
-  @media (max-width: 960px) {
+  @media (max-width: 900px) {
     .nav-menu { display: none; }
     .mobile-toggle { display: block; }
     .top-specs { display: none; }
   }
 
-  /* ── Hero Section (Light & Crisp) ── */
+  /* ── Hero Section ── */
   .hero {
-    padding: 80px 0 70px; position: relative; text-align: center;
-    background: radial-gradient(ellipse at 50% 0%, #e0f2fe 0%, #f8fafc 70%);
-    border-bottom: 1px solid var(--border);
+    padding: 70px 0 50px; text-align: center; position: relative;
+    background: radial-gradient(circle at 50% 20%, rgba(2, 132, 199, 0.05), transparent 70%);
   }
   .badge-tag {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 6px 16px; border-radius: 20px; font-family: var(--mono); font-size: 11px;
-    font-weight: 700; color: var(--cyan); background: var(--bg-surface);
-    border: 1px solid var(--border-hover); margin-bottom: 22px; box-shadow: var(--shadow-sm);
+    display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono);
+    font-size: 11px; font-weight: 700; color: var(--cyan); background: var(--cyan-subtle);
+    border: 1px solid #bae6fd; padding: 4px 12px; border-radius: 20px; margin-bottom: 22px;
   }
   .hero-title {
-    font-size: clamp(30px, 4.8vw, 54px); font-weight: 900; line-height: 1.18;
+    font-size: clamp(28px, 4.5vw, 50px); font-weight: 900; line-height: 1.18;
     letter-spacing: -0.02em; margin-bottom: 18px; color: var(--text);
   }
   .hero-sub {
-    font-size: clamp(15.5px, 1.9vw, 18px); color: var(--text-dim); max-width: 740px;
-    margin: 0 auto 34px; line-height: 1.6;
+    font-size: clamp(15px, 1.8vw, 17.5px); color: var(--text-dim); max-width: 760px;
+    margin: 0 auto 32px; line-height: 1.6;
   }
   .hero-cta-group {
     display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px;
-    margin-bottom: 44px;
+    margin-bottom: 40px;
   }
   .btn-primary {
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    color: #fff; padding: 13px 28px; border-radius: 10px; font-weight: 700; font-size: 15px;
+    color: #fff; padding: 13px 26px; border-radius: 10px; font-weight: 700; font-size: 14.5px;
     text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
     box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3); border: 1px solid rgba(255,255,255,0.15);
     transition: all 0.2s ease;
@@ -232,7 +242,7 @@ function generateHtml() {
   .specs-bar {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;
     background: #ffffff; border: 1px solid var(--border);
-    border-radius: 12px; padding: 18px 22px; max-width: 960px; margin: 0 auto;
+    border-radius: 12px; padding: 18px 22px; max-width: 980px; margin: 0 auto;
     text-align: left; box-shadow: var(--shadow-sm);
   }
   .spec-item {
@@ -241,21 +251,49 @@ function generateHtml() {
   .spec-item.crimson { border-left-color: var(--crimson); }
   .spec-item.emerald { border-left-color: var(--emerald); }
   .spec-label { font-family: var(--mono); font-size: 10.5px; color: var(--text-faint); text-transform: uppercase; font-weight: 600; }
-  .spec-val { font-size: 13.5px; font-weight: 700; color: var(--text); margin-top: 3px; }
+  .spec-val { font-size: 13px; font-weight: 700; color: var(--text); margin-top: 3px; }
 
   /* ── Section Structure ── */
-  .section { padding: 80px 0; border-bottom: 1px solid var(--border); position: relative; }
-  .section-hdr { text-align: center; margin-bottom: 48px; }
+  .section { padding: 75px 0; border-bottom: 1px solid var(--border); position: relative; }
+  .section-hdr { text-align: center; margin-bottom: 44px; }
   .section-tag {
     font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--cyan);
     letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; display: inline-block;
   }
   .section-title {
-    font-size: clamp(24px, 3.4vw, 36px); font-weight: 800; letter-spacing: -0.01em; margin-bottom: 12px; color: var(--text);
+    font-size: clamp(23px, 3.2vw, 34px); font-weight: 800; letter-spacing: -0.01em; margin-bottom: 12px; color: var(--text);
   }
   .section-lede {
-    font-size: 15.5px; color: var(--text-dim); max-width: 680px; margin: 0 auto; line-height: 1.6;
+    font-size: 15px; color: var(--text-dim); max-width: 720px; margin: 0 auto; line-height: 1.6;
   }
+
+  /* ── 6 Core Customer Value Guarantees ── */
+  .benefits-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;
+  }
+  .benefit-card {
+    background: #ffffff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px 22px; box-shadow: var(--shadow-sm); transition: all 0.2s ease;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .benefit-card:hover {
+    border-color: #cbd5e1; transform: translateY(-2px); box-shadow: var(--shadow-md);
+  }
+  .benefit-card-hdr {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+  }
+  .benefit-icon {
+    width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    background: var(--cyan-subtle); border: 1px solid #bae6fd; color: var(--cyan);
+  }
+  .benefit-icon.crimson { background: var(--crimson-subtle); border-color: #fecaca; color: var(--crimson); }
+  .benefit-icon.emerald { background: var(--emerald-subtle); border-color: #a7f3d0; color: var(--emerald); }
+  .benefit-icon.amber { background: var(--amber-subtle); border-color: #fde68a; color: var(--amber); }
+  .benefit-num {
+    font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--text-faint);
+  }
+  .benefit-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .benefit-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; }
 
   /* ── 3 Architectural Pillars ── */
   .pillars-grid {
@@ -263,38 +301,55 @@ function generateHtml() {
   }
   .pillar-card {
     background: #ffffff; border: 1px solid var(--border);
-    border-radius: 14px; padding: 32px 26px; transition: all 0.25s ease;
+    border-radius: 14px; padding: 30px 24px; transition: all 0.25s ease;
     box-shadow: var(--shadow-sm);
   }
   .pillar-card:hover {
-    border-color: var(--border-hover); transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
+    border-color: var(--border-hover); transform: translateY(-3px); box-shadow: var(--shadow-md);
   }
   .pillar-icon {
     width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    background: var(--cyan-subtle); border: 1px solid #bae6fd; margin-bottom: 18px;
-    color: var(--cyan);
+    background: var(--cyan-subtle); border: 1px solid #bae6fd; margin-bottom: 18px; color: var(--cyan);
   }
-  .pillar-icon.crimson {
-    background: var(--crimson-subtle); border-color: #fecaca; color: var(--crimson);
-  }
-  .pillar-icon.emerald {
-    background: var(--emerald-subtle); border-color: #a7f3d0; color: var(--emerald);
-  }
+  .pillar-icon.crimson { background: var(--crimson-subtle); border-color: #fecaca; color: var(--crimson); }
+  .pillar-icon.emerald { background: var(--emerald-subtle); border-color: #a7f3d0; color: var(--emerald); }
   .pillar-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
   .pillar-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
 
-  /* ── 6 Core Defense Capabilities ── */
-  .features-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;
+  /* ── Interactive 8-Hub Defense Explorer ── */
+  .hub-controls {
+    max-width: 1080px; margin: 0 auto 32px; display: flex; flex-direction: column; gap: 14px;
   }
-  .feature-card {
-    background: #ffffff; border: 1px solid var(--border);
-    border-radius: 12px; padding: 24px 22px; transition: all 0.2s ease;
+  .hub-tabs {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  }
+  .hub-tab {
+    background: #ffffff; border: 1px solid var(--border); color: var(--text-dim);
+    padding: 8px 16px; border-radius: 20px; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
     box-shadow: var(--shadow-sm);
   }
-  .feature-card:hover {
-    border-color: #cbd5e1; box-shadow: var(--shadow-md); transform: translateY(-2px);
+  .hub-tab:hover:not(.active) { color: var(--text); background: var(--bg-muted); }
+  .hub-tab.active {
+    background: var(--cyan); color: #ffffff; border-color: var(--cyan);
+    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.28);
+  }
+  .hub-badge {
+    background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 10px; font-size: 11px; font-family: var(--mono);
+  }
+  .hub-tab.active .hub-badge {
+    background: rgba(255,255,255,0.25); color: #ffffff;
+  }
+  .features-grid-rich {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 20px;
+  }
+  .feature-card-rich {
+    background: #ffffff; border: 1px solid var(--border); border-radius: 14px;
+    padding: 24px 22px; display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: var(--shadow-sm); transition: all 0.2s ease;
+  }
+  .feature-card-rich:hover {
+    border-color: #cbd5e1; transform: translateY(-2px); box-shadow: var(--shadow-md);
   }
   .feature-header {
     display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
@@ -305,6 +360,95 @@ function generateHtml() {
   }
   .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
   .feature-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; }
+  .threat-box {
+    background: #fef2f2; border: 1px solid #fee2e2; border-left: 3px solid var(--crimson);
+    border-radius: 8px; padding: 10px 12px; margin-top: 14px; font-size: 12.5px; color: #991b1b;
+    line-height: 1.5;
+  }
+  .threat-title {
+    font-weight: 700; font-family: var(--mono); font-size: 10.5px; text-transform: uppercase;
+    margin-bottom: 2px; display: flex; align-items: center; gap: 5px; color: var(--crimson);
+  }
+  .cmd-badges {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; align-items: center;
+  }
+  .cmd-badge {
+    background: var(--bg-muted); border: 1px solid var(--border); color: var(--text);
+    padding: 3px 8px; border-radius: 6px; font-family: var(--mono); font-size: 11.5px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .cmd-badge:hover {
+    background: var(--cyan-subtle); border-color: var(--cyan); color: var(--cyan);
+  }
+
+  /* ── 86-Command Interactive Matrix ── */
+  .cmd-controls {
+    max-width: 900px; margin: 0 auto 30px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .cmd-search {
+    width: 100%; background: #ffffff; border: 1px solid var(--border-hover);
+    border-radius: 10px; padding: 13px 18px; color: var(--text); font-size: 14.5px;
+    outline: none; font-family: var(--font); transition: all 0.2s; box-shadow: var(--shadow-sm);
+  }
+  .cmd-search:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12); }
+  .cmd-pills {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  }
+  .cmd-pill {
+    background: #ffffff; border: 1px solid var(--border); color: var(--text-dim);
+    padding: 7px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-sm);
+  }
+  .cmd-pill:hover:not(.active) { color: var(--text); background: var(--bg-muted); }
+  .cmd-pill.active {
+    background: var(--crimson); color: #ffffff; border-color: var(--crimson);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+  }
+  .cmd-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px;
+  }
+  .cmd-card {
+    background: #ffffff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between;
+    transition: all 0.15s ease; box-shadow: var(--shadow-sm);
+  }
+  .cmd-card:hover { border-color: var(--cyan); box-shadow: var(--shadow-md); }
+  .cmd-hdr {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px;
+  }
+  .cmd-token {
+    font-family: var(--mono); font-size: 13.5px; font-weight: 700; color: var(--cyan);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .cmd-params {
+    font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--text-faint);
+  }
+  .cmd-channel-tags {
+    display: flex; gap: 4px;
+  }
+  .tag-tg {
+    background: #e0f2fe; color: #0369a1; font-family: var(--mono); font-size: 9.5px;
+    font-weight: 700; padding: 2px 6px; border-radius: 4px; border: 1px solid #bae6fd;
+  }
+  .tag-sms {
+    background: #ecfdf5; color: #047857; font-family: var(--mono); font-size: 9.5px;
+    font-weight: 700; padding: 2px 6px; border-radius: 4px; border: 1px solid #a7f3d0;
+  }
+  .cmd-body {
+    font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px;
+  }
+  .cmd-footer {
+    display: flex; align-items: center; justify-content: space-between; font-size: 11px;
+    font-family: var(--mono); color: var(--text-faint); border-top: 1px dashed var(--border);
+    padding-top: 10px;
+  }
+  .btn-copy-cmd {
+    background: var(--bg-muted); border: 1px solid var(--border); border-radius: 6px;
+    padding: 3px 8px; font-family: var(--mono); font-size: 11px; font-weight: 600;
+    color: var(--text-dim); cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+    transition: all 0.15s;
+  }
+  .btn-copy-cmd:hover { background: var(--cyan-subtle); color: var(--cyan); border-color: var(--cyan); }
 
   /* ── Comparison Table ── */
   .table-container {
@@ -330,9 +474,9 @@ function generateHtml() {
   .check-icon { color: var(--emerald); font-weight: 800; font-size: 15px; }
   .cross-icon { color: var(--crimson); font-weight: 800; font-size: 15px; }
 
-  /* ── Master Technical FAQ (Searchable & Categorized) ── */
+  /* ── Master Technical FAQ ── */
   .faq-controls {
-    max-width: 840px; margin: 0 auto 30px; display: flex; flex-direction: column; gap: 14px;
+    max-width: 860px; margin: 0 auto 30px; display: flex; flex-direction: column; gap: 14px;
   }
   .faq-search {
     width: 100%; background: #ffffff; border: 1px solid var(--border-hover);
@@ -355,7 +499,7 @@ function generateHtml() {
   .faq-pill:hover:not(.active) { color: var(--text); background: var(--bg-muted); }
 
   .faq-list {
-    max-width: 840px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px;
+    max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px;
   }
   .faq-item {
     background: #ffffff; border: 1px solid var(--border);
@@ -379,125 +523,105 @@ function generateHtml() {
   }
   .faq-item.open .faq-icon { transform: rotate(45deg); color: var(--crimson); }
   .faq-a {
-    padding: 0 22px 20px; color: var(--text-dim); font-size: 14.5px; line-height: 1.7;
-    display: none; border-top: 1px solid var(--border); padding-top: 16px;
+    padding: 0 22px 20px; color: var(--text-dim); font-size: 14px; line-height: 1.65;
+    display: none; border-top: 1px solid var(--bg-muted); padding-top: 14px;
   }
-  .faq-a code {
-    background: var(--bg-muted); color: var(--crimson); padding: 2px 6px;
-    border-radius: 4px; font-family: var(--mono); font-size: 13px; font-weight: 600;
-  }
-  .faq-a ol, .faq-a ul { padding-left: 22px; margin: 10px 0; }
-  .faq-a li { margin-bottom: 6px; }
   .faq-a p { margin-bottom: 10px; }
-  .faq-a strong { color: var(--text); }
+  .faq-a ul, .faq-a ol { padding-left: 20px; margin-bottom: 10px; }
+  .faq-a li { margin-bottom: 4px; }
+  .faq-a code {
+    background: var(--bg-muted); padding: 2px 6px; border-radius: 4px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--cyan);
+  }
 
-  /* ── Pricing & Licensing (Equal Height & Baseline Alignment) ── */
+  /* ── Pricing & Licensing ── */
   .pricing-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;
-    align-items: stretch; margin-bottom: 48px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;
+    margin-bottom: 48px;
   }
   .pricing-card {
-    background: #ffffff; border: 1px solid var(--border);
-    border-radius: 14px; padding: 32px 24px; display: flex; flex-direction: column;
-    justify-content: space-between; height: 100%; position: relative; transition: all 0.25s ease;
-    box-shadow: var(--shadow-sm);
+    background: #ffffff; border: 1px solid var(--border); border-radius: 14px;
+    padding: 32px 26px; display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: var(--shadow-sm); position: relative; transition: all 0.25s ease;
   }
   .pricing-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
   .pricing-card.featured {
-    border: 2px solid var(--crimson);
-    background: #ffffff;
-    box-shadow: 0 8px 30px rgba(220, 38, 38, 0.1);
+    border-color: var(--crimson); box-shadow: 0 8px 24px rgba(220, 38, 38, 0.1);
   }
   .pricing-badge {
-    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
-    background: var(--crimson); color: #fff; font-family: var(--mono);
-    font-size: 10.5px; font-weight: 700; padding: 4px 14px; border-radius: 20px;
-    letter-spacing: 0.06em; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--crimson); color: #fff; font-family: var(--mono); font-size: 10.5px;
+    font-weight: 700; padding: 4px 12px; border-radius: 12px; letter-spacing: 0.05em;
   }
-  .pricing-card-body {
-    flex: 1; display: flex; flex-direction: column;
-  }
-  .plan-name { font-size: 20px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
-  .plan-desc { font-size: 13.5px; color: var(--text-faint); margin-bottom: 20px; min-height: 40px; }
-  .plan-price { font-size: 40px; font-weight: 900; line-height: 1; margin-bottom: 4px; color: var(--text); }
-  .plan-currency { font-size: 18px; color: var(--text-faint); font-weight: 600; }
-  .plan-period { font-size: 12.5px; color: var(--cyan); margin-bottom: 22px; font-family: var(--mono); font-weight: 600; }
-  
-  .plan-features { list-style: none; margin-bottom: 28px; flex: 1; }
+  .plan-name { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .plan-desc { font-size: 13.5px; color: var(--text-faint); margin-bottom: 20px; }
+  .plan-price { font-size: 32px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
+  .plan-currency { font-size: 14px; font-weight: 600; color: var(--text-faint); }
+  .plan-period { font-size: 12px; color: var(--text-faint); font-family: var(--mono); margin-bottom: 24px; }
+  .plan-features { list-style: none; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
   .plan-features li {
-    font-size: 13px; color: var(--text-dim); margin-bottom: 12px;
-    display: flex; align-items: flex-start; gap: 8px; line-height: 1.45;
+    font-size: 13.5px; color: var(--text-dim); display: flex; align-items: center; gap: 10px;
   }
-  .plan-features svg { width: 16px; height: 16px; min-width: 16px; color: var(--emerald); margin-top: 2px; }
+  .plan-features svg { width: 16px; height: 16px; color: var(--emerald); flex-shrink: 0; }
 
-  .pricing-card a.btn-primary,
-  .pricing-card a.btn-ghost {
-    margin-top: auto; width: 100%; justify-content: center; text-align: center;
-  }
-
-  /* ── 3-Step License Activation Roadmap ── */
+  /* 3-Step License Activation Roadmap */
   .delivery-steps {
-    background: #ffffff; border: 1px solid var(--border);
-    border-radius: 12px; padding: 26px; margin-bottom: 36px; box-shadow: var(--shadow-sm);
+    background: #ffffff; border: 1px solid var(--border); border-radius: 14px;
+    padding: 32px; box-shadow: var(--shadow-sm); margin-bottom: 40px;
   }
   .delivery-steps-title {
-    font-size: 15px; font-weight: 800; margin-bottom: 20px; text-align: center;
-    color: var(--text); font-family: var(--mono); letter-spacing: 0.05em;
+    font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--cyan);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 20px; text-align: center;
   }
   .steps-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;
   }
   .step-box {
-    background: var(--bg-canvas); border: 1px solid var(--border);
-    border-radius: 10px; padding: 18px 16px; text-align: left;
+    background: var(--bg-canvas); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px; text-align: center;
   }
   .step-num {
-    width: 26px; height: 26px; border-radius: 6px; background: var(--cyan);
-    color: #ffffff; font-weight: 800; font-size: 12px; display: inline-flex;
-    align-items: center; justify-content: center; margin-bottom: 10px; font-family: var(--mono);
+    width: 28px; height: 28px; border-radius: 50%; background: var(--cyan); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; font-weight: 800;
+    font-size: 13px; margin-bottom: 10px;
   }
-  .step-box h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .step-box h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
   .step-box p { font-size: 12.5px; color: var(--text-dim); line-height: 1.5; }
 
-  /* ── Payment Channels Strip (Untouched flow with Authentic Brand Logos) ── */
+  /* Payment Channels Strip */
   .payment-channels {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;
   }
   .pay-method {
-    background: #ffffff; border: 1px solid var(--border);
-    border-radius: 12px; padding: 18px; display: flex; gap: 14px; align-items: center;
-    box-shadow: var(--shadow-sm); transition: all 0.2s ease;
+    background: #ffffff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow-sm);
   }
-  .pay-method:hover { border-color: #cbd5e1; box-shadow: var(--shadow-md); }
   .pay-icon {
-    width: 44px; height: 44px; border-radius: 10px; min-width: 44px;
-    display: flex; align-items: center; justify-content: center; background: var(--bg-muted);
+    width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
   }
-  .pay-title { font-weight: 700; font-size: 14px; color: var(--text); }
-  .pay-sub { font-family: var(--mono); font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .pay-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .pay-sub { font-size: 11.5px; color: var(--text-faint); font-family: var(--mono); margin-bottom: 6px; }
   .pay-action-btn {
-    font-size: 11.5px; font-weight: 700; text-decoration: none; padding: 5px 12px;
-    border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; margin-top: 8px;
-    transition: all 0.15s ease;
+    font-size: 12px; font-weight: 700; text-decoration: none; padding: 4px 10px;
+    border-radius: 6px; display: inline-block;
   }
-  .pay-action-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-  /* ── Smart Floating Concierge Pill ── */
+  /* ── Floating Concierge ── */
   .floating-concierge {
-    position: fixed; bottom: 18px; right: 18px; z-index: 95;
-    display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
   }
   .concierge-pill {
-    background: #ffffff; border: 1px solid var(--border-hover); color: var(--text);
-    padding: 8px 16px; border-radius: 24px; font-size: 12.5px; font-weight: 700;
-    display: flex; align-items: center; gap: 7px; cursor: pointer;
-    box-shadow: var(--shadow-md); transition: all 0.2s ease;
+    background: #ffffff; border: 1px solid var(--border); border-radius: 24px;
+    padding: 10px 18px; display: flex; align-items: center; gap: 8px; font-weight: 700;
+    font-size: 13px; color: var(--text); cursor: pointer; box-shadow: var(--shadow-lg);
+    transition: all 0.2s;
   }
-  .concierge-pill:hover { border-color: var(--cyan); transform: translateY(-2px); }
+  .concierge-pill:hover { border-color: var(--cyan); color: var(--cyan); }
   .concierge-card {
-    background: #ffffff; border: 1px solid var(--border); border-radius: 12px;
-    padding: 14px; box-shadow: var(--shadow-lg); display: none;
-    flex-direction: column; gap: 8px; width: 220px;
+    display: none; background: #ffffff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px; box-shadow: var(--shadow-lg); flex-direction: column; gap: 8px; width: 220px;
   }
   .concierge-card.open { display: flex; }
   .concierge-link {
@@ -507,6 +631,16 @@ function generateHtml() {
   .concierge-link.wa { background: #25D366; }
   .concierge-link.tg { background: #229ed9; }
 
+  /* ── Toast Notification ── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: #0f172a; color: #ffffff; padding: 10px 20px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    display: flex; align-items: center; gap: 8px; z-index: 10000; opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
   /* ── Footer ── */
   footer {
     background: #ffffff; border-top: 1px solid var(--border); padding: 50px 0 30px;
@@ -515,7 +649,7 @@ function generateHtml() {
     display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;
     margin-bottom: 24px;
   }
-  .footer-links { display: flex; gap: 18px; font-size: 13px; }
+  .footer-links { display: flex; gap: 18px; font-size: 13px; flex-wrap: wrap; }
   .footer-links a { color: var(--text-faint); text-decoration: none; font-weight: 500; transition: color 0.15s; }
   .footer-links a:hover { color: var(--cyan); }
   .footer-copy { font-size: 12px; color: var(--text-faint); font-family: var(--mono); }
@@ -551,8 +685,10 @@ function generateHtml() {
 
     <!-- Desktop Navigation -->
     <div class="nav-menu">
+      <a href="#benefits" class="nav-link" data-i18n="nav_benefits">Advantages</a>
       <a href="#pillars" class="nav-link" data-i18n="nav_pillars">Architecture</a>
       <a href="#features" class="nav-link" data-i18n="nav_features">Capabilities</a>
+      <a href="#commands" class="nav-link" data-i18n="nav_commands">86 C2 Commands</a>
       <a href="#comparison" class="nav-link" data-i18n="nav_comparison">Comparison</a>
       <a href="#faq" class="nav-link" data-i18n="nav_faq">Master FAQ</a>
       <a href="#pricing" class="nav-link" data-i18n="nav_pricing">Licensing</a>
@@ -582,8 +718,10 @@ function generateHtml() {
     <div class="brand-text">PASA SENTINEL</div>
     <span onclick="toggleMobileDrawer()" style="cursor:pointer;font-size:22px;">&times;</span>
   </div>
+  <a href="#benefits" onclick="toggleMobileDrawer()" data-i18n="nav_benefits">Advantages</a>
   <a href="#pillars" onclick="toggleMobileDrawer()" data-i18n="nav_pillars">Architecture</a>
   <a href="#features" onclick="toggleMobileDrawer()" data-i18n="nav_features">Capabilities</a>
+  <a href="#commands" onclick="toggleMobileDrawer()" data-i18n="nav_commands">86 C2 Commands</a>
   <a href="#comparison" onclick="toggleMobileDrawer()" data-i18n="nav_comparison">Comparison</a>
   <a href="#faq" onclick="toggleMobileDrawer()" data-i18n="nav_faq">Master FAQ</a>
   <a href="#pricing" onclick="toggleMobileDrawer()" data-i18n="nav_pricing">Licensing</a>
@@ -611,7 +749,7 @@ function generateHtml() {
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
         <span data-i18n="hero_cta_apk">Download Tactical APK (v3.5.1)</span>
       </a>
-      <a href="#pillars" class="btn-ghost">
+      <a href="#features" class="btn-ghost">
         <span data-i18n="hero_cta_explore">Explore Capabilities</span> ↓
       </a>
     </div>
@@ -633,6 +771,105 @@ function generateHtml() {
       <div class="spec-item">
         <div class="spec-label" data-i18n="spec_crypto">Cryptographic Trust</div>
         <div class="spec-val">StrongBox TEE + Ed25519</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 6 CORE CUSTOMER VALUE GUARANTEES ── -->
+<section id="benefits" class="section" style="background:#ffffff;">
+  <div class="wrap">
+    <div class="section-hdr">
+      <span class="section-tag" data-i18n="benefits_tag">WHY PASA SENTINEL // CORE ADVANTAGES</span>
+      <h2 class="section-title" data-i18n="benefits_title">6 Operational Guarantees No Other App Can Match</h2>
+      <p class="section-lede" data-i18n="benefits_lede">
+        Engineered specifically to solve the exact ways modern phone thieves and hostile actors exploit standard tracking apps.
+      </p>
+    </div>
+
+    <div class="benefits-grid">
+      <!-- 1 -->
+      <div class="benefit-card">
+        <div class="benefit-card-hdr">
+          <div class="benefit-icon crimson">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <span class="benefit-num">#01</span>
+        </div>
+        <h4 class="benefit-title" data-i18n="b1_title">Permanent Anti-Uninstall</h4>
+        <p class="benefit-desc" data-i18n="b1_desc">
+          Android Device Owner OS lockout grays out Uninstall and Force Stop. Safe Mode and recovery resets are neutralized.
+        </p>
+      </div>
+
+      <!-- 2 -->
+      <div class="benefit-card">
+        <div class="benefit-card-hdr">
+          <div class="benefit-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <span class="benefit-num">#02</span>
+        </div>
+        <h4 class="benefit-title" data-i18n="b2_title">100% Zero-Storage Privacy</h4>
+        <p class="benefit-desc" data-i18n="b2_desc">
+          Zero photos, zero GPS tracks, zero recordings saved on servers. Everything streams direct to your Telegram and shreds from RAM.
+        </p>
+      </div>
+
+      <!-- 3 -->
+      <div class="benefit-card">
+        <div class="benefit-card-hdr">
+          <div class="benefit-icon emerald">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+          </div>
+          <span class="benefit-num">#03</span>
+        </div>
+        <h4 class="benefit-title" data-i18n="b3_title">Air-Gapped Cellular SMS C2</h4>
+        <p class="benefit-desc" data-i18n="b3_desc">
+          Maintains full command authority even when mobile data, Wi-Fi, and location are shut off, using cryptographic TOTP tokens.
+        </p>
+      </div>
+
+      <!-- 4 -->
+      <div class="benefit-card">
+        <div class="benefit-card-hdr">
+          <div class="benefit-icon amber">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          </div>
+          <span class="benefit-num">#04</span>
+        </div>
+        <h4 class="benefit-title" data-i18n="b4_title">Hardware-Level Killswitches</h4>
+        <p class="benefit-desc" data-i18n="b4_desc">
+          Sever physical USB data pins to block Cellebrite forensic extraction boxes. Mute cameras and microphones at HAL level.
+        </p>
+      </div>
+
+      <!-- 5 -->
+      <div class="benefit-card">
+        <div class="benefit-card-hdr">
+          <div class="benefit-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 11-12.73 0M12 2v10"/></svg>
+          </div>
+          <span class="benefit-num">#05</span>
+        </div>
+        <h4 class="benefit-title" data-i18n="b5_title">Duress Decoy Sandbox OS</h4>
+        <p class="benefit-desc" data-i18n="b5_desc">
+          Under armed coercion, entering your secret Decoy PIN unlocks a sterile decoy system while secretly broadcasting an emergency SOS.
+        </p>
+      </div>
+
+      <!-- 6 -->
+      <div class="benefit-card">
+        <div class="benefit-card-hdr">
+          <div class="benefit-icon emerald">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <span class="benefit-num">#06</span>
+        </div>
+        <h4 class="benefit-title" data-i18n="b6_title">Lifetime Sovereign License</h4>
+        <p class="benefit-desc" data-i18n="b6_desc">
+          Zero monthly or yearly subscription traps. One single cryptographic key protects your device for a lifetime.
+        </p>
       </div>
     </div>
   </div>
@@ -686,95 +923,57 @@ function generateHtml() {
   </div>
 </section>
 
-<!-- ── 6 CORE DEFENSE CAPABILITIES ── -->
+<!-- ── INTERACTIVE 8-HUB DEFENSE EXPLORER ── -->
 <section id="features" class="section" style="background:#ffffff;">
   <div class="wrap">
     <div class="section-hdr">
-      <span class="section-tag" data-i18n="feat_tag">HARDWARE DEFENSE CAPABILITIES</span>
-      <h2 class="section-title" data-i18n="feat_title">Authentic Anti-Theft Countermeasures</h2>
+      <span class="section-tag" data-i18n="feat_tag">TACTICAL DEFENSE ARSENAL</span>
+      <h2 class="section-title" data-i18n="feat_title">8-Hub Covert Defense Capabilities</h2>
       <p class="section-lede" data-i18n="feat_lede">
-        Battle-tested mechanisms built specifically to counteract real-world criminal tactics.
+        Battle-tested countermeasures built specifically to defeat professional criminal theft, forensic extractions, and armed robbery.
       </p>
     </div>
 
-    <div class="features-grid">
-      <!-- 1 -->
-      <div class="feature-card">
-        <div class="feature-header">
-          <span class="feature-tag">FORENSICS</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        </div>
-        <h4 class="feature-title" data-i18n="f1_title">Zero-Blackout Headless Camera</h4>
-        <p class="feature-desc" data-i18n="f1_desc">
-          Captures high-resolution front/rear photos and 16kHz ambient audio recordings silently without screen flash, shutter audio, or camera preview popups.
-        </p>
+    <!-- Hub Category Switcher Tabs -->
+    <div class="hub-controls">
+      <div class="hub-tabs" id="hubTabs">
+        <!-- Rendered dynamically by JS -->
       </div>
+    </div>
 
-      <!-- 2 -->
-      <div class="feature-card">
-        <div class="feature-header">
-          <span class="feature-tag">SECURITY</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-        </div>
-        <h4 class="feature-title" data-i18n="f2_title">Hardware Escrow Token PIN Reset</h4>
-        <p class="feature-desc" data-i18n="f2_desc">
-          On Android 14, 15, and 16, Google removed standard password reset APIs. PASA uses Knox cryptographic Escrow Tokens to remotely change lockscreen PINs over the air.
-        </p>
-      </div>
+    <!-- Dynamic Feature Cards Grid -->
+    <div class="features-grid-rich" id="featureCardsContainer">
+      <!-- Rendered dynamically by JS -->
+    </div>
+  </div>
+</section>
 
-      <!-- 3 -->
-      <div class="feature-card">
-        <div class="feature-header">
-          <span class="feature-tag">TELEPHONY</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-        </div>
-        <h4 class="feature-title" data-i18n="f3_title">SIM Eject Lockdown &amp; Caller ID Trap</h4>
-        <p class="feature-desc" data-i18n="f3_desc">
-          Instantly locks down the device if the owner SIM is ejected. When the thief inserts their own SIM, PASA secretly dispatches an SMS exposing the thief's phone number via Caller ID.
-        </p>
-      </div>
+<!-- ── INTERACTIVE 86-COMMAND C2 MATRIX ── -->
+<section id="commands" class="section">
+  <div class="wrap">
+    <div class="section-hdr">
+      <span class="section-tag" data-i18n="cmd_tag">COMMAND CONSOLE REPERTOIRE</span>
+      <h2 class="section-title" data-i18n="cmd_title">86 Telegram &amp; Air-Gapped SMS Commands</h2>
+      <p class="section-lede" data-i18n="cmd_lede">
+        Every single hardware defensive action is remotely triggerable via Telegram Bot C2 or cellular SMS. Click any command to copy its syntax.
+      </p>
+    </div>
 
-      <!-- 4 -->
-      <div class="feature-card">
-        <div class="feature-header">
-          <span class="feature-tag">HARDWARE</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-        </div>
-        <h4 class="feature-title" data-i18n="f4_title">Hardware USB Pin Killswitch</h4>
-        <p class="feature-desc" data-i18n="f4_desc">
-          Android 12+ physical USB data severing (<code>setUsbDataSignalingEnabled(false)</code>) blocks Cellebrite, GrayKey forensic extraction boxes, and EDL flashing while allowing AC power charging.
-        </p>
+    <div class="cmd-controls">
+      <input type="text" id="commandSearch" class="cmd-search" placeholder="Search 86 C2 commands (e.g. snap, usb_lock, duress, sim_lock, locate, deadman)..." oninput="filterCommands()">
+      <div class="cmd-pills" id="commandPills">
+        <!-- Rendered dynamically by JS -->
       </div>
+    </div>
 
-      <!-- 5 -->
-      <div class="feature-card">
-        <div class="feature-header">
-          <span class="feature-tag">ANTI-TAMPER</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <h4 class="feature-title" data-i18n="f5_title">Anti-EDL Dead Man's Switch</h4>
-        <p class="feature-desc" data-i18n="f5_desc">
-          An autonomous local countdown timer triggers if the device is held in an RF-shielded Faraday bag without owner contact, wiping cryptographic keys before chip-off extraction can occur.
-        </p>
-      </div>
-
-      <!-- 6 -->
-      <div class="feature-card">
-        <div class="feature-header">
-          <span class="feature-tag">DECEPTION</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M18.36 6.64a9 9 0 11-12.73 0M12 2v10"/></svg>
-        </div>
-        <h4 class="feature-title" data-i18n="f6_title">Fake Power-Down Canvas</h4>
-        <p class="feature-desc" data-i18n="f6_desc">
-          Renders authentic OEM power-off animations then drops brightness to 0-nit black canvas. Screen taps covertly capture mugshots and transmit GPS pins while appearing completely dead.
-        </p>
-      </div>
+    <div class="cmd-grid" id="commandsContainer">
+      <!-- Rendered dynamically by JS -->
     </div>
   </div>
 </section>
 
 <!-- ── ARCHITECTURAL COMPARISON MATRIX ── -->
-<section id="comparison" class="section">
+<section id="comparison" class="section" style="background:#ffffff;">
   <div class="wrap">
     <div class="section-hdr">
       <span class="section-tag" data-i18n="comp_tag">ARCHITECTURAL COMPARISON</span>
@@ -843,8 +1042,8 @@ function generateHtml() {
   </div>
 </section>
 
-<!-- ── MASTER TECHNICAL & LEGAL FAQ (Fixed & Dynamic) ── -->
-<section id="faq" class="section" style="background:#ffffff;">
+<!-- ── MASTER TECHNICAL & LEGAL FAQ ── -->
+<section id="faq" class="section">
   <div class="wrap">
     <div class="section-hdr">
       <span class="section-tag" data-i18n="faq_tag">TECHNICAL &amp; LEGAL DOSSIER</span>
@@ -857,7 +1056,7 @@ function generateHtml() {
     <div class="faq-controls">
       <input type="text" id="faqSearch" class="faq-search" placeholder="Search questions (e.g., Knox, battery, police, root, SIM)..." oninput="filterFaq()">
       <div class="faq-pills" id="faqPills">
-        <!-- Rendered dynamically by JS to guarantee 100% category match -->
+        <!-- Rendered dynamically by JS -->
       </div>
     </div>
 
@@ -868,7 +1067,7 @@ function generateHtml() {
 </section>
 
 <!-- ── PRICING & LICENSING ── -->
-<section id="pricing" class="section">
+<section id="pricing" class="section" style="background:#ffffff;">
   <div class="wrap">
     <div class="section-hdr">
       <span class="section-tag" data-i18n="price_tag">SOVEREIGN COMMERCIAL LICENSING</span>
@@ -963,9 +1162,9 @@ function generateHtml() {
       </div>
     </div>
 
-    <!-- Payment Channels Details Strip (Untouched flow with Accurate Official Logos) -->
+    <!-- Payment Channels Details Strip -->
     <div class="payment-channels">
-      <!-- Binance Pay (Accurate Official Binance Diamond Logo) -->
+      <!-- Binance Pay -->
       <div class="pay-method">
         <div class="pay-icon" style="background:#FEF6D8;">
           <svg viewBox="0 0 126.61 126.61" width="30" height="30" fill="#F3BA2F">
@@ -981,7 +1180,7 @@ function generateHtml() {
         </div>
       </div>
 
-      <!-- bKash (Accurate Official bKash Origami Bird Logo) -->
+      <!-- bKash -->
       <div class="pay-method">
         <div class="pay-icon" style="background:#FDF2F8;">
           <svg viewBox="240 10 235 215" width="32" height="32">
@@ -1004,7 +1203,7 @@ function generateHtml() {
         </div>
       </div>
 
-      <!-- WhatsApp Concierge (Accurate Official WhatsApp Logo) -->
+      <!-- WhatsApp Concierge -->
       <div class="pay-method">
         <div class="pay-icon" style="background:#ECFDF5;">
           <svg viewBox="0 0 32 32" width="30" height="30">
@@ -1021,7 +1220,7 @@ function generateHtml() {
         </div>
       </div>
 
-      <!-- Telegram Bot (Accurate Official Telegram Paper Plane Logo) -->
+      <!-- Telegram Bot -->
       <div class="pay-method">
         <div class="pay-icon" style="background:#F0F9FF;">
           <svg viewBox="0 0 32 32" width="30" height="30">
@@ -1055,8 +1254,10 @@ function generateHtml() {
         </div>
       </div>
       <div class="footer-links">
+        <a href="#benefits" data-i18n="nav_benefits">Advantages</a>
         <a href="#pillars" data-i18n="nav_pillars">Architecture</a>
         <a href="#features" data-i18n="nav_features">Capabilities</a>
+        <a href="#commands" data-i18n="nav_commands">86 C2 Commands</a>
         <a href="#faq" data-i18n="nav_faq">Master FAQ</a>
         <a href="/terms" target="_blank">Terms &amp; EULA</a>
         <a href="/privacy" target="_blank">Zero-Storage Policy</a>
@@ -1095,15 +1296,25 @@ function generateHtml() {
   </div>
 </div>
 
+<!-- ── TOAST NOTIFICATION ── -->
+<div class="toast" id="cmdToast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="cmdToastMsg">Command copied to clipboard!</span>
+</div>
+
 <!-- ── CLIENT SCRIPT & BILINGUAL LOGIC ── -->
 <script>
 const rawFaq = ${JSON.stringify(faqData)};
+const rawHubs = ${JSON.stringify(featureHubs)};
+const rawCommands = ${JSON.stringify(commandsMatrix)};
 
 const translations = {
   en: {
     top_status: "PASA SENTINEL ONLINE // v3.5.1 (BUILD 47)",
+    nav_benefits: "Advantages",
     nav_pillars: "Architecture",
     nav_features: "Capabilities",
+    nav_commands: "86 C2 Commands",
     nav_comparison: "Comparison",
     nav_faq: "Master FAQ",
     nav_pricing: "Licensing",
@@ -1122,6 +1333,22 @@ const translations = {
     spec_c2: "C2 Control Channels",
     spec_crypto: "Cryptographic Trust",
 
+    benefits_tag: "WHY PASA SENTINEL // CORE ADVANTAGES",
+    benefits_title: "6 Operational Guarantees No Other App Can Match",
+    benefits_lede: "Engineered specifically to solve the exact ways modern phone thieves and hostile actors exploit standard tracking apps.",
+    b1_title: "Permanent Anti-Uninstall",
+    b1_desc: "Android Device Owner OS lockout grays out Uninstall and Force Stop. Safe Mode and recovery resets are neutralized.",
+    b2_title: "100% Zero-Storage Privacy",
+    b2_desc: "Zero photos, zero GPS tracks, zero recordings saved on servers. Everything streams direct to your Telegram and shreds from RAM.",
+    b3_title: "Air-Gapped Cellular SMS C2",
+    b3_desc: "Maintains full command authority even when mobile data, Wi-Fi, and location are shut off, using cryptographic TOTP tokens.",
+    b4_title: "Hardware-Level Killswitches",
+    b4_desc: "Sever physical USB data pins to block Cellebrite forensic extraction boxes. Mute cameras and microphones at HAL level.",
+    b5_title: "Duress Decoy Sandbox OS",
+    b5_desc: "Under armed coercion, entering your secret Decoy PIN unlocks a sterile decoy system while secretly broadcasting an emergency SOS.",
+    b6_title: "Lifetime Sovereign License",
+    b6_desc: "Zero monthly or yearly subscription traps. One single cryptographic key protects your device for a lifetime.",
+
     pillars_tag: "FOUNDATIONAL SECURITY PILLARS",
     pillars_title: "Engineered Without Google Play Compromises",
     pillars_lede: "Standard Play Store apps are restricted by third-party sandbox policies. PASA Sentinel operates at the Device Owner supervisor layer with zero external dependencies.",
@@ -1132,21 +1359,25 @@ const translations = {
     p3_title: "Air-Gapped Cellular SMS C2",
     p3_desc: "Maintains full remote control even when mobile data, Wi-Fi, and location are shut off. Authenticated via RFC 6238 TOTP tokens or master PIN, returning live GPS and status pins via cellular SMS.",
 
-    feat_tag: "HARDWARE DEFENSE CAPABILITIES",
-    feat_title: "Authentic Anti-Theft Countermeasures",
-    feat_lede: "Battle-tested mechanisms built specifically to counteract real-world criminal tactics.",
-    f1_title: "Zero-Blackout Headless Camera",
-    f1_desc: "Captures high-resolution front/rear photos and 16kHz ambient audio recordings silently without screen flash, shutter audio, or camera preview popups.",
-    f2_title: "Hardware Escrow Token PIN Reset",
-    f2_desc: "On Android 14, 15, and 16, Google removed standard password reset APIs. PASA uses Knox cryptographic Escrow Tokens to remotely change lockscreen PINs over the air.",
-    f3_title: "SIM Eject Lockdown & Caller ID Trap",
-    f3_desc: "Instantly locks down the device if the owner SIM is ejected. When the thief inserts their own SIM, PASA secretly dispatches an SMS exposing the thief's phone number via Caller ID.",
-    f4_title: "Hardware USB Pin Killswitch",
-    f4_desc: "Android 12+ physical USB data severing (setUsbDataSignalingEnabled(false)) blocks Cellebrite, GrayKey forensic extraction boxes, and EDL flashing while allowing AC power charging.",
-    f5_title: "Anti-EDL Dead Man's Switch",
-    f5_desc: "An autonomous local countdown timer triggers if the device is held in an RF-shielded Faraday bag without owner contact, wiping cryptographic keys before chip-off extraction can occur.",
-    f6_title: "Fake Power-Down Canvas",
-    f6_desc: "Renders authentic OEM power-off animations then drops brightness to 0-nit black canvas. Screen taps covertly capture mugshots and transmit GPS pins while appearing completely dead.",
+    feat_tag: "TACTICAL DEFENSE ARSENAL",
+    feat_title: "8-Hub Covert Defense Capabilities",
+    feat_lede: "Battle-tested countermeasures built specifically to defeat professional criminal theft, forensic extractions, and armed robbery.",
+    hub_all: "All Capabilities",
+    threat_label: "Neutralizes Attack:",
+    commands_label: "Commands:",
+
+    cmd_tag: "COMMAND CONSOLE REPERTOIRE",
+    cmd_title: "86 Telegram & Air-Gapped SMS Commands",
+    cmd_lede: "Every single hardware defensive action is remotely triggerable via Telegram Bot C2 or cellular SMS. Click any command to copy its syntax.",
+    cmd_all: "All Commands",
+    cmd_cat_core: "Core & Diagnostics",
+    cmd_cat_knox: "Device Owner Suite",
+    cmd_cat_location: "Location & Cellular",
+    cmd_cat_forensics: "Covert Forensics",
+    cmd_cat_lockdown: "Lockdown & Alert",
+    cmd_cat_traps: "Traps & Deception",
+    cmd_cat_telephony: "Telephony & Extraction",
+    cmd_cat_system: "System & Maintenance",
 
     comp_tag: "ARCHITECTURAL COMPARISON",
     comp_title: "PASA Sentinel vs Traditional Solutions",
@@ -1218,8 +1449,10 @@ const translations = {
   },
   bn: {
     top_status: "পাসা সেন্টিনেল অনলাইন // v3.5.1 (বিল্ড ৪৭)",
+    nav_benefits: "সুবিধাসমূহ",
     nav_pillars: "আর্কিটেকচার",
     nav_features: "ফিচারসমূহ",
+    nav_commands: "৮৬টি কমান্ড",
     nav_comparison: "তুলনা",
     nav_faq: "প্রশ্নোত্তর",
     nav_pricing: "লাইসেন্সিং",
@@ -1238,6 +1471,22 @@ const translations = {
     spec_c2: "সি২ নিয়ন্ত্রণ চ্যানেল",
     spec_crypto: "ক্রিপ্টোগ্রাফিক ট্রাস্ট",
 
+    benefits_tag: "কেন পাসা সেন্টিনেল? // মৌলিক সুবিধাসমূহ",
+    benefits_title: "৬টি অপারেশনাল গ্যারান্টি যা অন্য কোনো অ্যাপে সম্ভব নয়",
+    benefits_lede: "পেশাদার চোর বা ছিনতাইকারীরা যেভাবে সাধারণ ট্র্যাকিং অ্যাপ অকেজো করে দেয়—তা সমূলে প্রতিহত করার জন্য বিশেষভাবে নির্মিত।",
+    b1_title: "স্থায়ী আনইন্সটল প্রতিরোধ",
+    b1_desc: "অ্যান্ড্রয়েড ডিভাইস ওনার ওএস নিজেই আনইন্সটল ও ফোর্স স্টপ বাটন নিষ্ক্রিয় রাখে। সেফ মোড বা রিকভারি দিয়ে মোছা অসম্ভব।",
+    b2_title: "১০০% জিরো-স্টোরেজ প্রাইভেসি",
+    b2_desc: "সার্ভার বা ক্লাউডে ০ বাইট ছবি বা লোকেশন জমা হয় না। সরাসরি আপনার নিজস্ব টেলিগ্রামে যায় এবং ফোন থেকে সাথে সাথে মেমোরি ধ্বংস হয়।",
+    b3_title: "অফলাইন এয়ার-গ্যাপড এসএমএস সি২",
+    b3_desc: "মোবাইল ডাটা, ওয়াইফাই ও জিপিএস বন্ধ থাকলেও সাধারণ বাটন ফোন থেকে এসএমএস পাঠিয়ে স্যাটেলাইট ম্যাপ লোকেশন ও ফুল কন্ট্রোল বজায় থাকে।",
+    b4_title: "হার্ডওয়্যার-লেভেল কিলসুইচ",
+    b4_desc: "চার্জিং ঠিক রেখে ইউএসবি ডেটা পিন বন্ধ করে দেয়—ফলে কোনো সার্ভিসিং দোকানে ক্যাবল বা ফরেনসিক ডিভাইস দিয়ে ডেটা চুরি করা যায় না।",
+    b5_title: "অস্ত্রের মুখে ডিকয় ওএস",
+    b5_desc: "ছিনতাইকারী জোর করে পাসওয়ার্ড চাইলে ডিকয় পিন দিলে ব্যাংকিং অ্যাপ ছাড়া খালি ডামি ওএস খোলে এবং গোপনে চোরের ছবি ও এসওএস চলে যায়।",
+    b6_title: "আজীবন স্থায়ী মালিকানা",
+    b6_desc: "কোনো মাসিক বা বার্ষিক সাবস্ক্রিপশন ট্র্যাপ নেই। একবার এককালীন লাইসেন্স নিয়ে সারাজীবন নিশ্চিন্তে ব্যবহার করুন।",
+
     pillars_tag: "মৌলিক নিরাপত্তা স্তম্ভ",
     pillars_title: "গুগল প্লে স্টোরের দুর্বলতা ছাড়াই নির্মিত",
     pillars_lede: "প্লে স্টোরের সাধারণ অ্যাপগুলো স্যান্ডবক্স পলিসিতে বন্দি। পাসা সেন্টিনেল সরাসরি অ্যান্ড্রয়েডের ডিভাইস ওনার সুপারভাইজার লেয়ারে কাজ করে।",
@@ -1248,21 +1497,25 @@ const translations = {
     p3_title: "এয়ার-গ্যাপড সেলুলার এসএমএস সি২",
     p3_desc: "মোবাইল ডাটা, ওয়াইফাই এবং লোকেশন বন্ধ থাকলেও সেলুলার নেটওয়ার্কের মাধ্যমে ফোন সম্পূর্ণ নিয়ন্ত্রণে থাকে। ক্রিপ্টোগ্রাফিক TOTP ও মাস্টার পিন দিয়ে এসএমএস কমান্ড পরিচালিত হয়।",
 
-    feat_tag: "হার্ডওয়্যার ডিফেন্স ক্ষমতা",
-    feat_title: "বাস্তবধর্মী অ্যান্টি-থেফট প্রতিরক্ষা ব্যবস্থা",
-    feat_lede: "পেশাদার চোরের বাস্তব কৌশল প্রতিহত করার জন্য বিশেষভাবে তৈরি হার্ডওয়্যার-লেভেল ব্যবস্থা।",
-    f1_title: "জিরো-ব্ল্যাকআউট হেডলেস ক্যামেরা",
-    f1_desc: "ডিসপ্লে না জ্বালিয়ে, কোনো সাউন্ড বা প্রিভিউ পপআপ ছাড়াই সাইলেন্টলি চোরের ফ্রন্ট ও ব্যাক ক্যামেরার ছবি এবং পারিপার্শ্বিক অডিও সরাসরি টেলিগ্রামে পাঠায়।",
-    f2_title: "হার্ডওয়্যার এসক্রো টোকেন পিন রিসেট",
-    f2_desc: "অ্যান্ড্রয়েড ১৪, ১৫ ও ১৬-তে গুগল পাসওয়ার্ড রিসেট এপিআই বন্ধ করে দিয়েছে। পাসা নক্স ক্রিপ্টোগ্রাফিক এসক্রো টোকেনের মাধ্যমে দূর থেকেই স্ক্রিন লক পিন পরিবর্তন করতে পারে।",
-    f3_title: "সিম ইজেক্ট লকডাউন ও কলার আইডি ট্র্যাপ",
-    f3_desc: "সিম কার্ড খোলার সাথে সাথে ফোন লক হয়ে যায়। চোর যখন তার নিজের সিম কার্ড ফোনে ঢোকায়, পাসা গোপনে একটি এসএমএস পাঠিয়ে কলার আইডির মাধ্যমে চোরের আসল ফোন নম্বর ফাঁস করে দেয়।",
-    f4_title: "হার্ডওয়্যার ইউএসবি ডেটা পিন কিলসুইচ",
-    f4_desc: "অ্যান্ড্রয়েড ১২+ ফিজিক্যাল ইউএসবি ডেটা পিন বন্ধ করে দেয় (setUsbDataSignalingEnabled(false))। ফলে চার্জিং ঠিক রেখেও সেলিব্রাইট ও ফ্ল্যাশিং বক্স সম্পূর্ণ অকেজো হয়ে পড়ে।",
-    f5_title: "অ্যান্টি-ইডিএল ডেড ম্যান সুইচ",
-    f5_desc: "ফোনকে ফ্যারাডে ব্যাগে বা সিগন্যাল-রোধী খাঁচায় আটকে রাখলে নির্দিষ্ট সময় পর পাসা স্বয়ংক্রিয়ভাবে ক্রিপ্টোগ্রাফিক চাবিগুলো মুছে ফেলে হার্ডওয়্যার ডেটা সুরক্ষিত রাখে।",
-    f6_title: "ফেক পাওয়ার-ডাউন ক্যানভাস",
-    f6_desc: "অফিসিয়াল শাটডাউন অ্যানিমেশন দেখিয়ে স্ক্রিনের ব্রাইটনেস ০-নিট করে দেয়। ফোন সম্পূর্ণ বন্ধ মনে হলেও ব্যাকগ্রাউন্ডে ক্যামেরা ও জিপিএস পুরোদমে সক্রিয় থাকে।",
+    feat_tag: "ট্যাকটিক্যাল ডিফেন্স ক্ষমতা",
+    feat_title: "৮টি অপারেশানাল ডিফেন্স হাবের পূর্ণাঙ্গ ক্ষমতা",
+    feat_lede: "পেশাদার চোরের বাস্তব কৌশল, ফরেনসিক ক্যাবল এক্সট্রাকশন এবং অস্ত্রধারী ডাকাতের হাত থেকে বাঁচার নিখুঁত প্রতিরক্ষা ব্যবস্থা।",
+    hub_all: "সকল ফিচারসমূহ",
+    threat_label: "যে আক্রমণ প্রতিহত করে:",
+    commands_label: "সংশ্লিষ্ট কমান্ড:",
+
+    cmd_tag: "পূর্ণাঙ্গ কমান্ড সম্ভার",
+    cmd_title: "৮৬টি টেলিগ্রাম ও অফলাইন এসএমএস কমান্ড",
+    cmd_lede: "আপনার ব্যক্তিগত টেলিগ্রাম বট অথবা বাটন ফোনের সাধারণ এসএমএস দিয়ে প্রতিটি ফিচার নিয়ন্ত্রণযোগ্য। সিনট্যাক্স কপি করতে যেকোনো কমান্ডে ক্লিক করুন।",
+    cmd_all: "সকল কমান্ড",
+    cmd_cat_core: "কোর ও ডায়াগনস্টিকস",
+    cmd_cat_knox: "ডিভাইস ওনার স্যুট",
+    cmd_cat_location: "লোকেশন ও সেলুলার",
+    cmd_cat_forensics: "গোপন নজরদারি",
+    cmd_cat_lockdown: "লকডাউন ও অ্যালার্ট",
+    cmd_cat_traps: "ট্র্যাপ ও প্রতারণা",
+    cmd_cat_telephony: "টেলিফোনি ও এক্সট্রাকশন",
+    cmd_cat_system: "সিস্টেম ও রক্ষণাবেক্ষণ",
 
     comp_tag: "আর্কিটেকচার তুলনা",
     comp_title: "পাসা সেন্টিনেল বনাম প্রচলিত সমাধান",
@@ -1336,6 +1589,8 @@ const translations = {
 
 let currentLang = 'en';
 let currentFaqCategory = 'all';
+let currentFeatureHub = 'all';
+let currentCommandCategory = 'all';
 
 function setLanguage(lang) {
   if (lang !== 'en' && lang !== 'bn') {
@@ -1361,28 +1616,28 @@ function setLanguage(lang) {
     }
   });
 
-  const searchInput = document.getElementById('faqSearch');
-  if (searchInput) {
-    searchInput.placeholder = lang === 'bn' 
+  const searchFaq = document.getElementById('faqSearch');
+  if (searchFaq) {
+    searchFaq.placeholder = lang === 'bn' 
       ? 'প্রশ্ন খুঁজুন (যেমন: নক্স, ব্যাটারি, পুলিশ, রুট, সিম)...' 
       : 'Search questions (e.g., Knox, battery, police, root, SIM)...';
   }
 
-  try {
-    renderFaqPills();
-  } catch (e) {
-    console.error('FAQ pills render error:', e);
+  const searchCmd = document.getElementById('commandSearch');
+  if (searchCmd) {
+    searchCmd.placeholder = lang === 'bn'
+      ? '৮৬টি কমান্ড খুঁজুন (যেমন: snap, usb_lock, duress, sim_lock, locate, deadman)...'
+      : 'Search 86 C2 commands (e.g. snap, usb_lock, duress, sim_lock, locate, deadman)...';
   }
 
-  try {
-    renderFaq();
-  } catch (e) {
-    console.error('FAQ render error:', e);
-  }
+  try { renderFeatureHubTabs(); } catch(e) { console.error('Hub tabs err:', e); }
+  try { renderFeatureCards(); } catch(e) { console.error('Hub cards err:', e); }
+  try { renderCommandPills(); } catch(e) { console.error('Cmd pills err:', e); }
+  try { renderCommands(); } catch(e) { console.error('Commands err:', e); }
+  try { renderFaqPills(); } catch(e) { console.error('FAQ pills err:', e); }
+  try { renderFaq(); } catch(e) { console.error('FAQ err:', e); }
 
-  try { 
-    localStorage.setItem('pasa_lang', lang); 
-  } catch (e) {}
+  try { localStorage.setItem('pasa_lang', lang); } catch (e) {}
 }
 
 function toggleMobileDrawer() {
@@ -1399,12 +1654,208 @@ function toggleConcierge() {
   if (card) card.classList.toggle('open');
 }
 
+function showToast(msg) {
+  const toast = document.getElementById('cmdToast');
+  const toastMsg = document.getElementById('cmdToastMsg');
+  if (!toast || !toastMsg) return;
+  toastMsg.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => { toast.classList.remove('show'); }, 2500);
+}
+
 function copyBinanceUid() {
   navigator.clipboard.writeText('756303714').then(() => {
-    alert(currentLang === 'bn' ? 'Binance UID: 756303714 কপি করা হয়েছে!' : 'Binance UID: 756303714 copied to clipboard!');
+    showToast(currentLang === 'bn' ? 'Binance UID: 756303714 কপি করা হয়েছে!' : 'Binance UID: 756303714 copied to clipboard!');
   });
 }
 
+function copyCommand(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(currentLang === 'bn' ? text + ' কপি করা হয়েছে!' : text + ' copied to clipboard!');
+  });
+}
+
+/* ── Interactive Feature Hubs Logic ── */
+function renderFeatureHubTabs() {
+  const tabsContainer = document.getElementById('hubTabs');
+  if (!tabsContainer || typeof rawHubs === 'undefined') return;
+  const isBn = currentLang === 'bn';
+
+  let totalCards = 0;
+  rawHubs.forEach(h => { totalCards += (h.cards ? h.cards.length : 0); });
+
+  const tabs = [
+    { id: 'all', label: isBn ? 'সকল ফিচার (' + totalCards + ')' : 'All Capabilities (' + totalCards + ')' }
+  ];
+
+  rawHubs.forEach(h => {
+    const count = h.cards ? h.cards.length : 0;
+    tabs.push({
+      id: h.id,
+      label: (isBn ? h.nameBn : h.nameEn) + ' (' + count + ')'
+    });
+  });
+
+  tabsContainer.innerHTML = tabs.map(tab => {
+    const active = currentFeatureHub === tab.id ? 'active' : '';
+    return \`<button class="hub-tab \${active}" onclick="setFeatureHub('\${tab.id}')">\${tab.label}</button>\`;
+  }).join('');
+}
+
+function setFeatureHub(hubId) {
+  currentFeatureHub = hubId;
+  renderFeatureHubTabs();
+  renderFeatureCards();
+}
+
+function renderFeatureCards() {
+  const container = document.getElementById('featureCardsContainer');
+  if (!container || typeof rawHubs === 'undefined') return;
+  const isBn = currentLang === 'bn';
+
+  let displayCards = [];
+  rawHubs.forEach(hub => {
+    if (currentFeatureHub !== 'all' && hub.id !== currentFeatureHub) return;
+    if (Array.isArray(hub.cards)) {
+      hub.cards.forEach(c => {
+        displayCards.push({ ...c, hubIcon: hub.icon, hubName: isBn ? hub.nameBn : hub.nameEn });
+      });
+    }
+  });
+
+  container.innerHTML = displayCards.map(c => {
+    const title = (isBn ? c.titleBn : c.titleEn) || '';
+    const desc = (isBn ? c.descBn : c.descEn) || '';
+    const threat = (isBn ? c.threatBn : c.threatEn) || '';
+    const threatLabel = isBn ? 'প্রতিরোধ:' : 'Threat Neutralized:';
+
+    let badgesHtml = '';
+    if (Array.isArray(c.commands) && c.commands.length > 0) {
+      badgesHtml = '<div class="cmd-badges">' + c.commands.map(cmd => {
+        const cleanCmd = cmd.split(' ')[0];
+        return \`<span class="cmd-badge" onclick="copyCommand('\${cleanCmd}')" title="Click to copy">\${cmd}</span>\`;
+      }).join('') + '</div>';
+    }
+
+    return \`
+      <div class="feature-card-rich">
+        <div>
+          <div class="feature-header">
+            <span class="feature-tag">\${c.tag || 'SECURITY'}</span>
+            <div style="color:var(--cyan);display:flex;align-items:center;">\${c.hubIcon || ''}</div>
+          </div>
+          <h4 class="feature-title">\${title}</h4>
+          <p class="feature-desc">\${desc}</p>
+          \${threat ? \`
+            <div class="threat-box">
+              <div class="threat-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                \${threatLabel}
+              </div>
+              \${threat}
+            </div>
+          \` : ''}
+        </div>
+        <div>
+          \${badgesHtml}
+        </div>
+      </div>
+    \`;
+  }).join('');
+}
+
+/* ── 86-Command Matrix Logic ── */
+function renderCommandPills() {
+  const pillsContainer = document.getElementById('commandPills');
+  if (!pillsContainer || typeof rawCommands === 'undefined') return;
+  const isBn = currentLang === 'bn';
+
+  const catMap = {
+    all: { en: 'All Commands (' + rawCommands.length + ')', bn: 'সকল কমান্ড (' + rawCommands.length + ')' },
+    core: { en: 'Core', bn: 'কোর' },
+    knox: { en: 'Device Owner', bn: 'ডিভাইস ওনার' },
+    location: { en: 'Location & RF', bn: 'লোকেশন ও আরএফ' },
+    forensics: { en: 'Covert Forensics', bn: 'ফরেনসিক নজরদারি' },
+    lockdown: { en: 'Lockdown', bn: 'লকডাউন' },
+    traps: { en: 'Traps & Deception', bn: 'ট্র্যাপ ও ডিফেন্স' },
+    telephony: { en: 'Telephony', bn: 'টেলিফোনি' },
+    system: { en: 'System & Maintenance', bn: 'সিস্টেম' }
+  };
+
+  const cats = ['all', 'core', 'knox', 'location', 'forensics', 'lockdown', 'traps', 'telephony', 'system'];
+
+  pillsContainer.innerHTML = cats.map(cat => {
+    const active = currentCommandCategory === cat ? 'active' : '';
+    const label = isBn ? (catMap[cat]?.bn || cat) : (catMap[cat]?.en || cat);
+    return \`<button class="cmd-pill \${active}" onclick="setCommandCategory('\${cat}')">\${label}</button>\`;
+  }).join('');
+}
+
+function setCommandCategory(catId) {
+  currentCommandCategory = catId;
+  renderCommandPills();
+  renderCommands();
+}
+
+function filterCommands() {
+  renderCommands();
+}
+
+function renderCommands() {
+  const container = document.getElementById('commandsContainer');
+  if (!container || typeof rawCommands === 'undefined') return;
+  const isBn = currentLang === 'bn';
+  const query = (document.getElementById('commandSearch')?.value || '').toLowerCase().trim();
+
+  const filtered = rawCommands.filter(c => {
+    if (!c) return false;
+    if (currentCommandCategory !== 'all' && c.cat !== currentCommandCategory) return false;
+    if (!query) return true;
+    const cmdStr = (c.cmd || '').toLowerCase();
+    const descEn = (c.descEn || '').toLowerCase();
+    const descBn = (c.descBn || '').toLowerCase();
+    const params = (c.params || '').toLowerCase();
+    return cmdStr.includes(query) || descEn.includes(query) || descBn.includes(query) || params.includes(query);
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = \`<div style="grid-column:1/-1;text-align:center;padding:36px;color:var(--text-faint);font-size:14.5px;">
+      \${isBn ? 'কোনো কমান্ড খুঁজে পাওয়া যায়নি।' : 'No matching commands found.'}
+    </div>\`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(c => {
+    const desc = isBn ? c.descBn : c.descEn;
+    const tgBadge = c.tg ? '<span class="tag-tg">TELEGRAM</span>' : '';
+    const smsBadge = c.sms ? '<span class="tag-sms">SMS</span>' : '';
+    const copySyntax = c.cmd + (c.params ? ' ' + c.params : '');
+
+    return \`
+      <div class="cmd-card">
+        <div>
+          <div class="cmd-hdr">
+            <div class="cmd-token">
+              \${c.cmd}
+              \${c.params ? \`<span class="cmd-params">\${c.params}</span>\` : ''}
+            </div>
+            <div class="cmd-channel-tags">\${tgBadge}\${smsBadge}</div>
+          </div>
+          <div class="cmd-body">\${desc}</div>
+        </div>
+        <div class="cmd-footer">
+          <span style="text-transform:uppercase;">CAT: \${c.cat}</span>
+          <button class="btn-copy-cmd" onclick="copyCommand('\${c.cmd}')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            \${isBn ? 'কপি' : 'Copy'}
+          </button>
+        </div>
+      </div>
+    \`;
+  }).join('');
+}
+
+/* ── FAQ Logic ── */
 function renderFaqPills() {
   const pillsContainer = document.getElementById('faqPills');
   if (!pillsContainer || typeof rawFaq === 'undefined' || !Array.isArray(rawFaq)) return;
