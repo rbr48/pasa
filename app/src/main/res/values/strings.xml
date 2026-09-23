@@ -9,6 +9,9 @@
     <!-- Accessibility Service -->
     <string name="accessibility_service_description">PASA Sentinel uses Accessibility Service to capture screenshots and screen recordings for forensic evidence collection when your device is stolen or lost.</string>
 
+    <!-- Emergency SMS Receiver -->
+    <string name="sms_receiver_description">PASA Sentinel emergency air-gapped SMS receiver for device recovery when cellular data or Wi-Fi is disabled.</string>
+
     <!-- Setup Screen -->
     <string name="setup_title">PASA Sentinel Setup</string>
     <string name="setup_subtitle">Android 16 Hardened Device Protection</string>

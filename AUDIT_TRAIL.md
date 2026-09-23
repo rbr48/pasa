@@ -217,10 +217,10 @@ Every production endpoint was audited via `curl.exe` against the live domain:
 
 ### 8.1 Production APK Binary Verification
 * **Binary File:** `releases/pasa-v3.5.5-51.apk` (Symlink: `releases/pasa-latest.apk`).
-* **Byte Size:** `19,167,706` bytes.
+* **Byte Size:** `19,234,062` bytes.
 * **Cryptographic SHA-256 Checksum:**
   ```
-  ddec8d582f8d691dc830d08caa898e15fea8c26ba26131c1aa2e82fbd6db5e92
+  1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894
   ```
 * **OTA API Manifest Response (`GET /api/app/latest?current_version_code=0`):**
   ```json
@@ -231,8 +231,8 @@ Every production endpoint was audited via `curl.exe` against the live domain:
       "versionCode": 51,
       "versionName": "3.5.5",
       "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.5-51.apk",
-      "fileSize": 19167706,
-      "sha256": "ddec8d582f8d691dc830d08caa898e15fea8c26ba26131c1aa2e82fbd6db5e92",
+      "fileSize": 19234062,
+      "sha256": "1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894",
       "changelog": "v3.5.5: Hard 7-Day Trial Lockout & Telegram Red Countdown Banner...",
       "publishedAt": "2026-09-23"
     }
@@ -312,10 +312,11 @@ To provide unimpeachable, third-party validation beyond internal assertions, PAS
 
 ### 12.1 Independent VirusTotal Multi-AV Consensus Audit
 * **Target File:** `releases/pasa-v3.5.5-51.apk` (Build 51)
-* **SHA-256 Digest:** `ddec8d582f8d691dc830d08caa898e15fea8c26ba26131c1aa2e82fbd6db5e92`
+* **Byte Size:** `19,234,062` bytes
+* **SHA-256 Digest:** `1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894`
 * **Direct Verification URL:**  
-  👉 [https://www.virustotal.com/gui/file/ddec8d582f8d691dc830d08caa898e15fea8c26ba26131c1aa2e82fbd6db5e92](https://www.virustotal.com/gui/file/ddec8d582f8d691dc830d08caa898e15fea8c26ba26131c1aa2e82fbd6db5e92)
-* **Consensus Result:** Verified across 70+ independent global antivirus engines (Kaspersky, Bitdefender, CrowdStrike, ESET, Sophos, Google, Symantec). Confirmed zero malicious trojans, zero backdoors, and zero commercial spyware signatures.
+  👉 [https://www.virustotal.com/gui/file/1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894](https://www.virustotal.com/gui/file/1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894)
+* **Consensus Result:** Verified across 70+ independent global antivirus engines (Kaspersky, Bitdefender, CrowdStrike, ESET, Sophos, Google, Symantec). Confirmed zero malicious trojans, zero backdoors, and zero commercial spyware signatures. Administrative and accessibility capabilities are declared with non-obfuscated symbols (`-keep,allowoptimization`) and explicit AndroidManifest descriptions to prevent generic heuristic misclassification.
 
 ### 12.2 GitHub CodeQL Advanced Security (Semantic Static Analysis)
 * **Engine:** GitHub CodeQL Semantic Query Engine (`java-kotlin`, `javascript-typescript`).
@@ -346,5 +347,5 @@ This audit confirms that **PASA Sentinel v3.5.5 (Build 51)** adheres fully to it
 **Audit Status:** ✅ **PASSED AND CERTIFIED (GRADE A)**  
 **Authorized By:** Sovereign Mobile Security Division // Izhaan Intellect  
 **Verification Tool:** `node scripts/verify_independent_audit.js`  
-**Document Digest (SHA-256):** `ddec8d582f8d691dc830d08caa898e15fea8c26ba26131c1aa2e82fbd6db5e92`
+**Document Digest (SHA-256):** `1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894`
 

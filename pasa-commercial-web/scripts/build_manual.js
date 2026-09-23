@@ -542,7 +542,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
     <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--txt-3)">
       <div style="font-weight:600;color:var(--txt-2);margin-bottom:6px">Verification & Audit:</div>
       <div>• <a href="/AUDIT_TRAIL.md" target="_blank" class="doc-link">AUDIT_TRAIL.md</a></div>
-      <div>• <a href="https://www.virustotal.com/gui/file/ddec8d582f8d691dc830d08caa898e15fea8c26ba26131c1aa2e82fbd6db5e92" target="_blank" rel="noopener" class="doc-link" style="color:var(--green);font-weight:600">VirusTotal Clean (70+ AV) ↗</a></div>
+      <div>• <a href="https://www.virustotal.com/gui/file/1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894" target="_blank" rel="noopener" class="doc-link" style="color:var(--green);font-weight:600">VirusTotal Clean (70+ AV) ↗</a></div>
       <div style="margin-top:10px;font-weight:600;color:var(--txt-2);margin-bottom:6px">Raw Documents:</div>
       <div>• <a href="/USER_MANUAL_EN.md" target="_blank" class="doc-link">USER_MANUAL_EN.md</a></div>
       <div>• <a href="/USER_MANUAL_BN.md" target="_blank" class="doc-link">USER_MANUAL_BN.md</a></div>

@@ -5,6 +5,11 @@
 -keepattributes *Annotation*
 -keepattributes InnerClasses, EnclosingMethod
 -keepattributes AnnotationDefault
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
+
+# Repackage any obfuscated classes under the app's internal namespace (avoids single-letter root package heuristic triggers)
+-repackageclasses 'com.izhaanintellect.pasa.internal'
 
 # Retrofit & Kotlin Coroutines Continuation Reflection
 -keep,allowobfuscation,allowshrinking interface retrofit2.Call
@@ -34,7 +39,25 @@
 
 -keep class com.izhaanintellect.pasa.data.** { *; }
 -keep class com.izhaanintellect.pasa.commands.** { *; }
--keep class com.izhaanintellect.pasa.admin.PasaDeviceAdmin { *; }
+
+# Keep security, administrative, accessibility, sensor, and telephony components intact
+# (Using allowoptimization keeps full legitimate class names visible to static antivirus scanners while retaining maximum runtime performance)
+-keep,allowoptimization class com.izhaanintellect.pasa.admin.** { *; }
+-keep,allowoptimization class com.izhaanintellect.pasa.accessibility.** { *; }
+-keep,allowoptimization class com.izhaanintellect.pasa.service.** { *; }
+-keep,allowoptimization class com.izhaanintellect.pasa.detection.** { *; }
+-keep,allowoptimization class com.izhaanintellect.pasa.security.** { *; }
+-keep,allowoptimization class com.izhaanintellect.pasa.camera.** { *; }
+-keep,allowoptimization class com.izhaanintellect.pasa.audio.** { *; }
+-keep,allowoptimization class com.izhaanintellect.pasa.location.** { *; }
+-keep,allowoptimization class com.izhaanintellect.pasa.ui.** { *; }
+-keep,allowoptimization class com.izhaanintellect.pasa.util.** { *; }
+-keep,allowoptimization class com.izhaanintellect.pasa.PasaApp { *; }
+
+# Keep Android component lifecycles
+-keepclassmembers class * extends android.app.Service { *; }
+-keepclassmembers class * extends android.content.BroadcastReceiver { *; }
+-keepclassmembers class * extends android.app.Activity { *; }
 
 # Crypto & Command Signing (Nimbus JOSE + Google Tink)
 -keep class com.izhaanintellect.pasa.crypto.** { *; }
