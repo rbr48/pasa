@@ -81,6 +81,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_SIM_LOCK_ENABLED = "sim_lock_enabled"
         private const val KEY_SIM_LOCK_ALERT_ACTION = "sim_lock_alert_action"
         private const val KEY_SIM_LOCK_WHITELIST = "sim_lock_whitelist"
+        private const val KEY_EMERGENCY_PHONE = "emergency_alert_phone"
         private const val KEY_TAMPER_DETECTION_ENABLED = "tamper_detection_enabled"
         private const val KEY_TAMPER_DETECTION_THREATS_FOUND = "tamper_detection_threats_found"
         private const val KEY_HARDENING_VERSION = "hardening_version"
@@ -453,6 +454,10 @@ class PreferencesManager @Inject constructor(
     var simLockWhitelist: List<String>
         get() = prefs.getStringSet(KEY_SIM_LOCK_WHITELIST, emptySet())?.toList() ?: emptyList()
         set(value) = prefs.edit().putStringSet(KEY_SIM_LOCK_WHITELIST, value.toSet()).apply()
+
+    var emergencyPhone: String
+        get() = prefs.getString(KEY_EMERGENCY_PHONE, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_EMERGENCY_PHONE, value).apply()
 
     var isTamperDetectionEnabled: Boolean
         get() = prefs.getBoolean(KEY_TAMPER_DETECTION_ENABLED, false)

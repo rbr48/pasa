@@ -30,7 +30,7 @@ class SimLockCommand @Inject constructor(
 
     override val name = "/sim_lock"
     override val description = "Monitor for SIM swap attacks and trigger lockdown"
-    override val usage = "/sim_lock [enable|disable|whitelist|alert_action|status]"
+    override val usage = "/sim_lock [enable|disable|whitelist|alert_action|phone|status]"
 
     companion object {
         private const val TAG = "PASA_SimLock"
@@ -44,6 +44,7 @@ class SimLockCommand @Inject constructor(
             "disable", "off", "stop" -> disableSimLock()
             "whitelist", "add", "trust" -> whitelistSim(args.getOrNull(1))
             "alert_action", "action" -> setAlertAction(args.getOrNull(1))
+            "phone", "alert_phone", "number", "emergency_phone" -> setEmergencyPhone(args.getOrNull(1))
             "status" -> getSimLockStatus()
             else -> CommandResult(
                 success = false,
@@ -54,11 +55,12 @@ class SimLockCommand @Inject constructor(
                     • <code>/sim_lock enable</code> — Start SIM monitoring
                     • <code>/sim_lock disable</code> — Stop monitoring
                     • <code>/sim_lock whitelist</code> — Trust current SIM
+                    • <code>/sim_lock phone &lt;number&gt;</code> — Set emergency SMS recipient
                     • <code>/sim_lock alert_action lock</code> — Auto-lock on swap
                     • <code>/sim_lock status</code> — Show state
 
                     ⚠️ <b>SIM swap is the #1 account takeover vector.</b>
-                    This feature detects unauthorized SIM changes and triggers emergency response.
+                    This feature detects unauthorized SIM changes, auto-locks Kiosk Lost Mode, and silently texts your emergency phone with the thief's new number & GPS.
                 """.trimIndent()
             )
         }
@@ -175,10 +177,52 @@ class SimLockCommand @Inject constructor(
         )
     }
 
+    private fun setEmergencyPhone(phone: String?): CommandResult {
+        if (phone.isNullOrBlank()) {
+            val current = preferencesManager.emergencyPhone
+            return if (current.isNotBlank()) {
+                CommandResult(
+                    success = true,
+                    message = "📱 <b>Emergency Alert Phone:</b> <code>$current</code>\n\nTo update: <code>/sim_lock phone &lt;number&gt;</code>\nTo clear: <code>/sim_lock phone clear</code>"
+                )
+            } else {
+                CommandResult(
+                    success = false,
+                    message = "❌ No emergency alert phone configured.\n\n<b>Usage:</b> <code>/sim_lock phone +1234567890</code>"
+                )
+            }
+        }
+
+        if (phone.equals("clear", ignoreCase = true) || phone.equals("remove", ignoreCase = true) || phone.equals("none", ignoreCase = true)) {
+            preferencesManager.emergencyPhone = ""
+            return CommandResult(
+                success = true,
+                message = "🗑️ <b>Emergency Alert Phone Cleared.</b> Auto-SMS alerts on foreign SIM insertion are now disabled."
+            )
+        }
+
+        preferencesManager.emergencyPhone = phone.trim()
+        return CommandResult(
+            success = true,
+            message = """
+                ✅ <b>Emergency Alert Phone Configured!</b>
+                ━━━━━━━━━━━━━━━━━━━━
+                📱 <b>Alert Number:</b> <code>${phone.trim()}</code>
+
+                ✓ When a foreign or unknown SIM is inserted into this device:
+                • A silent outbound emergency SMS will be sent to <code>${phone.trim()}</code>
+                • The SMS includes the device IMEI, Carrier name, and Google Maps GPS fix
+                • <b>Caller ID Discovery:</b> You will immediately see the thief's new phone number!
+                • You can then reply via SMS with <code>PASA &lt;PIN&gt; /locate</code>, <code>/lock</code>, or <code>/call</code> to take control.
+            """.trimIndent()
+        )
+    }
+
     private fun getSimLockStatus(): CommandResult {
         val isEnabled = preferencesManager.isSimLockEnabled
         val action = preferencesManager.simLockAlertAction
         val whitelist = preferencesManager.simLockWhitelist
+        val alertPhone = preferencesManager.emergencyPhone
 
         return CommandResult(
             success = true,
@@ -187,6 +231,7 @@ class SimLockCommand @Inject constructor(
                 ━━━━━━━━━━━━━━━━━━━━
                 📡 <b>Monitoring:</b> ${if (isEnabled) "🟢 ENABLED" else "🔴 DISABLED"}
                 🎯 <b>Alert Action:</b> ${action.uppercase()}
+                📱 <b>Emergency SMS Phone:</b> ${if (alertPhone.isNotBlank()) "<code>$alertPhone</code>" else "<i>Not configured (use /sim_lock phone &lt;number&gt;)</i>"}
                 ✅ <b>Whitelisted SIMs:</b> ${whitelist.size}
 
                 <b>Current SIM:</b>
@@ -195,6 +240,7 @@ class SimLockCommand @Inject constructor(
                 <b>Commands:</b>
                 • <code>/sim_lock enable</code> — Enable protection
                 • <code>/sim_lock whitelist</code> — Trust this SIM
+                • <code>/sim_lock phone &lt;number&gt;</code> — Set emergency SMS recipient
                 • <code>/sim_lock alert_action lock</code> — Change action
 
                 ⚠️ <b>When SIM swap detected:</b>

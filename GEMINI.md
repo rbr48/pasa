@@ -115,9 +115,7 @@ d:/Software_and_Apps/PrivateApp/
 ### 3.4 Autonomous Sensor Traps & Physical Anti-Theft
 * **Kinetic Snatch Detection (`TrapManager`):** Continuous accelerometer vector magnitude check `sqrt(x² + y² + z²) > 26.0 m/s² (~2.65G)`. Triggers immediate device lock, Kiosk Lost Mode guard, perpetrator selfie, and Telegram alert.
 * **Pocket & Bag Extraction Trap (`/trap pocket on`):** Monitors proximity sensor transitions from covered (in pocket) to uncovered while locked. If device is not unlocked within 5 seconds grace period, automatically engages Kiosk lock, snaps front camera mugshot, and alerts owner.
-* **Locked USB Cable Insertion Trap:** `PowerAlertReceiver` intercepts `ACTION_POWER_CONNECTED` while screen is locked. Instantly cuts hardware USB data signaling pins (`/usb_lock`) to neutralize forensic extraction boxes (Cellebrite, GrayKey) and juice-jacking, captures front-camera photo, and dispatches alert.
-* **Physical SIM Ejection Lockdown & SIM Swap Guard (`/sim_lock`):** `SIMChangeReceiver` detects tray eject or unauthorized SIM swaps. Validates active ICCID against authorized whitelist. If breached, enforces hardware screen lock, enables GNSS hardware radio, captures mugshot beacon, and executes configured alert actions (`/sim_lock [status|enable|disable|whitelist|action]`).
-* **Failed Lockscreen Pattern / PIN Guard (`/pattern_guard`):** Monitors repeated keyguard authentication failures; triggers silent mugshot capture, hardware lock, and Telegram intrusion notification upon threshold breach (1-10 attempts, configurable via `/pattern_guard`).
+* **Physical SIM Ejection Knox Kiosk Lockdown & Auto Outbound SMS (`/sim_lock`):** `SIMChangeReceiver` detects SIM tray eject (`ABSENT`) or unauthorized foreign SIM insertion (`LOADED`). Upon SIM removal, immediately engages Knox Kiosk Lost Mode (`configureLockTask`), sets comprehensive device lockdown, disables status bar/quick settings, locks keyguard, powers on GNSS hardware, captures perpetrator mugshot, and alerts Telegram. Upon unauthorized foreign SIM insertion, silently transmits an outbound emergency SMS via `SmsManager` to the owner's emergency contact phone (`/sim_lock phone <number>`) containing device IMEI, carrier, and Google Maps GPS fix—**instantly exposing the thief's phone number via caller ID**. Configurable alert actions include `/sim_lock [enable|disable|whitelist|alert_action|phone|status]`.
 * **Battery Health & Rapid Drain Alert (`/battery_alert`):** Proactive battery telemetry alerting owner on critical low levels, abnormal rapid drain (detecting background surveillance/tethers), or unauthorized charger disconnection (`/battery_alert [status|enable|disable|threshold]`).
 * **Dual-SIM Cell Tower Triangulation (`/tower`):** Scans LTE/5G NR/GSM cell identities (MCC, MNC, LAC/TAC, CID, dBm) across all active subscriptions for resilient indoor localization without satellite reception.
 
@@ -211,8 +209,8 @@ d:/Software_and_Apps/PrivateApp/
 * **Certificate DN:** `CN=PASA Sentinel, OU=Security, O=Izhaan Intellect, L=Dhaka, C=BD`.
 * **Certificate SHA-256:** `0c8f62dd8934d3b73e12d965742da29e643bdc157bc859e5b6aa7454409ad57a`.
 * **Current Production Release:**
-  - **Version:** `v3.4.9` (Build `45`).
-  - **APK Binary SHA-256:** `295a762ddf4b28fffa737e30488f5de2f6591b666dca7e72b9e7c869bff4870a`.
+  - **Version:** `v3.5.0` (Build `46`).
+  - **APK Binary SHA-256:** `bf577b164e2b786102f037264abe6816e443a1ffa063abfb21835f21f8ebe20f`.
   - **CDN Endpoint:** `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`.
   - **OTA Manifest Route:** `GET https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=<build>`.
 

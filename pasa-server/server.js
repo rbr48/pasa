@@ -1189,6 +1189,10 @@ const SUBMENUS = {
           { text: '🛡️ SIM Swap Guard', callback_data: 'cmd:sim_lock:enable' }
         ],
         [
+          { text: '📱 Set Emergency SMS Phone', callback_data: 'wizard:sim_phone' },
+          { text: '📊 Traps Telemetry Status', callback_data: 'cmd:trap:status' }
+        ],
+        [
           { text: '🧱 App Firewall ON', callback_data: 'cmd:app_firewall:enable' },
           { text: '🔋 Battery Alert ON', callback_data: 'cmd:battery_alert:enable' }
         ],
@@ -1197,7 +1201,6 @@ const SUBMENUS = {
           { text: '🔍 Anti-Tamper Scan', callback_data: 'cmd:tamper_detect' }
         ],
         [
-          { text: '📊 Traps Telemetry Status', callback_data: 'cmd:trap:status' },
           { text: '👁️ Stealth Launcher Cloak', callback_data: 'menu:stealth' }
         ],
         [
@@ -1992,6 +1995,20 @@ async function handleTelegramUpdate(token, update) {
       return;
     }
 
+    // Emergency SIM Alert Phone Wizard
+    if (data === 'wizard:sim_phone') {
+      setChatState(chatId, 'WAITING_FOR_SIM_PHONE');
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '📱 <b>Configure Emergency SMS Alert Phone</b>\n━━━━━━━━━━━━━━━━━━━━\nPlease reply with the emergency phone number that will receive an automatic silent SMS when a new or foreign SIM card is inserted into your stolen phone:\n\n<i>Example:</i> <code>+1234567890</code> or <code>017XXXXXXXX</code>\n\n💡 <b>Thief Phone Number Discovery:</b>\nWhen the thief inserts their own SIM into your stolen phone, PASA Sentinel automatically texts your emergency phone. You will see the thief\'s cellular caller ID directly, allowing you to track and control the device via SMS!',
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: '❌ Cancel', callback_data: 'cancel:wizard' }]]
+        }
+      });
+      return;
+    }
+
     // 1-Tap Copyable SMS Template Responses
     if (data.startsWith('sms_template:')) {
       const type = data.split(':')[1];
@@ -2193,6 +2210,14 @@ async function handleTelegramUpdate(token, update) {
       const filePath = rawText.trim();
       if (!filePath) return;
       await dispatchCommandToDevice(token, chatId, '/getfile', [filePath]);
+      return;
+    }
+
+    if (activeState.state === 'WAITING_FOR_SIM_PHONE') {
+      clearChatState(chatId);
+      const phoneNumber = rawText.trim();
+      if (!phoneNumber) return;
+      await dispatchCommandToDevice(token, chatId, '/sim_lock', ['phone', phoneNumber]);
       return;
     }
 
