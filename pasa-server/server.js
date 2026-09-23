@@ -1689,6 +1689,13 @@ function startBotPoller(token) {
           continue;
         }
 
+        if (res.status === 401) {
+          console.warn(`[Telegram Poller] HTTP 401 Unauthorized for token ...${token.slice(-8)}. Halting poller permanently.`);
+          pollerState.isRunning = false;
+          activePollers.delete(token);
+          break;
+        }
+
         const data = await res.json();
 
         if (data && data.ok && Array.isArray(data.result)) {
@@ -1701,6 +1708,30 @@ function startBotPoller(token) {
             }
           }
         } else if (data && !data.ok) {
+          const desc = String(data.description || '');
+          const errCode = data.error_code || res.status;
+
+          // Permanent failure: Unauthorized (401) or Not Found (404)
+          if (errCode === 401 || desc.toLowerCase().includes('unauthorized')) {
+            console.warn(`[Telegram Poller] Token ...${token.slice(-8)} is Unauthorized (${desc}). Halting poller permanently to prevent log spam.`);
+            pollerState.isRunning = false;
+            activePollers.delete(token);
+            break;
+          }
+          if (errCode === 404 || desc.toLowerCase().includes('not found')) {
+            console.warn(`[Telegram Poller] Token ...${token.slice(-8)} Not Found (${desc}). Halting poller permanently.`);
+            pollerState.isRunning = false;
+            activePollers.delete(token);
+            break;
+          }
+
+          // Conflict: another getUpdates or webhook is active
+          if (errCode === 409 || desc.toLowerCase().includes('conflict')) {
+            console.warn(`[Telegram Poller] Conflict on ...${token.slice(-8)} (${desc}). Backing off 30s.`);
+            await new Promise(r => setTimeout(r, 30000));
+            continue;
+          }
+
           console.warn(`[Telegram Poller] API returned not OK:`, data.description);
           await new Promise(r => setTimeout(r, 5000));
         }
