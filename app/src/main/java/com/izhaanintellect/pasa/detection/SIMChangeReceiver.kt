@@ -45,6 +45,7 @@ class SIMChangeReceiver : BroadcastReceiver() {
     @Inject lateinit var telegramApi: TelegramApi
     @Inject lateinit var locationTracker: LocationTracker
     @Inject lateinit var pasaBackendApi: PasaBackendApi
+    @Inject lateinit var licenseManager: com.izhaanintellect.pasa.security.LicenseManager
 
     companion object {
         private const val TAG = "PASA_SIM"
@@ -107,6 +108,10 @@ class SIMChangeReceiver : BroadcastReceiver() {
         lastSimState = simState
 
         if (!preferencesManager.isConfigured()) return
+        if (licenseManager.isAllFeaturesLocked()) {
+            Log.w(TAG, "SIM change event ignored: 7-day trial has expired")
+            return
+        }
 
         val pendingResult = goAsync()
 

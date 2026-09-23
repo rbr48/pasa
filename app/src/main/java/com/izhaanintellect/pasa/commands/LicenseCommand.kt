@@ -30,11 +30,19 @@ class LicenseCommand @Inject constructor(
             val modeStr = if (preferencesManager.useBackendServer) "VPS Cloud Relay" else "100% Sovereign (Direct Telegram)"
 
             val statusText = buildString {
+                if (licenseManager.isTrialActive()) {
+                    val msLeft = licenseManager.getTrialRemainingMs()
+                    val days = msLeft / (24 * 60 * 60 * 1000L)
+                    val hours = (msLeft % (24 * 60 * 60 * 1000L)) / (60 * 60 * 1000L)
+                    append("🔴 <b>TRIAL: $days days, $hours hours remaining — Upgrade: /license</b>\n\n")
+                } else if (licenseManager.isAllFeaturesLocked()) {
+                    append("🛑 <b>TRIAL EXPIRED: All security features locked. Activate: /license</b>\n\n")
+                }
                 append("🔐 <b>PASA License & Sovereign Identity</b>\n")
                 append("━━━━━━━━━━━━━━━━━━━━\n")
                 append("• <b>Device ID:</b> <code>$deviceId</code>\n")
                 append("• <b>Active Tier:</b> <b>$verifiedTier</b>\n")
-                append("• <b>Pro Access:</b> ${if (isPro) "✅ Active" else "🔒 Inactive"}\n")
+                append("• <b>Pro Access:</b> ${if (isPro) "✅ Active" else "🔒 Inactive (Locked)"}\n")
                 append("• <b>Bound Key:</b> <code>$key</code>\n")
                 append("• <b>Verification:</b> Hardware-backed Ed25519 (<0.2ms offline)\n")
                 append("• <b>Architecture:</b> $modeStr\n\n")

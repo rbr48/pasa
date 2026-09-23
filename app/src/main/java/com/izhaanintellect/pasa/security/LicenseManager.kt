@@ -87,34 +87,36 @@ class LicenseManager @Inject constructor(
 
     fun isProCommand(command: String): Boolean = command.lowercase() in PRO_COMMANDS
 
+    fun getTrialRemainingMs(): Long {
+        val now = System.currentTimeMillis()
+        val expiresAt = preferencesManager.trialExpiresAt
+        return (expiresAt - now).coerceAtLeast(0L)
+    }
+
+    fun isTrialActive(): Boolean {
+        if (isPaidLicense()) return false
+        return getTrialRemainingMs() > 0L
+    }
+
+    fun isTrialExpired(): Boolean {
+        if (isPaidLicense()) return false
+        return getTrialRemainingMs() <= 0L
+    }
+
+    /**
+     * Returns true if all features are hard locked due to expired trial without a paid license.
+     */
+    fun isAllFeaturesLocked(): Boolean {
+        return !isPaidLicense() && isTrialExpired()
+    }
+
     /**
      * Returns true if the device has an active Pro license or an active FREE_TRIAL.
      * Uses offline Ed25519 cryptographic certificate verification for tamper-proof security.
      */
     fun isProActive(): Boolean {
-        // 1. Highest priority: Cryptographically verified Ed25519 certificate (<0.2ms offline check)
-        val verifiedTier = cryptoLicenseVerifier.getVerifiedStoredTier()
-        if (verifiedTier != null) {
-            if (verifiedTier in PAID_TIERS || verifiedTier.startsWith("PRO") || verifiedTier.startsWith("ENTERPRISE")) {
-                return true
-            }
-            if (verifiedTier == "FREE_TRIAL") {
-                return true
-            }
-        }
-
-        // 2. Fallback to local Free Trial mode (for new installations prior to first backend sync)
-        val rawTier = preferencesManager.licenseTier.uppercase()
-        if (rawTier == "FREE_TRIAL") {
-            return true
-        }
-
-        // 3. Fallback for established paid keys if certificate is refreshing
-        if ((rawTier in PAID_TIERS || rawTier.startsWith("PRO")) && preferencesManager.licenseKey.isNotBlank()) {
-            return true
-        }
-
-        Log.d(TAG, "No active pro license (verifiedTier=$verifiedTier, rawTier=$rawTier)")
+        if (isPaidLicense()) return true
+        if (isTrialActive()) return true
         return false
     }
 
@@ -124,22 +126,36 @@ class LicenseManager @Inject constructor(
     fun isPaidLicense(): Boolean {
         val verifiedTier = cryptoLicenseVerifier.getVerifiedStoredTier()
         if (verifiedTier != null) {
-            return verifiedTier in PAID_TIERS || verifiedTier.startsWith("PRO_") || verifiedTier == "ENTERPRISE"
+            return (verifiedTier in PAID_TIERS || verifiedTier.startsWith("PRO_") || verifiedTier == "ENTERPRISE")
         }
         val tier = preferencesManager.licenseTier.uppercase()
-        return tier in PAID_TIERS || tier.startsWith("PRO_") || tier == "ENTERPRISE"
+        return (tier in PAID_TIERS || tier.startsWith("PRO_") || tier == "ENTERPRISE") && preferencesManager.licenseKey.isNotBlank()
     }
 
     /**
      * Checks if the command should be blocked due to licensing.
      * Returns null if allowed, or a user-facing rejection message if blocked.
+     *
+     * HARD LOCK POLICY:
+     * When trial is expired without a paid license, ALL features are locked except /license, /pro, and /info.
      */
     fun checkAccess(command: String): String? {
-        val cmd = command.lowercase()
+        val cleanCmd = command.lowercase().trim().split("\\s+".toRegex())[0]
+
+        // ── Commands always permitted so user can inspect status & activate license ──
+        if (cleanCmd in setOf("/license", "/pro", "/info")) {
+            return null
+        }
+
+        // ── Hard Lockout Check: If trial has expired and no paid license, BLOCK ALL FEATURES ──
+        if (isAllFeaturesLocked()) {
+            return buildTrialExpiredMessage(command)
+        }
+
         val tier = cryptoLicenseVerifier.getVerifiedStoredTier() ?: preferencesManager.licenseTier
 
         // ── Enterprise-exclusive commands ────────────────────────────────────
-        if (cmd in ENTERPRISE_COMMANDS) {
+        if (cleanCmd in ENTERPRISE_COMMANDS) {
             val upperTier = tier.uppercase()
             if (upperTier in setOf("ENTERPRISE", "ENTERPRISE_LIFETIME", "PRO_ENTERPRISE")) return null
             return buildRejectionMessage(
@@ -150,7 +166,7 @@ class LicenseManager @Inject constructor(
             )
         }
 
-        // ── Pro & Trial commands ─────────────────────────────────────────────
+        // ── Pro commands when not in trial and not paid ───────────────────────
         if (isProCommand(command)) {
             if (isProActive()) return null
 
@@ -169,8 +185,19 @@ class LicenseManager @Inject constructor(
             )
         }
 
-        // ── Standard commands — always allowed (Lifetime Free) ───────────────
+        // All features unlocked during active 7-day trial or paid license
         return null
+    }
+
+    private fun buildTrialExpiredMessage(command: String): String {
+        return "🛑 <b>7-DAY TRIAL EXPIRED — ALL FEATURES LOCKED</b>\n" +
+                "━━━━━━━━━━━━━━━━━━━━\n" +
+                "The command <code>$command</code> cannot be executed.\n\n" +
+                "Your 7-day evaluation period has ended. All remote tracking, covert forensics, siren, and Knox defense features are locked.\n\n" +
+                "💎 <b>Activate Sovereign Lifetime Shield ($25 / ৳3,000 BDT):</b>\n" +
+                "• Web Checkout: <b>pasa.izhaanintellect.fun</b>\n" +
+                "• Direct Key: <code>/license activate PASA-PRO-XXXX-XXXX</code>\n\n" +
+                "<i>Need assistance? Contact concierge: @RBR48</i>"
     }
 
     private fun buildRejectionMessage(

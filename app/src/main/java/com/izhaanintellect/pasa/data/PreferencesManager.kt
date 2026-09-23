@@ -102,6 +102,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_BLUETOOTH_LOCKED = "bluetooth_locked"
         private const val KEY_MIC_MUTED = "mic_muted"
         private const val KEY_LOCKSCREEN_INFO = "lockscreen_info"
+        private const val KEY_TRIAL_START_TIME = "trial_start_time"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
 
@@ -379,6 +380,20 @@ class PreferencesManager @Inject constructor(
     var licenseCertSignature: String
         get() = prefs.getString(KEY_LICENSE_CERT_SIGNATURE, "") ?: ""
         set(value) = prefs.edit().putString(KEY_LICENSE_CERT_SIGNATURE, value).apply()
+
+    var trialStartTime: Long
+        get() {
+            var time = prefs.getLong(KEY_TRIAL_START_TIME, 0L)
+            if (time <= 0L) {
+                time = System.currentTimeMillis()
+                prefs.edit().putLong(KEY_TRIAL_START_TIME, time).apply()
+            }
+            return time
+        }
+        set(value) = prefs.edit().putLong(KEY_TRIAL_START_TIME, value).apply()
+
+    val trialExpiresAt: Long
+        get() = trialStartTime + 7 * 24 * 60 * 60 * 1000L
 
     var antiTamperEnabled: Boolean
         get() = prefs.getBoolean(KEY_ANTI_TAMPER_ENABLED, true)

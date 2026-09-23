@@ -37,6 +37,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
     @Inject lateinit var commandExecutor: CommandExecutor
     @Inject lateinit var locationTracker: LocationTracker
     @Inject lateinit var preferencesManager: PreferencesManager
+    @Inject lateinit var licenseManager: com.izhaanintellect.pasa.security.LicenseManager
 
     companion object {
         private const val TAG = "PASA_SMS"
@@ -164,6 +165,17 @@ class SmsCommandReceiver : BroadcastReceiver() {
         Log.i(TAG, "SMS Command Verified: $command ${args.joinToString(" ")}")
 
         val warningSuffix = if (usedMasterPassword && totpSecret.isBlank()) "\n[Tip: Run /smssetup in Telegram to enroll in 6-digit TOTP]" else ""
+
+        val isExemptCmd = command == "/license" || command == "/pro" || command == "/info"
+        if (!isExemptCmd && licenseManager.isAllFeaturesLocked()) {
+            sendSmsReply(
+                context = context,
+                recipient = senderPhone,
+                message = "PASA: 7-day trial expired. All features locked. Activate Pro license at pasa.izhaanintellect.fun or via Telegram /license.",
+                subId = subId
+            )
+            return
+        }
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {

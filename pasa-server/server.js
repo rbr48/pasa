@@ -1357,6 +1357,7 @@ function getActiveDeviceForChat(token, chatId) {
 function buildDashboardText(chatId, activeDev) {
   let statusBadge = '🔴 Offline';
   let deviceDetails = '';
+  let trialBanner = '';
 
   if (activeDev) {
     const diffSec = Math.floor((Date.now() - (activeDev.lastSeen || 0)) / 1000);
@@ -1376,6 +1377,12 @@ function buildDashboardText(chatId, activeDev) {
       else if (lic.tier === 'PRO_ANNUAL') licBadge = '⭐ Pro Annual';
       else if (lic.tier === 'PRO_ENTERPRISE') licBadge = '🏢 Enterprise';
       else if (lic.tier === 'FREE_TRIAL') licBadge = `⏳ Trial (${lic.daysLeft}d left)`;
+      else if (lic.status === 'EXPIRED') licBadge = `🛑 Expired (Locked)`;
+
+      const banner = licensing.getTrialBanner(activeDev.deviceId);
+      if (banner) {
+        trialBanner = `${banner}\n\n`;
+      }
     } catch (_) {}
 
     const hwKeyBadge = activeDev.publicKeyJwk ? '🛡️ StrongBox TEE' : '🔒 Software Keystore';
@@ -1392,6 +1399,7 @@ function buildDashboardText(chatId, activeDev) {
   }
 
   return (
+    trialBanner +
     `🛡️ <b>PASA SENTINEL — COMMAND CONSOLE</b>\n` +
     `<i>Sovereign Mobile Defense & Covert Counter-Surveillance</i>\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
@@ -1400,6 +1408,17 @@ function buildDashboardText(chatId, activeDev) {
     `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `Select a command center hub below to dispatch authenticated actions:`
   ).trim();
+}
+
+function getSubmenuTextWithBanner(menuKey, activeDev) {
+  const baseText = SUBMENUS[menuKey]?.text || '';
+  if (!activeDev) return baseText;
+  try {
+    const banner = licensing.getTrialBanner(activeDev.deviceId);
+    return banner ? `${banner}\n\n${baseText}` : baseText;
+  } catch (_) {
+    return baseText;
+  }
 }
 
 async function dispatchCommandToDevice(token, chatId, command, args = [], notifyTelegram = true) {
@@ -1422,6 +1441,50 @@ async function dispatchCommandToDevice(token, chatId, command, args = [], notify
   }
 
   const targetDeviceId = matchingDeviceIds[0];
+  const activeDevice = devices[targetDeviceId] || {};
+
+  // HARD FEATURE LOCKOUT POLICY:
+  // If 7-day trial has expired and device has no paid license, ALL features are locked except /license, /pro, /help, /info
+  let isExpired = false;
+  try {
+    const lic = licensing.getDeviceLicenseStatus(targetDeviceId);
+    if (lic && lic.status === 'EXPIRED') {
+      isExpired = true;
+    }
+  } catch (_) {}
+
+  const cleanCmd = (command || '').toLowerCase().trim();
+  const isExempt = cleanCmd === '/license' || cleanCmd === '/pro' || cleanCmd === '/help' || cleanCmd === '/info';
+
+  if (isExpired && !isExempt) {
+    if (notifyTelegram) {
+      const banner = licensing.getTrialBanner(targetDeviceId) || '🛑 <b>TRIAL EXPIRED: All security features locked.</b>';
+      const expiredText =
+        `${banner}\n\n` +
+        `━━━━━━━━━━━━━━━━━━━━\n` +
+        `The 7-day evaluation period for <b>${escapeHtml(activeDevice.deviceName || targetDeviceId)}</b> has expired.\n\n` +
+        `All remote tracking, forensics, siren, and Knox defense features are locked.\n\n` +
+        `💎 <b>Activate Sovereign Lifetime Shield ($25 / ৳3,000 BDT):</b>\n` +
+        `1. Web Checkout: <a href="https://pasa.izhaanintellect.fun/#pricing">pasa.izhaanintellect.fun</a>\n` +
+        `2. Direct Key: <code>/license activate PASA-PRO-XXXX-XXXX</code>\n\n` +
+        `<i>Need help? Contact concierge: @RBR48</i>`;
+
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: expiredText,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🔑 Activate License Key', callback_data: 'wizard:license:activate' }],
+            [{ text: '🛒 Buy Lifetime Shield ($25)', url: 'https://pasa.izhaanintellect.fun/#pricing' }],
+            [{ text: '📋 View License Status', callback_data: 'menu:license' }]
+          ]
+        }
+      });
+    }
+    return;
+  }
+
   const cmdId = 'cmd_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
   const action = command.replace(/^\//, '').toUpperCase();
   const formattedCmd = args.length > 0 ? `${command} ${args.join(' ')}` : command;
@@ -1456,14 +1519,19 @@ async function dispatchCommandToDevice(token, chatId, command, args = [], notify
     chatId: chatId ? String(chatId) : 'unknown'
   });
 
-  const activeDevice = devices[targetDeviceId];
   const lastSeenSec = Math.floor((Date.now() - (activeDevice.lastSeen || 0)) / 1000);
   const statusNote = lastSeenSec < 60 ? `Online (${lastSeenSec}s ago)` : `Last active ${lastSeenSec}s ago`;
+
+  let trialBannerPrefix = '';
+  try {
+    const banner = licensing.getTrialBanner(targetDeviceId);
+    if (banner) trialBannerPrefix = `${banner}\n\n`;
+  } catch (_) {}
 
   if (notifyTelegram) {
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
-      text: `⏳ Command <code>${formattedCmd}</code> signed & dispatched to <b>${activeDevice.deviceName || targetDeviceId}</b> (${statusNote}).\n\nAwaiting telemetry...`,
+      text: `${trialBannerPrefix}⏳ Command <code>${formattedCmd}</code> signed & dispatched to <b>${escapeHtml(activeDevice.deviceName || targetDeviceId)}</b> (${statusNote}).\n\nAwaiting telemetry...`,
       parse_mode: 'HTML'
     });
   }
@@ -1836,10 +1904,12 @@ async function handleTelegramUpdate(token, update) {
     if (SUBMENUS[data]) {
       clearChatState(chatId);
       const sub = SUBMENUS[data];
+      const activeDev = getActiveDeviceForChat(token, chatId);
+      const menuText = getSubmenuTextWithBanner(data, activeDev);
       await callTelegram(token, 'editMessageText', {
         chat_id: chatId,
         message_id: messageId,
-        text: sub.text,
+        text: menuText,
         parse_mode: 'HTML',
         reply_markup: sub.keyboard
       });
@@ -2546,9 +2616,10 @@ async function handleTelegramUpdate(token, update) {
 
   // Handle Hub Shortcut Words
   if (lowerText.includes('device owner') || lowerText === '👑 device owner') {
+    const activeDev = getActiveDeviceForChat(token, chatId);
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
-      text: SUBMENUS['menu:device_owner_hub'].text,
+      text: getSubmenuTextWithBanner('menu:device_owner_hub', activeDev),
       parse_mode: 'HTML',
       reply_markup: SUBMENUS['menu:device_owner_hub'].keyboard
     });
@@ -2556,9 +2627,10 @@ async function handleTelegramUpdate(token, update) {
   }
 
   if (lowerText.includes('location hub') || lowerText === '📍 location & rf') {
+    const activeDev = getActiveDeviceForChat(token, chatId);
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
-      text: SUBMENUS['menu:location_hub'].text,
+      text: getSubmenuTextWithBanner('menu:location_hub', activeDev),
       parse_mode: 'HTML',
       reply_markup: SUBMENUS['menu:location_hub'].keyboard
     });
@@ -2566,9 +2638,10 @@ async function handleTelegramUpdate(token, update) {
   }
 
   if (lowerText.includes('forensics hub') || lowerText === '📸 covert forensics') {
+    const activeDev = getActiveDeviceForChat(token, chatId);
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
-      text: SUBMENUS['menu:forensics_hub'].text,
+      text: getSubmenuTextWithBanner('menu:forensics_hub', activeDev),
       parse_mode: 'HTML',
       reply_markup: SUBMENUS['menu:forensics_hub'].keyboard
     });
@@ -2576,9 +2649,10 @@ async function handleTelegramUpdate(token, update) {
   }
 
   if (lowerText.includes('data hub') || lowerText.includes('extraction & logs') || lowerText === '📇 extraction & logs') {
+    const activeDev = getActiveDeviceForChat(token, chatId);
     await callTelegram(token, 'sendMessage', {
       chat_id: chatId,
-      text: SUBMENUS['menu:data_hub'].text,
+      text: getSubmenuTextWithBanner('menu:data_hub', activeDev),
       parse_mode: 'HTML',
       reply_markup: SUBMENUS['menu:data_hub'].keyboard
     });

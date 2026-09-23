@@ -170,16 +170,23 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
     const registeredAt = (dev && dev.registeredAt) || now;
     const trialDuration = 7 * 24 * 60 * 60 * 1000;
     const trialExpiresAt = registeredAt + trialDuration;
-    const trialDaysLeft = Math.max(0, Math.ceil((trialExpiresAt - now) / (24 * 60 * 60 * 1000)));
+    const msLeft = trialExpiresAt - now;
+    const trialDaysLeft = Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
 
     if (now < trialExpiresAt) {
       const trialCert = signDeviceCertificate(deviceId, 'FREE_TRIAL', trialExpiresAt, null);
+      const days = Math.floor(msLeft / (24 * 60 * 60 * 1000));
+      const hours = Math.floor((msLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+      const minutes = Math.floor((msLeft % (60 * 60 * 1000)) / (60 * 1000));
       return {
         hasPro: true,
         tier: 'FREE_TRIAL',
         status: 'TRIAL',
         isTrial: true,
-        daysLeft: trialDaysLeft,
+        daysLeft: days,
+        hoursLeft: hours,
+        minutesLeft: minutes,
+        msLeft: msLeft,
         expiresAt: trialExpiresAt,
         licenseKey: null,
         certificate: trialCert
@@ -192,10 +199,32 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
       status: 'EXPIRED',
       isTrial: true,
       daysLeft: 0,
+      hoursLeft: 0,
+      minutesLeft: 0,
+      msLeft: 0,
       expiresAt: trialExpiresAt,
       licenseKey: null,
       certificate: null
     };
+  }
+
+  function getTrialBanner(deviceId) {
+    if (!deviceId) return null;
+    const lic = getDeviceLicenseStatus(deviceId);
+    if (!lic || !lic.isTrial) {
+      return null;
+    }
+    if (lic.status === 'TRIAL') {
+      if (lic.daysLeft > 1) {
+        return `🔴 <b>TRIAL: ${lic.daysLeft} days, ${lic.hoursLeft} hours remaining — Unlock Lifetime Shield: /license</b>`;
+      } else if (lic.daysLeft === 1) {
+        return `🔴 <b>TRIAL: 1 day, ${lic.hoursLeft} hours remaining — Unlock Lifetime Shield: /license</b>`;
+      } else {
+        return `🔴 <b>TRIAL EXPIRING: ${lic.hoursLeft}h ${lic.minutesLeft}m remaining — Unlock Lifetime Shield: /license</b>`;
+      }
+    }
+    // Expired trial
+    return `🛑 <b>TRIAL EXPIRED: All security features locked. Activate: /license</b>`;
   }
 
   function lookupLicense(query) {
@@ -249,6 +278,7 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
     activateLicense,
     revokeLicense,
     getDeviceLicenseStatus,
+    getTrialBanner,
     lookupLicense,
     listLicenses
   };

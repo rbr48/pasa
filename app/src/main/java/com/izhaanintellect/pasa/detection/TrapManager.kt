@@ -41,7 +41,8 @@ class TrapManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val preferencesManager: PreferencesManager,
     private val telegramApi: TelegramApi,
-    private val locationTracker: LocationTracker
+    private val locationTracker: LocationTracker,
+    private val licenseManager: com.izhaanintellect.pasa.security.LicenseManager
 ) : SensorEventListener {
 
     companion object {
@@ -67,6 +68,10 @@ class TrapManager @Inject constructor(
 
     fun startMonitoring() {
         if (isMonitoring) return
+        if (licenseManager.isAllFeaturesLocked()) {
+            Log.w(TAG, "Cannot start Autonomous Traps: 7-day trial has expired")
+            return
+        }
 
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -117,6 +122,7 @@ class TrapManager @Inject constructor(
 
     override fun onSensorChanged(event: SensorEvent?) {
         event ?: return
+        if (licenseManager.isAllFeaturesLocked()) return
 
         when (event.sensor.type) {
             Sensor.TYPE_ACCELEROMETER -> {
@@ -262,6 +268,7 @@ class TrapManager @Inject constructor(
      */
     fun onChargerDisconnected() {
         if (!preferencesManager.isTrapEnabled && !preferencesManager.isChargerTrapEnabled) return
+        if (licenseManager.isAllFeaturesLocked()) return
 
         val keyguard = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
         val isLocked = keyguard?.isDeviceLocked == true

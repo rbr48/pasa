@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 51,
+    "versionName": "3.5.5",
+    "releaseDate": "2026-09-23",
+    "fileName": "pasa-v3.5.5-51.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.5-51.apk",
+    "sha256": "ddec8d582f8d691dc830d08caa898e15fea8c26ba26131c1aa2e82fbd6db5e92",
+    "size": 19167706,
+    "mandatory": false,
+    "releaseNotes": "v3.5.5: Hard 7-Day Trial Lockout & Telegram Red Countdown Banner — Strict commercial evaluation enforcement locking all 84+ features after the 7-day evaluation period until license activation. Telegram C2 console and command dispatch displays an active one-line red countdown banner."
+  },
+  {
     "versionCode": 50,
     "versionName": "3.5.4",
     "releaseDate": "2026-09-23",
