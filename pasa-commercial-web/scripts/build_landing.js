@@ -16,17 +16,17 @@ function generateHtml() {
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ef4444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-dark: #030712;
     --bg-void: #060b18;
     --surface: #0a1024;
     --surface-elevated: #0f1738;
-    --surface-card: rgba(15, 23, 50, 0.72);
-    --border: rgba(255, 255, 255, 0.08);
+    --surface-card: rgba(13, 20, 44, 0.78);
+    --border: rgba(255, 255, 255, 0.1);
     --border-glow: rgba(6, 182, 212, 0.35);
-    --border-crimson: rgba(239, 68, 68, 0.4);
+    --border-crimson: rgba(239, 68, 68, 0.35);
 
     /* Cyber & Threat Palette */
     --crimson: #ef4444;
@@ -39,15 +39,15 @@ function generateHtml() {
     --emerald: #10b981;
     --emerald-glow: rgba(16, 185, 129, 0.2);
 
-    --text: #f8fafc;
-    --text-dim: #94a3b8;
-    --text-faint: #64748b;
-    --text-muted: #475569;
+    /* WCAG AA / AAA High Contrast Typography */
+    --text: #ffffff;
+    --text-dim: #cbd5e1;       /* slate-300: High legibility */
+    --text-faint: #94a3b8;     /* slate-400: Subtitles */
+    --text-muted: #64748b;     /* slate-500: Auxiliary info */
 
     --font: 'Inter', -apple-system, sans-serif;
     --font-bn: 'Tiro Bangla', 'Inter', -apple-system, sans-serif;
     --mono: 'JetBrains Mono', monospace;
-    --display: 'Cinzel', serif;
   }
 
   [data-lang="bn"] body {
@@ -55,7 +55,15 @@ function generateHtml() {
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Global Anchor Collision Fix: Sticky Nav Offset */
+  section[id], div[id] {
+    scroll-margin-top: 110px;
+  }
+
   body {
     font-family: var(--font);
     background: var(--bg-dark);
@@ -69,35 +77,23 @@ function generateHtml() {
   .hud-grid {
     position: fixed; inset: 0; pointer-events: none; z-index: 1;
     background-image: 
-      linear-gradient(rgba(6, 182, 212, 0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(6, 182, 212, 0.025) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-  .scanline {
-    position: fixed; top: 0; left: 0; width: 100%; height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.4), transparent);
-    animation: scanline 8s linear infinite; pointer-events: none; z-index: 2;
-  }
-  @keyframes scanline {
-    0% { transform: translateY(-100vh); opacity: 0; }
-    50% { opacity: 0.8; }
-    100% { transform: translateY(100vh); opacity: 0; }
+      linear-gradient(rgba(6, 182, 212, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.02) 1px, transparent 1px);
+    background-size: 44px 44px;
   }
 
-  /* Ticker Top Bar */
+  /* Refined Top Status Bar (Clean & Professional) */
   .top-ticker {
-    background: rgba(3, 7, 18, 0.95);
-    border-bottom: 1px solid var(--border-crimson);
-    padding: 6px 0; font-family: var(--mono); font-size: 11px;
-    color: var(--crimson); letter-spacing: 0.08em;
-    display: flex; align-items: center; justify-content: space-between;
-    position: relative; z-index: 101;
+    background: #040816;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 7px 0; font-family: var(--mono); font-size: 11.5px;
+    color: var(--text-dim); position: relative; z-index: 101;
   }
   .ticker-wrap {
-    overflow: hidden; white-space: nowrap; flex: 1; max-width: 900px; margin: 0 auto;
+    overflow: hidden; white-space: nowrap; flex: 1; max-width: 920px; margin: 0 auto;
   }
   .ticker-content {
-    display: inline-block; animation: marquee 32s linear infinite;
+    display: inline-block; animation: marquee 35s linear infinite;
   }
   @keyframes marquee {
     0% { transform: translateX(0); }
@@ -111,7 +107,7 @@ function generateHtml() {
   /* Navigation */
   nav.nav {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(3, 7, 18, 0.9); backdrop-filter: blur(20px);
+    background: rgba(3, 7, 18, 0.92); backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
   }
   .nav-inner {
@@ -133,16 +129,64 @@ function generateHtml() {
     font-family: var(--mono); font-size: 9.5px; color: var(--cyan); letter-spacing: 0.1em; text-transform: uppercase;
   }
 
-  .nav-menu { display: flex; align-items: center; gap: 6px; }
+  /* Streamlined Desktop Menu (Max 5 items + Dropdown) */
+  .nav-menu { display: flex; align-items: center; gap: 4px; }
   .nav-link {
     color: var(--text-dim); text-decoration: none; font-size: 13.5px; font-weight: 500;
     padding: 8px 12px; border-radius: 6px; transition: all 0.2s;
   }
-  .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+  .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+
+  /* Dropdown for Secondary Links */
+  .nav-dropdown { position: relative; display: inline-block; }
+  .nav-dropdown-btn {
+    color: var(--text-dim); background: none; border: none; font-size: 13.5px; font-weight: 500;
+    padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;
+    transition: all 0.2s; font-family: var(--font);
+  }
+  .nav-dropdown-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+  .nav-dropdown-menu {
+    position: absolute; top: calc(100% + 6px); left: 0; min-width: 200px;
+    background: #090f24; border: 1px solid var(--border); border-radius: 10px;
+    padding: 8px 0; box-shadow: 0 16px 36px rgba(0,0,0,0.6); display: none; z-index: 120;
+    backdrop-filter: blur(16px);
+  }
+  .nav-dropdown:hover .nav-dropdown-menu,
+  .nav-dropdown-menu:hover { display: block; }
+  .nav-dropdown-item {
+    display: block; padding: 9px 18px; color: var(--text-dim); text-decoration: none;
+    font-size: 13px; font-weight: 500; transition: all 0.15s;
+  }
+  .nav-dropdown-item:hover { background: rgba(6, 182, 212, 0.12); color: var(--cyan); }
+
+  /* Mobile Hamburger Toggle & Drawer */
+  .mobile-toggle {
+    display: none; background: none; border: 1px solid var(--border); color: var(--text);
+    padding: 7px 10px; border-radius: 6px; cursor: pointer;
+  }
+  .mobile-drawer {
+    position: fixed; top: 0; right: -290px; width: 280px; height: 100vh;
+    background: #060b18; border-left: 1px solid var(--border); z-index: 200;
+    padding: 24px; display: flex; flex-direction: column; gap: 16px;
+    transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: -10px 0 40px rgba(0,0,0,0.8);
+  }
+  .mobile-drawer.open { right: 0; }
+  .mobile-drawer-hdr { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+  .mobile-drawer a { color: var(--text-dim); text-decoration: none; font-size: 15px; font-weight: 500; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .mobile-drawer a:hover { color: var(--cyan); }
+  .drawer-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 190; display: none;
+  }
+  .drawer-overlay.open { display: block; }
+
+  @media (max-width: 992px) {
+    .nav-menu { display: none; }
+    .mobile-toggle { display: block; }
+  }
 
   /* Language Switcher */
   .lang-switcher {
-    display: flex; align-items: center; background: rgba(15, 23, 50, 0.8);
+    display: flex; align-items: center; background: rgba(15, 23, 50, 0.85);
     border: 1px solid var(--border-glow); border-radius: 8px; padding: 3px; gap: 2px;
   }
   .lang-btn {
@@ -165,16 +209,16 @@ function generateHtml() {
   }
   .cta-nav:hover { transform: translateY(-1px); box-shadow: 0 0 24px rgba(239, 68, 68, 0.6); }
 
-  /* ── Hero Section (Radar + Crime Vibe) ── */
+  /* ── Hero Section (Radar + Focused Value Propositions) ── */
   .hero {
-    position: relative; padding: 100px 0 90px; overflow: hidden;
+    position: relative; padding: 90px 0 80px; overflow: hidden;
     background: radial-gradient(circle at 50% 30%, rgba(15, 23, 60, 0.6) 0%, rgba(3, 7, 18, 0.95) 70%);
   }
 
   /* Radar Sweep Visual */
   .radar-container {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 720px; height: 720px; pointer-events: none; z-index: 0; opacity: 0.45;
+    width: 720px; height: 720px; pointer-events: none; z-index: 0; opacity: 0.38;
   }
   .radar-ring {
     position: absolute; inset: 0; margin: auto; border-radius: 50%;
@@ -194,8 +238,8 @@ function generateHtml() {
   }
   .radar-sweep {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%;
-    background: conic-gradient(from 0deg, rgba(6, 182, 212, 0.25) 0deg, rgba(6, 182, 212, 0.05) 45deg, transparent 90deg);
-    animation: radarSweep 6s linear infinite;
+    background: conic-gradient(from 0deg, rgba(6, 182, 212, 0.2) 0deg, rgba(6, 182, 212, 0.04) 45deg, transparent 90deg);
+    animation: radarSweep 7s linear infinite;
   }
   @keyframes radarSweep {
     0% { transform: rotate(0deg); }
@@ -214,18 +258,18 @@ function generateHtml() {
 
   /* Hero Content */
   .hero-content {
-    position: relative; z-index: 10; text-align: center; max-width: 920px; margin: 0 auto;
+    position: relative; z-index: 10; text-align: center; max-width: 940px; margin: 0 auto;
   }
   .dossier-tag {
     display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(239, 68, 68, 0.1); border: 1px solid var(--border-crimson);
-    color: var(--crimson); padding: 6px 14px; border-radius: 20px;
-    font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em;
-    margin-bottom: 24px; text-transform: uppercase;
+    background: rgba(6, 182, 212, 0.08); border: 1px solid var(--border-glow);
+    color: var(--cyan); padding: 6px 14px; border-radius: 20px;
+    font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em;
+    margin-bottom: 22px; text-transform: uppercase;
   }
   .pulse-dot {
-    width: 7px; height: 7px; border-radius: 50%; background: var(--crimson);
-    box-shadow: 0 0 8px var(--crimson); animation: pulseDot 1.4s infinite;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--emerald);
+    box-shadow: 0 0 8px var(--emerald); animation: pulseDot 1.4s infinite;
   }
   @keyframes pulseDot {
     0%, 100% { opacity: 1; transform: scale(1); }
@@ -233,18 +277,29 @@ function generateHtml() {
   }
 
   .hero h1 {
-    font-size: clamp(34px, 5.5vw, 62px); font-weight: 900; line-height: 1.15;
-    letter-spacing: -0.02em; margin-bottom: 24px;
+    font-size: clamp(32px, 5.2vw, 58px); font-weight: 900; line-height: 1.18;
+    letter-spacing: -0.02em; margin-bottom: 20px;
     background: linear-gradient(180deg, #ffffff 40%, #cbd5e1 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
   .hero-sub {
     font-size: clamp(16px, 2vw, 19px); color: var(--text-dim); line-height: 1.6;
-    max-width: 780px; margin: 0 auto 36px;
+    max-width: 780px; margin: 0 auto 30px;
   }
 
+  /* 3 Core Value Proposition Badges */
+  .hero-pillars {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 36px;
+  }
+  .hero-pillar {
+    background: rgba(15, 23, 50, 0.7); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600;
+    color: var(--text); display: flex; align-items: center; gap: 8px; backdrop-filter: blur(8px);
+  }
+  .hero-pillar svg { width: 16px; height: 16px; color: var(--cyan); }
+
   .hero-actions {
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-bottom: 48px;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-bottom: 44px;
   }
   .btn-primary {
     background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
@@ -257,18 +312,18 @@ function generateHtml() {
     transform: translateY(-2px); box-shadow: 0 0 36px rgba(239, 68, 68, 0.65);
   }
   .btn-secondary {
-    background: rgba(15, 23, 50, 0.7); color: var(--text); padding: 14px 28px;
+    background: rgba(15, 23, 50, 0.75); color: var(--text); padding: 14px 28px;
     border-radius: 10px; font-weight: 600; font-size: 15px; text-decoration: none;
     display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--border-glow);
     transition: all 0.25s ease; backdrop-filter: blur(10px);
   }
   .btn-secondary:hover {
-    background: rgba(20, 30, 65, 0.9); border-color: var(--cyan); transform: translateY(-2px);
+    background: rgba(20, 30, 65, 0.95); border-color: var(--cyan); transform: translateY(-2px);
   }
 
   /* Live HUD Banner */
   .hud-status-strip {
-    background: rgba(10, 16, 36, 0.85); border: 1px solid var(--border);
+    background: rgba(10, 16, 36, 0.9); border: 1px solid var(--border);
     border-radius: 12px; padding: 16px 24px; max-width: 980px; margin: 0 auto;
     display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); backdrop-filter: blur(16px);
@@ -292,16 +347,16 @@ function generateHtml() {
 
   /* ── Interactive Live Forensic Terminal Simulator (CID Console) ── */
   .terminal-section {
-    padding: 70px 0; background: linear-gradient(180deg, var(--bg-void) 0%, #030611 100%);
+    padding: 80px 0; background: linear-gradient(180deg, var(--bg-void) 0%, #030611 100%);
     border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
   }
   .terminal-card {
     background: #02040a; border: 1px solid var(--border-glow); border-radius: 14px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.15);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.12);
     overflow: hidden; max-width: 960px; margin: 0 auto;
   }
   .terminal-hdr {
-    background: rgba(15, 23, 50, 0.9); padding: 12px 18px; border-bottom: 1px solid var(--border);
+    background: rgba(15, 23, 50, 0.95); padding: 12px 18px; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
   }
   .terminal-dots { display: flex; gap: 8px; }
@@ -313,21 +368,21 @@ function generateHtml() {
     font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--cyan); letter-spacing: 0.05em;
   }
   .terminal-chip-bar {
-    background: rgba(6, 11, 24, 0.7); padding: 10px 18px; border-bottom: 1px solid rgba(255,255,255,0.05);
-    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    background: rgba(6, 11, 24, 0.85); padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; gap: 8px; align-items: center; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
   }
   .term-chip {
-    background: rgba(15, 23, 50, 0.8); border: 1px solid var(--border); color: var(--text-dim);
-    font-family: var(--mono); font-size: 11.5px; padding: 4px 10px; border-radius: 5px;
-    cursor: pointer; transition: all 0.15s;
+    background: rgba(15, 23, 50, 0.85); border: 1px solid var(--border); color: var(--text-dim);
+    font-family: var(--mono); font-size: 11.5px; padding: 5px 11px; border-radius: 6px;
+    cursor: pointer; transition: all 0.15s; flex-shrink: 0;
   }
   .term-chip:hover {
-    border-color: var(--cyan); color: var(--cyan); background: rgba(6, 182, 212, 0.1);
+    border-color: var(--cyan); color: var(--cyan); background: rgba(6, 182, 212, 0.12);
   }
   .terminal-screen {
-    padding: 24px; min-height: 240px; max-height: 380px; overflow-y: auto;
+    padding: 22px; min-height: 220px; max-height: 360px; overflow-y: auto;
     font-family: var(--mono); font-size: 13px; line-height: 1.6; color: #38bdf8;
-    background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 80%);
+    background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 80%);
   }
   .term-line { margin-bottom: 6px; }
   .term-prompt { color: #f8fafc; font-weight: 700; }
@@ -335,7 +390,7 @@ function generateHtml() {
   .term-alert { color: #f87171; }
   .term-warn { color: #fbbf24; }
   .terminal-input-row {
-    display: flex; align-items: center; gap: 10px; padding: 12px 20px;
+    display: flex; align-items: center; gap: 10px; padding: 12px 18px;
     background: rgba(10, 16, 36, 0.95); border-top: 1px solid var(--border);
   }
   .term-input {
@@ -376,17 +431,25 @@ function generateHtml() {
     padding: 3px 6px; border-radius: 4px; text-align: center;
   }
   .step-content h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 4px; }
-  .step-content p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+  .step-content p { font-size: 13.5px; color: var(--text-dim); line-height: 1.5; }
 
   /* ── Knox Enterprise Defense Matrix (Comparison Table) ── */
   .matrix-section {
-    padding: 80px 0; background: rgba(6, 11, 24, 0.6); border-top: 1px solid var(--border);
+    padding: 85px 0; background: rgba(6, 11, 24, 0.6); border-top: 1px solid var(--border);
+  }
+  .matrix-scroll-hint {
+    display: none; font-family: var(--mono); font-size: 11.5px; color: var(--cyan);
+    text-align: right; margin-bottom: 8px;
+  }
+  @media (max-width: 820px) {
+    .matrix-scroll-hint { display: block; }
   }
   .matrix-table-wrap {
-    overflow-x: auto; margin-top: 40px; border-radius: 12px; border: 1px solid var(--border);
+    overflow-x: auto; margin-top: 24px; border-radius: 12px; border: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch;
   }
   .matrix-table {
-    width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px;
+    width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px; min-width: 700px;
   }
   .matrix-table th, .matrix-table td {
     padding: 16px 20px; border-bottom: 1px solid var(--border);
@@ -395,7 +458,11 @@ function generateHtml() {
     background: rgba(15, 23, 50, 0.95); font-family: var(--mono); font-size: 12px;
     font-weight: 700; color: var(--text); letter-spacing: 0.05em; text-transform: uppercase;
   }
-  .matrix-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+  .matrix-table th:first-child, .matrix-table td:first-child {
+    position: sticky; left: 0; z-index: 5;
+    background: #090f24; border-right: 1px solid var(--border-glow); min-width: 180px;
+  }
+  .matrix-table tr:hover td { background: rgba(255, 255, 255, 0.03); }
   .matrix-table td.col-pasa {
     background: rgba(6, 182, 212, 0.06); font-weight: 700; color: #fff;
     border-left: 1px solid var(--border-glow); border-right: 1px solid var(--border-glow);
@@ -409,7 +476,7 @@ function generateHtml() {
 
   /* ── Interactive Vulnerability Self-Assessment Widget ── */
   .audit-section {
-    padding: 80px 0; background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-void) 100%);
+    padding: 85px 0; background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-void) 100%);
   }
   .audit-box {
     background: var(--surface-card); border: 1px solid var(--border-crimson);
@@ -440,15 +507,15 @@ function generateHtml() {
   .audit-score-num { font-size: 26px; font-weight: 900; color: var(--crimson); font-family: var(--mono); }
 
   /* ── Crime Scene Investigation Cases (CID Vibe) ── */
-  .section-hdr { text-align: center; margin-bottom: 56px; position: relative; }
+  .section-hdr { text-align: center; margin-bottom: 50px; position: relative; }
   .section-tag {
     font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--cyan);
     letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; display: inline-block;
   }
   .section-title {
-    font-size: clamp(28px, 4vw, 42px); font-weight: 800; letter-spacing: -0.01em; margin-bottom: 16px;
+    font-size: clamp(26px, 3.8vw, 40px); font-weight: 800; letter-spacing: -0.01em; margin-bottom: 14px;
   }
-  .section-lede { font-size: 16.5px; color: var(--text-dim); max-width: 680px; margin: 0 auto; }
+  .section-lede { font-size: 16px; color: var(--text-dim); max-width: 680px; margin: 0 auto; line-height: 1.6; }
 
   .cases-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;
@@ -478,7 +545,7 @@ function generateHtml() {
     font-family: var(--mono); font-size: 10px; font-weight: 700; color: var(--crimson);
     text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 5px;
   }
-  .case-title { font-size: 18.5px; font-weight: 700; margin-bottom: 12px; line-height: 1.35; }
+  .case-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; line-height: 1.35; }
   .case-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 18px; flex: 1; }
   .case-counter {
     background: rgba(3, 7, 18, 0.6); border: 1px solid var(--border);
@@ -491,7 +558,7 @@ function generateHtml() {
 
   /* ── 86 C2 Commands Hub Console ── */
   .c2-section {
-    padding: 80px 0; background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-void) 100%);
+    padding: 85px 0; background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-void) 100%);
     border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
   }
   .hub-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 36px; }
@@ -596,24 +663,25 @@ function generateHtml() {
   }
   .faq-answer pre code { background: transparent; padding: 0; color: #38bdf8; }
 
-  /* ── Pricing & Licensing ── */
+  /* ── Pricing & Licensing (Perfect Card Heights & Baseline Alignment) ── */
   .pricing-section {
     padding: 90px 0; background: rgba(6, 11, 24, 0.8); border-top: 1px solid var(--border);
   }
   .pricing-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px;
-    margin-top: 48px;
+    margin-top: 48px; align-items: stretch;
   }
   .pricing-card {
     background: var(--surface-card); border: 1px solid var(--border);
     border-radius: 16px; padding: 36px 28px; display: flex; flex-direction: column;
-    position: relative; backdrop-filter: blur(14px); transition: all 0.3s ease;
+    justify-content: space-between; height: 100%; position: relative; backdrop-filter: blur(14px);
+    transition: all 0.3s ease;
   }
   .pricing-card:hover { transform: translateY(-4px); }
   .pricing-card.featured {
     border-color: var(--crimson);
     box-shadow: 0 16px 50px rgba(239, 68, 68, 0.2);
-    background: linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, rgba(15, 23, 50, 0.8) 100%);
+    background: linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, rgba(15, 23, 50, 0.85) 100%);
   }
   .pricing-featured-badge {
     position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
@@ -627,14 +695,16 @@ function generateHtml() {
   .pricing-price { font-size: 42px; font-weight: 900; line-height: 1; margin-bottom: 6px; color: var(--text); }
   .pricing-currency { font-size: 18px; color: var(--text-dim); font-weight: 600; }
   .pricing-period { font-size: 13px; color: var(--text-faint); margin-bottom: 24px; }
-  .pricing-features { list-style: none; margin-bottom: 32px; flex: 1; }
+  
+  /* Features list grows to fill space, locking buttons to baseline */
+  .pricing-features { list-style: none; margin-bottom: 28px; flex: 1; }
   .pricing-features li {
     font-size: 13.5px; color: var(--text-dim); margin-bottom: 12px;
     display: flex; align-items: flex-start; gap: 10px;
   }
   .pricing-features li svg { width: 16px; height: 16px; min-width: 16px; color: var(--emerald); margin-top: 3px; }
 
-  /* Payment Channels Strip */
+  /* Payment Channels Strip (Untouched as requested) */
   .payment-channels {
     margin-top: 48px; background: rgba(10, 16, 36, 0.8); border: 1px solid var(--border);
     border-radius: 14px; padding: 26px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;
@@ -665,6 +735,35 @@ function generateHtml() {
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  /* ── Sleek, Non-Obstructive Floating Concierge Widget ── */
+  .floating-concierge {
+    position: fixed; bottom: 22px; right: 22px; z-index: 95;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+  }
+  .concierge-pill {
+    background: #0f1738; border: 1px solid var(--border-glow); color: #fff;
+    padding: 9px 16px; border-radius: 30px; font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6); transition: all 0.25s ease;
+  }
+  .concierge-pill:hover {
+    background: #152250; border-color: var(--cyan); transform: translateY(-2px);
+  }
+  .concierge-card {
+    background: #0a1128; border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.7); display: none;
+    flex-direction: column; gap: 10px; width: 220px; backdrop-filter: blur(14px);
+  }
+  .concierge-card.open { display: flex; animation: fadeIn 0.2s ease; }
+  .concierge-link {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px;
+    text-decoration: none; font-size: 13px; font-weight: 600; color: #fff; transition: background 0.15s;
+  }
+  .concierge-link.wa { background: rgba(37, 211, 102, 0.15); color: #25D366; }
+  .concierge-link.wa:hover { background: rgba(37, 211, 102, 0.25); }
+  .concierge-link.tg { background: rgba(34, 158, 217, 0.15); color: #229ed9; }
+  .concierge-link.tg:hover { background: rgba(34, 158, 217, 0.25); }
+
   /* ── Footer ── */
   footer {
     background: #02040a; border-top: 1px solid var(--border); padding: 60px 0 40px;
@@ -673,7 +772,6 @@ function generateHtml() {
   .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
   @media (max-width: 768px) {
     .footer-grid { grid-template-columns: 1fr; gap: 30px; }
-    .nav-menu { display: none; }
     .hero { padding: 60px 0 50px; }
     .radar-container { width: 380px; height: 380px; }
     .radar-ring:nth-child(3), .radar-ring:nth-child(4) { display: none; }
@@ -691,40 +789,25 @@ function generateHtml() {
     display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px;
     font-size: 12px; color: var(--text-faint); font-family: var(--mono);
   }
-
-  /* Floating Help Actions */
-  .floating-bar {
-    position: fixed; bottom: 24px; right: 24px; z-index: 99;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .floating-btn {
-    width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15);
-    transition: transform 0.2s; color: #fff; text-decoration: none;
-  }
-  .floating-btn:hover { transform: scale(1.1); }
-  .floating-wa { background: #25D366; }
-  .floating-tg { background: #229ed9; }
 </style>
 </head>
 <body>
 
 <div class="hud-grid"></div>
-<div class="scanline"></div>
 
-<!-- Top Classified Ticker -->
+<!-- Top Executive Status Bar (Streamlined) -->
 <div class="top-ticker">
   <div class="wrap" style="display:flex;align-items:center;width:100%;">
-    <div style="display:flex;align-items:center;gap:6px;min-width:180px;">
+    <div style="display:flex;align-items:center;gap:7px;min-width:190px;">
       <span class="pulse-dot"></span>
-      <span style="font-weight:700;">DEFCON 1: ARMED</span>
+      <span style="font-weight:700;color:var(--text);" data-i18n="top_status">PASA SENTINEL ONLINE</span>
     </div>
     <div class="ticker-wrap">
       <div class="ticker-content" id="tickerMsg">
-        TOP SECRET // OPERATION SOVEREIGN SENTINEL // ZERO-STORAGE DIRECT-TO-TELEGRAM STREAMING // HARDWARE ESCROW TOKENS // ANTI-EDL/BROM BOOTROM CONTAINMENT PROTOCOLS // 86 C2 COMMANDS ACTIVE // 
+        KNOX DEVICE OWNER ARCHITECTURE • STRATEGY 1: ZERO CLOUD MEDIA STORAGE • ENCRYPTED HARDWARE ESCROW TOKENS • AIR-GAPPED CELLULAR SMS FALLBACK • ANTI-EDL/BROM BOOTROM KILLSWITCH • 
       </div>
     </div>
-    <div style="min-width:140px;text-align:right;font-size:10.5px;color:var(--text-faint);">
+    <div style="min-width:130px;text-align:right;font-size:11px;color:var(--cyan);">
       BUILD 47 (v3.5.1)
     </div>
   </div>
@@ -743,14 +826,24 @@ function generateHtml() {
       </div>
     </a>
 
+    <!-- Clean Desktop Menu: 4 primary items + More Dropdown -->
     <div class="nav-menu">
-      <a href="#simulator" class="nav-link" data-i18n="nav_terminal">C2 Terminal</a>
-      <a href="#timeline" class="nav-link" data-i18n="nav_timeline">10s Defense</a>
       <a href="#matrix" class="nav-link" data-i18n="nav_matrix">Defense Matrix</a>
-      <a href="#scenarios" class="nav-link" data-i18n="nav_cases">Crime Cases</a>
-      <a href="#commands" class="nav-link" data-i18n="nav_c2">86 C2 Hubs</a>
+      <a href="#timeline" class="nav-link" data-i18n="nav_timeline">10s Defense</a>
+      <a href="#simulator" class="nav-link" data-i18n="nav_terminal">C2 Terminal</a>
       <a href="#faq" class="nav-link" data-i18n="nav_faq">Forensic FAQ</a>
       <a href="#pricing" class="nav-link" data-i18n="nav_pricing">Licensing</a>
+
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-btn">
+          <span data-i18n="nav_more">More</span> ▾
+        </button>
+        <div class="nav-dropdown-menu">
+          <a href="#scenarios" class="nav-dropdown-item" data-i18n="nav_cases">Crime Cases</a>
+          <a href="#commands" class="nav-dropdown-item" data-i18n="nav_c2">86 C2 Commands</a>
+          <a href="#audit" class="nav-dropdown-item" data-i18n="nav_audit">Vulnerability Audit</a>
+        </div>
+      </div>
     </div>
 
     <div style="display:flex;align-items:center;gap:12px;">
@@ -763,9 +856,36 @@ function generateHtml() {
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
         <span data-i18n="nav_download">Download APK</span>
       </a>
+
+      <!-- Mobile Hamburger Button -->
+      <button class="mobile-toggle" onclick="toggleMobileDrawer()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
     </div>
   </div>
 </nav>
+
+<!-- Mobile Slide-In Drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="toggleMobileDrawer()"></div>
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="mobile-drawer-hdr">
+    <span style="font-weight:800;font-size:16px;">PASA SENTINEL</span>
+    <button onclick="toggleMobileDrawer()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;">&times;</button>
+  </div>
+  <a href="#matrix" onclick="toggleMobileDrawer()" data-i18n="nav_matrix">Defense Matrix</a>
+  <a href="#timeline" onclick="toggleMobileDrawer()" data-i18n="nav_timeline">10s Defense</a>
+  <a href="#simulator" onclick="toggleMobileDrawer()" data-i18n="nav_terminal">C2 Terminal</a>
+  <a href="#scenarios" onclick="toggleMobileDrawer()" data-i18n="nav_cases">Crime Cases</a>
+  <a href="#commands" onclick="toggleMobileDrawer()" data-i18n="nav_c2">86 C2 Commands</a>
+  <a href="#audit" onclick="toggleMobileDrawer()" data-i18n="nav_audit">Vulnerability Audit</a>
+  <a href="#faq" onclick="toggleMobileDrawer()" data-i18n="nav_faq">Forensic FAQ</a>
+  <a href="#pricing" onclick="toggleMobileDrawer()" data-i18n="nav_pricing">Licensing</a>
+  <div style="margin-top:auto;padding-top:20px;">
+    <a href="/releases/pasa-latest.apk" class="btn-primary" style="justify-content:center;width:100%;font-size:13.5px;" data-i18n="nav_download">
+      Download APK (v3.5.1)
+    </a>
+  </div>
+</div>
 
 <!-- HERO SECTION -->
 <section class="hero">
@@ -785,13 +905,29 @@ function generateHtml() {
   <div class="wrap hero-content">
     <div class="dossier-tag">
       <span class="pulse-dot"></span>
-      <span data-i18n="hero_badge">CRIME SCENE INTELLIGENCE // KNOX DEVICE OWNER CLEARANCE</span>
+      <span data-i18n="hero_badge">SOVEREIGN MOBILE DEFENSE // ANDROID 8.0 – 16</span>
     </div>
 
     <h1 data-i18n="hero_title">YOUR PHONE WILL NEVER BE SURRENDERED.</h1>
     <p class="hero-sub" data-i18n="hero_sub">
       When ordinary trackers go blind in 10 seconds, PASA Sentinel engages Knox-grade hardware lockdown, hunts the perpetrator's real identity, and protects your sovereign personal data.
     </p>
+
+    <!-- 3 Core Architectural Pillars -->
+    <div class="hero-pillars">
+      <div class="hero-pillar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span data-i18n="pillar_1">Knox Device Owner (Immutable)</span>
+      </div>
+      <div class="hero-pillar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <span data-i18n="pillar_2">Zero-Cloud Media Storage</span>
+      </div>
+      <div class="hero-pillar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        <span data-i18n="pillar_3">Air-Gapped Cellular SMS C2</span>
+      </div>
+    </div>
 
     <div class="hero-actions">
       <a href="/releases/pasa-latest.apk" class="btn-primary">
@@ -838,52 +974,82 @@ function generateHtml() {
   </div>
 </section>
 
-<!-- ── LIVE INTERACTIVE C2 TERMINAL SIMULATOR ── -->
-<section id="simulator" class="terminal-section">
+<!-- ── KNOX ENTERPRISE DEFENSE MATRIX ── -->
+<section id="matrix" class="matrix-section">
   <div class="wrap">
     <div class="section-hdr">
-      <span class="section-tag" data-i18n="term_section_tag">LIVE CID INTELLIGENCE SIMULATOR</span>
-      <h2 class="section-title" data-i18n="term_section_title">Interactive C2 Command Console</h2>
-      <p class="section-lede" data-i18n="term_section_lede">
-        Execute real defense commands and inspect live simulated hardware responses. See how PASA operates in active crime containment.
+      <span class="section-tag" data-i18n="matrix_section_tag">HARDWARE ARCHITECTURE COMPARISON</span>
+      <h2 class="section-title" data-i18n="matrix_section_title">Knox Device Owner vs Standard Apps</h2>
+      <p class="section-lede" data-i18n="matrix_section_lede">
+        Why Google Play Store policies prevent ordinary apps from ever matching PASA Sentinel's supervisor privileges.
       </p>
     </div>
 
-    <div class="terminal-card">
-      <div class="terminal-hdr">
-        <div class="terminal-dots">
-          <div class="terminal-dot r"></div>
-          <div class="terminal-dot y"></div>
-          <div class="terminal-dot g"></div>
-        </div>
-        <div class="terminal-title">PASA-SENTINEL-C2 // TACTICAL NODE v3.5.1 [CONNECTED]</div>
-        <div style="font-family:var(--mono);font-size:11px;color:var(--emerald);">TLS_AES_256_GCM_SHA384</div>
-      </div>
+    <div class="matrix-scroll-hint" data-i18n="matrix_scroll_hint">
+      👉 Scroll horizontally to compare all platforms
+    </div>
 
-      <div class="terminal-chip-bar">
-        <span style="font-family:var(--mono);font-size:11px;color:var(--text-faint);" data-i18n="term_chips_label">Quick Commands:</span>
-        <button class="term-chip" onclick="simulateCmd('/locate')">/locate</button>
-        <button class="term-chip" onclick="simulateCmd('/snap front')">/snap front</button>
-        <button class="term-chip" onclick="simulateCmd('/usb_lock on')">/usb_lock on</button>
-        <button class="term-chip" onclick="simulateCmd('/thermal')">/thermal</button>
-        <button class="term-chip" onclick="simulateCmd('/deadman')">/deadman</button>
-        <button class="term-chip" onclick="simulateCmd('/fakeshutdown')">/fakeshutdown</button>
-        <button class="term-chip" onclick="simulateCmd('/freeze bkash')">/freeze bkash</button>
-        <button class="term-chip" onclick="clearTerminal()" style="color:var(--crimson);border-color:rgba(239,68,68,0.3);">[Clear]</button>
-      </div>
-
-      <div class="terminal-screen" id="termScreen">
-        <div class="term-line" style="color:var(--text-faint);">// PASA Sentinel Autonomous Cyber-Forensic Terminal Ready.</div>
-        <div class="term-line" style="color:var(--text-faint);">// Click any quick command above or type a command below.</div>
-        <div class="term-line" style="color:var(--cyan);margin-top:10px;">[KERNEL] Device Owner initialized with supervisor clearance.</div>
-        <div class="term-line term-success">[ASTRA] Hardware Keystore enrolled with StrongBox TEE.</div>
-      </div>
-
-      <div class="terminal-input-row">
-        <span class="term-prompt">sentinel@pasa:~$</span>
-        <input type="text" id="termInput" class="term-input" placeholder="Type a command (e.g. /locate, /snap, /usb_lock on)..." onkeydown="handleTermKey(event)">
-        <button onclick="submitTermInput()" class="term-chip" style="color:var(--cyan);border-color:var(--cyan);padding:6px 14px;">ENTER ↵</button>
-      </div>
+    <div class="matrix-table-wrap">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th data-i18n="th_feature">Security Capability</th>
+            <th data-i18n="th_google">Google Find My Device</th>
+            <th data-i18n="th_play">Play Store Anti-Theft</th>
+            <th class="col-pasa">PASA SENTINEL v3.5.1</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong data-i18n="mat_1_title">Zero Root Requirement</strong><br><span style="font-size:12px;color:var(--text-faint);" data-i18n="mat_1_sub">Retains full Knox &amp; StrongBox Keystore integrity</span></td>
+            <td><span class="check-icon">✔</span> Yes</td>
+            <td><span class="cross-icon">✖</span> Often requires root</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> 100% Zero-Root (Device Owner)</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_2_title">Lockscreen Status Bar &amp; Airplane Block</strong><br><span style="font-size:12px;color:var(--text-faint);" data-i18n="mat_2_sub">Prevents quick settings offline tampering</span></td>
+            <td><span class="cross-icon">✖</span> Not possible</td>
+            <td><span class="cross-icon">✖</span> Bypassed in 2 seconds</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> Enforced (setStatusBarDisabled)</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_3_title">Air-Gapped Cellular SMS C2 Fallback</strong><br><span style="font-size:12px;color:var(--text-faint);" data-i18n="mat_3_sub">Operates when internet &amp; Wi-Fi are disconnected</span></td>
+            <td><span class="cross-icon">✖</span> Dead without internet</td>
+            <td><span class="cross-icon">✖</span> Banned by Play Store</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> TOTP Dynamic Cellular SMS C2</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_4_title">Remote Hardware Lockscreen PIN Reset</strong><br><span style="font-size:12px;color:var(--text-faint);" data-i18n="mat_4_sub">Android 14, 15, 16 OS PIN override</span></td>
+            <td><span class="cross-icon">✖</span> Deprecated by Google</td>
+            <td><span class="cross-icon">✖</span> Completely broken</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> Cryptographic Escrow Tokens</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_5_title">Hardware USB Data Pin Killswitch</strong><br><span style="font-size:12px;color:var(--text-faint);" data-i18n="mat_5_sub">Neutralizes Cellebrite &amp; GrayKey extraction</span></td>
+            <td><span class="cross-icon">✖</span> No</td>
+            <td><span class="cross-icon">✖</span> No</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> Android 12+ UsbDataSignaling</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_6_title">Anti-Uninstall &amp; Safe Mode Immunity</strong><br><span style="font-size:12px;color:var(--text-faint);" data-i18n="mat_6_sub">Thief cannot delete or force-stop</span></td>
+            <td><span class="cross-icon">✖</span> Standard OS user mode</td>
+            <td><span class="cross-icon">✖</span> Removable in Safe Mode</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> Grayed-out "Managed by Org"</td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_7_title">Surveillance Privacy &amp; Storage Policy</strong><br><span style="font-size:12px;color:var(--text-faint);" data-i18n="mat_7_sub">Who sees your photos, audio, and GPS?</span></td>
+            <td>Central Google Cloud Logs</td>
+            <td>Third-Party Cloud Servers</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> <strong>Strategy 1: 0-Cloud Storage</strong></td>
+          </tr>
+          <tr>
+            <td><strong data-i18n="mat_8_title">Pricing Model</strong><br><span style="font-size:12px;color:var(--text-faint);" data-i18n="mat_8_sub">Recurring costs vs permanent sovereignty</span></td>
+            <td>Free (Barebones)</td>
+            <td>$60–$120 / year recurring</td>
+            <td class="col-pasa"><span class="check-icon">✔</span> <strong>$25 (৳3,000) Lifetime License</strong></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
@@ -987,131 +1153,51 @@ function generateHtml() {
   </div>
 </section>
 
-<!-- ── KNOX ENTERPRISE DEFENSE MATRIX ── -->
-<section id="matrix" class="matrix-section">
+<!-- ── LIVE INTERACTIVE C2 TERMINAL SIMULATOR ── -->
+<section id="simulator" class="terminal-section">
   <div class="wrap">
     <div class="section-hdr">
-      <span class="section-tag" data-i18n="matrix_section_tag">HARDWARE ARCHITECTURE COMPARISON</span>
-      <h2 class="section-title" data-i18n="matrix_section_title">Knox Device Owner vs Standard Apps</h2>
-      <p class="section-lede" data-i18n="matrix_section_lede">
-        Why Google Play Store policies prevent ordinary apps from ever matching PASA Sentinel's supervisor privileges.
+      <span class="section-tag" data-i18n="term_section_tag">LIVE CID INTELLIGENCE SIMULATOR</span>
+      <h2 class="section-title" data-i18n="term_section_title">Interactive C2 Command Console</h2>
+      <p class="section-lede" data-i18n="term_section_lede">
+        Execute real defense commands and inspect live simulated hardware responses. See how PASA operates in active crime containment.
       </p>
     </div>
 
-    <div class="matrix-table-wrap">
-      <table class="matrix-table">
-        <thead>
-          <tr>
-            <th data-i18n="th_feature">Security Capability</th>
-            <th data-i18n="th_google">Google Find My Device</th>
-            <th data-i18n="th_play">Play Store Anti-Theft</th>
-            <th class="col-pasa">PASA SENTINEL v3.5.1</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong data-i18n="mat_1_title">Zero Root Requirement</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_1_sub">Retains full Knox &amp; StrongBox Keystore integrity</span></td>
-            <td><span class="check-icon">✔</span> Yes</td>
-            <td><span class="cross-icon">✖</span> Often requires root</td>
-            <td class="col-pasa"><span class="check-icon">✔</span> 100% Zero-Root (Device Owner)</td>
-          </tr>
-          <tr>
-            <td><strong data-i18n="mat_2_title">Lockscreen Status Bar &amp; Airplane Block</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_2_sub">Prevents quick settings offline tampering</span></td>
-            <td><span class="cross-icon">✖</span> Not possible</td>
-            <td><span class="cross-icon">✖</span> Bypassed in 2 seconds</td>
-            <td class="col-pasa"><span class="check-icon">✔</span> Enforced (setStatusBarDisabled)</td>
-          </tr>
-          <tr>
-            <td><strong data-i18n="mat_3_title">Air-Gapped Cellular SMS C2 Fallback</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_3_sub">Operates when internet &amp; Wi-Fi are disconnected</span></td>
-            <td><span class="cross-icon">✖</span> Dead without internet</td>
-            <td><span class="cross-icon">✖</span> Banned by Play Store</td>
-            <td class="col-pasa"><span class="check-icon">✔</span> TOTP Dynamic Cellular SMS C2</td>
-          </tr>
-          <tr>
-            <td><strong data-i18n="mat_4_title">Remote Hardware Lockscreen PIN Reset</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_4_sub">Android 14, 15, 16 OS PIN override</span></td>
-            <td><span class="cross-icon">✖</span> Deprecated by Google</td>
-            <td><span class="cross-icon">✖</span> Completely broken</td>
-            <td class="col-pasa"><span class="check-icon">✔</span> Cryptographic Escrow Tokens</td>
-          </tr>
-          <tr>
-            <td><strong data-i18n="mat_5_title">Hardware USB Data Pin Killswitch</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_5_sub">Neutralizes Cellebrite &amp; GrayKey extraction</span></td>
-            <td><span class="cross-icon">✖</span> No</td>
-            <td><span class="cross-icon">✖</span> No</td>
-            <td class="col-pasa"><span class="check-icon">✔</span> Android 12+ UsbDataSignaling</td>
-          </tr>
-          <tr>
-            <td><strong data-i18n="mat_6_title">Anti-Uninstall &amp; Safe Mode Immunity</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_6_sub">Thief cannot delete or force-stop</span></td>
-            <td><span class="cross-icon">✖</span> Standard OS user mode</td>
-            <td><span class="cross-icon">✖</span> Removable in Safe Mode</td>
-            <td class="col-pasa"><span class="check-icon">✔</span> Grayed-out "Managed by Org"</td>
-          </tr>
-          <tr>
-            <td><strong data-i18n="mat_7_title">Surveillance Privacy &amp; Storage Policy</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_7_sub">Who sees your photos, audio, and GPS?</span></td>
-            <td>Central Google Cloud Logs</td>
-            <td>Third-Party Cloud Servers</td>
-            <td class="col-pasa"><span class="check-icon">✔</span> <strong>Strategy 1: 0-Cloud Storage</strong></td>
-          </tr>
-          <tr>
-            <td><strong data-i18n="mat_8_title">Pricing Model</strong><br><span style="font-size:12px;color:var(--text-dim);" data-i18n="mat_8_sub">Recurring costs vs permanent sovereignty</span></td>
-            <td>Free (Barebones)</td>
-            <td>$60–$120 / year recurring</td>
-            <td class="col-pasa"><span class="check-icon">✔</span> <strong>$25 (৳3,000) Lifetime License</strong></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<!-- ── INTERACTIVE VULNERABILITY AUDIT ── -->
-<section class="audit-section">
-  <div class="wrap">
-    <div class="section-hdr">
-      <span class="section-tag" data-i18n="audit_section_tag">DEVICE SECURITY DIAGNOSTIC</span>
-      <h2 class="section-title" data-i18n="audit_section_title">Test Your Handset's Theft Vulnerability</h2>
-      <p class="section-lede" data-i18n="audit_section_lede">
-        Answer 4 questions about your phone's current settings to calculate your real-world vulnerability index.
-      </p>
-    </div>
-
-    <div class="audit-box">
-      <div class="audit-item">
-        <div class="audit-q" data-i18n="audit_q1">1. Can anyone swipe down your notification shade from the lockscreen and turn on Airplane Mode?</div>
-        <div class="audit-toggle">
-          <button class="audit-btn active yes" onclick="setAudit(1, true, this)">YES</button>
-          <button class="audit-btn no" onclick="setAudit(1, false, this)">NO</button>
+    <div class="terminal-card">
+      <div class="terminal-hdr">
+        <div class="terminal-dots">
+          <div class="terminal-dot r"></div>
+          <div class="terminal-dot y"></div>
+          <div class="terminal-dot g"></div>
         </div>
-      </div>
-      <div class="audit-item">
-        <div class="audit-q" data-i18n="audit_q2">2. Can someone press and hold your power button to completely shut down your phone without your PIN?</div>
-        <div class="audit-toggle">
-          <button class="audit-btn active yes" onclick="setAudit(2, true, this)">YES</button>
-          <button class="audit-btn no" onclick="setAudit(2, false, this)">NO</button>
-        </div>
-      </div>
-      <div class="audit-item">
-        <div class="audit-q" data-i18n="audit_q3">3. If a thief ejects your SIM card, do you lose all ability to track or communicate with the device?</div>
-        <div class="audit-toggle">
-          <button class="audit-btn active yes" onclick="setAudit(3, true, this)">YES</button>
-          <button class="audit-btn no" onclick="setAudit(3, false, this)">NO</button>
-        </div>
-      </div>
-      <div class="audit-item">
-        <div class="audit-q" data-i18n="audit_q4">4. If forced at weapon-point to unlock your screen, will your banking apps (bKash/crypto) be visible?</div>
-        <div class="audit-toggle">
-          <button class="audit-btn active yes" onclick="setAudit(4, true, this)">YES</button>
-          <button class="audit-btn no" onclick="setAudit(4, false, this)">NO</button>
-        </div>
+        <div class="terminal-title">PASA-SENTINEL-C2 // TACTICAL NODE v3.5.1 [CONNECTED]</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--emerald);">TLS_AES_256_GCM_SHA384</div>
       </div>
 
-      <div class="audit-result-bar">
-        <div>
-          <div style="font-family:var(--mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;" data-i18n="audit_risk_label">CURRENT THEFT VULNERABILITY INDEX:</div>
-          <div class="audit-score-num" id="auditScore">94% CRITICAL RISK</div>
-        </div>
-        <a href="#pricing" class="btn-primary" style="padding:10px 20px;font-size:13.5px;" data-i18n="audit_cta">
-          Neutralize Vulnerability with PASA
-        </a>
+      <div class="terminal-chip-bar">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text-faint);flex-shrink:0;" data-i18n="term_chips_label">Quick Commands:</span>
+        <button class="term-chip" onclick="simulateCmd('/locate')">/locate</button>
+        <button class="term-chip" onclick="simulateCmd('/snap front')">/snap front</button>
+        <button class="term-chip" onclick="simulateCmd('/usb_lock on')">/usb_lock on</button>
+        <button class="term-chip" onclick="simulateCmd('/thermal')">/thermal</button>
+        <button class="term-chip" onclick="simulateCmd('/deadman')">/deadman</button>
+        <button class="term-chip" onclick="simulateCmd('/fakeshutdown')">/fakeshutdown</button>
+        <button class="term-chip" onclick="simulateCmd('/freeze bkash')">/freeze bkash</button>
+        <button class="term-chip" onclick="clearTerminal()" style="color:var(--crimson);border-color:rgba(239,68,68,0.3);">[Clear]</button>
+      </div>
+
+      <div class="terminal-screen" id="termScreen">
+        <div class="term-line" style="color:var(--text-faint);">// PASA Sentinel Autonomous Cyber-Forensic Terminal Ready.</div>
+        <div class="term-line" style="color:var(--text-faint);">// Click any quick command above or type a command below.</div>
+        <div class="term-line" style="color:var(--cyan);margin-top:10px;">[KERNEL] Device Owner initialized with supervisor clearance.</div>
+        <div class="term-line term-success">[ASTRA] Hardware Keystore enrolled with StrongBox TEE.</div>
+      </div>
+
+      <div class="terminal-input-row">
+        <span class="term-prompt">sentinel@pasa:~$</span>
+        <input type="text" id="termInput" class="term-input" placeholder="Type a command (e.g. /locate, /snap, /usb_lock on)..." onkeydown="handleTermKey(event)">
+        <button onclick="submitTermInput()" class="term-chip" style="color:var(--cyan);border-color:var(--cyan);padding:6px 14px;">ENTER ↵</button>
       </div>
     </div>
   </div>
@@ -1133,7 +1219,7 @@ function generateHtml() {
       <div class="case-card danger">
         <div class="case-badge-row">
           <span class="case-id">CASE #01 // SNATCH</span>
-          <span class="case-threat"><span class="pulse-dot"></span> THREAT: HIGH SPEED</span>
+          <span class="case-threat"><span class="pulse-dot" style="background:var(--crimson);"></span> THREAT: HIGH SPEED</span>
         </div>
         <h3 class="case-title" data-i18n="case1_title">The Street Snatch &amp; 2.65G Shockwave</h3>
         <p class="case-desc" data-i18n="case1_desc">
@@ -1175,7 +1261,7 @@ function generateHtml() {
       <div class="case-card danger">
         <div class="case-badge-row">
           <span class="case-id">CASE #03 // LAB ATTACK</span>
-          <span class="case-threat"><span class="pulse-dot"></span> THREAT: BOOTROM FLASH</span>
+          <span class="case-threat"><span class="pulse-dot" style="background:var(--crimson);"></span> THREAT: BOOTROM FLASH</span>
         </div>
         <h3 class="case-title" data-i18n="case3_title">The Underground Lab &amp; EDL 9008 Attack</h3>
         <p class="case-desc" data-i18n="case3_desc">
@@ -1354,6 +1440,60 @@ function generateHtml() {
   </div>
 </section>
 
+<!-- ── INTERACTIVE VULNERABILITY AUDIT ── -->
+<section id="audit" class="audit-section">
+  <div class="wrap">
+    <div class="section-hdr">
+      <span class="section-tag" data-i18n="audit_section_tag">DEVICE SECURITY DIAGNOSTIC</span>
+      <h2 class="section-title" data-i18n="audit_section_title">Test Your Handset's Theft Vulnerability</h2>
+      <p class="section-lede" data-i18n="audit_section_lede">
+        Answer 4 questions about your phone's current settings to calculate your real-world vulnerability index.
+      </p>
+    </div>
+
+    <div class="audit-box">
+      <div class="audit-item">
+        <div class="audit-q" data-i18n="audit_q1">1. Can anyone swipe down your notification shade from the lockscreen and turn on Airplane Mode?</div>
+        <div class="audit-toggle">
+          <button class="audit-btn active yes" onclick="setAudit(1, true, this)">YES</button>
+          <button class="audit-btn no" onclick="setAudit(1, false, this)">NO</button>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-q" data-i18n="audit_q2">2. Can someone press and hold your power button to completely shut down your phone without your PIN?</div>
+        <div class="audit-toggle">
+          <button class="audit-btn active yes" onclick="setAudit(2, true, this)">YES</button>
+          <button class="audit-btn no" onclick="setAudit(2, false, this)">NO</button>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-q" data-i18n="audit_q3">3. If a thief ejects your SIM card, do you lose all ability to track or communicate with the device?</div>
+        <div class="audit-toggle">
+          <button class="audit-btn active yes" onclick="setAudit(3, true, this)">YES</button>
+          <button class="audit-btn no" onclick="setAudit(3, false, this)">NO</button>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-q" data-i18n="audit_q4">4. If forced at weapon-point to unlock your screen, will your banking apps (bKash/crypto) be visible?</div>
+        <div class="audit-toggle">
+          <button class="audit-btn active yes" onclick="setAudit(4, true, this)">YES</button>
+          <button class="audit-btn no" onclick="setAudit(4, false, this)">NO</button>
+        </div>
+      </div>
+
+      <div class="audit-result-bar">
+        <div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;" data-i18n="audit_risk_label">CURRENT THEFT VULNERABILITY INDEX:</div>
+          <div class="audit-score-num" id="auditScore">94% CRITICAL RISK</div>
+        </div>
+        <a href="#pricing" class="btn-primary" style="padding:10px 20px;font-size:13.5px;" data-i18n="audit_cta">
+          Neutralize Vulnerability with PASA
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── MASTER FAQ SECTION (Accordion + Search + Filter) ── -->
 <section id="faq" class="faq-section">
   <div class="wrap">
@@ -1416,16 +1556,18 @@ function generateHtml() {
     <div class="pricing-grid">
       <!-- Trial -->
       <div class="pricing-card">
-        <h3 class="pricing-plan" data-i18n="plan_eval_title">Tactical Evaluation</h3>
-        <p class="pricing-desc" data-i18n="plan_eval_desc">Test core telemetry and verification on your personal hardware.</p>
-        <div class="pricing-price">FREE</div>
-        <div class="pricing-period" data-i18n="plan_eval_period">3-Day Evaluation Period</div>
-        <ul class="pricing-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_eval_1">Essential Telegram C2 Commands</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_eval_2">Headless Camera Capture Test</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_eval_3">GPS &amp; Cell Tower Telemetry</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_eval_4">Community Telegram Support</span></li>
-        </ul>
+        <div>
+          <h3 class="pricing-plan" data-i18n="plan_eval_title">Tactical Evaluation</h3>
+          <p class="pricing-desc" data-i18n="plan_eval_desc">Test core telemetry and verification on your personal hardware.</p>
+          <div class="pricing-price">FREE</div>
+          <div class="pricing-period" data-i18n="plan_eval_period">3-Day Evaluation Period</div>
+          <ul class="pricing-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_eval_1">Essential Telegram C2 Commands</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_eval_2">Headless Camera Capture Test</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_eval_3">GPS &amp; Cell Tower Telemetry</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_eval_4">Community Telegram Support</span></li>
+          </ul>
+        </div>
         <a href="https://t.me/Pas_agent_bot" target="_blank" class="btn-secondary" style="justify-content:center;font-size:13.5px;" data-i18n="btn_start_eval">
           Activate via Bot
         </a>
@@ -1434,19 +1576,21 @@ function generateHtml() {
       <!-- Pro Lifetime (Featured) -->
       <div class="pricing-card featured">
         <div class="pricing-featured-badge" data-i18n="badge_most_popular">MOST POPULAR DEFENSE</div>
-        <h3 class="pricing-plan" style="color:var(--crimson);" data-i18n="plan_pro_title">Pro Lifetime Shield</h3>
-        <p class="pricing-desc" data-i18n="plan_pro_desc">Complete sovereign defense suite for 1 Android device forever.</p>
-        <div class="pricing-price">$25 <span class="pricing-currency">/ ৳3,000</span></div>
-        <div class="pricing-period" data-i18n="plan_pro_period">One-time payment • Lifetime OTA Updates</div>
-        <ul class="pricing-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <strong><span data-i18n="f_pro_1">All 86 Telegram C2 Commands</span></strong></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <strong><span data-i18n="f_pro_2">Knox-Grade Device Owner Provisioning</span></strong></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_pro_3">Hardware Escrow Token PIN Reset</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_pro_4">Anti-EDL/BROM Dead Man's Switch</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_pro_5">SIM Ejection Foreign Number Trap</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_pro_6">1-on-1 Personal Remote Setup Onboarding</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <strong><span data-i18n="f_pro_7">24-Hour 100% Refund Guarantee</span></strong></li>
-        </ul>
+        <div>
+          <h3 class="pricing-plan" style="color:var(--crimson);" data-i18n="plan_pro_title">Pro Lifetime Shield</h3>
+          <p class="pricing-desc" data-i18n="plan_pro_desc">Complete sovereign defense suite for 1 Android device forever.</p>
+          <div class="pricing-price">$25 <span class="pricing-currency">/ ৳3,000</span></div>
+          <div class="pricing-period" data-i18n="plan_pro_period">One-time payment • Lifetime OTA Updates</div>
+          <ul class="pricing-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <strong><span data-i18n="f_pro_1">All 86 Telegram C2 Commands</span></strong></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <strong><span data-i18n="f_pro_2">Knox-Grade Device Owner Provisioning</span></strong></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_pro_3">Hardware Escrow Token PIN Reset</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_pro_4">Anti-EDL/BROM Dead Man's Switch</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_pro_5">SIM Ejection Foreign Number Trap</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_pro_6">1-on-1 Personal Remote Setup Onboarding</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <strong><span data-i18n="f_pro_7">24-Hour 100% Refund Guarantee</span></strong></li>
+          </ul>
+        </div>
         <a href="https://wa.me/8801762033445?text=Hello%20PASA%20Team%2C%20I%20want%20to%20activate%20PASA%20Pro%20Lifetime" target="_blank" class="btn-primary" style="justify-content:center;font-size:14px;" data-i18n="btn_buy_pro">
           Claim Lifetime License
         </a>
@@ -1454,23 +1598,25 @@ function generateHtml() {
 
       <!-- Enterprise Fleet -->
       <div class="pricing-card">
-        <h3 class="pricing-plan" data-i18n="plan_ent_title">Enterprise Fleet</h3>
-        <p class="pricing-desc" data-i18n="plan_ent_desc">VIP executive defense, corporate fleets, and high-risk field agents.</p>
-        <div class="pricing-price">$99 <span class="pricing-currency">/ ৳11,500</span></div>
-        <div class="pricing-period" data-i18n="plan_ent_period">5 Devices Pack • Dedicated Control Node</div>
-        <ul class="pricing-features">
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_ent_1">5x Pro Lifetime Device Licenses</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_ent_2">Dedicated Private Relay Server Node</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_ent_3">Zero-Knowledge Fleet Management</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_ent_4">Direct WhatsApp &amp; Telegram Hotline</span></li>
-        </ul>
+        <div>
+          <h3 class="pricing-plan" data-i18n="plan_ent_title">Enterprise Fleet</h3>
+          <p class="pricing-desc" data-i18n="plan_ent_desc">VIP executive defense, corporate fleets, and high-risk field agents.</p>
+          <div class="pricing-price">$99 <span class="pricing-currency">/ ৳11,500</span></div>
+          <div class="pricing-period" data-i18n="plan_ent_period">5 Devices Pack • Dedicated Control Node</div>
+          <ul class="pricing-features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_ent_1">5x Pro Lifetime Device Licenses</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_ent_2">Dedicated Private Relay Server Node</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_ent_3">Zero-Knowledge Fleet Management</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="f_ent_4">Direct WhatsApp &amp; Telegram Hotline</span></li>
+          </ul>
+        </div>
         <a href="https://wa.me/8801762033445?text=Hello%20PASA%20Team%2C%20I%20am%20interested%20in%20Enterprise%20Fleet" target="_blank" class="btn-secondary" style="justify-content:center;font-size:13.5px;" data-i18n="btn_contact_ent">
           Contact Concierge
         </a>
       </div>
     </div>
 
-    <!-- Payment Channels Details Strip (bKash number removed, direct contact requested) -->
+    <!-- Payment Channels Details Strip (Untouched as requested) -->
     <div class="payment-channels">
       <!-- Binance Pay -->
       <div class="pay-method">
@@ -1548,7 +1694,7 @@ function generateHtml() {
             <span class="brand-sub">Sovereign Defense Systems</span>
           </div>
         </div>
-        <p style="font-size:13px;color:var(--text-dim);line-height:1.6;max-width:340px;" data-i18n="footer_bio">
+        <p style="font-size:13.5px;color:var(--text-dim);line-height:1.6;max-width:340px;" data-i18n="footer_bio">
           Sovereign Android anti-theft defense &amp; covert intelligence agent. Zero Google Play dependencies, zero cloud media storage, Knox-grade uninstallation lockout. Engineered by Izhaan Intellect.
         </p>
         <div style="margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--cyan);">
@@ -1560,9 +1706,9 @@ function generateHtml() {
         <h5 data-i18n="footer_resources">Resources</h5>
         <ul>
           <li><a href="/releases/pasa-latest.apk" style="color:var(--crimson);font-weight:700;" data-i18n="footer_dl_apk">Download Latest APK (v3.5.1)</a></li>
-          <li><a href="#simulator" data-i18n="nav_terminal">C2 Terminal Simulator</a></li>
-          <li><a href="#timeline" data-i18n="nav_timeline">10-Second Thief Timeline</a></li>
           <li><a href="#matrix" data-i18n="nav_matrix">Defense Comparison Matrix</a></li>
+          <li><a href="#timeline" data-i18n="nav_timeline">10-Second Thief Timeline</a></li>
+          <li><a href="#simulator" data-i18n="nav_terminal">C2 Terminal Simulator</a></li>
           <li><a href="#scenarios" data-i18n="nav_cases">Crime Cases</a></li>
           <li><a href="#commands" data-i18n="nav_c2">86 C2 Commands</a></li>
           <li><a href="#faq" data-i18n="nav_faq">Master Technical FAQ</a></li>
@@ -1593,14 +1739,26 @@ function generateHtml() {
   </div>
 </footer>
 
-<!-- Floating WhatsApp & Telegram Quick Contact -->
-<div class="floating-bar">
-  <a href="https://wa.me/8801762033445" target="_blank" rel="noopener" class="floating-btn floating-wa" title="WhatsApp Concierge">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.87.52 3.63 1.42 5.14L2 22l5.09-1.53a9.87 9.87 0 004.95 1.32h.01c5.46 0 9.9-4.45 9.9-9.9C21.95 6.45 17.5 2 12.04 2z"/></svg>
-  </a>
-  <a href="https://t.me/Pas_agent_bot" target="_blank" rel="noopener" class="floating-btn floating-tg" title="Official Telegram Bot">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.247l-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.09 14.102l-2.95-.924c-.642-.204-.655-.642.135-.951l11.507-4.437c.537-.194 1.006.131.78.457z"/></svg>
-  </a>
+<!-- Sleek, Non-Obstructive Floating Concierge Widget -->
+<div class="floating-concierge">
+  <div class="concierge-card" id="conciergeCard">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text-faint);display:flex;justify-content:space-between;align-items:center;">
+      <span>LIVE ASSISTANCE</span>
+      <span onclick="toggleConcierge()" style="cursor:pointer;font-size:16px;">&times;</span>
+    </div>
+    <a href="https://wa.me/8801762033445" target="_blank" rel="noopener" class="concierge-link wa">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.87.52 3.63 1.42 5.14L2 22l5.09-1.53a9.87 9.87 0 004.95 1.32h.01c5.46 0 9.9-4.45 9.9-9.9C21.95 6.45 17.5 2 12.04 2z"/></svg>
+      <span>WhatsApp Concierge</span>
+    </a>
+    <a href="https://t.me/Pas_agent_bot" target="_blank" rel="noopener" class="concierge-link tg">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0z"/></svg>
+      <span>Telegram Official Bot</span>
+    </a>
+  </div>
+  <div class="concierge-pill" onclick="toggleConcierge()">
+    <span class="pulse-dot" style="background:#25D366;box-shadow:0 0 8px #25D366;"></span>
+    <span data-i18n="floating_help">Live Assistance</span>
+  </div>
 </div>
 
 <!-- SCRIPTS & BILINGUAL LOGIC -->
@@ -1609,20 +1767,26 @@ const rawFaq = ${JSON.stringify(faqData)};
 
 const translations = {
   en: {
-    nav_terminal: "C2 Terminal",
-    nav_timeline: "10s Defense",
+    top_status: "PASA SENTINEL ONLINE",
     nav_matrix: "Defense Matrix",
-    nav_cases: "Crime Cases",
-    nav_c2: "86 C2 Hubs",
+    nav_timeline: "10s Defense",
+    nav_terminal: "C2 Terminal",
     nav_faq: "Forensic FAQ",
     nav_pricing: "Licensing",
+    nav_more: "More",
+    nav_cases: "Crime Cases",
+    nav_c2: "86 C2 Commands",
+    nav_audit: "Vulnerability Audit",
     nav_download: "Download APK",
 
-    hero_badge: "CRIME SCENE INTELLIGENCE // KNOX DEVICE OWNER CLEARANCE",
+    hero_badge: "SOVEREIGN MOBILE DEFENSE // ANDROID 8.0 – 16",
     hero_title: "YOUR PHONE WILL NEVER BE SURRENDERED.",
     hero_sub: "When ordinary trackers go blind in 10 seconds, PASA Sentinel engages Knox-grade hardware lockdown, hunts the perpetrator's real identity, and protects your sovereign personal data.",
     hero_cta_apk: "Download Tactical APK (v3.5.1)",
     hero_cta_terminal: "Launch C2 Terminal",
+    pillar_1: "Knox Device Owner (Immutable)",
+    pillar_2: "Zero-Cloud Media Storage",
+    pillar_3: "Air-Gapped Cellular SMS C2",
 
     stat_anti_uninstall: "UNINSTALLATION DEFENSE",
     stat_val_knox: "Knox Supervisor",
@@ -1665,6 +1829,7 @@ const translations = {
     matrix_section_tag: "HARDWARE ARCHITECTURE COMPARISON",
     matrix_section_title: "Knox Device Owner vs Standard Apps",
     matrix_section_lede: "Why Google Play Store policies prevent ordinary apps from ever matching PASA Sentinel's supervisor privileges.",
+    matrix_scroll_hint: "👉 Scroll horizontally to compare all platforms",
     th_feature: "Security Capability",
     th_google: "Google Find My Device",
     th_play: "Play Store Anti-Theft",
@@ -1785,6 +1950,7 @@ const translations = {
     bkash_action_btn: "Request Number via WhatsApp",
     wa_title: "WhatsApp Concierge",
     wa_action_btn: "Chat Direct",
+    floating_help: "Live Assistance",
 
     footer_bio: "Sovereign Android anti-theft defense & covert intelligence agent. Zero Google Play dependencies, zero cloud media storage, Knox-grade uninstallation lockout. Engineered by Izhaan Intellect.",
     footer_resources: "Resources",
@@ -1792,20 +1958,26 @@ const translations = {
     footer_dl_apk: "Download Latest APK (v3.5.1)"
   },
   bn: {
-    nav_terminal: "সি২ টার্মিনাল",
+    top_status: "পাসা সেন্টিনেল অনলাইন",
+    nav_matrix: "সুরক্ষা তুলনা",
     nav_timeline: "১০ সে. ডিফেন্স",
-    nav_matrix: "ডিফেন্স ম্যাট্রিক্স",
+    nav_terminal: "সি২ টার্মিনাল",
+    nav_faq: "প্রশ্নোত্তর",
+    nav_pricing: "লাইসেন্সিং",
+    nav_more: "আরও",
     nav_cases: "ক্রাইম কেস",
     nav_c2: "৮৬টি সি২ হাব",
-    nav_faq: "ফরেনসিক প্রশ্নোত্তর",
-    nav_pricing: "লাইসেন্সিং",
+    nav_audit: "নিরাপত্তা পরীক্ষা",
     nav_download: "এপিকে ডাউনলোড",
 
-    hero_badge: "ক্রাইম সিন ইন্টেলিজেন্স // নক্স ডিভাইস ওনার ক্লিয়ারেন্স",
+    hero_badge: "সার্বভৌম মোবাইল ডিফেন্স // অ্যান্ড্রয়েড ৮.০ – ১৬",
     hero_title: "আপনার ফোন আর কখনোই চোরের কাছে আত্মসমর্পণ করবে না।",
     hero_sub: "চুরি হওয়ার ১০ সেকেন্ডের মধ্যে যখন সাধারণ ট্র্যাকার অন্ধ হয়ে যায়—পাসা সেন্টিনেল নক্স-গ্রেড হার্ডওয়্যার লকডাউন চাপিয়ে অপরাধীর আসল পরিচয় শিকার করে এবং আপনার ব্যক্তিগত ডেটা রক্ষা করে।",
     hero_cta_apk: "ট্যাকটিক্যাল এপিকে ডাউনলোড (v3.5.1)",
     hero_cta_terminal: "সি২ টার্মিনাল ওপেন করুন",
+    pillar_1: "নক্স ডিভাইস ওনার (স্থায়ী আনইন্সটল প্রতিরোধ)",
+    pillar_2: "জিরো-ক্লাউড মিডিয়া স্টোরেজ (১০০% প্রাইভেট)",
+    pillar_3: "এয়ার-গ্যাপড সেলুলার এসএমএস সি২",
 
     stat_anti_uninstall: "স্থায়ী আনইন্সটল প্রতিরোধ",
     stat_val_knox: "নক্স সুপারভাইজার",
@@ -1848,6 +2020,7 @@ const translations = {
     matrix_section_tag: "হার্ডওয়্যার আর্কিটেকচার তুলনা",
     matrix_section_title: "নক্স ডিভাইস ওনার বনাম সাধারণ অ্যাপস",
     matrix_section_lede: "কেন গুগল প্লে স্টোরের পলিসির কারণে সাধারণ কোনো অ্যাপ কখনোই পাসা সেন্টিনেলের সমকক্ষ হতে পারে না।",
+    matrix_scroll_hint: "👉 সম্পূর্ণ তুলনা দেখতে ডানে-বামে সোয়াইপ করুন",
     th_feature: "নিরাপত্তা ফিচার",
     th_google: "গুগল ফাইন্ড মাই ডিভাইস",
     th_play: "প্লে স্টোর অ্যান্টি-থেফট",
@@ -1968,6 +2141,7 @@ const translations = {
     bkash_action_btn: "হোয়াটসঅ্যাপে নম্বর চান",
     wa_title: "হোয়াটসঅ্যাপ কনসিয়ার্জ",
     wa_action_btn: "সরাসরি চ্যাট",
+    floating_help: "লাইভ সহায়তা",
 
     footer_bio: "সার্বভৌম অ্যান্ড্রয়েড অ্যান্টি-থেফট ডিফেন্স ও গোপন ইন্টেলিজেন্স এজেন্ট। গুগল প্লে স্টোর ও ক্লাউড স্টোরেজের ওপর শূন্য নির্ভরতা। নক্স-গ্রেড ডিভাইস ওনার সুরক্ষা। প্রস্তুতকারক: ইজহান ইন্টেলেকট।",
     footer_resources: "রিসোর্স",
@@ -2085,6 +2259,24 @@ function switchHub(hubId) {
   if (btn) btn.classList.add('active');
 }
 
+// ── Mobile Menu Drawer ──
+function toggleMobileDrawer() {
+  const drawer = document.getElementById('mobileDrawer');
+  const overlay = document.getElementById('drawerOverlay');
+  if (drawer && overlay) {
+    drawer.classList.toggle('open');
+    overlay.classList.toggle('open');
+  }
+}
+
+// ── Floating Concierge Widget ──
+function toggleConcierge() {
+  const card = document.getElementById('conciergeCard');
+  if (card) {
+    card.classList.toggle('open');
+  }
+}
+
 // ── Interactive Terminal Simulator Engine ──
 const simulatedResponses = {
   '/locate': [
@@ -2154,7 +2346,7 @@ function simulateCmd(cmd) {
       line.textContent = r.text;
       screen.appendChild(line);
       screen.scrollTop = screen.scrollHeight;
-    }, i * 180);
+    }, i * 160);
   });
 }
 
