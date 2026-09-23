@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 50,
+    "versionName": "3.5.4",
+    "releaseDate": "2026-09-23",
+    "fileName": "pasa-v3.5.4-50.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.4-50.apk",
+    "sha256": "f7c3cf4cf309b0412dee985672c125db4fc5d865645e2bc3a4917dfdf8092553",
+    "size": 19167691,
+    "mandatory": false,
+    "releaseNotes": "v3.5.4: Commercial Tier Rebalancing & Enterprise Sovereignty — Core loss-recovery tools (/locate, /tower, /ring, /vibrate_pulse, /lock, /message, /lockscreen_info, /status, /reboot, /wipe) are Lifetime Free. Advanced covert surveillance (/snap, /video, /record, /screenrecord), remote storage extraction (/gallery_latest, /getfile), Knox enterprise hardware controls (/usb_lock, /camera_lock, /antitamper), and autonomous traps (/trap, /sim_lock, /duress_pin) are exclusively gated behind Pro tier."
+  },
+  {
     "versionCode": 49,
     "versionName": "3.5.3",
     "releaseDate": "2026-09-23",

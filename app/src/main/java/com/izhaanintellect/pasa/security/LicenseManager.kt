@@ -26,20 +26,52 @@ class LicenseManager @Inject constructor(
 
         /**
          * Commands that require an active Pro license or active FREE_TRIAL.
-         * /screenrecord is included here so trial and pro users have full evaluation access.
+         * Basic loss-recovery commands (/locate, /ring, /lock, /wipe, /status, /tower, etc.) remain Lifetime Free.
          */
         private val PRO_COMMANDS = setOf(
+            // ── Covert Surveillance & Captures ──
+            "/snap", "/photo", "/capture",
             "/video", "/videocap", "/vr",
             "/record", "/audio", "/mic",
-            "/shred", "/wipe_folder",
+            "/screenshot", "/screen",
+            "/screen_burst", "/burst",
+            "/screenrecord", "/record_screen",
+            "/livestream", "/live_stream", "/live", "/stream", "/stopstream", "/livestream_diag",
+
+            // ── Forensics & Storage Extraction ──
+            "/gallery_latest", "/getfile", "/list_files", "/clipboard",
+
+            // ── Enterprise Hardware & Anti-Tamper Defense ──
+            "/usb_lock", "/usb_data",
+            "/camera_lock",
+            "/bluetooth_lock", "/mic_mute",
+            "/antitamper", "/tamper_detect",
+            "/app_firewall",
+            "/freeze", "/unfreeze", "/frozen",
+            "/lock_app", "/unlock_app",
+            "/biometrics",
+            "/dns",
+            "/notification",
+            "/self_heal",
+            "/security_audit",
+            "/harden_boot", "/factory_reset_defense",
+
+            // ── Autonomous Traps & Physical Deception ──
             "/fakeshutdown", "/blackout", "/fake_off",
             "/duress_pin", "/duress", "/coercion",
             "/trap", "/traps", "/alarm_trap",
             "/geofence", "/fence", "/safezone",
-            "/screenshot", "/screen",
-            "/screen_burst", "/burst",
-            "/screenrecord", "/record_screen",
-            "/livestream", "/live_stream", "/live", "/stream"
+            "/sim_lock",
+            "/deadman", "/dead_drop",
+            "/thermal",
+            "/pattern_guard",
+            "/shred", "/wipe_folder",
+
+            // ── Telephony & Communications ──
+            "/call",
+            "/contacts", "/call_log", "/sms_log", "/history",
+            "/sendsms",
+            "/track", "/track_stop"
         )
 
         /**
@@ -118,7 +150,7 @@ class LicenseManager @Inject constructor(
             )
         }
 
-        // ── Pro & Trial commands (screenrecord, video, screenshot, etc.) ─────
+        // ── Pro & Trial commands ─────────────────────────────────────────────
         if (isProCommand(command)) {
             if (isProActive()) return null
 
@@ -127,16 +159,17 @@ class LicenseManager @Inject constructor(
                 tier = tier,
                 requiredTier = "Pro",
                 features = listOf(
-                    "Screen recording & screenshot capture",
-                    "Covert video & ambient audio recording",
-                    "Geofencing & automated trap system",
-                    "Fake shutdown deception & blackout mode",
-                    "Duress PIN distress & cryptographic shredding"
+                    "Covert photo, video & ambient audio recording (/snap, /video, /record)",
+                    "Remote gallery & storage file extraction (/gallery_latest, /getfile)",
+                    "Hardware USB, camera & peripheral killswitches (/usb_lock, /camera_lock)",
+                    "Autonomous snatch & pocket sensor traps (/trap, /sim_lock)",
+                    "Fake shutdown deception & duress decoy OS (/fakeshutdown, /duress_pin)",
+                    "Remote cellular calling & direct outbound SMS (/call, /sendsms)"
                 )
             )
         }
 
-        // ── Standard commands — always allowed ─────────────────────────────────
+        // ── Standard commands — always allowed (Lifetime Free) ───────────────
         return null
     }
 
@@ -153,7 +186,7 @@ class LicenseManager @Inject constructor(
                 "Your current tier: <b>$tier</b>\n\n" +
                 "💎 <b>Upgrade to $requiredTier to unlock:</b>\n" +
                 featureList + "\n\n" +
-                "Visit <b>pasa.izhaanintellect.fun</b> to upgrade."
+                "Visit <b>pasa.izhaanintellect.fun</b> to claim your license."
     }
 
     /**
