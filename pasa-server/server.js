@@ -2728,6 +2728,54 @@ async function handleTelegramUpdate(token, update) {
     return;
   }
 
+  // Master Admin Fleet & User Intelligence Command
+  if (lowerText === '/fleet' || lowerText === '/users' || lowerText === 'fleet' || lowerText === 'users' || lowerText === '/admin_stats') {
+    if (String(chatId) !== String(ADMIN_CHAT_ID)) {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: `⛔ <b>Access Denied:</b> Master Administrator privilege required.`,
+        parse_mode: 'HTML'
+      });
+      return;
+    }
+
+    const now = Date.now();
+    const allDevs = Object.values(devices).sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0));
+    const uniqueOwners = new Set(allDevs.map(d => d.ownerChatId).filter(Boolean));
+    const onlineDevs = allDevs.filter(d => d.lastSeen && (now - d.lastSeen) < 90000);
+    const idleDevs = allDevs.filter(d => d.lastSeen && (now - d.lastSeen) >= 90000 && (now - d.lastSeen) < 86400000);
+
+    let summary = `👑 <b>PASA Global Fleet & User Intelligence</b>\n━━━━━━━━━━━━━━━━━━━━\n` +
+                  `👥 <b>Total Unique Users:</b> <code>${uniqueOwners.size}</code>\n` +
+                  `📱 <b>Total Registered Devices:</b> <code>${allDevs.length}</code>\n` +
+                  `🟢 <b>Online Now (&lt;90s):</b> <code>${onlineDevs.length}</code>\n` +
+                  `🟡 <b>Active Past 24h:</b> <code>${idleDevs.length}</code>\n\n` +
+                  `📋 <b>Active Device Inventory:</b>\n`;
+
+    for (const d of allDevs.slice(0, 15)) {
+      const diffSec = d.lastSeen ? Math.round((now - d.lastSeen) / 1000) : 999999;
+      const statusIcon = diffSec < 90 ? '🟢' : diffSec < 600 ? '🟡' : diffSec < 86400 ? '⚪' : '🔴';
+      const timeStr = diffSec < 60 ? `${diffSec}s ago` :
+                      diffSec < 3600 ? `${Math.round(diffSec / 60)}m ago` :
+                      diffSec < 86400 ? `${Math.round(diffSec / 3600)}h ago` :
+                      `${Math.round(diffSec / 86400)}d ago`;
+
+      summary += `${statusIcon} <b>${d.deviceName || 'Android'}</b>\n` +
+                 `   └ ID: <code>${d.deviceId}</code> | User: <code>${d.ownerChatId || 'None'}</code> | ${timeStr}\n`;
+    }
+
+    if (allDevs.length > 15) {
+      summary += `\n<i>...and ${allDevs.length - 15} more registered devices.</i>`;
+    }
+
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: summary,
+      parse_mode: 'HTML'
+    });
+    return;
+  }
+
   if (lowerText === '🔑 license' || lowerText === 'license' || lowerText.startsWith('/license') || lowerText.startsWith('/pro')) {
     const parts = rawText.split(/\s+/);
     const subCmd = (parts[1] || '').toLowerCase();
