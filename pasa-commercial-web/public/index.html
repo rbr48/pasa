@@ -13,40 +13,41 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* ── Light Theme Base Palette ── */
-    --bg-canvas: #f8fafc;        /* slate-50 */
-    --bg-surface: #ffffff;       /* Pure white */
-    --bg-muted: #f1f5f9;         /* slate-100 */
-    --bg-subtle: #e2e8f0;        /* slate-200 */
+    /* ── Light Canvas Palette ── */
+    --bg-canvas: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-muted: #f1f5f9;
+    --bg-subtle: #e2e8f0;
 
-    --border: #cbd5e1;           /* slate-300: High-contrast crisp border */
-    --border-hover: #94a3b8;     /* slate-400 */
-    --border-primary: #dc2626;   /* red-600 */
-    --border-cyan: #0284c7;      /* sky-600 */
+    --border: #cbd5e1;
+    --border-hover: #94a3b8;
+    --border-primary: #dc2626;
+    --border-cyan: #0284c7;
 
-    --crimson: #dc2626;          /* red-600 */
-    --crimson-hover: #b91c1c;    /* red-700 */
-    --crimson-subtle: #fef2f2;   /* red-50 */
-    --cyan: #0284c7;             /* sky-600 */
-    --cyan-subtle: #f0f9ff;      /* sky-50 */
-    --amber: #d97706;            /* amber-600 */
-    --amber-subtle: #fffbeb;     /* amber-50 */
-    --emerald: #059669;          /* emerald-600 */
-    --emerald-subtle: #ecfdf5;   /* emerald-50 */
+    --crimson: #dc2626;
+    --crimson-hover: #b91c1c;
+    --crimson-subtle: #fef2f2;
+    --cyan: #0284c7;
+    --cyan-subtle: #f0f9ff;
+    --amber: #d97706;
+    --amber-subtle: #fffbeb;
+    --emerald: #059669;
+    --emerald-subtle: #ecfdf5;
 
     /* High-Contrast WCAG AAA Typography */
-    --text: #0f172a;             /* slate-900: Deep charcoal */
-    --text-dim: #1e293b;         /* slate-800: Crisp body copy */
-    --text-faint: #475569;       /* slate-600: High-contrast auxiliary */
-    --text-muted: #64748b;       /* slate-500 */
+    --text: #0f172a;
+    --text-dim: #1e293b;
+    --text-faint: #475569;
+    --text-muted: #64748b;
 
-    /* Cyber/Forensic HUD Accents */
-    --hud-bg: #090d16;           /* Deep forensic midnight */
-    --hud-card: #0f172a;         /* Tactical slate */
-    --hud-border: #1e293b;       /* Subtle dark border */
-    --hud-cyan: #38bdf8;         /* Glowing cyan */
-    --hud-crimson: #ef4444;      /* Glowing alert red */
-    --hud-emerald: #10b981;      /* Target lock green */
+    /* Cinematic Cyber-Forensic Colors */
+    --hud-bg: #090d16;
+    --hud-surface: #0f172a;
+    --hud-border: #1e293b;
+    --hud-cyan: #00f0ff;
+    --hud-crimson: #ff003c;
+    --hud-emerald: #00ff88;
+    --hud-amber: #ffb703;
 
     --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
     --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.07), 0 1px 3px rgba(15, 23, 42, 0.04);
@@ -168,6 +169,18 @@
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
   }
 
+  /* Sound FX Toggle Pill */
+  .sound-btn {
+    background: var(--bg-muted); border: 1px solid var(--border);
+    color: var(--text-dim); font-family: var(--mono); font-size: 11.5px; font-weight: 700;
+    padding: 6px 12px; border-radius: 8px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s ease;
+  }
+  .sound-btn:hover { background: #ffffff; border-color: var(--cyan); color: var(--cyan); }
+  .sound-btn.active {
+    background: rgba(2, 132, 199, 0.1); border-color: var(--cyan); color: var(--cyan);
+  }
+
   .nav-cta-secondary {
     background: var(--bg-muted); color: var(--text); border: 1.5px solid #cbd5e1;
     padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
@@ -214,9 +227,10 @@
 
   /* ── HERO SECTION: 2-COLUMN TACTICAL FORENSICS ── */
   .hero {
-    padding: 56px 0 48px; position: relative;
+    padding: 50px 0 46px; position: relative;
     background: radial-gradient(circle at 50% 10%, rgba(2, 132, 199, 0.05), transparent 70%);
     border-bottom: 1px solid var(--border);
+    perspective: 1200px;
   }
   .hero-grid {
     display: grid; grid-template-columns: 1.15fr 1fr; gap: 36px; align-items: center;
@@ -240,11 +254,11 @@
   }
   .hero-sub {
     font-size: clamp(14.5px, 1.6vw, 16.5px); color: var(--text-dim);
-    margin-bottom: 26px; line-height: 1.6; font-weight: 450;
+    margin-bottom: 24px; line-height: 1.6; font-weight: 450;
   }
   .hero-cta-group {
     display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
   }
   .btn-primary {
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
@@ -267,12 +281,30 @@
     transform: translateY(-2px);
   }
 
+  /* HIGH-VOLTAGE CRIME SIMULATION TRIGGER BUTTON */
+  .btn-simulate-snatch {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #fca5a5; border: 1.5px solid #ef4444; padding: 12px 20px;
+    border-radius: 9px; font-family: var(--mono); font-size: 13px; font-weight: 800;
+    letter-spacing: 0.04em; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25); transition: all 0.2s ease;
+    animation: btn-pulse-border 2.5s infinite ease-in-out;
+  }
+  @keyframes btn-pulse-border {
+    0%, 100% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.25); border-color: #ef4444; }
+    50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.55); border-color: #f87171; }
+  }
+  .btn-simulate-snatch:hover {
+    transform: translateY(-2px); background: #000; color: #fff;
+    box-shadow: 0 6px 24px rgba(239, 68, 68, 0.6);
+  }
+
   /* Compact Telemetry Strip */
   .specs-bar-compact {
-    display: flex; flex-wrap: wrap; gap: 12px; font-family: var(--mono); font-size: 11.5px;
+    display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--mono); font-size: 11px;
   }
   .spec-pill {
-    background: #ffffff; border: 1px solid var(--border); padding: 6px 12px;
+    background: #ffffff; border: 1px solid var(--border); padding: 5px 10px;
     border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;
     box-shadow: var(--shadow-sm); font-weight: 600;
   }
@@ -280,209 +312,152 @@
   .spec-pill.crimson strong { color: var(--crimson); }
   .spec-pill.emerald strong { color: var(--emerald); }
 
-  /* ── THRILLER / CID "CAUGHT RED-HANDED" FORENSICS HUD ── */
-  .hud-terminal {
-    background: var(--hud-bg);
-    border: 1.5px solid #1e293b;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(239, 68, 68, 0.2);
-    position: relative;
-    color: #f1f5f9;
+  /* ── 3D HOLOGRAPHIC FORENSIC PHONE SIMULATOR ── */
+  .phone-stage-wrapper {
+    perspective: 1200px; display: flex; justify-content: center;
   }
-  .hud-topbar {
-    background: #0f172a;
-    border-bottom: 1px solid #1e293b;
-    padding: 10px 16px;
-    display: flex; align-items: center; justify-content: space-between;
-    font-family: var(--mono); font-size: 11px;
+  .phone-mockup-3d {
+    width: 320px; height: 500px; background: #090d16;
+    border-radius: 38px; border: 4px solid #334155;
+    box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.6), 0 0 0 1px rgba(0, 240, 255, 0.2), inset 0 0 14px rgba(0, 0, 0, 0.8);
+    position: relative; overflow: hidden; transform-style: preserve-3d;
+    transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
   }
-  .hud-live-tag {
-    display: flex; align-items: center; gap: 7px; color: var(--hud-crimson); font-weight: 800;
-    letter-spacing: 0.05em;
+  .phone-notch {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 90px; height: 16px; background: #020617; border-radius: 10px;
+    z-index: 30; display: flex; align-items: center; justify-content: center; gap: 6px;
+    border: 1px solid #1e293b;
   }
-  .hud-case-id {
-    color: #94a3b8; font-weight: 600;
+  .notch-cam-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #1e293b;
+    border: 1px solid #38bdf8;
   }
-  .hud-timer-badge {
-    background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4);
-    color: #fca5a5; padding: 2px 8px; border-radius: 4px; font-weight: 800;
+  .notch-speaker {
+    width: 34px; height: 3px; border-radius: 2px; background: #334155;
   }
 
-  /* Forensics Viewport */
-  .hud-viewport {
-    padding: 16px; display: grid; grid-template-columns: 140px 1fr; gap: 16px;
-    background: linear-gradient(180deg, #090d16 0%, #0c1322 100%);
-    position: relative;
+  /* Night-Vision Viewport */
+  .phone-screen {
+    position: absolute; inset: 0; border-radius: 34px; overflow: hidden;
+    background: #020617; display: flex; flex-direction: column;
   }
-  @media (max-width: 520px) {
-    .hud-viewport { grid-template-columns: 1fr; }
-  }
-
-  /* Scanner / Camera Viewport */
-  .hud-cam-box {
-    width: 140px; height: 140px; background: #020617; border: 1.5px solid #334155;
-    border-radius: 10px; position: relative; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-  }
-  .scanline-grid {
-    position: absolute; inset: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-    background-size: 100% 3px, 6px 100%;
-    pointer-events: none; z-index: 4;
-  }
-  /* Canvas Radar */
-  #radarCanvas {
+  #forensicCamCanvas {
     position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2;
   }
-  /* Suspect Silhouette & Face Reticle */
-  .suspect-reticle {
-    position: absolute; width: 68px; height: 68px; border: 1.5px dashed var(--hud-crimson);
-    border-radius: 4px; z-index: 5; display: flex; align-items: center; justify-content: center;
-    animation: target-pulse 1.8s infinite ease-in-out;
-  }
-  @keyframes target-pulse {
-    0%, 100% { transform: scale(1); border-color: var(--hud-crimson); }
-    50% { transform: scale(1.06); border-color: #f87171; box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
-  }
-  .suspect-icon {
-    opacity: 0.85; color: #94a3b8; width: 38px; height: 38px;
+  .screen-overlay-scanlines {
+    position: absolute; inset: 0; pointer-events: none; z-index: 10;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.45) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04));
+    background-size: 100% 3px, 6px 100%;
   }
 
-  /* CAUGHT RED HANDED Rubber Stamp */
-  .stamp-red-handed {
-    position: absolute; z-index: 10;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) rotate(-14deg) scale(0);
-    border: 3.5px solid var(--hud-crimson);
-    color: var(--hud-crimson);
-    font-family: var(--mono);
-    font-size: 13px; font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 4px 10px;
-    border-radius: 4px;
-    background: rgba(15, 23, 42, 0.85);
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
-    pointer-events: none;
-    transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    white-space: nowrap;
-    text-align: center;
+  /* High-Voltage Camera Flash */
+  .camera-flash-overlay {
+    position: absolute; inset: 0; background: #ffffff; z-index: 50;
+    opacity: 0; pointer-events: none; transition: opacity 0.05s ease-out;
   }
-  .stamp-red-handed.active {
-    transform: translate(-50%, -50%) rotate(-14deg) scale(1);
+  .camera-flash-overlay.flashing {
+    opacity: 0.95;
   }
 
-  /* Telemetry Feed Right Column */
-  .hud-telemetry {
-    display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
-    font-family: var(--mono); font-size: 11.5px;
+  /* Screen Shake during Snatch */
+  .phone-mockup-3d.shaking {
+    animation: phone-snatch-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   }
-  .telemetry-row {
+  @keyframes phone-snatch-shake {
+    10%, 90% { transform: translate3d(-3px, 2px, 0) rotate(-1deg); }
+    20%, 80% { transform: translate3d(4px, -3px, 0) rotate(1.5deg); }
+    30%, 50%, 70% { transform: translate3d(-5px, 3px, 0) rotate(-2deg); }
+    40%, 60% { transform: translate3d(5px, -2px, 0) rotate(2deg); }
+  }
+
+  /* HUD Telemetry Overlay on Phone */
+  .phone-hud-overlay {
+    position: absolute; inset: 0; padding: 34px 18px 18px; z-index: 15;
+    display: flex; flex-direction: column; justify-content: space-between;
+    pointer-events: none; font-family: var(--mono);
+  }
+  .hud-stat-badge {
     display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px dashed #1e293b; padding-bottom: 4px;
+    font-size: 10px; color: #94a3b8; background: rgba(15, 23, 42, 0.7);
+    padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.2);
+    backdrop-filter: blur(4px);
   }
-  .telemetry-label { color: #64748b; font-weight: 600; text-transform: uppercase; }
-  .telemetry-val { font-weight: 700; color: #f8fafc; }
-  .telemetry-val.crimson { color: var(--hud-crimson); }
-  .telemetry-val.cyan { color: var(--hud-cyan); }
-  .telemetry-val.emerald { color: var(--hud-emerald); }
+  .hud-stat-badge span.red { color: #f87171; font-weight: 700; }
+  .hud-stat-badge span.cyan { color: #38bdf8; font-weight: 700; }
 
-  /* Audio Spectrogram Waveform */
-  .audio-wave-container {
-    display: flex; align-items: flex-end; gap: 3px; height: 18px; padding-top: 4px;
+  /* CAUGHT RED-HANDED STAMP */
+  .stamp-cinematic {
+    position: absolute; top: 48%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-13deg) scale(0);
+    border: 3.5px solid #ef4444; color: #ef4444;
+    padding: 6px 14px; border-radius: 6px; font-family: var(--mono);
+    font-size: 13.5px; font-weight: 900; letter-spacing: 0.08em;
+    background: rgba(15, 23, 42, 0.9); box-shadow: 0 0 24px rgba(239, 68, 68, 0.75);
+    z-index: 25; pointer-events: none; text-align: center; white-space: nowrap;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  .wave-bar {
-    width: 3.5px; background: var(--hud-cyan); border-radius: 2px;
-    animation: wave-anim 1s infinite ease-in-out;
-  }
-  @keyframes wave-anim {
-    0%, 100% { height: 4px; opacity: 0.4; }
-    50% { height: 16px; opacity: 1; }
-  }
-
-  /* HUD Narrative Story Box */
-  .hud-story-card {
-    background: #020617; border-top: 1px solid #1e293b; padding: 14px 16px;
-    min-height: 72px; display: flex; flex-direction: column; justify-content: center;
-  }
-  .hud-story-tag {
-    font-family: var(--mono); font-size: 10px; font-weight: 800; color: var(--hud-cyan);
-    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .hud-story-text {
-    font-size: 13.5px; font-weight: 600; color: #e2e8f0; line-height: 1.45;
+  .stamp-cinematic.stamped {
+    transform: translate(-50%, -50%) rotate(-13deg) scale(1);
   }
 
-  /* HUD Stepper Controls */
-  .hud-controls-bar {
-    background: #0f172a; border-top: 1px solid #1e293b; padding: 10px 16px;
-    display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  /* Floating Telegram Alert Notification Card */
+  .telegram-alert-card {
+    position: fixed; top: 88px; right: 24px; z-index: 10000;
+    background: #0f172a; border: 1.5px solid #38bdf8; border-radius: 12px;
+    padding: 14px 18px; width: 340px; box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(2, 132, 199, 0.3);
+    color: #f8fafc; font-family: var(--font); transform: translateY(-160px); opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .hud-steps {
-    display: flex; gap: 6px; flex-wrap: wrap;
+  .telegram-alert-card.show {
+    transform: translateY(0); opacity: 1;
   }
-  .hud-step-btn {
-    background: #1e293b; border: 1px solid #334155; color: #94a3b8;
-    font-family: var(--mono); font-size: 11px; font-weight: 700;
-    padding: 4px 9px; border-radius: 5px; cursor: pointer;
-    transition: all 0.15s ease;
+  .tg-card-hdr {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    font-size: 12px; color: #38bdf8; font-family: var(--mono); font-weight: 700;
   }
-  .hud-step-btn:hover { color: #f8fafc; border-color: #64748b; }
-  .hud-step-btn.active {
-    background: var(--crimson); border-color: var(--crimson); color: #ffffff;
-    box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+  .tg-card-body {
+    display: flex; gap: 12px; align-items: center;
   }
-  .btn-hud-play {
-    background: #1e293b; border: 1px solid #334155; color: #f8fafc;
-    font-family: var(--mono); font-size: 11px; font-weight: 700;
-    padding: 4px 10px; border-radius: 5px; cursor: pointer;
-    display: inline-flex; align-items: center; gap: 5px;
+  .tg-suspect-thumb {
+    width: 52px; height: 52px; border-radius: 8px; border: 1.5px solid #ef4444;
+    background: #020617; display: flex; align-items: center; justify-content: center;
+    color: #ef4444; flex-shrink: 0; position: relative; overflow: hidden;
   }
-  .btn-hud-play:hover { background: #334155; }
+  .tg-card-text { font-size: 12.5px; line-height: 1.4; color: #cbd5e1; }
+  .tg-card-text strong { color: #f87171; }
+  .tg-card-meta { font-family: var(--mono); font-size: 10.5px; color: #94a3b8; margin-top: 4px; }
 
-  /* ── SECTION COMMON ── */
-  .section { padding: 60px 0; border-bottom: 1px solid var(--border); position: relative; }
-  .section-hdr { text-align: center; margin-bottom: 34px; }
-  .section-tag {
-    font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--cyan);
-    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; display: inline-block;
+  /* ── DETECTIVE EVIDENCE WALL / MISSION DOSSIER ── */
+  .evidence-board {
+    background: #ffffff; border: 1.5px solid var(--border); border-radius: 16px;
+    padding: 36px 30px; box-shadow: var(--shadow-sm); position: relative;
   }
-  .section-title {
-    font-size: clamp(22px, 3vw, 32px); font-weight: 800; letter-spacing: -0.01em; margin-bottom: 10px; color: var(--text);
+  .evidence-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
   }
-  .section-lede {
-    font-size: 14.5px; color: var(--text-dim); max-width: 680px; margin: 0 auto; line-height: 1.55;
+  @media (max-width: 960px) {
+    .evidence-grid { grid-template-columns: repeat(2, 1fr); }
   }
-
-  /* ── CONSOLIDATED MISSION DOSSIER (4 PILLARS IN 2X2) ── */
-  .dossier-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+  @media (max-width: 540px) {
+    .evidence-grid { grid-template-columns: 1fr; }
   }
-  @media (max-width: 768px) {
-    .dossier-grid { grid-template-columns: 1fr; }
+  .evidence-pin {
+    background: #f8fafc; border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 22px 18px; transition: all 0.2s ease; position: relative;
+    display: flex; flex-direction: column; justify-content: space-between;
   }
-  .dossier-card {
-    background: #ffffff; border: 1.5px solid var(--border); border-radius: 12px;
-    padding: 24px; box-shadow: var(--shadow-sm); transition: all 0.2s ease;
-    display: flex; gap: 18px; align-items: flex-start;
+  .evidence-pin:hover {
+    border-color: var(--cyan); transform: translateY(-3px); box-shadow: var(--shadow-md);
   }
-  .dossier-card:hover {
-    border-color: var(--cyan); transform: translateY(-2px); box-shadow: var(--shadow-md);
+  .evidence-tag {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 800;
+    color: var(--crimson); text-transform: uppercase; margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  .dossier-icon {
-    width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--cyan-subtle); border: 1px solid #bae6fd; color: var(--cyan);
-  }
-  .dossier-icon.crimson { background: var(--crimson-subtle); border-color: #fecaca; color: var(--crimson); }
-  .dossier-icon.emerald { background: var(--emerald-subtle); border-color: #a7f3d0; color: var(--emerald); }
-  .dossier-icon.amber { background: var(--amber-subtle); border-color: #fde68a; color: var(--amber); }
-  .dossier-title { font-size: 16.5px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
-  .dossier-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; }
+  .evidence-title { font-size: 15.5px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .evidence-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
 
   /* ── 1-CLICK DEVICE OWNER SETUP SECTION ── */
   .setup-grid {
@@ -803,6 +778,20 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+  /* ── Section Structure ── */
+  .section { padding: 56px 0; border-bottom: 1px solid var(--border); position: relative; }
+  .section-hdr { text-align: center; margin-bottom: 30px; }
+  .section-tag {
+    font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--cyan);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; display: inline-block;
+  }
+  .section-title {
+    font-size: clamp(22px, 3vw, 32px); font-weight: 800; letter-spacing: -0.01em; margin-bottom: 10px; color: var(--text);
+  }
+  .section-lede {
+    font-size: 14.5px; color: var(--text-dim); max-width: 680px; margin: 0 auto; line-height: 1.55;
+  }
+
   /* ── Footer ── */
   footer {
     background: #ffffff; border-top: 1px solid var(--border); padding: 40px 0 24px;
@@ -847,8 +836,8 @@
 
     <!-- Desktop Navigation Menu -->
     <div class="nav-menu">
-      <a href="#incident-hud" class="nav-link" data-i18n="nav_hud">Incident Replay</a>
-      <a href="#dossier" class="nav-link" data-i18n="nav_dossier">Architecture</a>
+      <a href="#simulator" class="nav-link" data-i18n="nav_sim">Forensic Lab</a>
+      <a href="#dossier" class="nav-link" data-i18n="nav_dossier">Evidence Wall</a>
       <a href="#setup-kit" class="nav-link" data-i18n="nav_setup_kit">Setup Kit</a>
       <a href="#features" class="nav-link" data-i18n="nav_features">Capabilities</a>
       <a href="#commands" class="nav-link" data-i18n="nav_commands">86 Commands</a>
@@ -859,6 +848,11 @@
 
     <!-- Actions -->
     <div class="nav-actions">
+      <!-- Sound FX Toggle -->
+      <button class="sound-btn" id="btnSoundToggle" onclick="toggleSoundFx()" title="Toggle Cinematic Sound Effects">
+        <span id="soundIcon">🔇</span> <span id="soundLabel">SOUND: OFF</span>
+      </button>
+
       <div class="lang-switcher">
         <button class="lang-btn active" id="btnEn" onclick="setLanguage('en')">EN</button>
         <button class="lang-btn" id="btnBn" onclick="setLanguage('bn')">বাংলা</button>
@@ -881,8 +875,8 @@
     <div class="brand-text">PASA SENTINEL</div>
     <span onclick="toggleMobileDrawer()" style="cursor:pointer;font-size:22px;">&times;</span>
   </div>
-  <a href="#incident-hud" onclick="toggleMobileDrawer()" data-i18n="nav_hud">Incident Replay</a>
-  <a href="#dossier" onclick="toggleMobileDrawer()" data-i18n="nav_dossier">Architecture</a>
+  <a href="#simulator" onclick="toggleMobileDrawer()" data-i18n="nav_sim">Forensic Lab</a>
+  <a href="#dossier" onclick="toggleMobileDrawer()" data-i18n="nav_dossier">Evidence Wall</a>
   <a href="#setup-kit" onclick="toggleMobileDrawer()" data-i18n="nav_setup_kit">Setup Kit</a>
   <a href="#features" onclick="toggleMobileDrawer()" data-i18n="nav_features">Capabilities</a>
   <a href="#commands" onclick="toggleMobileDrawer()" data-i18n="nav_commands">86 Commands</a>
@@ -896,8 +890,8 @@
   </div>
 </div>
 
-<!-- ── HERO SECTION: 2-COLUMN TACTICAL FORENSICS ── -->
-<section class="hero" id="incident-hud">
+<!-- ── HERO SECTION: 3D FORENSIC PHONE & CINEMATIC ACTION TRIGGER ── -->
+<section class="hero" id="simulator">
   <div class="wrap">
     <div class="hero-grid">
       <!-- Left Column: Core Value Proposition & CTAs -->
@@ -910,6 +904,14 @@
         <p class="hero-sub" data-i18n="hero_sub">
           When standard trackers go blind in 10 seconds, PASA Sentinel enforces Knox-grade hardware lockdown, captures perpetrator forensics headlessly, and protects your sovereign personal data.
         </p>
+
+        <!-- Live Snatch Trigger Banner -->
+        <div style="margin-bottom: 22px;">
+          <button class="btn-simulate-snatch" onclick="runSnatchSimulation()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span data-i18n="btn_sim_label">🚨 SIMULATE PHONE SNATCH INTERCEPT</span>
+          </button>
+        </div>
 
         <div class="hero-cta-group">
           <a href="/releases/pasa-latest.apk" class="btn-primary">
@@ -935,98 +937,42 @@
         </div>
       </div>
 
-      <!-- Right Column: High-Voltage Crime-Scene Forensics HUD -->
+      <!-- Right Column: 3D Holographic Forensic Phone Simulator -->
       <div class="hero-col-right">
-        <div class="hud-terminal">
-          <!-- Terminal Topbar -->
-          <div class="hud-topbar">
-            <div class="hud-live-tag">
-              <span class="pulse-dot crimson"></span>
-              <span data-i18n="hud_live_label">CRIME INTERCEPT // LIVE</span>
-            </div>
-            <div class="hud-case-id" data-i18n="hud_case_id">CASE #PAS-9418-RED</div>
-            <div class="hud-timer-badge" id="hudTimer">T+0.0s</div>
-          </div>
-
-          <!-- Forensics Viewport -->
-          <div class="hud-viewport">
-            <!-- Camera / Radar Viewport -->
-            <div class="hud-cam-box">
-              <div class="scanline-grid"></div>
-              <canvas id="radarCanvas" width="140" height="140"></canvas>
-              
-              <!-- Suspect Target Reticle -->
-              <div class="suspect-reticle" id="hudReticle">
-                <svg class="suspect-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                </svg>
-              </div>
-
-              <!-- Rubber Stamp Effect -->
-              <div class="stamp-red-handed" id="hudStamp">
-                <div data-i18n="hud_stamp_line1">CAUGHT RED-HANDED</div>
-                <div style="font-size:9.5px;font-weight:700;letter-spacing:0.04em;" data-i18n="hud_stamp_line2">হাতেনাতে আটক</div>
-              </div>
+        <div class="phone-stage-wrapper" id="phoneStage">
+          <div class="phone-mockup-3d" id="phoneMockup">
+            <!-- Hardware Notch -->
+            <div class="phone-notch">
+              <div class="notch-cam-dot"></div>
+              <div class="notch-speaker"></div>
             </div>
 
-            <!-- Telemetry Diagnostics Column -->
-            <div class="hud-telemetry">
-              <div class="telemetry-row">
-                <span class="telemetry-label" data-i18n="hud_lbl_event">EVENT TYPE:</span>
-                <span class="telemetry-val crimson" id="hudValEvent">KINETIC SNATCH (2.65G)</span>
+            <!-- Screen Viewport -->
+            <div class="phone-screen">
+              <div class="camera-flash-overlay" id="camFlash"></div>
+              <div class="screen-overlay-scanlines"></div>
+              <canvas id="forensicCamCanvas" width="320" height="500"></canvas>
+
+              <!-- Rubber Stamp -->
+              <div class="stamp-cinematic" id="stampCinematic">
+                <div style="font-size:13px;letter-spacing:0.06em;" data-i18n="stamp_top">★ CAUGHT RED-HANDED ★</div>
+                <div style="font-size:10px;font-weight:700;margin-top:2px;" data-i18n="stamp_sub">// হাতেনাতে অপরাধী আটক //</div>
+                <div style="font-size:8.5px;color:#fca5a5;font-family:var(--mono);margin-top:2px;">EVIDENCE #PAS-8492 // 99.8% MATCH</div>
               </div>
-              <div class="telemetry-row">
-                <span class="telemetry-label" data-i18n="hud_lbl_cam">MUGSHOT:</span>
-                <span class="telemetry-val cyan" id="hudValCam">HEADLESS ACTIVE (0V FLICKER)</span>
-              </div>
-              <div class="telemetry-row">
-                <span class="telemetry-label" data-i18n="hud_lbl_lock">HARDWARE:</span>
-                <span class="telemetry-val" id="hudValLock">USB PINS SEVERED</span>
-              </div>
-              <div class="telemetry-row">
-                <span class="telemetry-label" data-i18n="hud_lbl_gps">GNSS FIX:</span>
-                <span class="telemetry-val emerald" id="hudValGps">23.8103° N, 90.4125° E</span>
-              </div>
-              <div class="telemetry-row">
-                <span class="telemetry-label" data-i18n="hud_lbl_mic">WIRETAP:</span>
-                <div class="audio-wave-container">
-                  <div class="wave-bar" style="animation-delay:0.1s"></div>
-                  <div class="wave-bar" style="animation-delay:0.3s"></div>
-                  <div class="wave-bar" style="animation-delay:0.2s"></div>
-                  <div class="wave-bar" style="animation-delay:0.5s"></div>
-                  <div class="wave-bar" style="animation-delay:0.4s"></div>
-                  <div class="wave-bar" style="animation-delay:0.6s"></div>
-                  <div class="wave-bar" style="animation-delay:0.2s"></div>
-                  <div class="wave-bar" style="animation-delay:0.4s"></div>
+
+              <!-- HUD Diagnostics Strip -->
+              <div class="phone-hud-overlay">
+                <div class="hud-stat-badge">
+                  <span>TRAP: <span class="red" id="hudStatTrap">ARMED // 2.65G</span></span>
+                  <span id="hudStatTime">00:01.48s</span>
+                </div>
+
+                <div class="hud-stat-badge" style="background:rgba(2,6,23,0.85);">
+                  <span>GNSS: <span class="cyan">23.8103°N, 90.4125°E</span></span>
+                  <span>USB: <span class="red" id="hudStatUsb">KILL [0V]</span></span>
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- Narrative Incident Story Box -->
-          <div class="hud-story-card">
-            <div class="hud-story-tag">
-              <span id="hudStoryTag">PHASE 1: PERPETRATOR SNATCH DETECTED</span>
-            </div>
-            <div class="hud-story-text" id="hudStoryText">
-              Thief grabs phone from pocket. Accelerometer registers a 2.65G kinetic spike. Anti-theft trap triggers instantly.
-            </div>
-          </div>
-
-          <!-- Stepper Controls -->
-          <div class="hud-controls-bar">
-            <div class="hud-steps">
-              <button class="hud-step-btn active" onclick="setHudStep(0)">1. Snatch</button>
-              <button class="hud-step-btn" onclick="setHudStep(1)">2. Mugshot</button>
-              <button class="hud-step-btn" onclick="setHudStep(2)">3. Knox Lock</button>
-              <button class="hud-step-btn" onclick="setHudStep(3)">4. Sat GPS</button>
-              <button class="hud-step-btn" onclick="setHudStep(4)">5. RAM Shred</button>
-            </div>
-            <button class="btn-hud-play" id="btnHudPlay" onclick="toggleHudAutoPlay()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-              <span id="hudPlayLabel">Pause</span>
-            </button>
           </div>
         </div>
       </div>
@@ -1034,67 +980,110 @@
   </div>
 </section>
 
-<!-- ── CONSOLIDATED MISSION DOSSIER (4 CORE PILLARS) ── -->
+<!-- Floating Telegram Push Notification Card -->
+<div class="telegram-alert-card" id="telegramAlertCard">
+  <div class="tg-card-hdr">
+    <div style="display:flex;align-items:center;gap:6px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+      <span>TELEGRAM • PASA SENTINEL C2</span>
+    </div>
+    <span onclick="dismissTgAlert()" style="cursor:pointer;color:#94a3b8;font-size:15px;">&times;</span>
+  </div>
+  <div class="tg-card-body">
+    <div class="tg-suspect-thumb">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <div>
+      <div class="tg-card-text">
+        <strong data-i18n="tg_alert_title">🚨 CRITICAL THEFT INTERCEPT:</strong><br>
+        <span data-i18n="tg_alert_desc">Snatch trap triggered! Mugshot captured &amp; RAM shredded.</span>
+      </div>
+      <div class="tg-card-meta">
+        📍 23.8103°N, 90.4125°E • <span style="color:#10b981;">TELEGRAM STREAM [OK]</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DETECTIVE EVIDENCE WALL (MISSION DOSSIER) ── -->
 <section id="dossier" class="section" style="background:#ffffff;">
   <div class="wrap">
     <div class="section-hdr">
-      <span class="section-tag" data-i18n="dossier_tag">SOVEREIGN ARCHITECTURAL DIRECTIVES</span>
-      <h2 class="section-title" data-i18n="dossier_title">4 Countermeasures Ordinary Tracking Apps Cannot Match</h2>
+      <span class="section-tag" data-i18n="dossier_tag">FORENSIC CRIME EVIDENCE WALL</span>
+      <h2 class="section-title" data-i18n="dossier_title">4 Physical Countermeasures That Outsmart Professional Thieves</h2>
       <p class="section-lede" data-i18n="dossier_lede">
         Standard Play Store apps run in restricted sandboxes and depend entirely on continuous internet. PASA Sentinel operates at the Device Owner supervisor layer.
       </p>
     </div>
 
-    <div class="dossier-grid">
-      <!-- 1: Knox Device Owner -->
-      <div class="dossier-card">
-        <div class="dossier-icon crimson">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <div class="evidence-board">
+      <div class="evidence-grid">
+        <!-- Exhibit A: Knox Anti-Uninstall -->
+        <div class="evidence-pin">
+          <div>
+            <div class="evidence-tag">
+              <span>EXHIBIT A // UNINSTALL</span>
+              <span>🔒 100% IMMUTABLE</span>
+            </div>
+            <h3 class="evidence-title" data-i18n="d1_title">Knox Device Owner Permanence</h3>
+            <p class="evidence-desc" data-i18n="d1_desc">
+              Configured as system supervisor. Android itself disables "Uninstall" and "Force Stop". Safe Mode, factory resets, and notification shade pulldowns are permanently neutralized.
+            </p>
+          </div>
+          <div style="margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--cyan);font-weight:700;">
+            POL-DPM-LOCK_TASK: IMMUTABLE
+          </div>
         </div>
-        <div>
-          <h3 class="dossier-title" data-i18n="d1_title">Knox Device Owner Permanence</h3>
-          <p class="dossier-desc" data-i18n="d1_desc">
-            Configured as system supervisor. Android itself disables "Uninstall" and "Force Stop". Safe Mode, factory resets, and notification shade pulldowns are permanently neutralized.
-          </p>
-        </div>
-      </div>
 
-      <!-- 2: Zero-Storage -->
-      <div class="dossier-card">
-        <div class="dossier-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <!-- Exhibit B: Zero-Storage RAM Shred -->
+        <div class="evidence-pin">
+          <div>
+            <div class="evidence-tag">
+              <span>EXHIBIT B // PRIVACY</span>
+              <span>✨ 0 CLOUD TRAILS</span>
+            </div>
+            <h3 class="evidence-title" data-i18n="d2_title">Strategy 1: 100% Zero-Storage</h3>
+            <p class="evidence-desc" data-i18n="d2_desc">
+              Zero photos, zero GPS tracks, zero audio recordings saved on servers. Media streams direct to your private Telegram bot and is shredded from device RAM immediately.
+            </p>
+          </div>
+          <div style="margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--emerald);font-weight:700;">
+            RAM BUFFER SHRED: PURGED
+          </div>
         </div>
-        <div>
-          <h3 class="dossier-title" data-i18n="d2_title">Strategy 1: 100% Zero-Storage</h3>
-          <p class="dossier-desc" data-i18n="d2_desc">
-            Zero photos, zero GPS tracks, zero audio recordings saved on servers. Media streams direct to your private Telegram bot and is shredded from device RAM immediately.
-          </p>
-        </div>
-      </div>
 
-      <!-- 3: Air-Gapped SMS -->
-      <div class="dossier-card">
-        <div class="dossier-icon emerald">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        <!-- Exhibit C: Air-Gapped Cellular SMS -->
+        <div class="evidence-pin">
+          <div>
+            <div class="evidence-tag">
+              <span>EXHIBIT C // OFFLINE C2</span>
+              <span>📶 AIR-GAPPED SMS</span>
+            </div>
+            <h3 class="evidence-title" data-i18n="d3_title">Air-Gapped Cellular SMS C2</h3>
+            <p class="evidence-desc" data-i18n="d3_desc">
+              Maintains full command authority even when mobile data, Wi-Fi, and location are shut off. Authenticated via RFC 6238 TOTP tokens or master PIN, returning live GPS pins via cellular SMS.
+            </p>
+          </div>
+          <div style="margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--cyan);font-weight:700;">
+            RFC 6238 TOTP: ACTIVE
+          </div>
         </div>
-        <div>
-          <h3 class="dossier-title" data-i18n="d3_title">Air-Gapped Cellular SMS C2</h3>
-          <p class="dossier-desc" data-i18n="d3_desc">
-            Maintains full command authority even when mobile data, Wi-Fi, and location are shut off. Authenticated via RFC 6238 TOTP tokens or master PIN, returning live GPS pins via cellular SMS.
-          </p>
-        </div>
-      </div>
 
-      <!-- 4: Coercion Decoy OS -->
-      <div class="dossier-card">
-        <div class="dossier-icon amber">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
-        <div>
-          <h3 class="dossier-title" data-i18n="d4_title">Armed Coercion Decoy Sandbox</h3>
-          <p class="dossier-desc" data-i18n="d4_desc">
-            Under gunpoint or checkpoint coercion, entering your secret Decoy PIN instantly unlocks a sterile decoy phone while covertly snapping the coercer's mugshot and transmitting an emergency SOS.
-          </p>
+        <!-- Exhibit D: Decoy OS Coercion -->
+        <div class="evidence-pin">
+          <div>
+            <div class="evidence-tag">
+              <span>EXHIBIT D // COERCION</span>
+              <span>🎭 STERILE DECOY</span>
+            </div>
+            <h3 class="evidence-title" data-i18n="d4_title">Armed Coercion Decoy Sandbox</h3>
+            <p class="evidence-desc" data-i18n="d4_desc">
+              Under gunpoint or checkpoint coercion, entering your secret Decoy PIN instantly unlocks a sterile decoy phone while covertly snapping the coercer's mugshot and transmitting an emergency SOS.
+            </p>
+          </div>
+          <div style="margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--amber);font-weight:700;">
+            DURESS PIN: DECOY ACTIVE
+          </div>
         </div>
       </div>
     </div>
@@ -1459,8 +1448,8 @@
         <span class="brand-text" style="font-size:15px;">PASA SENTINEL</span>
       </div>
       <div class="footer-links">
-        <a href="#incident-hud" data-i18n="nav_hud">Incident Replay</a>
-        <a href="#dossier" data-i18n="nav_dossier">Architecture</a>
+        <a href="#simulator" data-i18n="nav_sim">Forensic Lab</a>
+        <a href="#dossier" data-i18n="nav_dossier">Evidence Wall</a>
         <a href="#setup-kit" data-i18n="nav_setup_kit">Setup Kit</a>
         <a href="#features" data-i18n="nav_features">Capabilities</a>
         <a href="#commands" data-i18n="nav_commands">86 Commands</a>
@@ -1487,8 +1476,8 @@ const rawFaq = [{"category":"general","categoryNameEn":"General & Fundamentals",
 const translations = {
   en: {
     top_status: "PASA SENTINEL ONLINE // SOVEREIGN C2 ACTIVE",
-    nav_hud: "Incident Replay",
-    nav_dossier: "Architecture",
+    nav_sim: "Forensic Lab",
+    nav_dossier: "Evidence Wall",
     nav_setup_kit: "Setup Kit",
     nav_features: "Capabilities",
     nav_commands: "86 Commands",
@@ -1508,18 +1497,15 @@ const translations = {
     pill_zero: "0-CLOUD RESIDUE",
     pill_sms: "TELEGRAM + AIR-GAP SMS",
 
-    hud_live_label: "CRIME INTERCEPT // LIVE",
-    hud_case_id: "CASE #PAS-9418-RED",
-    hud_stamp_line1: "CAUGHT RED-HANDED",
-    hud_stamp_line2: "PERPETRATOR CAUGHT",
-    hud_lbl_event: "EVENT TYPE:",
-    hud_lbl_cam: "MUGSHOT:",
-    hud_lbl_lock: "HARDWARE:",
-    hud_lbl_gps: "GNSS FIX:",
-    hud_lbl_mic: "WIRETAP:",
+    btn_sim_label: "🚨 SIMULATE PHONE SNATCH INTERCEPT",
+    stamp_top: "★ CAUGHT RED-HANDED ★",
+    stamp_sub: "// PERPETRATOR FACE IDENTIFIED //",
 
-    dossier_tag: "SOVEREIGN ARCHITECTURAL DIRECTIVES",
-    dossier_title: "4 Countermeasures Ordinary Tracking Apps Cannot Match",
+    tg_alert_title: "🚨 CRITICAL THEFT INTERCEPT:",
+    tg_alert_desc: "Snatch vector 2.65G detected! Perpetrator mugshot acquired & RAM shredded.",
+
+    dossier_tag: "FORENSIC CRIME EVIDENCE WALL",
+    dossier_title: "4 Physical Countermeasures That Outsmart Professional Thieves",
     dossier_lede: "Standard Play Store apps run in restricted sandboxes and depend entirely on continuous internet. PASA Sentinel operates at the Device Owner supervisor layer.",
     d1_title: "Knox Device Owner Permanence",
     d1_desc: "Configured as system supervisor. Android itself disables 'Uninstall' and 'Force Stop'. Safe Mode, factory resets, and notification shade pulldowns are permanently neutralized.",
@@ -1613,8 +1599,8 @@ const translations = {
   },
   bn: {
     top_status: "পাসা সেন্টিনেল অনলাইন // সার্বভৌম ডিফেন্স সক্রিয়",
-    nav_hud: "লাইভ ইন্টারসেপ্ট",
-    nav_dossier: "আর্কিটেকচার",
+    nav_sim: "ফরেনসিক ল্যাব",
+    nav_dossier: "প্রমাণ ডসিয়ার",
     nav_setup_kit: "সেটআপ কিট",
     nav_features: "ফিচারসমূহ",
     nav_commands: "৮৬টি কমান্ড",
@@ -1634,18 +1620,15 @@ const translations = {
     pill_zero: "০-ক্লাউড ট্রেইল",
     pill_sms: "টেলিগ্রাম + এসএমএস সি২",
 
-    hud_live_label: "লাইভ ক্রাইম ইন্টারসেপ্ট",
-    hud_case_id: "কেস #PAS-9418-রেড",
-    hud_stamp_line1: "হাতেনাতে আটক",
-    hud_stamp_line2: "অপরাধীর চেহারা শনাক্ত",
-    hud_lbl_event: "ঘটনার ধরন:",
-    hud_lbl_cam: "মাগশট:",
-    hud_lbl_lock: "হার্ডওয়্যার:",
-    hud_lbl_gps: "স্যাটেলাইট পিন:",
-    hud_lbl_mic: "অয়্যারট্যাপ:",
+    btn_sim_label: "🚨 লাইভ ছিনতাই প্রতিরোধ পরীক্ষা করুন",
+    stamp_top: "★ হাতেনাতে আটক ★",
+    stamp_sub: "// অপরাধী চেহারা শনাক্ত //",
 
-    dossier_tag: "সার্বভৌম আর্কিটেকচারাল নির্দেশিকা",
-    dossier_title: "৪টি প্রতিরোধ ব্যবস্থা যা অন্য কোনো অ্যাপে কল্পনাও করা যায় না",
+    tg_alert_title: "🚨 জরুরি ছিনতাই প্রতিরোধ এলার্ট:",
+    tg_alert_desc: "২.৬৫G টান শনাক্ত! অপরাধীর ছবি ক্যাপচার ও র‍্যাম তাৎক্ষণিক ধ্বংস সম্পন্ন।",
+
+    dossier_tag: "ফরেনসিক অপরাধ প্রমাণ ডসিয়ার",
+    dossier_title: "৪টি বাস্তব প্রতিরোধ যা পেশাদার চোরদেরও ফাঁদে ফেলে দেয়",
     dossier_lede: "প্লে স্টোরের সাধারণ অ্যাপগুলো স্যান্ডবক্সে বন্দি এবং সার্বক্ষণিক ইন্টারনেটের ওপর নির্ভরশীল। পাসা সরাসরি ডিভাইস ওনার সুপারভাইজার লেয়ারে পরিচালিত হয়।",
     d1_title: "নক্স ডিভাইস ওনার স্থায়ী সুরক্ষা",
     d1_desc: "সিস্টেম সুপারভাইজার হিসেবে নিযুক্ত। অ্যান্ড্রয়েড ওএস নিজেই আনইন্সটল ও ফোর্স স্টপ বাটন নিষ্ক্রিয় রাখে। সেফ মোড বুট বা ফ্যাক্টরি রিসেট পুরোপুরি বন্ধ।",
@@ -1743,222 +1726,359 @@ let currentLang = 'en';
 let currentFaqCategory = 'top';
 let currentFeatureHub = 'knox';
 let currentCommandCategory = 'all';
+let isSoundEnabled = false;
 
-/* ── HUD Incident Scenario Data ── */
-const hudStages = [
-  {
-    time: "T+0.0s",
-    tagEn: "PHASE 1: PERPETRATOR SNATCH DETECTED",
-    tagBn: "পর্যায় ১: ছিনতাই বা আকস্মিক টান শনাক্ত",
-    textEn: "Perpetrator snatches phone from hand or pocket. Accelerometer triggers at 2.65G kinetic vector spike. Autonomous trap engages instantaneously.",
-    textBn: "ছিনতাইকারী হাত বা পকেট থেকে ফোন টান দেওয়ার সাথে সাথে এক্সেলেরোমিটার ২.৬৫G টান শনাক্ত করে তাৎক্ষণিক অটোনোমাস ট্র্যাপ সক্রিয় করে।",
-    event: "KINETIC SNATCH (2.65G)",
-    cam: "ARMED & INITIALIZING",
-    lock: "STANDBY",
-    gps: "TRIANGULATING...",
-    stamp: false,
-    reticleScale: 1
-  },
-  {
-    time: "T+0.4s",
-    tagEn: "PHASE 2: PERPETRATOR CAUGHT RED-HANDED",
-    tagBn: "পর্যায় ২: অপরাধী হাতেনাতে শনাক্ত ও ছবি ক্যাপচার",
-    textEn: "Front Camera headlessly snaps high-resolution mugshot without display flash, shutter audio, or status notification. Face reticle acquires 99.8% match confidence.",
-    textBn: "স্ক্রিন না জ্বালিয়ে বা কোনো আওয়াজ ছাড়াই ফ্রন্ট ক্যামেরা অপরাধীর নিখুঁত চেহারার ছবি তুলে ফেলে। অপরাধী বিন্দুমাত্র বুঝতে পারে না যে সে ধরা পড়েছে!",
-    event: "PERPETRATOR MUGSHOT",
-    cam: "HEADLESS SNAP COMPLETE",
-    lock: "KIOSK ENGAGING",
-    gps: "GNSS LOCK 23.8103° N",
-    stamp: true,
-    reticleScale: 1.15
-  },
-  {
-    time: "T+0.8s",
-    tagEn: "PHASE 3: HARDWARE-LEVEL COUNTERMEASURES",
-    tagBn: "পর্যায় ৩: হার্ডওয়্যার লকডাউন ও ইউএসবি কিল",
-    textEn: "Knox Kiosk Mode enforces LOCK_TASK_FEATURE_NONE. Physical USB data pins severed (0V) to block Cellebrite extraction cables. Safe Mode and power off blocked.",
-    textBn: "নক্স সুপারভাইজার সিস্টেম লকডাউন চাপিয়ে দেয়। ইউএসবি ডেটা পিন কেটে দেওয়া হয় যাতে কম্পিউটারে ক্যাবল লাগিয়ে তথ্য চুরি করা না যায়। পাওয়ার অফ নিষ্ক্রিয়।",
-    event: "LOCKDOWN ENFORCED",
-    cam: "STANDBY (BURST READY)",
-    lock: "USB SEVERED // KIOSK ON",
-    gps: "SATELLITE ACCURACY 3M",
-    stamp: true,
-    reticleScale: 1
-  },
-  {
-    time: "T+1.2s",
-    tagEn: "PHASE 4: SATELLITE GPS & LIVE TELEGRAM SOS",
-    tagBn: "পর্যায় ৪: স্যাটেলাইট জিপিএস ও টেলিগ্রামে প্রমাণ প্রেরণ",
-    textEn: "Precision satellite GNSS coordinates, dual-SIM tower telemetry, and perpetrator mugshot stream directly to the owner's private Telegram bot.",
-    textBn: "স্যাটেলাইট জিপিএস ম্যাপ লিংক এবং চোরের স্পষ্ট মাগশট সরাসরি মালিকের নিজস্ব গোপন টেলিগ্রাম বটে পৌঁছে যায়।",
-    event: "TELEGRAM SOS DISPATCHED",
-    cam: "EVIDENCE DELIVERED",
-    lock: "SYSTEM DEFENSE ARMED",
-    gps: "23.8103° N, 90.4125° E",
-    stamp: false,
-    reticleScale: 1
-  },
-  {
-    time: "T+1.5s",
-    tagEn: "PHASE 5: STRATEGY 1 ZERO-STORAGE SHRED",
-    tagBn: "পর্যায় ৫: মেমোরি ধ্বংস (জিরো-স্টোরেজ প্রাইভেসি)",
-    textEn: "Captured evidence is cryptographically shredded from phone RAM immediately. Zero images, zero coordinates stored on VPS or cloud servers.",
-    textBn: "ছবি ও অডিও পাঠানোর সাথে সাথে ফোনের র‍্যাম ও ক্যাশ থেকে চিরতরে মুছে ফেলা হয়। ক্লাউড বা সার্ভারে আপনার ডেটার কোনো চিহ্ন থাকে না।",
-    event: "RAM SHREDDED (0 TRACE)",
-    cam: "MEMORY BUFFER PURGED",
-    lock: "PERSISTENT SUPERVISOR",
-    gps: "TRANSMITTED & PURGED",
-    stamp: false,
-    reticleScale: 1
+/* ── Web Audio API Synthesizer (0 External Downloads) ── */
+let audioCtx = null;
+function getAudioContext() {
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) audioCtx = new AudioContext();
   }
-];
-
-let currentHudStep = 0;
-let hudInterval = null;
-let hudIsPlaying = true;
-
-function setHudStep(stepIdx) {
-  currentHudStep = stepIdx % hudStages.length;
-  updateHudDisplay();
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
 }
 
-function updateHudDisplay() {
-  const stage = hudStages[currentHudStep];
-  const isBn = currentLang === 'bn';
-
-  const timerEl = document.getElementById('hudTimer');
-  if (timerEl) timerEl.textContent = stage.time;
-
-  const storyTag = document.getElementById('hudStoryTag');
-  if (storyTag) storyTag.textContent = isBn ? stage.tagBn : stage.tagEn;
-
-  const storyText = document.getElementById('hudStoryText');
-  if (storyText) storyText.textContent = isBn ? stage.textBn : stage.textEn;
-
-  const stampEl = document.getElementById('hudStamp');
-  if (stampEl) {
-    stampEl.classList.toggle('active', stage.stamp);
-  }
-
-  const reticleEl = document.getElementById('hudReticle');
-  if (reticleEl) {
-    reticleEl.style.transform = `scale(${stage.reticleScale})`;
-  }
-
-  const valEvent = document.getElementById('hudValEvent');
-  if (valEvent) valEvent.textContent = stage.event;
-
-  const valCam = document.getElementById('hudValCam');
-  if (valCam) valCam.textContent = stage.cam;
-
-  const valLock = document.getElementById('hudValLock');
-  if (valLock) valLock.textContent = stage.lock;
-
-  const valGps = document.getElementById('hudValGps');
-  if (valGps) valGps.textContent = stage.gps;
-
-  // Update step buttons
-  const stepBtns = document.querySelectorAll('.hud-step-btn');
-  stepBtns.forEach((btn, idx) => {
-    btn.classList.toggle('active', idx === currentHudStep);
-  });
-}
-
-function toggleHudAutoPlay() {
-  hudIsPlaying = !hudIsPlaying;
-  const playLabel = document.getElementById('hudPlayLabel');
-  if (hudIsPlaying) {
-    if (playLabel) playLabel.textContent = currentLang === 'bn' ? 'পজ' : 'Pause';
-    startHudAutoPlay();
-  } else {
-    if (playLabel) playLabel.textContent = currentLang === 'bn' ? 'প্লে' : 'Play';
-    stopHudAutoPlay();
+function toggleSoundFx() {
+  isSoundEnabled = !isSoundEnabled;
+  const icon = document.getElementById('soundIcon');
+  const label = document.getElementById('soundLabel');
+  const btn = document.getElementById('btnSoundToggle');
+  if (btn) btn.classList.toggle('active', isSoundEnabled);
+  if (icon) icon.textContent = isSoundEnabled ? '🔊' : '🔇';
+  if (label) label.textContent = isSoundEnabled ? 'SOUND: ON' : 'SOUND: OFF';
+  if (isSoundEnabled) {
+    getAudioContext();
+    playSonarChirp();
   }
 }
 
-function startHudAutoPlay() {
-  stopHudAutoPlay();
-  hudInterval = setInterval(() => {
-    currentHudStep = (currentHudStep + 1) % hudStages.length;
-    updateHudDisplay();
-  }, 3500);
-}
+function playShutterSound() {
+  if (!isSoundEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const t = ctx.currentTime;
 
-function stopHudAutoPlay() {
-  if (hudInterval) {
-    clearInterval(hudInterval);
-    hudInterval = null;
+  // Noise burst for mechanical shutter
+  const bufferSize = ctx.sampleRate * 0.08;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1;
   }
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'highpass';
+  filter.frequency.setValueAtTime(1000, t);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.7, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08);
+
+  noise.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  noise.start(t);
 }
 
-/* ── Lightweight Canvas Radar Animation ── */
-let radarAngle = 0;
-function initRadar() {
-  const canvas = document.getElementById('radarCanvas');
+function playStampThud() {
+  if (!isSoundEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const t = ctx.currentTime;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(140, t);
+  osc.frequency.exponentialRampToValueAtTime(30, t + 0.25);
+
+  gain.gain.setValueAtTime(0.9, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.25);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + 0.25);
+}
+
+function playSonarChirp() {
+  if (!isSoundEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const t = ctx.currentTime;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(1200, t);
+  osc.frequency.exponentialRampToValueAtTime(800, t + 0.15);
+
+  gain.gain.setValueAtTime(0.3, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + 0.15);
+}
+
+function playAlarmTone() {
+  if (!isSoundEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const t = ctx.currentTime;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(750, t);
+  osc.frequency.setValueAtTime(950, t + 0.08);
+
+  gain.gain.setValueAtTime(0.25, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + 0.2);
+}
+
+/* ── 3D Forensic Night-Vision Camera Canvas Animation ── */
+let camAnimFrame = null;
+let biometricPoints = [];
+let scanY = 0;
+let isSimulating = false;
+
+function initForensicCam() {
+  const canvas = document.getElementById('forensicCamCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const w = canvas.width;
   const h = canvas.height;
   const cx = w / 2;
-  const cy = h / 2;
-  const radius = cx - 6;
+  const cy = h / 2 - 20;
 
-  function drawRadar() {
+  // Initialize 16 facial biometric landmarks
+  biometricPoints = [
+    { x: cx - 35, y: cy - 35, base: { x: cx - 35, y: cy - 35 }, name: 'TEMPLE_L' },
+    { x: cx + 35, y: cy - 35, base: { x: cx + 35, y: cy - 35 }, name: 'TEMPLE_R' },
+    { x: cx - 22, y: cy - 15, base: { x: cx - 22, y: cy - 15 }, name: 'EYE_L' },
+    { x: cx + 22, y: cy - 15, base: { x: cx + 22, y: cy - 15 }, name: 'EYE_R' },
+    { x: cx, y: cy - 6, base: { x: cx, y: cy - 6 }, name: 'NOSE_BRIDGE' },
+    { x: cx - 12, y: cy + 12, base: { x: cx - 12, y: cy + 12 }, name: 'NOSE_L' },
+    { x: cx + 12, y: cy + 12, base: { x: cx + 12, y: cy + 12 }, name: 'NOSE_R' },
+    { x: cx, y: cy + 15, base: { x: cx, y: cy + 15 }, name: 'NOSE_TIP' },
+    { x: cx - 18, y: cy + 34, base: { x: cx - 18, y: cy + 34 }, name: 'LIP_L' },
+    { x: cx + 18, y: cy + 34, base: { x: cx + 18, y: cy + 34 }, name: 'LIP_R' },
+    { x: cx, y: cy + 42, base: { x: cx, y: cy + 42 }, name: 'LIP_BOT' },
+    { x: cx - 38, y: cy + 20, base: { x: cx - 38, y: cy + 20 }, name: 'JAW_L' },
+    { x: cx + 38, y: cy + 20, base: { x: cx + 38, y: cy + 20 }, name: 'JAW_R' },
+    { x: cx - 25, y: cy + 55, base: { x: cx - 25, y: cy + 55 }, name: 'CHIN_L' },
+    { x: cx + 25, y: cy + 55, base: { x: cx + 25, y: cy + 55 }, name: 'CHIN_R' },
+    { x: cx, y: cy + 65, base: { x: cx, y: cy + 65 }, name: 'CHIN_TIP' }
+  ];
+
+  function renderFrame() {
     ctx.clearRect(0, 0, w, h);
 
-    // Outer circle
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+    // Dark cybernetic grid background
+    ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
     ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.stroke();
+    const gridSize = 24;
+    for (let x = 0; x < w; x += gridSize) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (let y = 0; y < h; y += gridSize) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
 
-    // Middle circle
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius * 0.6, 0, Math.PI * 2);
-    ctx.stroke();
+    const time = Date.now() / 600;
+    const breatheX = Math.sin(time) * 1.5;
+    const breatheY = Math.cos(time * 0.8) * 2;
 
-    // Center crosshair
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
-    ctx.beginPath();
-    ctx.moveTo(cx, 8); ctx.lineTo(cx, h - 8);
-    ctx.moveTo(8, cy); ctx.lineTo(w - 8, cy);
-    ctx.stroke();
-
-    // Sweeping beam
-    radarAngle += 0.04;
+    // Draw Suspect Hooded Head Silhouette
     ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(radarAngle);
-    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, radius);
-    grad.addColorStop(0, 'rgba(239, 68, 68, 0.35)');
-    grad.addColorStop(1, 'rgba(239, 68, 68, 0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.arc(0, 0, radius, 0, 0.5);
-    ctx.closePath();
-    ctx.fill();
+    ctx.translate(breatheX, breatheY);
 
-    ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    ctx.strokeStyle = isSimulating ? 'rgba(239, 68, 68, 0.5)' : 'rgba(0, 240, 255, 0.3)';
     ctx.lineWidth = 1.5;
+
+    // Hood contour
     ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(radius, 0);
+    ctx.ellipse(cx, cy + 10, 68, 88, 0, 0, Math.PI * 2);
+    ctx.fill();
     ctx.stroke();
+
+    // Suspect Shoulders
+    ctx.beginPath();
+    ctx.moveTo(cx - 120, h);
+    ctx.bezierCurveTo(cx - 90, cy + 100, cx - 60, cy + 90, cx - 40, cy + 85);
+    ctx.lineTo(cx + 40, cy + 85);
+    ctx.bezierCurveTo(cx + 60, cy + 90, cx + 90, cy + 100, cx + 120, h);
+    ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
+    ctx.fill();
+    ctx.stroke();
+
+    // Biometric Mesh Connecting Lines
+    ctx.strokeStyle = isSimulating ? 'rgba(239, 68, 68, 0.25)' : 'rgba(0, 240, 255, 0.18)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < biometricPoints.length - 1; i++) {
+      for (let j = i + 1; j < biometricPoints.length; j++) {
+        const dx = biometricPoints[i].base.x - biometricPoints[j].base.x;
+        const dy = biometricPoints[i].base.y - biometricPoints[j].base.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 42) {
+          ctx.beginPath();
+          ctx.moveTo(biometricPoints[i].x, biometricPoints[i].y);
+          ctx.lineTo(biometricPoints[j].x, biometricPoints[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Biometric Tracking Landmark Dots
+    biometricPoints.forEach(pt => {
+      pt.x = pt.base.x + Math.sin(time + pt.base.y) * 1.2;
+      pt.y = pt.base.y + Math.cos(time + pt.base.x) * 1.2;
+
+      ctx.fillStyle = isSimulating ? '#ef4444' : '#00f0ff';
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Face Target Reticle Box
+    const boxW = 120;
+    const boxH = 150;
+    const boxX = cx - boxW / 2;
+    const boxY = cy - 40;
+    const reticleColor = isSimulating ? '#ef4444' : '#00f0ff';
+
+    ctx.strokeStyle = reticleColor;
+    ctx.lineWidth = 2;
+    const corner = 16;
+
+    // Top-left
+    ctx.beginPath(); ctx.moveTo(boxX, boxY + corner); ctx.lineTo(boxX, boxY); ctx.lineTo(boxX + corner, boxY); ctx.stroke();
+    // Top-right
+    ctx.beginPath(); ctx.moveTo(boxX + boxW - corner, boxY); ctx.lineTo(boxX + boxW, boxY); ctx.lineTo(boxX + boxW, boxY + corner); ctx.stroke();
+    // Bottom-left
+    ctx.beginPath(); ctx.moveTo(boxX, boxY + boxH - corner); ctx.lineTo(boxX, boxY + boxH); ctx.lineTo(boxX + corner, boxY + boxH); ctx.stroke();
+    // Bottom-right
+    ctx.beginPath(); ctx.moveTo(boxX + boxW - corner, boxY + boxH); ctx.lineTo(boxX + boxW, boxY + boxH); ctx.lineTo(boxX + boxW, boxY + boxH - corner); ctx.stroke();
+
+    // Reticle Center Crosshair
+    ctx.strokeStyle = reticleColor;
+    ctx.beginPath();
+    ctx.moveTo(cx - 8, cy); ctx.lineTo(cx + 8, cy);
+    ctx.moveTo(cx, cy - 8); ctx.lineTo(cx, cy + 8);
+    ctx.stroke();
+
+    // Reticle Label
+    ctx.fillStyle = reticleColor;
+    ctx.font = '8.5px "JetBrains Mono", monospace';
+    ctx.fillText(isSimulating ? 'TARGET LOCKED: 99.8%' : 'FACE RECOGNITION ACTIVE', boxX + 4, boxY - 6);
+    ctx.fillText('ISO 1600 • 1/120s • 4K', boxX + 4, boxY + boxH + 12);
+
     ctx.restore();
 
-    // Blinking target blip
-    const blipAlpha = 0.5 + 0.5 * Math.sin(Date.now() / 200);
-    ctx.fillStyle = 'rgba(239, 68, 68, ' + blipAlpha + ')';
-    ctx.beginPath();
-    ctx.arc(cx + 25, cy - 20, 3.5, 0, Math.PI * 2);
-    ctx.fill();
+    // Vertical Laser Scanning Line
+    scanY = (scanY + 2.5) % h;
+    const grad = ctx.createLinearGradient(0, scanY - 15, 0, scanY + 15);
+    grad.addColorStop(0, 'rgba(0, 240, 255, 0)');
+    grad.addColorStop(0.5, isSimulating ? 'rgba(239, 68, 68, 0.45)' : 'rgba(0, 240, 255, 0.35)');
+    grad.addColorStop(1, 'rgba(0, 240, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, scanY - 15, w, 30);
 
-    requestAnimationFrame(drawRadar);
+    camAnimFrame = requestAnimationFrame(renderFrame);
   }
-  requestAnimationFrame(drawRadar);
+  renderFrame();
+}
+
+/* ── Interactive 3D Parallax Tilt ── */
+function init3DParallax() {
+  const stage = document.getElementById('phoneStage');
+  const mockup = document.getElementById('phoneMockup');
+  if (!stage || !mockup) return;
+
+  stage.addEventListener('mousemove', e => {
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    const rotX = (y / (rect.height / 2)) * -14;
+    const rotY = (x / (rect.width / 2)) * 14;
+    mockup.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+  });
+
+  stage.addEventListener('mouseleave', () => {
+    mockup.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+  });
+}
+
+/* ── Cinematic Snatch Simulation Sequence ── */
+function runSnatchSimulation() {
+  if (isSimulating) return;
+  isSimulating = true;
+
+  const phone = document.getElementById('phoneMockup');
+  const flash = document.getElementById('camFlash');
+  const stamp = document.getElementById('stampCinematic');
+  const tgCard = document.getElementById('telegramAlertCard');
+  const trapStat = document.getElementById('hudStatTrap');
+  const usbStat = document.getElementById('hudStatUsb');
+
+  // Step 1: Tremor & Kinetic Vector Alert (T+0.0s)
+  if (phone) phone.classList.add('shaking');
+  if (trapStat) trapStat.textContent = 'TRIP: 2.65G KINETIC';
+  playAlarmTone();
+
+  // Step 2: Covert Camera Flash & Shutter Snap (T+0.6s)
+  setTimeout(() => {
+    if (flash) flash.classList.add('flashing');
+    playShutterSound();
+    setTimeout(() => {
+      if (flash) flash.classList.remove('flashing');
+    }, 120);
+  }, 600);
+
+  // Step 3: "CAUGHT RED-HANDED" Slam (T+1.1s)
+  setTimeout(() => {
+    if (phone) phone.classList.remove('shaking');
+    if (stamp) stamp.classList.add('stamped');
+    playStampThud();
+  }, 1100);
+
+  // Step 4: Knox Kiosk & USB Data Pin Sever (T+1.8s)
+  setTimeout(() => {
+    if (usbStat) usbStat.textContent = 'SEVERED [0V]';
+    playSonarChirp();
+  }, 1800);
+
+  // Step 5: Floating Telegram Card Pop-in (T+2.4s)
+  setTimeout(() => {
+    if (tgCard) tgCard.classList.add('show');
+    playSonarChirp();
+  }, 2400);
+
+  // Reset simulation state after 6 seconds
+  setTimeout(() => {
+    if (stamp) stamp.classList.remove('stamped');
+    if (trapStat) trapStat.textContent = 'ARMED // 2.65G';
+    if (usbStat) usbStat.textContent = 'KILL [0V]';
+    isSimulating = false;
+  }, 6500);
+}
+
+function dismissTgAlert() {
+  const tgCard = document.getElementById('telegramAlertCard');
+  if (tgCard) tgCard.classList.remove('show');
 }
 
 /* ── Language Switcher ── */
@@ -1995,7 +2115,6 @@ function setLanguage(lang) {
       : 'Search 86 C2 commands (e.g. snap, usb_lock, duress, sim_lock, locate, deadman)...';
   }
 
-  updateHudDisplay();
   renderFeatureHubTabs();
   renderFeatureCards();
   renderCommandPills();
@@ -2236,7 +2355,6 @@ function renderFaq() {
       return qText.includes(query) || aText.includes(query);
     });
   } else if (currentFaqCategory === 'top') {
-    // Top 6 highest converting questions
     const topIndices = [0, 7, 10, 15, 31, 4];
     filtered = topIndices.map(idx => rawFaq[idx]).filter(Boolean);
   } else if (currentFaqCategory === 'theft') {
@@ -2292,8 +2410,8 @@ document.addEventListener('DOMContentLoaded', () => {
   } catch (e) {}
 
   setLanguage(saved);
-  initRadar();
-  startHudAutoPlay();
+  initForensicCam();
+  init3DParallax();
 });
 </script>
 
