@@ -286,13 +286,18 @@ class StorageAccessCommand @Inject constructor(
             it.equals("trash", ignoreCase = true)
         }
 
+        // Separate page number from directory args (e.g. /list_files camera 2)
+        val pageArg = cleanArgs.lastOrNull()?.toIntOrNull()
+        val dirArgs = if (pageArg != null) cleanArgs.dropLast(1) else cleanArgs
+        val page    = pageArg ?: 1
+
         val sdcard = Environment.getExternalStorageDirectory()
         val defaultDir = File(sdcard, "DCIM/Camera")
 
-        val targetDir: File = if (cleanArgs.isEmpty()) {
+        val targetDir: File = if (dirArgs.isEmpty()) {
             if (defaultDir.exists() && defaultDir.isDirectory) defaultDir else sdcard
         } else {
-            val query = cleanArgs.joinToString(" ").trim()
+            val query = dirArgs.joinToString(" ").trim()
             resolveDirectory(query, sdcard)
         }
 
@@ -310,8 +315,9 @@ class StorageAccessCommand @Inject constructor(
             )
         }
 
-        return@withContext listDirectory(targetDir, showAll)
+        return@withContext listDirectory(targetDir, showAll, page)
     }
+
 
     private fun resolveDirectory(query: String, sdcard: File): File {
         val qLower = query.lowercase(Locale.ROOT)
@@ -356,7 +362,7 @@ class StorageAccessCommand @Inject constructor(
         }
     }
 
-    private fun listDirectory(dir: File, showAll: Boolean): CommandResult {
+    private fun listDirectory(dir: File, showAll: Boolean, page: Int = 1): CommandResult {
         val allEntries = dir.listFiles()
         if (allEntries == null) {
             return CommandResult(false, "❌ Unable to read directory <code>${dir.absolutePath}</code>. Check permissions.")
@@ -375,9 +381,16 @@ class StorageAccessCommand @Inject constructor(
             .filter { showAll || (!it.name.startsWith(".trashed-") && !it.name.startsWith(".")) }
             .sortedByDescending { it.lastModified() } // NEWEST FIRST
 
-        // Cache state for 1-tap /getfile <number>
+        // Cache FULL list for 1-tap /getfile <number> (global across all pages)
         lastListedDirectory = dir
         lastListedFiles = activeFiles
+
+        // Pagination config — only files are paged; subdirs always shown in full (capped at 8)
+        val filesPerPage = 15
+        val totalFilePages = maxOf(1, (activeFiles.size + filesPerPage - 1) / filesPerPage)
+        val validPage = page.coerceIn(1, totalFilePages)
+        val fileStartIdx = (validPage - 1) * filesPerPage
+        val pageFiles = activeFiles.drop(fileStartIdx).take(filesPerPage)
 
         val sb = StringBuilder()
         sb.append("📁 <b>Folder:</b> <code>${dir.absolutePath}</code>\n")
@@ -385,10 +398,13 @@ class StorageAccessCommand @Inject constructor(
         if (!showAll && trashedOrHiddenCount > 0) {
             sb.append(" <i>($trashedOrHiddenCount trash/hidden filtered)</i>")
         }
+        if (totalFilePages > 1) {
+            sb.append(" — Files page $validPage of $totalFilePages")
+        }
         sb.append("\n━━━━━━━━━━━━━━━━━━━━\n")
 
-        // 1. Subfolders section
-        if (subdirs.isNotEmpty()) {
+        // 1. Subfolders section (shown only on page 1 to avoid repetition)
+        if (subdirs.isNotEmpty() && validPage == 1) {
             sb.append("📂 <b>Subfolders:</b>\n")
             val shownDirs = subdirs.take(8)
             for (sub in shownDirs) {
@@ -401,14 +417,13 @@ class StorageAccessCommand @Inject constructor(
             sb.append("\n")
         }
 
-        // 2. Active Files section (Newest first, numbered for 1-tap download)
+        // 2. Active Files section (Newest first, numbered by global index for 1-tap /getfile)
         if (activeFiles.isEmpty()) {
             sb.append("<i>(No active files in this folder)</i>\n")
         } else {
             sb.append("📄 <b>Files (Newest First):</b>\n")
-            val shownFiles = activeFiles.take(15)
-            for ((index, f) in shownFiles.withIndex()) {
-                val num = index + 1
+            for ((localIdx, f) in pageFiles.withIndex()) {
+                val globalNum = fileStartIdx + localIdx + 1 // 1-based global number for /getfile
                 val size = formatFileSize(f.length())
                 val modDate = SimpleDateFormat("MM-dd HH:mm", Locale.US).format(Date(f.lastModified()))
                 val ext = f.extension.lowercase(Locale.ROOT)
@@ -421,19 +436,26 @@ class StorageAccessCommand @Inject constructor(
                     ext == "apk" -> "📱"
                     else -> "📄"
                 }
-
-                sb.append("$icon <b>[$num]</b> <code>${f.name}</code>\n")
-                sb.append("   └ $size • $modDate • 📥 <code>/getfile $num</code>\n")
-            }
-
-            if (activeFiles.size > 15) {
-                sb.append("\n<i>...and ${activeFiles.size - 15} more files.</i>\n")
+                sb.append("$icon <b>[$globalNum]</b> <code>${f.name}</code>\n")
+                sb.append("   └ $size • $modDate • 📥 <code>/getfile $globalNum</code>\n")
             }
         }
 
-        // 3. Quick Tips Footer
+        // 3. Footer with navigation and tips
         sb.append("\n━━━━━━━━━━━━━━━━━━━━\n")
         sb.append("⚡ <b>1-Tap Download:</b> Tap any <code>/getfile &lt;num&gt;</code> above.\n")
+
+        // File page navigation
+        if (totalFilePages > 1) {
+            val dirPath = dir.absolutePath
+            val navItems = mutableListOf<String>()
+            if (validPage > 1) navItems.add("👈 <code>/list_files $dirPath ${validPage - 1}</code>")
+            if (validPage < totalFilePages) navItems.add("👉 <code>/list_files $dirPath ${validPage + 1}</code>")
+            if (navItems.isNotEmpty()) {
+                sb.append("📄 <b>File Pages:</b> ${navItems.joinToString(" • ")}\n")
+            }
+        }
+
         if (!showAll && trashedOrHiddenCount > 0) {
             sb.append("🗑️ <b>Show Trash:</b> <code>/list_files --all</code>\n")
         }
@@ -444,6 +466,7 @@ class StorageAccessCommand @Inject constructor(
 
         return CommandResult(success = true, message = sb.toString())
     }
+
 
     private fun formatFileSize(bytes: Long): String {
         return when {

@@ -83,6 +83,7 @@ class CommandExecutor @Inject constructor(
     private val dnsCommand: com.izhaanintellect.pasa.commands.DnsCommand,
     private val towerCommand: com.izhaanintellect.pasa.commands.TowerCommand,
     private val simLockCommand: com.izhaanintellect.pasa.commands.SimLockCommand,
+    private val simTrayLockCommand: com.izhaanintellect.pasa.commands.SimTrayLockCommand,
     private val vibratePulseCommand: com.izhaanintellect.pasa.commands.VibratePulseCommand,
     private val patternGuardCommand: com.izhaanintellect.pasa.commands.PatternGuardCommand,
     private val appFirewallCommand: com.izhaanintellect.pasa.commands.AppFirewallCommand,
@@ -650,6 +651,7 @@ class CommandExecutor @Inject constructor(
             "/tower", "/cell", "/celltower", "/bts" -> towerCommand
             "/selftest", "/health", "/diagnostics" -> selfTestCommand
             "/sim_lock", "/sim_swap", "/simlockdown" -> simLockCommand
+            "/sim_tray_lock", "/tray_lock", "/simtraylock", "/sim_guard" -> simTrayLockCommand
             "/vibrate_pulse", "/vibrate", "/pulse", "/sos" -> vibratePulseCommand
             "/pattern_guard", "/unlock_guard", "/pattern_monitor" -> patternGuardCommand
             "/app_firewall", "/firewall", "/rat_block" -> appFirewallCommand

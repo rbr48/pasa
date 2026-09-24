@@ -103,8 +103,12 @@ class PreferencesManager @Inject constructor(
         private const val KEY_MIC_MUTED = "mic_muted"
         private const val KEY_LOCKSCREEN_INFO = "lockscreen_info"
         private const val KEY_TRIAL_START_TIME = "trial_start_time"
+        // SIM Tray Lock — deep lockdown on unauthorized SIM insertion
+        private const val KEY_SIM_TRAY_LOCK_ENABLED = "sim_tray_lock_enabled"
+        private const val KEY_SIM_TRAY_LOCK_EMERGENCY_PIN = "sim_tray_lock_emergency_pin"
         const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
     }
+
 
     var isEncryptionAvailable = true
         private set
@@ -478,6 +482,16 @@ class PreferencesManager @Inject constructor(
     var emergencyPhone: String
         get() = prefs.getString(KEY_EMERGENCY_PHONE, "") ?: ""
         set(value) = prefs.edit().putString(KEY_EMERGENCY_PHONE, value).apply()
+
+    /** SIM Tray Lock — deep-lockdown policy on unauthorized SIM insertion */
+    var isSimTrayLockEnabled: Boolean
+        get() = prefs.getBoolean(KEY_SIM_TRAY_LOCK_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_SIM_TRAY_LOCK_ENABLED, value).apply()
+
+    /** Temporary emergency PIN generated on SIM tray breach, sent to owner via Telegram */
+    var simTrayLockEmergencyPin: String
+        get() = prefs.getString(KEY_SIM_TRAY_LOCK_EMERGENCY_PIN, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_SIM_TRAY_LOCK_EMERGENCY_PIN, value).apply()
 
     var isTamperDetectionEnabled: Boolean
         get() = prefs.getBoolean(KEY_TAMPER_DETECTION_ENABLED, false)

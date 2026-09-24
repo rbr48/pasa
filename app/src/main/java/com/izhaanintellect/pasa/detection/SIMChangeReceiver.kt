@@ -369,12 +369,21 @@ class SIMChangeReceiver : BroadcastReceiver() {
                                 } else { 0 })
                             )
                         } catch (_: Exception) {}
+
+                        // ============================================================
+                        // SIM TRAY LOCK — DEEP LOCKDOWN (Device Owner required)
+                        // Executes only if /sim_tray_lock was armed by the owner
+                        // ============================================================
+                        if (preferencesManager.isSimTrayLockEnabled) {
+                            applySimTrayLockDeepLockdown(context, dpm, adminComponent, imei)
+                        }
                     }
+
                     val lockMsg = "🚨 UNAUTHORIZED SIM DETECTED!\nDevice locked down by PASA Sentinel.\nRemote-only unlock via Telegram or SMS."
                     preferencesManager.isLostModeActive = true
                     preferencesManager.lostModeMessage = lockMsg
 
-                    val alertIntent = AlertMessageActivity.createIntent(
+                    val alertIntent = com.izhaanintellect.pasa.ui.AlertMessageActivity.createIntent(
                         context = context,
                         message = lockMsg,
                         enforcePin = false
@@ -382,7 +391,7 @@ class SIMChangeReceiver : BroadcastReceiver() {
                     SecurityActivityLauncher.launch(
                         context = context,
                         intent = alertIntent,
-                        notificationId = AlertMessageActivity.NOTIFICATION_ID,
+                        notificationId = com.izhaanintellect.pasa.ui.AlertMessageActivity.NOTIFICATION_ID,
                         notificationTitle = "🚨 FOREIGN SIM: KIOSK LOCKED",
                         notificationText = lockMsg,
                         wakeScreen = true,
@@ -397,6 +406,7 @@ class SIMChangeReceiver : BroadcastReceiver() {
                 Log.w(TAG, "Failed to lock on foreign SIM: ${le.message}")
             }
         }
+
 
         // 5. Capture mugshot of perpetrator inserting SIM
         var mugshot: java.io.File? = null
@@ -424,12 +434,84 @@ class SIMChangeReceiver : BroadcastReceiver() {
             💬 <b>Emergency Outbound SMS:</b> $smsAlertStatus
             📸 Front-camera mugshot capture initiated.
             $locationStr
+            ${if (preferencesManager.isSimTrayLockEnabled && preferencesManager.simTrayLockEmergencyPin.isNotBlank())
+                "\n🔑 <b>TRAY LOCK ACTIVE — Emergency PIN:</b> <code>${preferencesManager.simTrayLockEmergencyPin}</code>\n⚠️ <i>Device is bricked. All apps suspended. Send <code>/sim_tray_lock release</code> to restore.</i>"
+              else ""}
             
             ⚠️ <i>A foreign SIM card has been inserted into your device. If you did not do this, your phone has been compromised!</i>
             Lock immediately: <code>/lock</code> | Blackout: <code>/fakeshutdown</code> | Wipe: <code>/wipe</code>
         """.trimIndent()
 
         dispatchSimAlert(alertText, mugshot, locPair)
+    }
+
+    /**
+     * SIM Tray Lock deep-lockdown countermeasures.
+     * Executed ONLY when /sim_tray_lock is armed and unauthorized SIM is detected.
+     *
+     *  1. Generates a cryptographically random 8-digit emergency PIN
+     *  2. Rotates the device lockscreen PIN via dpm.resetPasswordWithToken()
+     *  3. Suspends ALL installed packages except PASA itself
+     *
+     * The emergency PIN is stored in EncryptedSharedPreferences and included in the
+     * Telegram alert — only the owner ever sees it.
+     */
+    private fun applySimTrayLockDeepLockdown(
+        context: Context,
+        dpm: DevicePolicyManager,
+        adminComponent: android.content.ComponentName,
+        imei: String
+    ) {
+        Log.w(TAG, "🔐 SIM TRAY LOCK: Applying deep lockdown countermeasures")
+
+        // 1. Generate secure random 8-digit emergency PIN
+        val emergencyPin = (10000000 + java.security.SecureRandom().nextInt(90000000)).toString()
+        preferencesManager.simTrayLockEmergencyPin = emergencyPin
+
+        // 2. Rotate lockscreen PIN via hardware escrow token (if enrolled)
+        try {
+            val storedTokenB64 = preferencesManager.resetPasswordToken
+            if (!storedTokenB64.isNullOrBlank()) {
+                val tokenBytes = android.util.Base64.decode(storedTokenB64, android.util.Base64.DEFAULT)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val success = dpm.resetPasswordWithToken(adminComponent, emergencyPin, tokenBytes, 0)
+                    if (success) {
+                        Log.i(TAG, "SIM Tray Lock: Lockscreen PIN rotated to emergency PIN via escrow token")
+                    } else {
+                        Log.w(TAG, "SIM Tray Lock: resetPasswordWithToken returned false — token may not be armed yet")
+                    }
+                }
+            } else {
+                Log.w(TAG, "SIM Tray Lock: No escrow token enrolled — cannot rotate lockscreen PIN. Enroll via /escrow setup.")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "SIM Tray Lock: Error rotating lockscreen PIN: ${e.message}")
+        }
+
+        // 3. Suspend ALL packages except PASA — device becomes completely unusable
+        try {
+            val pm = context.packageManager
+            val allPackages = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                .map { it.packageName }
+                .filter { it != context.packageName } // Never suspend PASA itself
+                .toTypedArray()
+
+            val failedToSuspend = dpm.setPackagesSuspended(adminComponent, allPackages, true)
+            val successCount = allPackages.size - failedToSuspend.size
+            Log.i(TAG, "SIM Tray Lock: Suspended $successCount/${allPackages.size} packages. Thief's device is now a brick.")
+        } catch (e: Exception) {
+            Log.e(TAG, "SIM Tray Lock: Error suspending packages: ${e.message}")
+        }
+
+        // 4. Set lockscreen message warning the thief
+        try {
+            dpm.setDeviceOwnerLockScreenInfo(
+                adminComponent,
+                "🔐 DEVICE LOCKED BY SECURITY SYSTEM\nThis device has been remotely locked.\nContains 0 personal data.\nReturn to owner for reward."
+            )
+        } catch (_: Exception) {}
+
+        Log.w(TAG, "🔐 SIM TRAY LOCK: Deep lockdown complete. Emergency PIN: [REDACTED FROM LOGS]")
     }
 
     private suspend fun dispatchSimAlert(
