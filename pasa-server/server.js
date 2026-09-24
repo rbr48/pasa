@@ -3472,19 +3472,52 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
 
     // 1. Deliver text message (only if no media, so media caption carries the message cleanly)
     if (message && chatId && !hasMedia) {
-      const sendOptions = {
-        chat_id: chatId,
-        text: message,
-        parse_mode: 'HTML'
-      };
-      if (message.includes('/update_confirm')) {
-        sendOptions.reply_markup = {
-          inline_keyboard: [
-            [{ text: '⚡ Install Update Now', callback_data: 'dev_cmd:update_confirm' }]
-          ]
+      const MAX_TG_LEN = 3900;
+      if (message.length > MAX_TG_LEN) {
+        const chunks = [];
+        let remaining = message;
+        while (remaining.length > 0) {
+          if (remaining.length <= MAX_TG_LEN) {
+            chunks.push(remaining);
+            break;
+          }
+          let splitIdx = remaining.lastIndexOf('\n', MAX_TG_LEN);
+          if (splitIdx === -1 || splitIdx < 1000) splitIdx = MAX_TG_LEN;
+          chunks.push(remaining.substring(0, splitIdx));
+          remaining = remaining.substring(splitIdx).trimStart();
+        }
+        for (let i = 0; i < chunks.length; i++) {
+          const res = await callTelegram(token, 'sendMessage', {
+            chat_id: chatId,
+            text: chunks[i],
+            parse_mode: 'HTML'
+          });
+          if (!res || !res.ok) {
+            await callTelegram(token, 'sendMessage', {
+              chat_id: chatId,
+              text: chunks[i]
+            });
+          }
+          if (i < chunks.length - 1) await new Promise(r => setTimeout(r, 250));
+        }
+      } else {
+        const sendOptions = {
+          chat_id: chatId,
+          text: message,
+          parse_mode: 'HTML'
         };
+        if (message.includes('/update_confirm')) {
+          sendOptions.reply_markup = {
+            inline_keyboard: [
+              [{ text: '⚡ Install Update Now', callback_data: 'dev_cmd:update_confirm' }]
+            ]
+          };
+        }
+        const res = await callTelegram(token, 'sendMessage', sendOptions);
+        if (!res || !res.ok) {
+          await callTelegram(token, 'sendMessage', { chat_id: chatId, text: message });
+        }
       }
-      await callTelegram(token, 'sendMessage', sendOptions);
     }
 
     // 2. Deliver photo(s) if captured (with quick action buttons)
