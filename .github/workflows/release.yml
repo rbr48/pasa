@@ -57,9 +57,15 @@ jobs:
           - **OTA Manifest:** https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=0
           EOF
 
-          gh release create "$TAG" \
-            "$APK_FILE" \
-            "$LATEST_APK" \
-            "$SETUP_KIT" \
-            --title "PASA Sentinel $TAG (Build 52)" \
-            --notes-file release_notes.md
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, updating notes and assets..."
+            gh release edit "$TAG" --title "PASA Sentinel $TAG (Build 52)" --notes-file release_notes.md
+            gh release upload "$TAG" "$APK_FILE" "$SETUP_KIT" --clobber
+          else
+            echo "Creating new release for $TAG..."
+            gh release create "$TAG" \
+              "$APK_FILE" \
+              "$SETUP_KIT" \
+              --title "PASA Sentinel $TAG (Build 52)" \
+              --notes-file release_notes.md
+          fi
