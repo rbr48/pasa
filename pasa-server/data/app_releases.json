@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 53,
+    "versionName": "3.5.7",
+    "releaseDate": "2026-09-24",
+    "fileName": "pasa-v3.5.7-53.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.7-53.apk",
+    "sha256": "275bdd4d49649e9576aa14ae44c37a1bb58d309eb364acc77e9900f2163afb52",
+    "size": 19250438,
+    "mandatory": false,
+    "releaseNotes": "v3.5.7: Enhanced App Inventory & Privacy Hardening — Full installed user apps pagination (/apps 2), instant full text inventory export (/apps export / /apps all), real-time app search (/apps search <query>), EXIF metadata stripping, multi-pass cryptographic disk shredder, and live video streaming support."
+  },
+  {
     "versionCode": 52,
     "versionName": "3.5.6",
     "releaseDate": "2026-09-24",
