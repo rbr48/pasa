@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Primary Operations Console Landing Page -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pasa.izhaanintellect.fun/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://pasa.izhaanintellect.fun/" />
+    <xhtml:link rel="alternate" hreflang="bn" href="https://pasa.izhaanintellect.fun/" />
+    <image:image>
+      <image:loc>https://pasa.izhaanintellect.fun/assets/img/logo.png</image:loc>
+      <image:title>PASA Sentinel — Sovereign Android Mobile Defense</image:title>
+      <image:caption>Knox-Grade Device Owner anti-theft operating system for Android 8.0 through Android 16.</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Interactive Field Manual (Bilingual EN/BN) -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/manual.html</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Complete User Manual (English Edition) -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/USER_MANUAL_EN.md</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Complete User Manual (Bengali Edition) -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/USER_MANUAL_BN.md</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Sovereign System Audit Trail & Cryptographic Verifications -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/AUDIT_TRAIL.md</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Independent Audit Report JSON -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/INDEPENDENT_AUDIT_REPORT.json</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Direct Production APK Distribution Binary -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/releases/pasa-latest.apk</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Windows Device Owner Provisioning Setup Kit -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
