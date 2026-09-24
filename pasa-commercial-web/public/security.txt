@@ -1,0 +1,9 @@
+# PASA Sentinel — Security Vulnerability Disclosure Policy (RFC 9116)
+Contact: mailto:security@izhaanintellect.fun
+Contact: https://t.me/rbr_48
+Contact: https://wa.me/8801728284848
+Expires: 2028-12-31T23:59:59.000Z
+Preferred-Languages: en, bn
+Canonical: https://pasa.izhaanintellect.fun/.well-known/security.txt
+Policy: https://pasa.izhaanintellect.fun/AUDIT_TRAIL.md
+Acknowledgments: https://pasa.izhaanintellect.fun/INDEPENDENT_AUDIT_REPORT.json

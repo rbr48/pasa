@@ -19,12 +19,68 @@
     </image:image>
   </url>
 
+  <!-- Programmatic Tactical Pillar Page 1: Knox Anti-Uninstall -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/knox-anti-uninstall.html</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- Programmatic Tactical Pillar Page 2: Offline SMS Tracker -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/offline-sms-tracker.html</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- Programmatic Tactical Pillar Page 3: Cellebrite USB Blocker -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/cellebrite-usb-blocker.html</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- Programmatic Tactical Pillar Page 4: Anti-Snatch Motion Alarm -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/anti-snatch-alarm.html</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- Programmatic Tactical Pillar Page 5: PASA vs Google Find My Device -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/pasa-vs-google-find-my-device.html</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
   <!-- Interactive Field Manual (Bilingual EN/BN) -->
   <url>
     <loc>https://pasa.izhaanintellect.fun/manual.html</loc>
     <lastmod>2026-09-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+
+  <!-- LLM / AI Search Crawler Knowledge Base -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/llms.txt</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- RFC 9116 Vulnerability Disclosure File -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/.well-known/security.txt</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 
   <!-- Complete User Manual (English Edition) -->
