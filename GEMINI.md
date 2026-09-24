@@ -79,7 +79,7 @@ e:/Projects/PrivateApp/
 │       ├── favicon.png                  # PASA logo
 │       ├── assets/img/                  # Logo, bKash icon, and enterprise provisioning QR SVGs
 │       ├── releases/                    # Hosted production binaries
-│       │   ├── pasa-latest.apk          # Current production APK (v3.5.6-52)
+│       │   ├── pasa-latest.apk          # Current production APK (v3.5.8-54)
 │       │   └── PASA-Device-Owner-Setup-Kit.zip # Windows guided setup wizard
 │       ├── privacy.html                 # Privacy policy
 │       └── terms.html                   # Terms of service
@@ -88,7 +88,7 @@ e:/Projects/PrivateApp/
 │   ├── setup.ps1                        # 6-step guided PowerShell wizard (ADB download → DPM provisioning)
 │   └── README.md                        # Full docs: T&Cs, why accounts must be removed, troubleshooting
 ├── releases/                            # Git-tracked release binaries & distribution packages
-│   ├── pasa-v3.5.6-52.apk               # Current signed production APK
+│   ├── pasa-v3.5.8-54.apk               # Current signed production APK
 │   ├── pasa-latest.apk                  # Symlink → current APK
 │   ├── PASA-Device-Owner-Setup-Kit.zip  # Current Windows setup kit (12 KB, no APK bundled)
 │   └── PASA-Setup-Kit-v3.5.4.zip        # Legacy versioned kit
@@ -152,6 +152,11 @@ e:/Projects/PrivateApp/
 * **Kinetic Snatch Detection (`TrapManager`):** Continuous accelerometer vector magnitude check `sqrt(x² + y² + z²) > 26.0 m/s² (~2.65G)`. Triggers immediate device lock, Kiosk Lost Mode guard, perpetrator selfie, and Telegram alert.
 * **Pocket & Bag Extraction Trap (`/trap pocket on`):** Monitors proximity sensor transitions from covered (in pocket) to uncovered while locked. If device is not unlocked within 5 seconds grace period, automatically engages Kiosk lock, snaps front camera mugshot, and alerts owner.
 * **Physical SIM Ejection Knox Kiosk Lockdown & Auto Outbound SMS (`/sim_lock`):** `SIMChangeReceiver` detects SIM tray eject (`ABSENT`) or unauthorized foreign SIM insertion (`LOADED`). Upon SIM removal, immediately engages Knox Kiosk Lost Mode (`configureLockTask`), sets comprehensive device lockdown, disables status bar/quick settings, locks keyguard, powers on GNSS hardware, captures perpetrator mugshot, and alerts Telegram. Upon unauthorized foreign SIM insertion, silently transmits an outbound emergency SMS via `SmsManager` to the owner's emergency contact phone (`/sim_lock phone <number>`) containing device IMEI, carrier, and Google Maps GPS fix—**instantly exposing the thief's phone number via caller ID**. Configurable alert actions include `/sim_lock [enable|disable|whitelist|alert_action|phone|status]`.
+* **Cryptographic SIM Tray Lock (`/sim_tray_lock`):** Deep Device Owner lockdown layer on top of `/sim_lock`. When armed and an unauthorized SIM is inserted:
+  1. Rotates lockscreen credentials to a secret 8-digit random PIN using Knox hardware escrow tokens (`dpm.resetPasswordWithToken`). The secret PIN is transmitted only to the owner via Telegram.
+  2. Suspends all third-party applications (`dpm.setPackagesSuspended`) — phone becomes a complete brick to the unauthorized handler with zero apps launchable. PASA itself is explicitly excluded and remains 100% active.
+  3. Knox Kiosk Lost Mode engaged, biometrics disabled (forcing PIN only), factory reset blocked.
+  4. Remotely reversible only by owner via `/sim_tray_lock release`.
 * **Battery Health & Rapid Drain Alert (`/battery_alert`):** Proactive battery telemetry alerting owner on critical low levels, abnormal rapid drain (detecting background surveillance/tethers), or unauthorized charger disconnection (`/battery_alert [status|enable|disable|threshold]`).
 * **Dual-SIM Cell Tower Triangulation (`/tower`):** Scans LTE/5G NR/GSM cell identities (MCC, MNC, LAC/TAC, CID, dBm) across all active subscriptions for resilient indoor localization without satellite reception.
 
@@ -162,15 +167,18 @@ e:/Projects/PrivateApp/
   - Dismissed remotely via `/wake` command or secret multi-tap sequence.
 * **Covert Tactile Device Locator (`/vibrate_pulse`):** Custom vibration sequences (intermittent pulse, SOS Morse code `...---...`, continuous) for locating device covertly without loud audio sirens alerting thieves in hostile environments (`/vibrate_pulse [pulse|sos|continuous|stop]`).
 
-### 3.6 Air-Gapped Cellular SMS Fallback (`SmsCommandReceiver`)
+### 3.6 Air-Gapped Cellular SMS Fallback & Telephony C2 (`SmsCommandReceiver`)
 * Listens on `SMS_RECEIVED` (priority 999) with direct boot awareness.
 * Syntax: `PASA <6-digit-TOTP-or-MasterPIN> <command>` (e.g. `PASA 419582 /locate` or `PASA 419582 /status`).
 * Validates TOTP code against hardware clock using enrolled secret key (RFC 6238, window tolerance ±3 steps) or master cryptographic passphrase.
 * **Dual-SIM Routing:** Dynamically extracts `subscriptionId` from incoming SMS and dispatches responses via the receiving SIM's `SmsManager`.
+* **Remote Outbound Calling with Dual-SIM Selection (`/call`):** Remotely places outbound phone calls via `TelecomManager.placeCall()` with explicit SIM slot binding (`EXTRA_PHONE_ACCOUNT_HANDLE`). Supports `/call <number> [sim1|sim2] [speaker|earpiece]` and `/call status` to inspect all active call-capable carrier accounts.
 * **Direct Outbound Cellular SMS (`/sendsms`):** Transmits SMS messages directly via cellular radio (`/sendsms [sim1|sim2] <number> <msg>`). Used to verify unknown device phone numbers via caller ID when carriers do not store the MSISDN on the SIM card chip.
+* **Unified Extraction Pagination & Text Document Exports:** Full pagination, keyword search, and instant text exports across `/contacts`, `/sms_log`, `/call_log`, `/history`, and `/list_files`. Exports write to `context.cacheDir` and are delivered directly via Telegram `sendDocument` as `.txt` files.
 * **SIM & Cellular Carrier Telemetry (`/sim`):** Displays active SIM slots, carrier names, subscription IDs, signal strength levels, network types (2G/3G/4G/5G), and MCC/MNC codes.
 * **Air-Gapped SMS Fallback Guide (`/sms_help`):** Comprehensive on-device and Telegram offline cheatsheet with 1-tap copyable monospace templates (`<code>PASA <PIN> /locate</code>`, etc.) and step-by-step TOTP enrollment guidance (`/smssetup`).
-* **Complete Air-Gapped Command Coverage:** Every single command responds via SMS: `/locate`, `/status`, `/usb_lock`, `/camera_lock`, `/bluetooth_lock`, `/mic_mute`, `/wifi_connect`, `/lockscreen_info`, `/autolock`, `/app_uninstall`, `/reboot`, `/security_audit`, `/antitamper`, `/biometrics`, `/ring`, `/ring_stop`, `/lock`, `/unlock`, `/fakeshutdown`, `/wake`, `/set_master_pin <pin>`, `/wipe`, `/wipe_confirm`, `/sms_help`. All SMS responses are stripped of HTML tags for clean SMS delivery.
+* **Complete Air-Gapped Command Coverage:** Every single command responds via SMS: `/locate`, `/status`, `/usb_lock`, `/camera_lock`, `/bluetooth_lock`, `/mic_mute`, `/wifi_connect`, `/lockscreen_info`, `/autolock`, `/app_uninstall`, `/reboot`, `/security_audit`, `/antitamper`, `/biometrics`, `/ring`, `/ring_stop`, `/lock`, `/unlock`, `/fakeshutdown`, `/wake`, `/set_master_pin <pin>`, `/wipe`, `/wipe_confirm`, `/sim_tray_lock`, `/sms_help`. All SMS responses are stripped of HTML tags for clean SMS delivery.
+
 
 ### 3.7 Commercial Licensing & Cryptography
 * **Ed25519 Offline Verification:** License keys (`PASA-PRO-XXXX-XXXX`, `PASA-LIFE-XXXX-XXXX`) issue an Ed25519-signed certificate payload. The Android client verifies the signature offline using the embedded public key in <0.2ms.
@@ -210,18 +218,19 @@ e:/Projects/PrivateApp/
 
 ---
 
-## 4. Complete Command Matrix (86 Telegram C2 Commands)
+## 4. Complete Command Matrix (87 Telegram C2 Commands)
 
 | Category | Commands |
 |---|---|
 | **Core & Diagnostics** | `/menu`, `/help`, `/status`, `/selftest`, `/info`, `/reboot`, `/battery_alert`, `/network` |
 | **Enterprise Device Owner** | `/device_owner`, `/antitamper`, `/usb_lock`, `/camera_lock`, `/bluetooth_lock`, `/mic_mute`, `/lockscreen_info`, `/autolock`, `/wifi_connect`, `/security_audit`, `/notification`, `/self_heal`, `/freeze`, `/unfreeze`, `/frozen`, `/lock_app`, `/unlock_app`, `/biometrics`, `/dns`, `/app_firewall` |
-| **Location & Cellular RF**| `/locate` (`/gps`, `/location`), `/tower`, `/sim`, `/sim_lock`, `/track`, `/track_stop`, `/geofence` |
+| **Location & Cellular RF**| `/locate` (`/gps`, `/location`), `/tower`, `/sim`, `/sim_lock`, `/sim_tray_lock`, `/track`, `/track_stop`, `/geofence` |
 | **Covert Forensics**   | `/snap`, `/screenshot`, `/screen_burst`, `/screenrecord`, `/video`, `/record`, `/livestream`, `/stopstream`, `/livestream_diag`, `/clipboard`, `/gallery_latest`, `/getfile`, `/list_files` |
 | **Lockdown & Alert**   | `/lock`, `/lock_message`, `/lock_pin`, `/set_os_pin`, `/set_master_pin`, `/unlock`, `/fakeshutdown`, `/wake`, `/ring`, `/ring_stop`, `/vibrate_pulse`, `/message` |
 | **Defense & Deception**| `/duress_pin`, `/pattern_guard`, `/trap`, `/thermal`, `/deadman` (`/dead_drop`), `/shred`, `/stealth` (`/hide`, `/show`), `/tamper_detect`, `/harden_boot`, `/factory_reset_defense` |
 | **Extraction & Telephony**| `/call`, `/contacts`, `/call_log`, `/sms_log`, `/sendsms`, `/history` |
 | **System & Maintenance**| `/apps`, `/app_uninstall`, `/smssetup`, `/sms_help`, `/license`, `/check_update`, `/update_confirm`, `/wipe`, `/wipe_confirm` |
+
 
 ---
 
@@ -440,14 +449,31 @@ This section records significant architectural decisions and code changes made i
 * **Version Name:** `3.5.6` | **Version Code:** `52`
 * **Artifact:** `releases/pasa-v3.5.6-52.apk` (19.25 MB, 19,250,443 bytes)
 * **SHA-256:** `becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8`
+* **Release Highlights:** SELinux false-positive fix, fail-closed Ed25519 envelope enforcement, direct Telegram sovereign mode.
+
+### 8.10 Production Release v3.5.7 (Build 53)
+* **Release Date:** 2026-09-24
+* **Version Name:** `3.5.7` | **Version Code:** `53`
+* **Artifact:** `releases/pasa-v3.5.7-53.apk` (19.25 MB, 19,250,438 bytes)
+* **SHA-256:** `275bdd4d49649e9576aa14ae44c37a1bb58d309eb364acc77e9900f2163afb52`
+* **Signing Key:** `pasa-release-key.jks` (v1 + v2 signed)
+* **Release Highlights:**
+  - **App Inventory Modernization (`AppManageCommand.kt`):** 35 items/page pagination (`/apps <N>`), instant text document export (`/apps export`), real-time keyword search (`/apps search <name>`).
+  - **Forensic & Memory Hardening:** Automatic EXIF metadata stripping, multi-pass cryptographic zero-fill shredder (`PrivacyHygieneHelper.kt`), streaming HTTP uploads preventing OOM on large videos.
+
+### 8.11 Production Release v3.5.8 (Build 54)
+* **Release Date:** 2026-09-24
+* **Version Name:** `3.5.8` | **Version Code:** `54`
+* **Artifact:** `releases/pasa-v3.5.8-54.apk` (19.25 MB, 19,250,437 bytes)
+* **SHA-256:** `a612aab989d1a063a1c6e37202a9b4ac237a45ce02f519b64bbad5248b6b2639`
 * **Signing Key:** `pasa-release-key.jks` (v1 + v2 signed)
 * **Host Endpoints:**
   - OTA Check: `GET https://pasa.izhaanintellect.fun/api/app/latest`
-  - Direct Download: `https://pasa.izhaanintellect.fun/releases/pasa-v3.5.6-52.apk`
+  - Direct Download: `https://pasa.izhaanintellect.fun/releases/pasa-v3.5.8-54.apk`
   - Latest Symlink: `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`
 * **Release Highlights:**
-  - **SELinux False-Positive Fix (`TamperDetectionCommand.kt`):** Replaced obsolete `System.getProperty("ro.build.selinux")` with `android.os.SELinux.isSELinuxEnforced` reflection, shell `getenforce`, and `/sys/fs/selinux/enforce`. Production Android 16 devices now accurately report `🟢 Status: CLEAN`.
-  - **Fail-Closed Envelope Enforcement (`PasaService.kt`):** Android client strictly rejects any remote network command lacking a valid cryptographic Ed25519 signature envelope.
-  - **Direct Telegram Sovereign Mode (`SetupActivity.kt`):** Users can leave Server URL blank for zero-cloud, 100% direct Telegram peer-to-peer control.
-  - **VPS Registration:** Synced to `app_releases.json`, SQLite `releases` table, VPS `/var/www/pasa-server/releases/`, and Nginx Docker container `pasa-commercial-app`.
+  - **Cryptographic SIM Tray Lock (`/sim_tray_lock`):** Deep Device Owner lockdown layer upon unauthorized SIM insertion. Generates a secret random 8-digit PIN via Knox hardware escrow tokens, suspends all third-party apps (`dpm.setPackagesSuspended`), locks Knox Kiosk Lost Mode, revokes biometrics, blocks factory resets, and transmits emergency unlock PIN + mugshot + GPS to Telegram. Reversible remotely via `/sim_tray_lock release`.
+  - **Dual-SIM Remote Calling (`/call`):** Remotely places phone calls with explicit SIM slot binding via `TelecomManager.placeCall()` and `EXTRA_PHONE_ACCOUNT_HANDLE`. Supports `/call <number> [sim1|sim2] [speaker|earpiece]` and `/call status` to view active call-capable accounts.
+  - **Unified Extraction Pagination & Document Exports:** Implemented across `/contacts`, `/sms_log`, `/call_log`, `/history`, and `/list_files`. Each command supports paging (`<command> <page>`), instant `.txt` file export (`<command> export`), and keyword search (`<command> search <query>`).
+  - **Network Continuity Guarantee:** When `/sim_tray_lock` engages, PASA is explicitly exempted from package suspension, preserving full cellular data, Wi-Fi, and SMS command channels. Quick settings lockout prevents disabling Wi-Fi/mobile data.
 
