@@ -43,13 +43,14 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-        queries: security-extended,security-and-quality
+        build-mode: ${{ matrix.language == 'java-kotlin' && 'manual' || 'none' }}
+        queries: security-extended
 
     - name: Build Code for CodeQL Extraction
       run: |
         if [ "${{ matrix.language }}" = "java-kotlin" ]; then
           chmod +x gradlew
-          ./gradlew compileReleaseSources --no-daemon -Dorg.gradle.jvmargs="-Xmx4g"
+          ./gradlew clean compileReleaseSources --no-daemon -Dorg.gradle.jvmargs="-Xmx4g"
         else
           echo "No compilation required for ${{ matrix.language }}"
         fi
@@ -60,6 +61,7 @@ jobs:
         category: "/language:${{matrix.language}}"
         upload: false
         output: sarif-results
+        ram: 6000
 
     - name: Upload CodeQL SARIF to GitHub Security (if GHAS active)
       uses: github/codeql-action/upload-sarif@v3
