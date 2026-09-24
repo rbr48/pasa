@@ -1212,6 +1212,63 @@ a{color:inherit;text-decoration:none}
   box-shadow:0 0 24px rgba(41,224,255,.2);margin-bottom:12px;
 }
 
+/* ── In-Page WebADB Provisioner Terminal ─────────────────────── */
+.wadb-terminal{
+  font-family:var(--mono);background:#010409;
+  border:1px solid rgba(41,224,255,.28);border-radius:10px;
+  overflow:hidden;display:flex;flex-direction:column;width:100%;
+}
+.wadb-term-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 13px;background:rgba(41,224,255,.05);
+  border-bottom:1px solid rgba(41,224,255,.14);
+}
+.wadb-term-title{font-size:9.5px;font-weight:800;letter-spacing:.1em;color:var(--cyan)}
+.wadb-status-pill{
+  font-size:9px;font-weight:800;letter-spacing:.08em;
+  padding:2px 8px;border-radius:20px;
+  background:rgba(255,255,255,.06);color:var(--txt-4);transition:all .3s;
+}
+.wadb-status-pill.s-busy{background:rgba(251,191,36,.15);color:#fbbf24}
+.wadb-status-pill.s-ok{background:rgba(34,197,94,.15);color:#22c55e}
+.wadb-status-pill.s-err{background:rgba(248,113,113,.15);color:#f87171}
+.wadb-output{
+  padding:10px 13px;min-height:172px;max-height:210px;overflow-y:auto;
+  font-size:10.5px;line-height:1.7;color:var(--txt-3);
+  scrollbar-width:thin;scrollbar-color:rgba(41,224,255,.2) transparent;
+}
+.wadb-output::-webkit-scrollbar{width:3px}
+.wadb-output::-webkit-scrollbar-thumb{background:rgba(41,224,255,.2);border-radius:2px}
+.wadb-l-info,.wadb-l-ok,.wadb-l-err,.wadb-l-warn,.wadb-l-cmd{display:block}
+.wadb-l-info{color:var(--txt-2)}
+.wadb-l-ok{color:#22c55e;font-weight:700}
+.wadb-l-err{color:#f87171}
+.wadb-l-warn{color:#fbbf24}
+.wadb-l-cmd{color:var(--cyan)}
+.wadb-actions{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  padding:10px 13px;border-top:1px solid rgba(255,255,255,.05);
+}
+.wadb-btn-a,.wadb-btn-b{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  padding:8px 6px;border-radius:6px;font-family:var(--mono);
+  font-size:10.5px;font-weight:700;cursor:pointer;transition:all .2s;
+  white-space:nowrap;border:1px solid;
+}
+.wadb-btn-a{background:rgba(41,224,255,.07);border-color:rgba(41,224,255,.35);color:var(--cyan)}
+.wadb-btn-a:not(:disabled):hover{background:rgba(41,224,255,.18);border-color:var(--cyan)}
+.wadb-btn-a:disabled{opacity:.4;cursor:not-allowed}
+.wadb-btn-b{background:rgba(225,29,72,.07);border-color:rgba(225,29,72,.25);color:rgba(248,113,113,.5)}
+.wadb-btn-b:not(:disabled){background:rgba(225,29,72,.15);border-color:rgba(225,29,72,.6);color:#fff}
+.wadb-btn-b:not(:disabled):hover{background:#be123c;border-color:#be123c}
+.wadb-btn-b:disabled{opacity:.3;cursor:not-allowed}
+.wadb-cmd-strip{
+  padding:7px 13px;background:rgba(0,0,0,.5);
+  border-top:1px solid rgba(255,255,255,.04);
+  font-size:9.5px;color:rgba(41,224,255,.38);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
 
@@ -2171,7 +2228,7 @@ table.matrix tbody tr:last-child td{border-bottom:none}
           </div>
           <div class="prov-step">
             <span class="prov-step-num">3</span>
-            <div><strong>Launch Shell &amp; Run:</strong> Click <b>Launch WebADB Shell</b> below &gt; Click <i>"Add device"</i> in WebADB to select your phone &gt; Paste command &amp; press Enter!</div>
+            <div><strong>Launch Shell &amp; Run:</strong> Click <b>Connect Phone</b> on the right → tap <i>"Always Allow"</i> when the phone prompts → hit <b>Run DPM Command</b>. That's it — no external tools!</div>
           </div>
         </div>
 
@@ -2184,38 +2241,33 @@ table.matrix tbody tr:last-child td{border-bottom:none}
         </div>
 
         <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <a href="https://app.webadb.com/shell" target="_blank" rel="noopener" class="btn btn-red">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            <span>Launch WebADB Shell ↗</span>
-          </a>
-          <a href="https://yume-chan.github.io/ya-webadb/shell" target="_blank" rel="noopener" class="btn btn-ghost" title="Backup GitHub Pages terminal mirror">
-            <span>GitHub Mirror ↗</span>
-          </a>
           <button type="button" class="btn btn-ghost" onclick="setSetupTab('windows')">
             <span>Use Windows Batch Wizard</span>
           </button>
+          <a href="https://app.webadb.com/shell" target="_blank" rel="noopener" class="btn btn-ghost" style="font-size:11px;opacity:.65">
+            <span>External WebADB Shell ↗</span>
+          </a>
         </div>
       </div>
 
-      <div class="qr-center-box">
-        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:10px;letter-spacing:.08em">
-          ⚡ WEBUSB DIRECT CONNECTION
+      <!-- ── In-Page WebADB Provisioner Terminal ── -->
+      <div class="wadb-terminal">
+        <div class="wadb-term-hdr">
+          <span class="wadb-term-title">⚡ IN-PAGE ADB PROVISIONER</span>
+          <span class="wadb-status-pill" id="wadbStatus">IDLE</span>
         </div>
-        <div style="font-size:12.5px;color:var(--txt-2);line-height:1.6;margin-bottom:14px;max-width:320px">
-          Connect your phone with a USB cable. On your phone screen, tap <b>"Always allow from this computer"</b> when prompted.
-        </div>
-        <div id="webUsbStatusBox" style="background:rgba(41,224,255,.06);border:1px solid rgba(41,224,255,.25);border-radius:8px;padding:14px;width:100%;max-width:320px;text-align:left;box-sizing:border-box">
-          <div id="webUsbStatusTag" style="font-family:var(--mono);font-size:10px;color:var(--green);font-weight:800;letter-spacing:.1em;margin-bottom:4px">
-            ● BROWSER WEBUSB: READY
-          </div>
-          <div id="webUsbStatusText" style="font-size:11.5px;color:var(--txt-3);line-height:1.45;margin-bottom:12px">
-            Chromium WebUSB detected. You can pair your Android device directly from this browser.
-          </div>
-          <button type="button" class="btn btn-ghost" id="btnPairWebUsb" onclick="pairWebUsbDevice()" style="width:100%;justify-content:center;padding:7px 12px;font-size:11.5px;border-color:rgba(41,224,255,.3)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <span id="btnPairWebUsbText">Pair Phone via WebUSB</span>
+        <div class="wadb-output" id="wadbOutput"><span class="wadb-l-info">$ Ready — Click "Connect Phone" to begin...</span></div>
+        <div class="wadb-actions">
+          <button class="wadb-btn-a" id="wadbBtnConnect" onclick="wadbConnect()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Connect Phone
+          </button>
+          <button class="wadb-btn-b" id="wadbBtnRun" onclick="wadbRunCommand()" disabled>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Run DPM Command
           </button>
         </div>
+        <div class="wadb-cmd-strip">$ dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin</div>
       </div>
     </div>
   </div>
@@ -3231,59 +3283,264 @@ function copyText(text, btnId){
   });
 }
 
-function initWebUsbStatus(){
-  const statusTag = document.getElementById('webUsbStatusTag');
-  const statusText = document.getElementById('webUsbStatusText');
-  const btn = document.getElementById('btnPairWebUsb');
-  if(!navigator.usb){
-    if(statusTag){
-      statusTag.textContent = currentLang === 'bn' ? '⚠ WebUSB সাপোর্ট নেই' : '⚠ WebUSB NOT SUPPORTED';
-      statusTag.style.color = 'var(--amber)';
+// ═══════════════════════════════════════════════════════════════
+// PASA IN-PAGE ADB PROVISIONER  (ADB protocol over WebUSB)
+// Implements full ADB CNXN/AUTH/OPEN/WRTE/CLSE without any lib.
+// ═══════════════════════════════════════════════════════════════
+const _AC = { CNXN:0x4e584e43, AUTH:0x48545541, OPEN:0x4e45504f, OKAY:0x59414b4f, CLSE:0x45534c43, WRTE:0x45545257 };
+const _AV = 0x01000000, _AP = 256*1024;
+
+class PasaWebADB {
+  constructor(){ this.dev=null; this.epI=null; this.epO=null; this.ifc=null; this.priv=null; this.pub=null; this.nid=1; }
+
+  async _genKey(){
+    const kp = await crypto.subtle.generateKey(
+      { name:'RSASSA-PKCS1-v1_5', modulusLength:2048, publicExponent:new Uint8Array([1,0,1]), hash:'SHA-1' },
+      true, ['sign','verify']
+    );
+    this.priv=kp.privateKey; this.pub=kp.publicKey;
+  }
+
+  async _adbPubKey(){
+    const spki = new Uint8Array(await crypto.subtle.exportKey('spki', this.pub));
+    let off=0;
+    const rT=()=>spki[off++];
+    const rL=()=>{ const b=spki[off++]; if(b<0x80) return b; let n=0; for(let i=0;i<(b&0x7F);i++) n=(n<<8)|spki[off++]; return n; };
+    rT(); rL();                       // outer SEQUENCE
+    rT(); const al=rL(); off+=al;     // algorithm SEQUENCE skip
+    rT(); rL(); off++;                // BIT STRING + unused-bits
+    rT(); rL();                       // inner SEQUENCE
+    rT(); rL();                       // modulus INTEGER
+    if(spki[off]===0) off++;          // strip sign byte
+    const mb=spki.slice(off,off+256);
+
+    let N=0n; for(const b of mb) N=(N<<8n)|BigInt(b);
+    const tw=v=>{ const w=[]; let t=v; for(let i=0;i<64;i++){w.push(t&0xFFFFFFFFn);t>>=32n;} return w; };
+    const W=tw(N);
+    const modInv=(a,m)=>{ let[r,r1]=[m,a],[s,s1]=[0n,1n]; while(r1!==0n){const q=r/r1;[r,r1]=[r1,r-q*r1];[s,s1]=[s1,s-q*s1];} return((s%m)+m)%m; };
+    const M=2n**32n;
+    const n0i=(M-modInv(W[0],M))%M;
+    const mpow=(b,e,m)=>{ let r=1n; b%=m; while(e>0n){if(e&1n)r=r*b%m; e>>=1n; b=b*b%m;} return r; };
+    const RR=mpow(2n,4096n,N);
+    const rrW=tw(RR);
+
+    const buf=new ArrayBuffer(524); const dv=new DataView(buf);
+    dv.setUint32(0,64,true); dv.setUint32(4,Number(n0i),true);
+    for(let i=0;i<64;i++) dv.setUint32(8+i*4,Number(W[i]),true);
+    for(let i=0;i<64;i++) dv.setUint32(264+i*4,Number(rrW[i]),true);
+    dv.setUint32(520,65537,true);
+
+    const bytes=new Uint8Array(buf);
+    let b64=''; for(const b of bytes) b64+=String.fromCharCode(b);
+    return new TextEncoder().encode(btoa(b64)+' pasa@webinstaller\0');
+  }
+
+  _pkt(cmd,a0,a1,data){
+    const d=data instanceof Uint8Array?data:data?new TextEncoder().encode(data):new Uint8Array(0);
+    const buf=new ArrayBuffer(24+d.length); const dv=new DataView(buf);
+    let crc=0; for(const b of d) crc=(crc+b)>>>0;
+    dv.setUint32(0,cmd,true); dv.setUint32(4,a0,true); dv.setUint32(8,a1,true);
+    dv.setUint32(12,d.length,true); dv.setUint32(16,crc,true); dv.setUint32(20,(cmd^0xFFFFFFFF)>>>0,true);
+    if(d.length) new Uint8Array(buf,24).set(d);
+    return new Uint8Array(buf);
+  }
+
+  async _send(cmd,a0,a1,data){ await this.dev.transferOut(this.epO,this._pkt(cmd,a0,a1,data)); }
+
+  async _recv(){
+    const hr=await this.dev.transferIn(this.epI,24);
+    if(hr.status!=='ok') throw new Error('USB read error');
+    const h=new DataView(hr.data.buffer,hr.data.byteOffset);
+    const cmd=h.getUint32(0,true),a0=h.getUint32(4,true),a1=h.getUint32(8,true),dl=h.getUint32(12,true);
+    if(dl===0) return {cmd,a0,a1,data:new Uint8Array(0)};
+    let rx=0; const parts=[];
+    while(rx<dl){
+      const dr=await this.dev.transferIn(this.epI,dl-rx);
+      if(dr.status!=='ok') throw new Error('USB data error');
+      parts.push(new Uint8Array(dr.data.buffer,dr.data.byteOffset,dr.data.byteLength));
+      rx+=dr.data.byteLength;
     }
-    if(statusText){
-      statusText.textContent = currentLang === 'bn' 
-        ? 'আপনার বর্তমান ব্রাউজারে WebUSB নেই। গুগল ক্রোম অথবা মাইক্রোসফট এজ ব্রাউজার ব্যবহার করুন।'
-        : 'Your current browser lacks WebUSB support. Please open this page in Google Chrome, Microsoft Edge, or Brave.';
+    if(parts.length===1) return {cmd,a0,a1,data:parts[0]};
+    const data=new Uint8Array(dl); let off=0;
+    for(const p of parts){data.set(p,off);off+=p.length;}
+    return {cmd,a0,a1,data};
+  }
+
+  async connect(log){
+    if(!navigator.usb) throw new Error('WebUSB not available. Use Chrome, Edge, or Brave.');
+    log('info','🔑 Generating RSA-2048 key pair...');
+    await this._genKey();
+
+    log('info','📱 Opening USB device picker...');
+    this.dev=await navigator.usb.requestDevice({filters:[{classCode:255,subclassCode:66,protocolCode:1}]});
+    const dname=(this.dev.manufacturerName||'')+' '+(this.dev.productName||'Android Device');
+    log('info','📱 Selected: '+dname.trim());
+
+    await this.dev.open();
+    if(!this.dev.configuration) await this.dev.selectConfiguration(1);
+    for(const ifc of this.dev.configuration.interfaces){
+      for(const alt of ifc.alternates){
+        if(alt.interfaceClass===255&&alt.interfaceSubclass===66&&alt.interfaceProtocol===1){
+          this.ifc=ifc.interfaceNumber;
+          for(const ep of alt.endpoints){
+            if(ep.direction==='in') this.epI=ep.endpointNumber;
+            if(ep.direction==='out') this.epO=ep.endpointNumber;
+          }
+        }
+      }
     }
-    if(btn) btn.style.display = 'none';
+    if(this.ifc===null) throw new Error('No ADB interface found. Is USB Debugging enabled?');
+
+    try{ await this.dev.claimInterface(this.ifc); }
+    catch(e){
+      if(e.message&&e.message.includes('Access denied'))
+        throw new Error('USB interface in use. Run "adb kill-server" then retry.');
+      throw e;
+    }
+    log('info','⚡ ADB interface claimed');
+    await this._send(_AC.CNXN,_AV,_AP,'host::PASA-WebInstaller\0');
+    log('info','📡 CONNECT sent — awaiting device handshake...');
+
+    let sigSent=false;
+    while(true){
+      const p=await this._recv();
+      if(p.cmd===_AC.CNXN){
+        const info=new TextDecoder().decode(p.data).replace(/\0/g,'');
+        log('ok','✓ ADB connected — '+info); return;
+      }
+      if(p.cmd===_AC.AUTH&&p.a0===1){
+        if(!sigSent){
+          log('info','🔐 Signing auth token with RSA key...');
+          const sig=await crypto.subtle.sign('RSASSA-PKCS1-v1_5',this.priv,p.data);
+          await this._send(_AC.AUTH,2,0,new Uint8Array(sig)); sigSent=true;
+        } else {
+          log('warn','⚠ Key not yet trusted — sending public key to device...');
+          await this._send(_AC.AUTH,3,0,await this._adbPubKey());
+          log('warn','📱 CHECK YOUR PHONE → Tap "Always Allow" on the USB dialog');
+        }
+      }
+    }
+  }
+
+  async shell(cmd,onChunk){
+    const lid=this.nid++; let rid=0;
+    await this._send(_AC.OPEN,lid,0,'shell:'+cmd+'\0');
+    let out='';
+    while(true){
+      const p=await this._recv();
+      if(p.cmd===_AC.OKAY){ rid=p.a0; }
+      else if(p.cmd===_AC.WRTE){
+        rid=rid||p.a0;
+        const t=new TextDecoder().decode(p.data); out+=t; if(onChunk) onChunk(t);
+        await this._send(_AC.OKAY,lid,rid,null);
+      } else if(p.cmd===_AC.CLSE){ break; }
+    }
+    return out.trim();
+  }
+
+  async disconnect(){
+    try{ if(this.ifc!==null) await this.dev.releaseInterface(this.ifc); }catch(e){}
+    try{ await this.dev.close(); }catch(e){}
+    this.dev=null; this.ifc=null; this.epI=null; this.epO=null;
   }
 }
 
-async function pairWebUsbDevice(){
+/* ── WebADB Terminal UI ──────────────────────────────────────── */
+let _wadb=null;
+
+function wadbLog(type,text){
+  const out=document.getElementById('wadbOutput');
+  if(!out) return;
+  const s=document.createElement('span');
+  s.className='wadb-l-'+type; s.textContent=text+'\n';
+  out.appendChild(s); out.scrollTop=out.scrollHeight;
+}
+function wadbSetStatus(cls,text){
+  const el=document.getElementById('wadbStatus');
+  if(!el) return; el.textContent=text; el.className='wadb-status-pill '+cls;
+}
+function wadbReset(){
+  const out=document.getElementById('wadbOutput');
+  if(out){ out.innerHTML=''; wadbLog('info','$ Reconnecting...'); }
+}
+
+async function wadbConnect(){
+  const btnC=document.getElementById('wadbBtnConnect');
+  const btnR=document.getElementById('wadbBtnRun');
   if(!navigator.usb){
-    alert(currentLang === 'bn' ? 'আপনার ব্রাউজারে WebUSB সাপোর্ট নেই। অনুগ্রহ করে গুগল ক্রোম বা মাইক্রোসফট এজ ব্যবহার করুন।' : 'WebUSB is not supported in this browser. Please use Google Chrome, Microsoft Edge, or Brave.');
-    return;
+    wadbLog('err','✗ WebUSB unavailable. Open this page in Chrome, Edge, or Brave.');
+    wadbSetStatus('s-err','NO WEBUSB'); return;
   }
-  const btn = document.getElementById('btnPairWebUsb');
-  const btnText = document.getElementById('btnPairWebUsbText');
-  const statusTag = document.getElementById('webUsbStatusTag');
-  const statusText = document.getElementById('webUsbStatusText');
+  if(_wadb){ try{ await _wadb.disconnect(); }catch(e){} _wadb=null; }
+  const out=document.getElementById('wadbOutput');
+  if(out) out.innerHTML='';
+  btnC.disabled=true; if(btnR) btnR.disabled=true;
+  wadbSetStatus('s-busy','CONNECTING...');
   try{
-    if(btnText) btnText.textContent = currentLang === 'bn' ? 'ডিভাইস নির্বাচন করুন...' : 'Selecting Phone...';
-    const device = await navigator.usb.requestDevice({
-      filters: [{ classCode: 255, subclassCode: 66, protocolCode: 1 }]
-    });
-    if(device){
-      const name = device.productName || 'Android Device';
-      if(statusTag){
-        statusTag.textContent = currentLang === 'bn' ? '✓ ডিভাইস পেয়ার সম্পন্ন!' : '✓ PHONE PAIRED!';
-        statusTag.style.color = 'var(--green)';
-      }
-      if(statusText){
-        statusText.innerHTML = currentLang === 'bn'
-          ? '<b>' + name + '</b> ব্রাউজারে সফলভাবে পেয়ার হয়েছে। এখন নিচে <b>Launch WebADB Shell</b> এ ক্লিক করে সরাসরি টার্মিনালে কমান্ডটি পেস্ট করুন।'
-          : '<b>' + name + '</b> paired successfully! Now click <b>Launch WebADB Shell</b> below to paste your command in the terminal.';
-        statusText.style.color = '#fff';
-      }
-      if(btnText) btnText.textContent = currentLang === 'bn' ? '✓ পুনরায় পেয়ার' : '✓ Re-Pair Device';
-      showToast(currentLang === 'bn' ? 'ফোন সফলভাবে সংযুক্ত হয়েছে!' : 'Phone connected via WebUSB!');
+    _wadb=new PasaWebADB();
+    await _wadb.connect(wadbLog);
+    wadbSetStatus('s-ok','CONNECTED');
+    btnC.textContent='↩ Reconnect';
+    if(btnR){ btnR.disabled=false; }
+    wadbLog('ok','✓ Ready! Click "Run DPM Command" to provision Device Owner.');
+  }catch(e){
+    wadbSetStatus('s-err','ERROR');
+    if(e.name==='NotFoundError'||e.name==='AbortError'){
+      wadbLog('warn','↩ Device selection cancelled.');
+      wadbSetStatus('','IDLE');
+    } else {
+      wadbLog('err','✗ '+((e&&e.message)||String(e)));
     }
-  }catch(err){
-    if(btnText) btnText.textContent = currentLang === 'bn' ? 'পেয়ার করুন' : 'Pair Phone via WebUSB';
-    if(err.name !== 'NotFoundError'){
-      console.warn('WebUSB error:', err);
-    }
+    _wadb=null;
   }
+  btnC.disabled=false;
+}
+
+async function wadbRunCommand(){
+  if(!_wadb){ wadbLog('err','✗ Not connected. Click Connect Phone first.'); return; }
+  const btnC=document.getElementById('wadbBtnConnect');
+  const btnR=document.getElementById('wadbBtnRun');
+  if(btnC) btnC.disabled=true;
+  if(btnR) btnR.disabled=true;
+  wadbSetStatus('s-busy','RUNNING...');
+  const cmd='dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin';
+  wadbLog('cmd','\n$ '+cmd);
+  try{
+    const output=await _wadb.shell(cmd,(chunk)=>{
+      const lines=chunk.split('\n');
+      for(const l of lines){ if(l.trim()) wadbLog('info',l); }
+    });
+    if(output.includes('Active admin set to')||output.includes('Success')){
+      wadbSetStatus('s-ok','✓ PROVISIONED');
+      wadbLog('ok','\n✅ Device Owner set successfully!');
+      wadbLog('ok','   PASA Sentinel has Knox-grade permanent privileges.');
+      wadbLog('info','   You can now re-add your Google/Samsung accounts.');
+    } else if(output.includes('Not setting device owner')||output.includes('already set')){
+      wadbSetStatus('s-err','ALREADY SET');
+      wadbLog('warn','\n⚠ Device Owner already configured on this device.');
+      wadbLog('warn','   If it\'s PASA, you\'re already provisioned!');
+    } else if(output.includes('do not have accounts')||output.includes('accounts are present')){
+      wadbSetStatus('s-err','ACCOUNTS FOUND');
+      wadbLog('err','\n✗ Google/Samsung accounts must be removed first.');
+      wadbLog('warn','   Settings → Accounts → Remove all accounts, then retry.');
+    } else if(output.trim()===''){
+      wadbSetStatus('s-err','NO OUTPUT');
+      wadbLog('err','\n✗ No output received. Is PASA Sentinel installed on the device?');
+    } else {
+      wadbSetStatus('s-err','CHECK OUTPUT');
+      wadbLog('warn','\n? Unexpected output — verify above and check device.');
+    }
+    await _wadb.disconnect(); _wadb=null;
+  }catch(e){
+    wadbSetStatus('s-err','ERROR');
+    wadbLog('err','\n✗ '+((e&&e.message)||String(e)));
+    _wadb=null;
+  }
+  if(btnC){ btnC.disabled=false; btnC.textContent='Connect Phone'; }
+}
+
+function initWebUsbStatus(){
+  // kept for tab-switch hook compatibility — terminal is self-initializing
 }
 
 /* ═══════════════════════════════════════════════════════════════
