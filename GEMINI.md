@@ -79,7 +79,7 @@ e:/Projects/PrivateApp/
 │       ├── favicon.png                  # PASA logo
 │       ├── assets/img/                  # Logo, bKash icon, and enterprise provisioning QR SVGs
 │       ├── releases/                    # Hosted production binaries
-│       │   ├── pasa-latest.apk          # Current production APK (v3.5.5-51)
+│       │   ├── pasa-latest.apk          # Current production APK (v3.5.6-52)
 │       │   └── PASA-Device-Owner-Setup-Kit.zip # Windows guided setup wizard
 │       ├── privacy.html                 # Privacy policy
 │       └── terms.html                   # Terms of service
@@ -88,10 +88,10 @@ e:/Projects/PrivateApp/
 │   ├── setup.ps1                        # 6-step guided PowerShell wizard (ADB download → DPM provisioning)
 │   └── README.md                        # Full docs: T&Cs, why accounts must be removed, troubleshooting
 ├── releases/                            # Git-tracked release binaries & distribution packages
-│   ├── pasa-v3.5.5-51.apk              # Current signed production APK
+│   ├── pasa-v3.5.6-52.apk               # Current signed production APK
 │   ├── pasa-latest.apk                  # Symlink → current APK
 │   ├── PASA-Device-Owner-Setup-Kit.zip  # Current Windows setup kit (12 KB, no APK bundled)
-│   └── PASA-Setup-Kit-v3.5.4.zip       # Legacy versioned kit
+│   └── PASA-Setup-Kit-v3.5.4.zip        # Legacy versioned kit
 ├── PRIVACY.md                           # Sovereign Zero-Telemetry & Zero-Storage Guarantee
 ├── TERMS.md                             # Legal Terms of Service & EULA
 ├── keystore.properties                  # Keystore signing credentials
@@ -434,4 +434,20 @@ This section records significant architectural decisions and code changes made i
 3. **Forced VPS Fallback in Onboarding Removed:**
    - In `SetupActivity.kt`, leaving Server URL blank previously fell back to `DEFAULT_SERVER_URL`.
    - **Patch:** Removed forced fallback. Users can now run in **100% Sovereign (Direct Telegram) Mode** where the phone communicates directly with `api.telegram.org` and never connects to any VPS.
+
+### 8.9 Production Release v3.5.6 (Build 52)
+* **Release Date:** 2026-09-24
+* **Version Name:** `3.5.6` | **Version Code:** `52`
+* **Artifact:** `releases/pasa-v3.5.6-52.apk` (19.25 MB, 19,250,443 bytes)
+* **SHA-256:** `becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8`
+* **Signing Key:** `pasa-release-key.jks` (v1 + v2 signed)
+* **Host Endpoints:**
+  - OTA Check: `GET https://pasa.izhaanintellect.fun/api/app/latest`
+  - Direct Download: `https://pasa.izhaanintellect.fun/releases/pasa-v3.5.6-52.apk`
+  - Latest Symlink: `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`
+* **Release Highlights:**
+  - **SELinux False-Positive Fix (`TamperDetectionCommand.kt`):** Replaced obsolete `System.getProperty("ro.build.selinux")` with `android.os.SELinux.isSELinuxEnforced` reflection, shell `getenforce`, and `/sys/fs/selinux/enforce`. Production Android 16 devices now accurately report `🟢 Status: CLEAN`.
+  - **Fail-Closed Envelope Enforcement (`PasaService.kt`):** Android client strictly rejects any remote network command lacking a valid cryptographic Ed25519 signature envelope.
+  - **Direct Telegram Sovereign Mode (`SetupActivity.kt`):** Users can leave Server URL blank for zero-cloud, 100% direct Telegram peer-to-peer control.
+  - **VPS Registration:** Synced to `app_releases.json`, SQLite `releases` table, VPS `/var/www/pasa-server/releases/`, and Nginx Docker container `pasa-commercial-app`.
 
