@@ -51,7 +51,30 @@ object AppModule {
             chain.proceed(request)
         }
 
+        // ─────────────────────────────────────────────────────────────────────────────
+        // TRANSPORT SECURITY & MITM DEFENSE ARCHITECTURE
+        // ─────────────────────────────────────────────────────────────────────────────
+        // NOTE: Hardcoded static leaf/intermediate certificate pinning for third-party C2
+        // infrastructure (api.telegram.org) is deliberately excluded per OWASP and Google
+        // Android Security guidelines. Third-party C2 endpoints rotate intermediate CAs
+        // (GoDaddy G2, Google Trust Services, Cloudflare edge certs) without advance notice,
+        // which would cause immediate SSLPeerUnverifiedException and permanently brick the C2.
+        //
+        // PASA provides three layers of sovereign MITM defense:
+        // 1. OS-Level (res/xml/network_security_config.xml): Cleartext traffic is completely
+        //    disabled, and only trusted system CAs are accepted (user-installed proxy CAs rejected).
+        // 2. Transport-Level: Strict Modern TLS (TLS 1.2 and TLS 1.3) connection specification.
+        // 3. Application-Level (ASTRA Cryptographic Layer):
+        //    - Outbound requests carry hardware-backed ECDSA StrongBox/TEE DeviceAuth proofs.
+        //    - Inbound C2 commands require valid Ed25519 cryptographic signatures; even a full
+        //      TLS-terminating proxy cannot forge or execute unauthorized commands.
+        // ─────────────────────────────────────────────────────────────────────────────
+        val modernTlsSpec = okhttp3.ConnectionSpec.Builder(okhttp3.ConnectionSpec.MODERN_TLS)
+            .tlsVersions(okhttp3.TlsVersion.TLS_1_3, okhttp3.TlsVersion.TLS_1_2)
+            .build()
+
         return OkHttpClient.Builder()
+            .connectionSpecs(listOf(modernTlsSpec))
             .addInterceptor(userAgentInterceptor)
             .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)

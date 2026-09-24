@@ -203,6 +203,12 @@ e:/Projects/PrivateApp/
   - Heat-gun Thermal Anomaly Trap config (`wizard:thermal`)
 * **1-Tap Copyable SMS Templates:** Interactive template generator (`sms_template:*`) outputting ready-to-send monospace SMS strings for air-gapped emergency control.
 
+### 3.9 Sovereign Web Control Dashboard (Phase 9 Real-Time WebSocket C2)
+* **Zero-Storage RAM-Only WebSocket Relay:** Operates on `/dashboard` and `/ws/dashboard` with zero database or disk media persistence. Live photos, location coordinates, and command outputs are streamed directly in-memory as ephemeral base64 data URIs.
+* **Authentication Gate:** Enforces timing-safe admin key authentication (`crypto.timingSafeEqual`) on both HTTP `/api/admin/verify` and WebSocket handshake (`/ws/dashboard?key=...`).
+* **Tactical Command Dispatch:** Dispatches C2 commands directly into the server command queue with Ed25519 cryptographic signing (`SERVER_KEY_ID`), triggering immediate wake-up for device long-pollers.
+* **Interactive Operations Console:** Built into `pasa-server/dashboard.js` with responsive glassmorphism dark theme, Leaflet.js real-time CartoDB dark tile maps, quick action triggers (`/locate`, `/snap`, `/lock`, `/ring`, `/screenshot`, `/ring_stop`), full-screen photo lightbox, and live audit telemetry stream.
+
 ---
 
 ## 4. Complete Command Matrix (86 Telegram C2 Commands)

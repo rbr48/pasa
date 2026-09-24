@@ -4,7 +4,9 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const http = require('http');
 const EventEmitter = require('events');
+const { WebSocketServer } = require('ws');
 const { renderCommercialLandingPage } = require('./landingPage');
 const { loadJson, saveJson } = require('./lib/storage');
 const { rateLimit } = require('./lib/rateLimit');
@@ -263,6 +265,20 @@ function logSecurityEvent(type, details = {}) {
     details,
     details.ip || ''
   );
+
+  try {
+    if (typeof broadcastToDashboard === 'function') {
+      broadcastToDashboard(details.deviceId || 'system', {
+        type: 'new_log',
+        event: {
+          type,
+          detail: details.command || details.message || details.alertType || details.deviceName || type,
+          deviceId: details.deviceId || '-',
+          timestamp: Date.now()
+        }
+      });
+    }
+  } catch (_) {}
 
   return event;
 }
@@ -3510,6 +3526,15 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
                         (files.video && files.video.length > 0) ||
                         (files.document && files.document.length > 0));
 
+    // Zero-Storage Web Dashboard live text broadcast
+    if (message) {
+      broadcastToDashboard(deviceId, {
+        type: 'text',
+        text: message,
+        commandId: commandId || null
+      });
+    }
+
     // 1. Deliver text message (only if no media, so media caption carries the message cleanly)
     if (message && chatId && !hasMedia) {
       const sendOptions = {
@@ -3548,6 +3573,14 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
         const photoFile = photoFiles[0];
         const fileBuffer = photoFile.buffer || (photoFile.path && fs.existsSync(photoFile.path) ? fs.readFileSync(photoFile.path) : null);
         if (fileBuffer) {
+          // Zero-Storage: broadcast photo base64 directly to web dashboard clients in RAM
+          broadcastToDashboard(deviceId, {
+            type: 'photo',
+            data: `data:${photoFile.mimetype || 'image/jpeg'};base64,${fileBuffer.toString('base64')}`,
+            commandId: commandId || null,
+            caption: message || '📸 Captured photo'
+          });
+
           const formData = new FormData();
           formData.append('chat_id', chatId);
           const blob = new Blob([fileBuffer], { type: photoFile.mimetype || 'image/jpeg' });
@@ -3568,6 +3601,14 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
             const p = photoFiles[i];
             const fileBuffer = p.buffer || (p.path && fs.existsSync(p.path) ? fs.readFileSync(p.path) : null);
             if (fileBuffer) {
+              // Zero-Storage: broadcast to web dashboard clients in RAM
+              broadcastToDashboard(deviceId, {
+                type: 'photo',
+                data: `data:${p.mimetype || 'image/jpeg'};base64,${fileBuffer.toString('base64')}`,
+                commandId: commandId || null,
+                caption: message || `Photo ${i + 1}/${photoFiles.length}`
+              });
+
               const attachKey = `photo_${i}`;
               const blob = new Blob([fileBuffer], { type: p.mimetype || 'image/jpeg' });
               formData.append(attachKey, blob, `${attachKey}.jpg`);
@@ -3728,6 +3769,12 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
     // 5. Deliver GPS location pin & record history (with tactical action buttons)
     if (latitude && longitude) {
       recordDeviceLocation(deviceId, latitude, longitude, { source: 'response' });
+      broadcastToDashboard(deviceId, {
+        type: 'location',
+        lat: parseFloat(latitude),
+        lng: parseFloat(longitude),
+        commandId: commandId || null
+      });
       if (chatId) {
         const locationActionKeyboard = {
           inline_keyboard: [
@@ -3804,6 +3851,14 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
       longitude: longitude || null
     });
 
+    // Zero-Storage: Stream security alert directly to web dashboard clients
+    broadcastToDashboard(deviceId, {
+      type: 'error',
+      error: `🚨 ${alertType || 'ALERT'}: ${message || 'Security breach detected'}`,
+      alertType,
+      message
+    });
+
     const alertHeader = `🚨 <b>SECURITY ALERT: ${alertType || 'INTRUSION DETECTED'}</b>\n━━━━━━━━━━━━━━━━━━━━\n`;
     const fullText = alertHeader + (message || '');
 
@@ -3837,6 +3892,13 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
       const photoFile = files.photo[0];
       const fileBuffer = photoFile.buffer || (photoFile.path && fs.existsSync(photoFile.path) ? fs.readFileSync(photoFile.path) : null);
       if (fileBuffer) {
+        // Zero-Storage: broadcast intruder photo to web dashboard in RAM
+        broadcastToDashboard(deviceId, {
+          type: 'photo',
+          data: `data:${photoFile.mimetype || 'image/jpeg'};base64,${fileBuffer.toString('base64')}`,
+          caption: `🚨 Intruder Capture (${alertType || 'ALERT'})`
+        });
+
         const formData = new FormData();
         formData.append('chat_id', chatId);
         const blob = new Blob([fileBuffer], { type: photoFile.mimetype || 'image/jpeg' });
@@ -3851,6 +3913,11 @@ app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
     // Send Location Pin & record history
     if (latitude && longitude) {
       recordDeviceLocation(deviceId, latitude, longitude, { alertType, source: 'alert' });
+      broadcastToDashboard(deviceId, {
+        type: 'location',
+        lat: parseFloat(latitude),
+        lng: parseFloat(longitude)
+      });
       await callTelegram(token, 'sendLocation', {
         chat_id: chatId,
         latitude: parseFloat(latitude),
@@ -3894,18 +3961,52 @@ app.post('/api/admin/verify', adminAuthLimiter, (req, res) => {
 });
 
 app.get('/api/admin/devices', authenticateAdmin, (req, res) => {
-  const list = Object.values(devices).map(d => ({
-    deviceId: d.deviceId,
-    deviceName: d.deviceName,
-    ownerChatId: d.ownerChatId,
-    lastSeen: d.lastSeen,
-    registeredAt: d.registeredAt,
-    lastSequence: d.lastSequence || 0,
-    hasHardwareKey: !!d.publicKeyJwk,
-    attestationCertCount: (d.attestationChain || []).length,
-    pendingCommandsCount: (commands[d.deviceId] || []).length
-  }));
-  res.json({ ok: true, count: list.length, devices: list });
+  const devList = Object.values(devices);
+  const now = Date.now();
+  const onlineThreshold = 90000; // 90 seconds
+  const onlineCount = devList.filter(d => d.lastSeen && (now - d.lastSeen) < onlineThreshold).length;
+
+  const todayStart = new Date().setHours(0, 0, 0, 0);
+  let commandsToday = 0;
+  for (const cmdList of Object.values(commands)) {
+    if (Array.isArray(cmdList)) {
+      commandsToday += cmdList.filter(c => (c.createdAt || 0) >= todayStart).length;
+    }
+  }
+
+  const alertsCount = securityLogs.filter(l => (l.type || '').includes('ALERT') || (l.type || '').includes('FAILURE')).length;
+
+  const list = devList.map(d => {
+    const isOnline = !!(d.lastSeen && (now - d.lastSeen) < onlineThreshold);
+    return {
+      deviceId: d.deviceId,
+      id: d.deviceId,
+      deviceName: d.deviceName || d.model || 'Android Agent',
+      name: d.deviceName || d.model || 'Android Agent',
+      model: d.model || 'Generic Android',
+      osVersion: d.osVersion || '',
+      battery: d.battery !== undefined ? d.battery : null,
+      batteryStatus: d.batteryStatus || '',
+      isOnline,
+      online: isOnline,
+      ownerChatId: d.ownerChatId,
+      lastSeen: d.lastSeen,
+      registeredAt: d.registeredAt || d.createdAt,
+      lastSequence: d.lastSequence || 0,
+      hasHardwareKey: !!d.publicKeyJwk,
+      attestationCertCount: (d.attestationChain || []).length,
+      pendingCommandsCount: (commands[d.deviceId] || []).length
+    };
+  });
+  res.json({
+    ok: true,
+    count: list.length,
+    total: list.length,
+    online: onlineCount,
+    commandsToday,
+    alerts: alertsCount,
+    devices: list
+  });
 });
 
 app.get('/api/admin/commands', authenticateAdmin, (req, res) => {
@@ -3917,9 +4018,31 @@ app.get('/api/admin/logs', authenticateAdmin, (req, res) => {
   const offset = parseInt(req.query.offset, 10) || 0;
   const dbLogs = AuditRepo.getRecent(limit, offset);
   if (dbLogs.length > 0) {
-    return res.json({ ok: true, count: dbLogs.length, logs: dbLogs });
+    const formatted = dbLogs.map(l => ({
+      id: l.id,
+      type: l.eventType,
+      eventType: l.eventType,
+      deviceId: l.deviceId,
+      chatId: l.chatId,
+      detail: typeof l.details === 'object' && l.details !== null ? (l.details.command || l.details.message || l.details.alertType || JSON.stringify(l.details)) : (l.details || '—'),
+      details: l.details,
+      ip: l.ip,
+      timestamp: l.timestamp
+    }));
+    return res.json({ ok: true, count: formatted.length, logs: formatted });
   }
-  res.json({ ok: true, count: securityLogs.length, logs: securityLogs });
+  const formattedSecLogs = securityLogs.map(l => ({
+    id: l.id,
+    type: l.type,
+    eventType: l.type,
+    deviceId: l.deviceId,
+    chatId: l.chatId,
+    detail: l.command || l.message || l.alertType || l.deviceName || JSON.stringify(l),
+    details: l,
+    ip: l.ip,
+    timestamp: l.timestamp
+  }));
+  res.json({ ok: true, count: formattedSecLogs.length, logs: formattedSecLogs });
 });
 
 app.get('/api/admin/devices/:deviceId/location-history', authenticateAdmin, (req, res) => {
@@ -5021,9 +5144,225 @@ app.get('/admin', (req, res) => {
 </html>`);
 });
 
-// Start Server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[PASA Control Plane] Server v2.1 listening on port ${PORT}`);
+// ═══════════════════════════════════════════════════════════════════════════════
+// Phase 9: Sovereign Web Dashboard — WebSocket Real-Time Control Plane
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Dashboard page route
+app.get('/dashboard', (req, res) => {
+  try {
+    const { renderDashboard } = require('./dashboard');
+    res.send(renderDashboard());
+  } catch (err) {
+    res.status(500).send(`<h1>Dashboard not available</h1><p>${err.message}</p>`);
+  }
+});
+
+// --- WebSocket Server for Real-Time Dashboard ---
+const server = http.createServer(app);
+
+// Authenticated WebSocket clients: Set<{ ws, adminKey, connectedAt }>
+const dashboardClients = new Set();
+
+const wss = new WebSocketServer({ server, path: '/ws/dashboard' });
+
+wss.on('connection', (ws, req) => {
+  // Authenticate via query param: /ws/dashboard?key=ADMIN_SECRET
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const key = url.searchParams.get('key') || '';
+
+  const expectedBuf = Buffer.from(ADMIN_SECRET);
+  const actualBuf = Buffer.from(key);
+
+  if (expectedBuf.length !== actualBuf.length || !crypto.timingSafeEqual(expectedBuf, actualBuf)) {
+    logSecurityEvent('WS_AUTH_FAILURE', {
+      ip: req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown'
+    });
+    ws.close(4001, 'Unauthorized');
+    return;
+  }
+
+  const client = { ws, connectedAt: Date.now(), ip: req.socket.remoteAddress || 'unknown' };
+  dashboardClients.add(client);
+
+  logSecurityEvent('WS_DASHBOARD_CONNECTED', {
+    ip: client.ip,
+    totalClients: dashboardClients.size
+  });
+
+  console.log(`[WebSocket] Dashboard client connected (${dashboardClients.size} active)`);
+
+  // Send initial device fleet snapshot
+  try {
+    const deviceList = Object.values(devices).map(d => ({
+      deviceId: d.deviceId,
+      deviceName: d.deviceName,
+      lastSeen: d.lastSeen,
+      battery: d.battery,
+      batteryStatus: d.batteryStatus,
+      model: d.model,
+      osVersion: d.osVersion,
+      isOnline: d.lastSeen && (Date.now() - d.lastSeen) < 90000
+    }));
+    ws.send(JSON.stringify({ type: 'fleet_snapshot', devices: deviceList, timestamp: Date.now() }));
+  } catch (e) {
+    console.error('[WebSocket] Error sending fleet snapshot:', e.message);
+  }
+
+  // Handle incoming messages from dashboard
+  ws.on('message', (raw) => {
+    try {
+      const msg = JSON.parse(raw.toString());
+      if (msg.type === 'command' && msg.deviceId && msg.command) {
+        handleDashboardCommand(msg, client);
+      } else if (msg.type === 'ping') {
+        ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
+      }
+    } catch (e) {
+      console.error('[WebSocket] Error parsing message:', e.message);
+    }
+  });
+
+  ws.on('close', () => {
+    dashboardClients.delete(client);
+    console.log(`[WebSocket] Dashboard client disconnected (${dashboardClients.size} active)`);
+  });
+
+  ws.on('error', (err) => {
+    console.error('[WebSocket] Client error:', err.message);
+    dashboardClients.delete(client);
+  });
+});
+
+/**
+ * Handle a command sent from the web dashboard via WebSocket.
+ * Reuses the existing C2 command queue infrastructure.
+ */
+function handleDashboardCommand(msg, client) {
+  const { deviceId, command } = msg;
+  const dev = devices[deviceId];
+  if (!dev) {
+    client.ws.send(JSON.stringify({
+      type: 'error',
+      text: `Device ${deviceId} not found`,
+      timestamp: Date.now()
+    }));
+    return;
+  }
+
+  // Parse command and args (e.g. "/lock 1234" -> command="/lock", args=["1234"])
+  const parts = command.trim().split(/\s+/);
+  const cmd = parts[0].startsWith('/') ? parts[0] : '/' + parts[0];
+  const args = parts.slice(1);
+
+  const commandId = `dash-${crypto.randomBytes(6).toString('hex')}`;
+
+  // Build Ed25519 signed envelope if server key is available
+  let envelope = null;
+  try {
+    if (serverPrivateKey) {
+      const payload = JSON.stringify({
+        keyId: SERVER_KEY_ID,
+        command: cmd,
+        args,
+        issuedAt: Date.now(),
+        deviceId
+      });
+      const sig = crypto.sign(null, Buffer.from(payload), serverPrivateKey);
+      envelope = {
+        payload,
+        signature: sig.toString('base64'),
+        keyId: SERVER_KEY_ID
+      };
+    }
+  } catch (e) {
+    console.warn('[WebSocket] Failed to sign command:', e.message);
+  }
+
+  const cmdObj = {
+    id: commandId,
+    command: cmd,
+    args,
+    chatId: dev.ownerChatId || ADMIN_CHAT_ID,
+    createdAt: Date.now(),
+    source: 'dashboard'
+  };
+  if (envelope) cmdObj.envelope = envelope;
+
+  // Enqueue for the device
+  if (!commands[deviceId]) commands[deviceId] = [];
+  commands[deviceId].push(cmdObj);
+
+  // Persist to SQLite
+  try {
+    CommandRepo.add({
+      id: commandId,
+      deviceId,
+      command: cmd,
+      args,
+      chatId: cmdObj.chatId,
+      createdAt: cmdObj.createdAt,
+      envelope
+    });
+  } catch (e) { /* ignore if duplicate */ }
+
+  // Notify device long-pollers
+  commandEmitter.emit('command:' + deviceId, commands[deviceId]);
+
+  logSecurityEvent('DASHBOARD_COMMAND', {
+    deviceId,
+    command: cmd,
+    commandId,
+    ip: client.ip
+  });
+
+  console.log(`[WebSocket] Dashboard command queued: ${cmd} → ${deviceId} (${commandId})`);
+
+  // Confirm to the dashboard client
+  client.ws.send(JSON.stringify({
+    type: 'command_queued',
+    commandId,
+    command: cmd,
+    args,
+    deviceId,
+    timestamp: Date.now()
+  }));
+}
+
+/**
+ * Broadcast a device response (photo, location, text, etc.) to all connected
+ * dashboard clients. Called from the /api/device/response handler.
+ * Media is passed as base64 from RAM buffer — zero disk writes.
+ */
+function broadcastToDashboard(deviceId, responseData) {
+  if (dashboardClients.size === 0) return;
+
+  const payload = JSON.stringify({
+    ...responseData,
+    deviceId,
+    timestamp: Date.now()
+  });
+
+  for (const client of dashboardClients) {
+    try {
+      if (client.ws.readyState === 1) { // WebSocket.OPEN
+        client.ws.send(payload);
+      }
+    } catch (e) {
+      console.error('[WebSocket] Broadcast error:', e.message);
+    }
+  }
+}
+
+// Make broadcastToDashboard available globally for the response handler
+global._broadcastToDashboard = broadcastToDashboard;
+
+// Start Server (HTTP + WebSocket)
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`[PASA Control Plane] Server v3.0 listening on port ${PORT} (HTTP + WebSocket)`);
+  console.log(`[PASA Control Plane] Dashboard: http://localhost:${PORT}/dashboard`);
+  console.log(`[PASA Control Plane] WebSocket: ws://localhost:${PORT}/ws/dashboard`);
   initPollers();
   if (DEFAULT_BOT_TOKEN) {
     console.log(`[PASA Control Plane] Auto-starting poller for default bot token...`);
