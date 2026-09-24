@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 52,
+    "versionName": "3.5.6",
+    "releaseDate": "2026-09-24",
+    "fileName": "pasa-v3.5.6-52.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.6-52.apk",
+    "sha256": "becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8",
+    "size": 19250443,
+    "mandatory": false,
+    "releaseNotes": "v3.5.6: Security Hardening & Zero-Trust Architecture — Fail-closed cryptographic envelope verification on Android client, SELinux enforcement false-positive fix on modern Android 16/Moto devices, unassigned ownerChatId hijacking defense, Wipe 2FA PIN confirmation, and 100% Sovereign (Direct Telegram) Mode."
+  },
+  {
     "versionCode": 51,
     "versionName": "3.5.5",
     "releaseDate": "2026-09-23",
