@@ -400,31 +400,36 @@ class PasaService : LifecycleService() {
                                         var chatIdToUse = remoteCmd.chatId
 
                                         // Ed25519 Cryptographic Envelope Verification (ASTRA Layer)
+                                        // Fail-Closed Security Policy: Reject any remote command lacking a cryptographic signature
                                         val envelope = remoteCmd.envelope
-                                        if (!envelope.isNullOrBlank()) {
-                                            try {
-                                                val verified = commandVerifier.verify(envelope)
-                                                commandToExecute = "/" + verified.action.lowercase()
-                                                argsToExecute = verified.args
-                                                if (verified.chatId > 0) chatIdToUse = verified.chatId
-                                                Log.i(TAG, "✅ Cryptographically verified command envelope: ${verified.action} (seq=${verified.sequence})")
-                                            } catch (e: com.izhaanintellect.pasa.crypto.DuplicateCommandException) {
-                                                Log.i(TAG, "Command ${remoteCmd.id} was already executed previously. Acknowledging duplicate delivery to VPS.")
-                                                commandExecutor.sendResponseToBackend(remoteCmd.id, "ALREADY_COMPLETED", null, null, null, null)
-                                                continue
-                                            } catch (e: Exception) {
-                                                Log.w(TAG, "🚨 Security rejection for command envelope ${remoteCmd.id}: ${e.message}")
-                                                val rejectMsg = "⛔ Security Rejection: Command ${remoteCmd.command} rejected (${e.message})"
-                                                commandExecutor.sendRejectionToBackend(remoteCmd.id, rejectMsg)
-                                                continue
-                                            }
+                                        if (envelope.isNullOrBlank()) {
+                                            Log.w(TAG, "🚨 Security rejection: Unsigned command ${remoteCmd.id} (${remoteCmd.command}) rejected. Only cryptographically signed envelopes are accepted.")
+                                            commandExecutor.sendRejectionToBackend(remoteCmd.id, "⛔ Security Rejection: Missing cryptographic envelope signature")
+                                            continue
+                                        }
+
+                                        try {
+                                            val verified = commandVerifier.verify(envelope)
+                                            commandToExecute = "/" + verified.action.lowercase()
+                                            argsToExecute = verified.args
+                                            if (verified.chatId > 0) chatIdToUse = verified.chatId
+                                            Log.i(TAG, "✅ Cryptographically verified command envelope: ${verified.action} (seq=${verified.sequence})")
+                                        } catch (e: com.izhaanintellect.pasa.crypto.DuplicateCommandException) {
+                                            Log.i(TAG, "Command ${remoteCmd.id} was already executed previously. Acknowledging duplicate delivery to VPS.")
+                                            commandExecutor.sendResponseToBackend(remoteCmd.id, "ALREADY_COMPLETED", null, null, null, null)
+                                            continue
+                                        } catch (e: Exception) {
+                                            Log.w(TAG, "🚨 Security rejection for command envelope ${remoteCmd.id}: ${e.message}")
+                                            val rejectMsg = "⛔ Security Rejection: Command ${remoteCmd.command} rejected (${e.message})"
+                                            commandExecutor.sendRejectionToBackend(remoteCmd.id, rejectMsg)
+                                            continue
                                         }
 
                                         val parsed = CommandParser.ParsedCommand(
                                             chatId = chatIdToUse,
                                             command = commandToExecute,
                                             args = argsToExecute,
-                                            senderName = if (envelope.isNullOrBlank()) "VPS Gateway" else "VPS Signed (${remoteCmd.id.take(6)})",
+                                            senderName = "VPS Signed (${remoteCmd.id.take(6)})",
                                             rawText = "$commandToExecute ${argsToExecute.joinToString(" ")}"
                                         )
                                         val cmdLower = commandToExecute.lowercase()

@@ -1420,8 +1420,8 @@ function escapeHtml(str) {
 
 function isDeviceMatchingBot(d, token, chatId) {
   if (!d) return false;
-  // Must match ownerChatId if set (or allow if unassigned)
-  if (d.ownerChatId && String(d.ownerChatId) !== String(chatId)) {
+  // Security Hardening: Strictly require ownerChatId. An unassigned or mismatched device can NEVER be commanded.
+  if (!d.ownerChatId || String(d.ownerChatId) !== String(chatId)) {
     return false;
   }
 

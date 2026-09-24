@@ -91,7 +91,7 @@ class SetupActivity : AppCompatActivity() {
         setupClickListeners()
         setupDashboardObservers()
 
-        binding.etServerUrl.setText(viewModel.getSavedServerUrl().ifBlank { PreferencesManager.DEFAULT_SERVER_URL })
+        binding.etServerUrl.setText(viewModel.getSavedServerUrl())
         if (preferencesManager.botToken.isNotBlank()) {
             binding.etBotToken.setText(preferencesManager.botToken)
         } else {
@@ -274,7 +274,7 @@ class SetupActivity : AppCompatActivity() {
             return
         }
 
-        val serverUrl = binding.etServerUrl.text.toString().trim().ifBlank { PreferencesManager.DEFAULT_SERVER_URL }
+        val serverUrl = binding.etServerUrl.text.toString().trim()
         val botToken = binding.etBotToken.text.toString().trim()
         val chatId = binding.etChatId.text.toString().trim()
         val password = binding.etMasterPassword.text.toString()
