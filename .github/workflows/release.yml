@@ -1,0 +1,62 @@
+name: 🚀 PASA Sentinel — Production Release Publisher
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish-release:
+    name: 📦 Publish GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Publish Release to GitHub
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.ref_name }}"
+          APK_FILE="releases/pasa-v3.5.6-52.apk"
+          LATEST_APK="releases/pasa-latest.apk"
+          SETUP_KIT="releases/PASA-Device-Owner-Setup-Kit.zip"
+
+          cat << 'EOF' > release_notes.md
+          ## 🛡️ PASA Sentinel v3.5.6 (Build 52) — Production Release
+
+          Next-Generation Sovereign Mobile Defense & Covert Anti-Theft Agent for Android (8.0 – 16 / API 26 – 36).
+          Zero Google Play dependencies. Air-gapped cellular SMS fallback. Knox-grade Device Owner permanence. Dual-channel Telegram C2. Direct-to-Telegram Zero-Storage Architecture.
+
+          ### 🔐 Cryptographic Integrity & Checksums
+          - **Production APK:** `pasa-v3.5.6-52.apk` (Symlink: `pasa-latest.apk`)
+          - **Byte Size:** `19,250,443` bytes (18.36 MB)
+          - **APK SHA-256 Digest:** `becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8`
+          - **Windows Setup Kit:** `PASA-Device-Owner-Setup-Kit.zip` (12.3 KB)
+          - **Setup Kit SHA-256 Digest:** `f5dfe1893638e2712556e705eb632c5800381324dbe7782b7d4c52c403542f63`
+          - **VirusTotal Audit (70+ AV Clean):** [Inspect VirusTotal Scan Report](https://www.virustotal.com/gui/file/becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8)
+
+          ### 🚀 What's New in v3.5.6 (Build 52)
+          - **Fail-Closed Cryptographic Envelope:** Android client rejects untrusted or unauthenticated command envelopes.
+          - **SELinux Modernization:** SELinux enforcement false-positive fix on modern Android 16 / Moto devices.
+          - **Unassigned Chat Hijack Defense:** Strictly verifies `ownerChatId` matching before command execution.
+          - **Wipe 2FA PIN Protection:** Master PIN confirmation required before factory wipe execution (`/wipe`).
+          - **100% Sovereign (Direct Telegram) Mode:** Direct communication with Telegram API without VPS intermediary.
+          - **6-Hub Executive Console:** Streamlined 86-command C2 console with interactive wizards.
+
+          ### 🌐 Official Deployment Endpoints
+          - **Web Operations Console:** https://pasa.izhaanintellect.fun/
+          - **Interactive Field Manual:** https://pasa.izhaanintellect.fun/manual.html
+          - **OTA Manifest:** https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=0
+          EOF
+
+          gh release create "$TAG" \
+            "$APK_FILE" \
+            "$LATEST_APK" \
+            "$SETUP_KIT" \
+            --title "PASA Sentinel $TAG (Build 52)" \
+            --notes-file release_notes.md

@@ -5,7 +5,7 @@
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.4.0%20(Build%2036)-blue.svg)](https://pasa.izhaanintellect.fun/api/app/download/pasa-latest.apk)
+[![Version](https://img.shields.io/badge/Release-v3.5.6%20(Build%2052)-blue.svg)](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
 [![Zero Storage](https://img.shields.io/badge/Zero%20Storage-Direct--to--Telegram-brightgreen.svg)](PRIVACY.md)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Cloud%20Telemetry-brightgreen.svg)](PRIVACY.md)
 [![Ed25519 Security](https://img.shields.io/badge/Cryptography-Ed25519%20Offline%20Certificates-blueviolet.svg)](#commercial-licensing--payment-methods)
@@ -23,7 +23,7 @@
    - [Method 1: Private Dedicated Bot via @BotFather (Recommended)](#method-1-private-dedicated-bot-via-botfather-recommended)
    - [Method 2: Instant Pairing via @Pas_agent_bot](#method-2-instant-pairing-via-pas_agent_bot)
 5. [Enterprise Device Owner & Persistence Setup](#-enterprise-device-owner--persistence-setup)
-6. [Complete Telegram C2 Command Glossary (55 Commands)](#-complete-telegram-c2-command-glossary-55-commands)
+6. [Executive Telegram C2 Command Glossary (86 Commands & 6-Hub Console)](#-complete-telegram-c2-command-glossary-86-commands)
 7. [Hardware Escrow Token & Physical Lockscreen Reset](#-hardware-escrow-token--physical-lockscreen-reset)
 8. [Lockscreen Duress PIN & Anti-Coercion Mode](#-lockscreen-duress-pin--anti-coercion-mode)
 9. [Offline Air-Gapped SMS Defense](#-offline-air-gapped-sms-defense)
@@ -168,7 +168,7 @@ adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
 
 ---
 
-## 🕹️ Complete Telegram C2 Command Glossary (55 Commands)
+## 🕹️ Complete Telegram C2 Command Glossary (86 Commands & 6-Hub Console)
 
 Send these commands directly to your Telegram bot (or use the interactive menu autocomplete):
 
@@ -349,15 +349,21 @@ The signed APK will be output to:
 
 Download the official signed release binary directly from GitHub or our high-speed CDN:
 
-* **Direct Release Binary:** [📦 pasa-v3.2.8-33.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.2.8-33.apk)
+* **Direct Release Binary:** [📦 pasa-v3.5.6-52.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.5.6-52.apk)
 * **Direct Rolling Latest:** [📦 pasa-latest.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk)
 * **High-Speed CDN Mirror:** [https://pasa.izhaanintellect.fun/releases/pasa-latest.apk](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
-* **Official Version:** `v3.2.8` (Build Code `33`)
-* **File Size:** `19,053,405 bytes` (18.17 MB)
-* **SHA-256 Checksum:**
+* **Windows Setup Kit:** [📦 PASA-Device-Owner-Setup-Kit.zip](https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip)
+* **Official Version:** `v3.5.6` (Build Code `52`)
+* **File Size:** `19,250,443 bytes` (18.36 MB)
+* **APK SHA-256 Checksum:**
   ```text
-  279ad9b88ee32e7dee751dd843ae6d62c01b8e9631b879c7aee1574f709d36a9
+  becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8
   ```
+* **Setup Kit SHA-256 Checksum:**
+  ```text
+  f5dfe1893638e2712556e705eb632c5800381324dbe7782b7d4c52c403542f63
+  ```
+* **VirusTotal Consensus (70+ AV Clean):** [Inspect VirusTotal Audit Report](https://www.virustotal.com/gui/file/becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8)
 
 ### Verify on Windows PowerShell:
 ```powershell
