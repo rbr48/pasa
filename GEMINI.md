@@ -346,7 +346,7 @@ e:/Projects/PrivateApp/
   - `💎 Pro Lifetime` — $25 / ৳3,000 BDT, all 86 commands, lifetime OTA.
   - `🏢 Enterprise` — $99 / ৳12,000 BDT, 5 devices, dedicated relay server.
 * **Offline Verification:** Ed25519-signed license certificates verified client-side in <0.2ms with no network dependency.
-* **Payment Gateways:** Binance Pay (UID `756303714`), bKash (via WhatsApp concierge **+8801762033445** — updated from old number).
+* **Payment Gateways:** Binance Pay (UID `756303714`, Nickname `RBR48`), bKash (official payment account requested via WhatsApp concierge **+880 1762-033445**; the number itself is NOT a bKash wallet).
 * **Refund Policy:** Unconditional 24-hour 100% money-back guarantee.
 
 ---
@@ -356,8 +356,8 @@ e:/Projects/PrivateApp/
 This section records significant architectural decisions and code changes made in the September 24 2026 session that all future agents must be aware of.
 
 ### 8.1 Contact & Identity Corrections
-* **bKash / WhatsApp contact number:** Changed from `+8801728284848` → **`+8801762033445`**. Updated across `pasa-server/server.js`, website templates, and `security.txt`.
-* **Telegram handle:** `https://t.me/rbr_48` has been **removed** from all public-facing pages and replaced with official support bot link.
+* **WhatsApp Support Contact:** `+8801762033445` is strictly for **WhatsApp Customer Support / Concierge only**. It is **NOT** a personal bKash wallet. Customers wishing to pay via bKash request the current official bKash account number directly via WhatsApp.
+* **Telegram handle:** `https://t.me/rbr_48` has been **removed** from all public-facing pages and replaced with official support bot link (`@pasa_sentinel_bot`).
 
 ### 8.2 Official Customer Support Bot — `@pasa_sentinel_bot`
 * **Token:** Was `8731444238:AAH9YHEvuZblvjMHyjPEfOdCVwaE1wLDTV4` — **THIS TOKEN IS COMPROMISED AND MUST BE ROTATED.**
