@@ -1363,7 +1363,7 @@ function generateHtml() {
             <li><span>✓</span> <span data-i18n="f_pro_7">24-Hour 100% Refund Guarantee</span></li>
           </ul>
         </div>
-        <a href="https://wa.me/8801728284848?text=Hello%20PASA%20Team%2C%20I%20want%20to%20activate%20PASA%20Pro%20Lifetime%20Shield." target="_blank" class="btn-plan primary" data-i18n="btn_buy_pro">
+        <a href="https://wa.me/8801762033445?text=Hello%20PASA%20Team%2C%20I%20want%20to%20activate%20PASA%20Pro%20Lifetime%20Shield." target="_blank" class="btn-plan primary" data-i18n="btn_buy_pro">
           Claim Lifetime License
         </a>
       </div>
@@ -1384,7 +1384,7 @@ function generateHtml() {
             <li><span>✓</span> <span data-i18n="f_ent_4">Direct WhatsApp &amp; Telegram Hotline</span></li>
           </ul>
         </div>
-        <a href="https://wa.me/8801728284848?text=Hello%20PASA%20Team%2C%20I%20am%20interested%20in%20the%20Enterprise%20Fleet%20pack." target="_blank" class="btn-plan outline" data-i18n="btn_contact_ent">
+        <a href="https://wa.me/8801762033445?text=Hello%20PASA%20Team%2C%20I%20am%20interested%20in%20the%20Enterprise%20Fleet%20pack." target="_blank" class="btn-plan outline" data-i18n="btn_contact_ent">
           Contact Concierge
         </a>
       </div>
@@ -1410,7 +1410,7 @@ function generateHtml() {
         <div>
           <div class="pay-title" data-i18n="bkash_title">bKash Payment (Bangladesh)</div>
           <div class="pay-sub" data-i18n="bkash_sub">Official bKash Personal account</div>
-          <a href="https://wa.me/8801728284848?text=Hello%2C%20please%20send%20me%20the%20official%20bKash%20number%20for%20PASA%20Sentinel%20license." target="_blank" class="pay-action-btn" style="background:#fce7f3;color:#9d174d;border:1px solid #fbcfe8;" data-i18n="bkash_action_btn">Request Number via WhatsApp</a>
+          <a href="https://wa.me/8801762033445?text=Hello%2C%20please%20send%20me%20the%20official%20bKash%20number%20for%20PASA%20Sentinel%20license." target="_blank" class="pay-action-btn" style="background:#fce7f3;color:#9d174d;border:1px solid #fbcfe8;" data-i18n="bkash_action_btn">Request Number via WhatsApp</a>
         </div>
       </div>
 
@@ -1420,8 +1420,8 @@ function generateHtml() {
         </div>
         <div>
           <div class="pay-title" data-i18n="wa_title">WhatsApp Concierge</div>
-          <div class="pay-sub">+880 1728 284848</div>
-          <a href="https://wa.me/8801728284848" target="_blank" class="pay-action-btn" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;" data-i18n="wa_action_btn">Chat Direct</a>
+          <div class="pay-sub">+880 1762 033445</div>
+          <a href="https://wa.me/8801762033445" target="_blank" class="pay-action-btn" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;" data-i18n="wa_action_btn">Chat Direct</a>
         </div>
       </div>
     </div>
@@ -1432,8 +1432,8 @@ function generateHtml() {
 <div class="floating-concierge">
   <div class="concierge-card" id="conciergeCard">
     <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;" data-i18n="wa_title">Live Concierge</div>
-    <a href="https://wa.me/8801728284848" target="_blank" class="concierge-link wa">WhatsApp Concierge</a>
-    <a href="https://t.me/rbr_48" target="_blank" class="concierge-link tg">Telegram Developer</a>
+    <a href="https://wa.me/8801762033445" target="_blank" class="concierge-link wa">WhatsApp Concierge</a>
+    <a href="https://t.me/pasa_sentinel_bot" target="_blank" class="concierge-link tg">Telegram Developer</a>
   </div>
   <div class="concierge-pill" onclick="toggleConcierge()">
     <span class="pulse-dot"></span>
