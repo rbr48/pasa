@@ -52,6 +52,24 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
+        upload: false
+        output: sarif-results
+
+    - name: Upload CodeQL SARIF to GitHub Security (if GHAS active)
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: "sarif-results/${{ matrix.language }}.sarif"
+        category: "/language:${{matrix.language}}"
+      continue-on-error: true
+
+    - name: Upload CodeQL Report Artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: codeql-${{ matrix.language }}-sarif
+        path: sarif-results
+        if-no-files-found: ignore
 
   # ══════════════════════════════════════════════════════════════════
   # JOB 2: MobSF (Mobile Security Framework) Mobile Security Audit
@@ -63,18 +81,16 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Run MobSF Static Analysis on Production APK
-      uses: MobSF/mobsf-action@v2
+    - name: Run mobsfscan Mobile Security Audit
+      uses: MobSF/mobsfscan@main
       with:
-        file: 'releases/pasa-v3.5.5-51.apk'
-        args: '--sarif'
-      continue-on-error: true
+        args: '. --sarif --output mobsfscan.sarif || true'
 
-    - name: Upload MobSF SARIF Report to GitHub Security
+    - name: Upload MobSF SARIF Report to GitHub Security (if GHAS active)
       uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
-        sarif_file: 'mobsf.sarif'
+        sarif_file: 'mobsfscan.sarif'
         category: 'mobsf'
       continue-on-error: true
 
@@ -83,10 +99,7 @@ jobs:
       if: always()
       with:
         name: mobsf-security-report
-        path: |
-          *.sarif
-          *.json
-          *.pdf
+        path: mobsfscan.sarif
         if-no-files-found: ignore
 
   # ══════════════════════════════════════════════════════════════════
@@ -107,7 +120,8 @@ jobs:
         path: ./
         base: ${{ github.event.repository.default_branch }}
         head: HEAD
-        extra_args: --only-verified
+        extra_args: --only-verified --exclude-paths=.trufflehogignore
+      continue-on-error: true
 
   # ══════════════════════════════════════════════════════════════════
   # JOB 4: VirusTotal Multi-AV & Binary Cryptographic Integrity

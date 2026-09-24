@@ -1,5 +1,9 @@
 // Upload full command menu to Telegram Bot API
-const token = process.env.TELEGRAM_BOT_TOKEN || '8815969412:AAEN_BqiCldZVza93qApCbGn5hTrcAW9HxA';
+const token = process.env.TELEGRAM_BOT_TOKEN || process.env.PASA_CENTRAL_BOT_TOKEN || process.env.BOT_TOKEN;
+if (!token) {
+  console.error('Error: TELEGRAM_BOT_TOKEN environment variable required');
+  process.exit(1);
+}
 
 const commandsList = [
   { command: "menu", description: "📱 Open interactive touchscreen control panel" },

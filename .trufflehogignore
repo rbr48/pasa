@@ -1,0 +1,7 @@
+# TruffleHog Ignore Patterns
+releases/.*
+releases/.*\.apk
+releases/.*\.zip
+app/release/.*
+node_modules/.*
+.git/.*

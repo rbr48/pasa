@@ -276,7 +276,7 @@ class AlertMessageActivity : AppCompatActivity() {
         lngVal: Double?,
         photoFile: File?
     ) {
-        val token = preferencesManager.botToken.ifBlank { "8815969412:AAEN_BqiCldZVza93qApCbGn5hTrcAW9HxA" }
+        val token = preferencesManager.botToken
         val chatId = preferencesManager.ownerChatId.ifBlank { preferencesManager.ownerChatIdLong.toString() }
         val chatIdLong = preferencesManager.ownerChatIdLong
 

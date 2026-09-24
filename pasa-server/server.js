@@ -55,7 +55,7 @@ const activePairings = new Map();
 const telegramPairingAttempts = new Map();
 
 // Official central PASA Bot (@Pas_agent_bot) token for Method 2 instant pairing
-const PASA_CENTRAL_BOT_TOKEN = '8815969412:AAEN_BqiCldZVza93qApCbGn5hTrcAW9HxA';
+const PASA_CENTRAL_BOT_TOKEN = process.env.PASA_CENTRAL_BOT_TOKEN || process.env.BOT_TOKEN || '';
 const DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || PASA_CENTRAL_BOT_TOKEN;
 const ADMIN_BOT_TOKEN = process.env.ADMIN_BOT_TOKEN || process.env.BOT_TOKEN || PASA_CENTRAL_BOT_TOKEN;
 const ADMIN_CHAT_ID = String(process.env.ADMIN_CHAT_ID || '');
