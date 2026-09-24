@@ -897,8 +897,10 @@ function renderDashboard() {
         select.appendChild(opt);
       });
       
-      if (currentVal && sorted.some(d => d.id === currentVal)) {
-        select.value = currentVal;
+      if (selectedDeviceId && sorted.some(d => d.id === selectedDeviceId)) {
+        select.value = selectedDeviceId;
+        const currentDev = sorted.find(d => d.id === selectedDeviceId);
+        if (currentDev) renderDeviceInfo(currentDev);
       } else if (!selectedDeviceId && sorted.length > 0 && sorted[0].online) {
         // Auto-select active online device immediately
         selectedDeviceId = sorted[0].id;
@@ -1020,6 +1022,9 @@ function renderDashboard() {
       }
 
       switch(msg.type) {
+        case 'command_queued':
+          showToast('⚡ Command ' + msg.command + ' signed & queued for ' + (msg.deviceId || 'device'), 'success');
+          break;
         case 'text':
           appendToResponseFeed({ type: 'received', text: msg.text, timestamp: msg.timestamp });
           break;

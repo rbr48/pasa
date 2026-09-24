@@ -5256,58 +5256,36 @@ function handleDashboardCommand(msg, client) {
   const cmd = parts[0].startsWith('/') ? parts[0] : '/' + parts[0];
   const args = parts.slice(1);
 
-  const commandId = `dash-${crypto.randomBytes(6).toString('hex')}`;
+  const commandId = 'cmd_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+  const action = cmd.replace(/^\//, '').toUpperCase();
+  const chatId = dev.ownerChatId || ADMIN_CHAT_ID;
 
-  // Build Ed25519 signed envelope if server key is available
+  // Build authentic Ed25519 compact JWS signed envelope (ASTRA layer)
   let envelope = null;
   try {
-    if (serverPrivateKey) {
-      const payload = JSON.stringify({
-        keyId: SERVER_KEY_ID,
-        command: cmd,
-        args,
-        issuedAt: Date.now(),
-        deviceId
-      });
-      const sig = crypto.sign(null, Buffer.from(payload), serverPrivateKey);
-      envelope = {
-        payload,
-        signature: sig.toString('base64'),
-        keyId: SERVER_KEY_ID
-      };
-    }
+    envelope = signCommandEnvelope(deviceId, action, args, chatId, commandId);
   } catch (e) {
-    console.warn('[WebSocket] Failed to sign command:', e.message);
+    console.warn('[WebSocket] Failed to sign command envelope:', e.message);
   }
 
   const cmdObj = {
     id: commandId,
     command: cmd,
     args,
-    chatId: dev.ownerChatId || ADMIN_CHAT_ID,
+    chatId,
     createdAt: Date.now(),
-    source: 'dashboard'
+    source: 'dashboard',
+    envelope
   };
-  if (envelope) cmdObj.envelope = envelope;
 
   // Enqueue for the device
   if (!commands[deviceId]) commands[deviceId] = [];
   commands[deviceId].push(cmdObj);
 
-  // Persist to SQLite
-  try {
-    CommandRepo.add({
-      id: commandId,
-      deviceId,
-      command: cmd,
-      args,
-      chatId: cmdObj.chatId,
-      createdAt: cmdObj.createdAt,
-      envelope
-    });
-  } catch (e) { /* ignore if duplicate */ }
+  // Persist to SQLite and legacy JSON
+  persistCommand(deviceId, cmdObj);
 
-  // Notify device long-pollers
+  // Notify device long-pollers immediately
   commandEmitter.emit('command:' + deviceId, commands[deviceId]);
 
   logSecurityEvent('DASHBOARD_COMMAND', {
