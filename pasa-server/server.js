@@ -3430,7 +3430,17 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
     persistDevice(deviceId);
   }
 
-  const deviceCommands = commands[deviceId] || [];
+  const sanitizeCommands = (cmds) => (cmds || []).map(cmd => ({
+    id: cmd.id,
+    command: cmd.command,
+    args: Array.isArray(cmd.args) ? cmd.args : [],
+    chatId: Number(cmd.chatId) || 0,
+    createdAt: cmd.createdAt || Date.now(),
+    envelope: (typeof cmd.envelope === 'string' && cmd.envelope.trim().length > 0) ? cmd.envelope.trim() : null
+  }));
+
+  const rawCmds = commands[deviceId] || [];
+  const deviceCommands = sanitizeCommands(rawCmds);
   if (deviceCommands.length > 0 || timeoutSec === 0) {
     return res.json({ ok: true, commands: deviceCommands });
   }
@@ -3446,7 +3456,7 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
       devices[deviceId].lastSeen = Date.now();
       persistDevice(deviceId);
     }
-    res.json({ ok: true, commands: newCmds || [] });
+    res.json({ ok: true, commands: sanitizeCommands(newCmds) });
   };
 
   commandEmitter.once('command:' + deviceId, onCommand);
@@ -5314,13 +5324,18 @@ function handleDashboardCommand(msg, client) {
  * Media is passed as base64 from RAM buffer — zero disk writes.
  */
 function broadcastToDashboard(deviceId, responseData) {
-  if (dashboardClients.size === 0) return;
+  if (dashboardClients.size === 0) {
+    console.log(`[WebSocket] Broadcast skipped (0 dashboard clients connected): ${responseData.type} for ${deviceId}`);
+    return;
+  }
 
   const payload = JSON.stringify({
     ...responseData,
     deviceId,
     timestamp: Date.now()
   });
+
+  console.log(`[WebSocket] Broadcasting ${responseData.type} for ${deviceId} to ${dashboardClients.size} dashboard client(s)`);
 
   for (const client of dashboardClients) {
     try {

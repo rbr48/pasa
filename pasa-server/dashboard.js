@@ -761,6 +761,50 @@ function renderDashboard() {
       }
     }
 
+    // Global device name cache
+    const devNameMap = {};
+
+    // Robust HTTP helper using XMLHttpRequest to avoid extensions breaking window.fetch
+    function httpRequest(method, url, data) {
+      return new Promise((resolve, reject) => {
+        try {
+          const key = sessionStorage.getItem('pasa_admin_key');
+          const xhr = new XMLHttpRequest();
+          xhr.open(method, url, true);
+          if (key) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + key);
+            xhr.setRequestHeader('x-pasa-admin-key', key);
+          }
+          xhr.setRequestHeader('Accept', 'application/json');
+          if (data && typeof data === 'object') {
+            xhr.setRequestHeader('Content-Type', 'application/json');
+          }
+          xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                resolve(JSON.parse(xhr.responseText));
+              } catch(e) {
+                resolve(xhr.responseText);
+              }
+            } else {
+              if (xhr.status === 401 || xhr.status === 403) logout();
+              reject(new Error('HTTP ' + xhr.status + ': ' + xhr.statusText));
+            }
+          };
+          xhr.onerror = function() {
+            reject(new Error('Network request failed for ' + url));
+          };
+          xhr.send(data ? (typeof data === 'object' ? JSON.stringify(data) : data) : null);
+        } catch(e) {
+          reject(e);
+        }
+      });
+    }
+
+    async function apiFetch(endpoint) {
+      return await httpRequest('GET', endpoint);
+    }
+
     // Authentication
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -774,14 +818,8 @@ function renderDashboard() {
       errorDiv.style.display = 'none';
 
       try {
-        const verifyUrl = new URL('/api/admin/verify', window.location.origin).toString();
-        const res = await window.fetch(verifyUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key })
-        });
-
-        if (res.ok) {
+        const res = await httpRequest('POST', '/api/admin/verify', { key });
+        if (res && res.ok) {
           sessionStorage.setItem('pasa_admin_key', key);
           document.getElementById('login-modal').style.display = 'none';
           document.getElementById('dashboard').style.display = 'block';
@@ -814,29 +852,6 @@ function renderDashboard() {
       fetchLogs();
       connectWebSocket();
       refreshInterval = setInterval(fetchDevices, 10000);
-    }
-
-    async function apiFetch(endpoint) {
-      try {
-        const key = sessionStorage.getItem('pasa_admin_key');
-        const url = new URL(endpoint, window.location.origin).toString();
-        const res = await window.fetch(url, {
-          method: 'GET',
-          headers: {
-            'Authorization': 'Bearer ' + key,
-            'x-pasa-admin-key': key,
-            'Accept': 'application/json'
-          }
-        });
-        if (!res.ok) {
-          if (res.status === 401 || res.status === 403) logout();
-          throw new Error('API Error: ' + res.status);
-        }
-        return await res.json();
-      } catch (err) {
-        console.warn('apiFetch warning for ' + endpoint, err);
-        throw err;
-      }
     }
 
     // Devices & Stats
@@ -879,30 +894,47 @@ function renderDashboard() {
 
     function populateDeviceSelector(devices) {
       const select = document.getElementById('device-select');
-      const currentVal = select.value;
       
-      select.innerHTML = '<option value="">Select a device...</option>';
+      // Update names cache
+      (devices || []).forEach(d => {
+        devNameMap[d.id] = d.name || d.deviceName || d.model || d.id;
+      });
+
+      const savedDeviceId = localStorage.getItem('pasa_selected_device');
 
       // Sort online devices (🟢) to the very top, then by most recent lastSeen
-      const sorted = [...devices].sort((a, b) => {
-        if (a.online && !b.online) return -1;
-        if (!a.online && b.online) return 1;
+      const sorted = [...(devices || [])].sort((a, b) => {
+        const aOnline = a.online || a.isOnline;
+        const bOnline = b.online || b.isOnline;
+        if (aOnline && !bOnline) return -1;
+        if (!aOnline && bOnline) return 1;
         return (b.lastSeen || 0) - (a.lastSeen || 0);
       });
 
+      select.innerHTML = '<option value="">Select a device...</option>';
       sorted.forEach(d => {
         const opt = document.createElement('option');
         opt.value = d.id;
-        opt.textContent = \`\${d.name || d.model || 'Unknown'} (\${d.id}) \${d.online ? '🟢' : '⚪'}\`;
+        const isOnline = d.online || d.isOnline;
+        const name = d.name || d.deviceName || d.model || 'Android Device';
+        opt.textContent = \`\${name} (\${d.id}) \${isOnline ? '🟢' : '⚪'}\`;
         select.appendChild(opt);
       });
       
-      if (selectedDeviceId && sorted.some(d => d.id === selectedDeviceId)) {
+      // Prioritize currently selected or saved device
+      const targetId = (selectedDeviceId && sorted.some(d => d.id === selectedDeviceId))
+        ? selectedDeviceId
+        : ((savedDeviceId && sorted.some(d => d.id === savedDeviceId)) ? savedDeviceId : null);
+
+      if (targetId) {
+        selectedDeviceId = targetId;
         select.value = selectedDeviceId;
         const currentDev = sorted.find(d => d.id === selectedDeviceId);
         if (currentDev) renderDeviceInfo(currentDev);
-      } else if (!selectedDeviceId && sorted.length > 0 && sorted[0].online) {
-        // Auto-select active online device immediately
+        document.getElementById('device-info').style.display = 'flex';
+        document.getElementById('action-grid').style.display = 'grid';
+        document.getElementById('cmd-form').style.display = 'flex';
+      } else if (!selectedDeviceId && sorted.length > 0 && (sorted[0].online || sorted[0].isOnline)) {
         selectedDeviceId = sorted[0].id;
         select.value = selectedDeviceId;
         document.getElementById('device-info').style.display = 'flex';
@@ -914,6 +946,9 @@ function renderDashboard() {
 
     document.getElementById('device-select').addEventListener('change', (e) => {
       selectedDeviceId = e.target.value;
+      if (selectedDeviceId) {
+        localStorage.setItem('pasa_selected_device', selectedDeviceId);
+      }
       const info = document.getElementById('device-info');
       const actions = document.getElementById('action-grid');
       const form = document.getElementById('cmd-form');
@@ -922,7 +957,7 @@ function renderDashboard() {
         info.style.display = 'flex';
         actions.style.display = 'grid';
         form.style.display = 'flex';
-        fetchDevices(); // get immediate update for selected
+        fetchDevices();
       } else {
         info.style.display = 'none';
         actions.style.display = 'none';
@@ -931,7 +966,7 @@ function renderDashboard() {
     });
 
     function renderDeviceInfo(device) {
-      document.getElementById('info-name').innerText = device.name || '-';
+      document.getElementById('info-name').innerText = device.name || device.deviceName || '-';
       document.getElementById('info-model').innerText = device.model || '-';
       document.getElementById('info-battery').innerText = device.battery ? device.battery + '%' : '-';
       document.getElementById('info-seen').innerText = timeAgo(device.lastSeen);
@@ -956,7 +991,7 @@ function renderDashboard() {
           tbody.appendChild(tr);
         });
       } catch (e) {
-        console.error('Fetch logs error:', e);
+        console.warn('Fetch logs error:', e);
       }
     }
 
@@ -1008,36 +1043,53 @@ function renderDashboard() {
 
     function handleWebSocketMessage(msg) {
       if (msg.type === 'device_update') {
-        fetchDevices(); // trigger refresh
+        try { fetchDevices(); } catch(e){}
         return;
       }
       if (msg.type === 'new_log') {
-        fetchLogs();
+        try { fetchLogs(); } catch(e){}
+        return;
+      }
+      if (msg.type === 'fleet_snapshot') {
+        if (Array.isArray(msg.devices)) {
+          populateDeviceSelector(msg.devices);
+        }
         return;
       }
 
-      // If message is for specific device but we have another selected, ignore feed
-      if (msg.deviceId && selectedDeviceId && msg.deviceId !== selectedDeviceId) {
-        return;
-      }
+      const devLabel = devNameMap[msg.deviceId] || msg.deviceId || 'Device';
 
       switch(msg.type) {
         case 'command_queued':
-          showToast('⚡ Command ' + msg.command + ' signed & queued for ' + (msg.deviceId || 'device'), 'success');
+          showToast('⚡ Command ' + msg.command + ' queued for ' + devLabel, 'success');
           break;
         case 'text':
-          appendToResponseFeed({ type: 'received', text: msg.text, timestamp: msg.timestamp });
+          appendToResponseFeed({ type: 'received', deviceId: msg.deviceId, text: msg.text, timestamp: msg.timestamp });
           break;
         case 'photo':
-          appendToResponseFeed({ type: 'photo', data: msg.data, timestamp: msg.timestamp });
+          appendToResponseFeed({ type: 'photo', deviceId: msg.deviceId, data: msg.data, caption: msg.caption, timestamp: msg.timestamp });
           break;
         case 'location':
-          appendToResponseFeed({ type: 'location', lat: msg.lat, lng: msg.lng, timestamp: msg.timestamp });
+          appendToResponseFeed({ type: 'location', deviceId: msg.deviceId, lat: msg.lat, lng: msg.lng, timestamp: msg.timestamp });
           updateMap(msg.lat, msg.lng);
+          break;
+        case 'alert':
+          appendToResponseFeed({
+            type: 'alert',
+            deviceId: msg.deviceId,
+            alertType: msg.alertType,
+            message: msg.message,
+            photo: msg.photo,
+            lat: msg.lat,
+            lng: msg.lng,
+            timestamp: msg.timestamp
+          });
+          if (msg.lat && msg.lng) updateMap(msg.lat, msg.lng);
+          showToast('🚨 ' + (msg.alertType || 'ALERT') + ' from ' + devLabel, 'error');
           break;
         case 'error':
           showToast(msg.error || 'Command failed', 'error');
-          appendToResponseFeed({ type: 'received', text: 'Error: ' + msg.error, timestamp: msg.timestamp, isError: true });
+          appendToResponseFeed({ type: 'received', deviceId: msg.deviceId, text: 'Error: ' + msg.error, timestamp: msg.timestamp, isError: true });
           break;
       }
     }
@@ -1055,7 +1107,7 @@ function renderDashboard() {
         command: command,
         timestamp: Date.now()
       }));
-      appendToResponseFeed({ type: 'sent', command, timestamp: Date.now() });
+      appendToResponseFeed({ type: 'sent', command, deviceId, timestamp: Date.now() });
     }
 
     function sendQuickAction(cmd) {
@@ -1081,20 +1133,28 @@ function renderDashboard() {
       
       let content = '';
       const timeStr = new Date(item.timestamp || Date.now()).toLocaleTimeString();
+      const devName = devNameMap[item.deviceId] || item.deviceId || '';
+      const devBadge = devName ? \`<span style="font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; background: rgba(0,212,255,0.15); border: 1px solid rgba(0,212,255,0.3); padding: 1px 6px; border-radius: 4px; color: var(--primary); margin-right: 6px;">\${devName}</span>\` : '';
       
       if (item.type === 'sent') {
-        content = \`<div class="feed-header"><span>Command Sent</span><span>\${timeStr}</span></div>
-                   <div style="color: var(--primary);">> \${item.command}</div>\`;
+        content = \`<div class="feed-header"><div>\${devBadge}<span>Command Dispatched</span></div><span>\${timeStr}</span></div>
+                   <div style="color: var(--primary); font-family: 'JetBrains Mono', monospace; font-weight: 600;">&gt; \${item.command}</div>\`;
       } else if (item.type === 'photo') {
-        content = \`<div class="feed-header"><span>Photo Received</span><span>\${timeStr}</span></div>
-                   <img src="\${item.data}" class="feed-img" onclick="showLightbox('\${item.data}')" />\`;
+        content = \`<div class="feed-header"><div>\${devBadge}<span>📸 Photo Captured</span></div><span>\${timeStr}</span></div>
+                   \${item.caption ? \`<div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px;">\${item.caption}</div>\` : ''}
+                   <img src="\${item.data}" class="feed-img" onclick="showLightbox('\${item.data}')" style="cursor: pointer; max-height: 260px; object-fit: contain; width: 100%; border-radius: 8px; border: 1px solid var(--card-border); background: #000;" />\`;
       } else if (item.type === 'location') {
-        content = \`<div class="feed-header"><span>Location Updated</span><span>\${timeStr}</span></div>
-                   <div>📍 Lat: \${item.lat.toFixed(6)}, Lng: \${item.lng.toFixed(6)}</div>\`;
+        content = \`<div class="feed-header"><div>\${devBadge}<span>📍 Sat Location Fix</span></div><span>\${timeStr}</span></div>
+                   <div style="font-family: 'JetBrains Mono', monospace; color: var(--emerald);">🌐 Lat: \${item.lat.toFixed(6)}, Lng: \${item.lng.toFixed(6)}</div>
+                   <a href="https://maps.google.com/maps?q=\${item.lat},\${item.lng}" target="_blank" rel="noopener" style="display: inline-block; margin-top: 6px; font-size: 0.8rem; color: var(--primary); text-decoration: underline;">Open in Google Maps ↗</a>\`;
+      } else if (item.type === 'alert') {
+        content = \`<div class="feed-header"><div style="color: var(--rose); font-weight: 700;">\${devBadge}<span>🚨 EMERGENCY TRAP: \${item.alertType || 'ALERT'}</span></div><span>\${timeStr}</span></div>
+                   <div style="white-space: pre-wrap; word-break: break-word; color: var(--rose); margin-bottom: 6px;">\${item.message || ''}</div>
+                   \${item.photo ? \`<img src="\${item.photo}" class="feed-img" onclick="showLightbox('\${item.photo}')" style="cursor: pointer; max-height: 220px; object-fit: contain; width: 100%; border-radius: 8px; border: 1px solid var(--rose); background: #000;" />\` : ''}\`;
       } else {
         const color = item.isError ? 'var(--rose)' : 'var(--text)';
-        content = \`<div class="feed-header"><span>Response</span><span>\${timeStr}</span></div>
-                   <div style="white-space: pre-wrap; word-break: break-all; color: \${color};">\${item.text || JSON.stringify(item)}</div>\`;
+        content = \`<div class="feed-header"><div>\${devBadge}<span>Device Telemetry / Output</span></div><span>\${timeStr}</span></div>
+                   <div style="white-space: pre-wrap; word-break: break-word; color: \${color}; font-size: 0.9rem; line-height: 1.5;">\${item.text || JSON.stringify(item)}</div>\`;
       }
       
       div.innerHTML = content;
