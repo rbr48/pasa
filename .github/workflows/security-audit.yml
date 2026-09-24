@@ -60,16 +60,9 @@ jobs:
       with:
         category: "/language:${{matrix.language}}"
         upload: false
+        upload-database: false
         output: sarif-results
         ram: 6000
-
-    - name: Upload CodeQL SARIF to GitHub Security (if GHAS active)
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: "sarif-results/${{ matrix.language }}.sarif"
-        category: "/language:${{matrix.language}}"
-      continue-on-error: true
 
     - name: Upload CodeQL Report Artifact
       uses: actions/upload-artifact@v4
@@ -93,14 +86,6 @@ jobs:
       uses: MobSF/mobsfscan@main
       with:
         args: '. --sarif --output mobsfscan.sarif || true'
-
-    - name: Upload MobSF SARIF Report to GitHub Security (if GHAS active)
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: 'mobsfscan.sarif'
-        category: 'mobsf'
-      continue-on-error: true
 
     - name: Upload MobSF PDF/JSON Report Artifact
       uses: actions/upload-artifact@v4
@@ -126,8 +111,6 @@ jobs:
       uses: trufflesecurity/trufflehog@main
       with:
         path: ./
-        base: ${{ github.event.repository.default_branch }}
-        head: HEAD
         extra_args: --only-verified --exclude-paths=.trufflehogignore
       continue-on-error: true
 
