@@ -213,6 +213,9 @@ class CommandExecutor @Inject constructor(
         fileType: String
     ): Pair<File, String> {
         return try {
+            if (fileType.equals("PHOTO", ignoreCase = true)) {
+                com.izhaanintellect.pasa.util.PrivacyHygieneHelper.stripExifMetadata(file)
+            }
             val uploadId = "up_${System.currentTimeMillis()}_${file.nameWithoutExtension}"
             val encFile = File(file.parentFile, "${file.nameWithoutExtension}.enc")
             encryptionManager.encryptEvidenceVaultFile(file, encFile)
@@ -226,8 +229,8 @@ class CommandExecutor @Inject constructor(
             )
             pendingUploadDao.insert(pending)
             EvidenceUploadWorker.schedule(context, uploadId)
-            // Safely delete unencrypted original file now that vault copy is persisted
-            try { file.delete() } catch (_: Exception) {}
+            // Cryptographically shred unencrypted original file now that vault copy is persisted
+            try { com.izhaanintellect.pasa.util.PrivacyHygieneHelper.secureShred(file) } catch (_: Exception) {}
             Pair(encFile, uploadId)
         } catch (e: Exception) {
             Log.w(TAG, "Failed to encrypt evidence vault file: ${e.message}")
@@ -348,17 +351,17 @@ class CommandExecutor @Inject constructor(
                 for (p in processedPhotos) {
                     val isTemp = p.absolutePath.startsWith(context.cacheDir.absolutePath) || p.absolutePath.startsWith(context.filesDir.absolutePath)
                     if (isTemp) {
-                        try { p.delete() } catch (_: Exception) {}
+                        try { com.izhaanintellect.pasa.util.PrivacyHygieneHelper.secureShred(p) } catch (_: Exception) {}
                     }
                 }
                 if (audio != null && (audio.absolutePath.startsWith(context.cacheDir.absolutePath) || audio.absolutePath.startsWith(context.filesDir.absolutePath))) {
-                    try { audio.delete() } catch (_: Exception) {}
+                    try { com.izhaanintellect.pasa.util.PrivacyHygieneHelper.secureShred(audio) } catch (_: Exception) {}
                 }
                 if (video != null && (video.absolutePath.startsWith(context.cacheDir.absolutePath) || video.absolutePath.startsWith(context.filesDir.absolutePath))) {
-                    try { video.delete() } catch (_: Exception) {}
+                    try { com.izhaanintellect.pasa.util.PrivacyHygieneHelper.secureShred(video) } catch (_: Exception) {}
                 }
                 if (doc != null && (doc.absolutePath.startsWith(context.cacheDir.absolutePath) || doc.absolutePath.startsWith(context.filesDir.absolutePath))) {
-                    try { doc.delete() } catch (_: Exception) {}
+                    try { com.izhaanintellect.pasa.util.PrivacyHygieneHelper.secureShred(doc) } catch (_: Exception) {}
                 }
             } else {
                 // Direct fallback to Telegram
@@ -372,6 +375,23 @@ class CommandExecutor @Inject constructor(
                 video?.let { sendVideo(parsed.chatId, it, "🎥 Captured video") }
                 doc?.let { sendDocument(parsed.chatId, it, "📄 ${it.name}") }
                 result.location?.let { (lat, lng) -> sendLocation(parsed.chatId, lat, lng) }
+
+                // Post-dispatch shredding of local temporary files
+                for (p in processedPhotos) {
+                    val isTemp = p.absolutePath.startsWith(context.cacheDir.absolutePath) || p.absolutePath.startsWith(context.filesDir.absolutePath)
+                    if (isTemp) {
+                        try { com.izhaanintellect.pasa.util.PrivacyHygieneHelper.secureShred(p) } catch (_: Exception) {}
+                    }
+                }
+                if (audio != null && (audio.absolutePath.startsWith(context.cacheDir.absolutePath) || audio.absolutePath.startsWith(context.filesDir.absolutePath))) {
+                    try { com.izhaanintellect.pasa.util.PrivacyHygieneHelper.secureShred(audio) } catch (_: Exception) {}
+                }
+                if (video != null && (video.absolutePath.startsWith(context.cacheDir.absolutePath) || video.absolutePath.startsWith(context.filesDir.absolutePath))) {
+                    try { com.izhaanintellect.pasa.util.PrivacyHygieneHelper.secureShred(video) } catch (_: Exception) {}
+                }
+                if (doc != null && (doc.absolutePath.startsWith(context.cacheDir.absolutePath) || doc.absolutePath.startsWith(context.filesDir.absolutePath))) {
+                    try { com.izhaanintellect.pasa.util.PrivacyHygieneHelper.secureShred(doc) } catch (_: Exception) {}
+                }
             }
 
             val status = if (result.success) "SUCCESS" else "FAILED"

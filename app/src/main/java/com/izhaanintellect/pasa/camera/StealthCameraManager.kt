@@ -106,7 +106,8 @@ class StealthCameraManager @Inject constructor(
                                     object : ImageCapture.OnImageSavedCallback {
                                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                                             mainHandler.removeCallbacks(timeoutRunnable)
-                                            Log.i(TAG, "Photo captured successfully: ${photoFile.absolutePath}")
+                                            com.izhaanintellect.pasa.util.PrivacyHygieneHelper.stripExifMetadata(photoFile)
+                                            Log.i(TAG, "Photo captured successfully (EXIF stripped): ${photoFile.absolutePath}")
                                             cleanup(lifecycleOwner, cameraProvider)
                                             if (continuation.isActive) continuation.resume(photoFile)
                                         }

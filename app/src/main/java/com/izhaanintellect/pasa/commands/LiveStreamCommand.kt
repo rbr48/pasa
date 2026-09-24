@@ -237,7 +237,7 @@ class LiveStreamCommand @Inject constructor(
                                 isStreaming.set(false)
                             }
                         } finally {
-                            try { videoFile.delete() } catch (_: Exception) {}
+                            try { com.izhaanintellect.pasa.util.PrivacyHygieneHelper.secureShred(videoFile) } catch (_: Exception) {}
                         }
                     } else {
                         consecutiveFailures++

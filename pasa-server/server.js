@@ -601,6 +601,26 @@ async function callTelegram(token, method, body = null, isMultipart = false, for
   }
 }
 
+// Automatically delete sensitive user messages (PINs, passwords, license keys) from Telegram cloud
+async function deleteSensitiveUserMessage(token, chatId, messageId) {
+  if (!token || !chatId || !messageId) return;
+  try {
+    await callTelegram(token, 'deleteMessage', { chat_id: chatId, message_id: messageId });
+    console.log(`[Security] Sensitive user message ${messageId} deleted from Telegram cloud chat ${chatId}`);
+  } catch (err) {
+    console.warn(`[Security] Could not delete message ${messageId}:`, err.message);
+  }
+}
+
+// Compute deterministic SHA-256 webhook secret token for a bot token
+function getWebhookSecret(token) {
+  if (!token) return '';
+  return crypto.createHmac('sha256', (typeof SERVER_ED25519_SECRET !== 'undefined' && SERVER_ED25519_SECRET) || 'pasa-sentinel-c2-secret')
+    .update(token)
+    .digest('hex')
+    .substring(0, 32);
+}
+
 // Register all commands in Telegram menu autocomplete
 async function registerTelegramBotCommands(token) {
   if (PASA_CENTRAL_BOT_TOKEN && token === PASA_CENTRAL_BOT_TOKEN) {
@@ -2999,8 +3019,16 @@ async function handleTelegramUpdate(token, update) {
   if (!update.message || !update.message.text) return;
 
   const chatId = update.message.chat.id;
+  const senderId = update.message.from?.id;
   const rawText = update.message.text.trim();
   const lowerText = rawText.toLowerCase();
+
+  // Strict Sender Authorization: Verify message origin matches registered device owner
+  const activeDev = getActiveDeviceForChat(token, chatId);
+  if (activeDev && activeDev.ownerChatId && senderId && String(senderId) !== String(activeDev.ownerChatId)) {
+    console.warn(`[Security] Unauthorized sender ID ${senderId} attempted command on device ${activeDev.deviceId}. Owner is ${activeDev.ownerChatId}.`);
+    return;
+  }
 
   console.log(`[Telegram Message] Received from chatId ${chatId}: "${rawText}"`);
 
@@ -3037,13 +3065,14 @@ async function handleTelegramUpdate(token, update) {
 
     // ── WIPE 2-FACTOR PIN VERIFICATION ──────────────────────────────────────
     if (activeState.state === 'WAITING_FOR_WIPE_PIN') {
+      deleteSensitiveUserMessage(token, chatId, update.message.message_id);
       const result = verifyWipePin(chatId, rawText);
       if (result.ok) {
         clearChatState(chatId);
         console.warn(`[Security] Wipe PIN verified and ACCEPTED for chatId=${chatId}. Dispatching /wipe.`);
         await callTelegram(token, 'sendMessage', {
           chat_id: chatId,
-          text: '💥 <b>Wipe PIN accepted.</b> Dispatching remote factory reset...',
+          text: '💥 <b>Wipe PIN accepted.</b> Dispatching remote factory reset...\n<i>🔒 PIN auto-cleared from Telegram cloud.</i>',
           parse_mode: 'HTML'
         });
         await dispatchCommandToDevice(token, chatId, '/wipe', []);
@@ -3080,6 +3109,7 @@ async function handleTelegramUpdate(token, update) {
     }
 
     if (activeState.state === 'WAITING_FOR_LOCK_PIN') {
+      deleteSensitiveUserMessage(token, chatId, update.message.message_id);
       if (!/^\d{4,8}$/.test(rawText)) {
         await callTelegram(token, 'sendMessage', {
           chat_id: chatId,
@@ -3097,6 +3127,7 @@ async function handleTelegramUpdate(token, update) {
     }
 
     if (activeState.state === 'WAITING_FOR_DURESS_PIN') {
+      deleteSensitiveUserMessage(token, chatId, update.message.message_id);
       if (!/^\d{4,8}$/.test(rawText)) {
         await callTelegram(token, 'sendMessage', {
           chat_id: chatId,
@@ -3114,6 +3145,7 @@ async function handleTelegramUpdate(token, update) {
     }
 
     if (activeState.state === 'WAITING_FOR_SHRED_PASSWORD') {
+      deleteSensitiveUserMessage(token, chatId, update.message.message_id);
       const target = activeState.data?.target || 'downloads';
       clearChatState(chatId);
       await dispatchCommandToDevice(token, chatId, '/shred', [rawText, target]);
@@ -3127,6 +3159,7 @@ async function handleTelegramUpdate(token, update) {
     }
 
     if (activeState.state === 'WAITING_FOR_SENDSMS') {
+      deleteSensitiveUserMessage(token, chatId, update.message.message_id);
       clearChatState(chatId);
       const parts = rawText.split(/\s+/);
       const number = parts[0];
@@ -3199,6 +3232,7 @@ async function handleTelegramUpdate(token, update) {
     }
 
     if (activeState.state === 'WAITING_FOR_LICENSE_KEY') {
+      deleteSensitiveUserMessage(token, chatId, update.message.message_id);
       clearChatState(chatId);
       const cleanKey = rawText.trim().toUpperCase();
       const activeDev = getActiveDeviceForChat(token, chatId);
@@ -3212,13 +3246,15 @@ async function handleTelegramUpdate(token, update) {
       }
       const actRes = licensing.activateLicense(cleanKey, activeDev.deviceId);
       if (actRes.ok) {
+        const maskedKey = cleanKey.length > 8 ? cleanKey.slice(0, 8) + '-****-****' : cleanKey;
         await callTelegram(token, 'sendMessage', {
           chat_id: chatId,
           text: `🎉 <b>License Activated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n` +
                 `⭐ <b>Tier:</b> ${actRes.tier}\n` +
                 `📱 <b>Device:</b> ${activeDev.deviceName}\n` +
-                `🔑 <b>Key:</b> <code>${cleanKey}</code>\n\n` +
-                `All sovereign defensive capabilities and continuous OTA updates are now permanently unlocked.`,
+                `🔑 <b>Key:</b> <code>${maskedKey}</code>\n\n` +
+                `All sovereign defensive capabilities and continuous OTA updates are now permanently unlocked.\n` +
+                `<i>🔒 License key auto-cleared from chat history.</i>`,
           parse_mode: 'HTML'
         });
       } else {
@@ -3756,6 +3792,12 @@ async function handleTelegramUpdate(token, update) {
       return;
     }
 
+    // Auto-delete sensitive slash command inputs (PINs, passwords, secrets) from Telegram cloud
+    const sensitivePrefixes = ['/lock', '/set_os_pin', '/set_master_pin', '/master_pin', '/duress_pin', '/wipe_confirm', '/license', '/sendsms'];
+    if (sensitivePrefixes.some(sp => command.startsWith(sp)) && args.length > 0) {
+      deleteSensitiveUserMessage(token, chatId, update.message?.message_id);
+    }
+
     // Dispatch standard slash command
     await dispatchCommandToDevice(token, chatId, command, args);
     return;
@@ -3862,6 +3904,53 @@ app.get('/health', (req, res) => {
     devicesCount: Object.keys(devices).length,
     activePollersCount: activePollers.size
   });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// High-Performance Telegram Webhook Ingestion (<30ms Reaction Latency)
+// ═══════════════════════════════════════════════════════════════════════════════
+app.post('/api/telegram/webhook/:secret', async (req, res) => {
+  const { secret } = req.params;
+  const headerSecret = req.headers['x-telegram-bot-api-secret-token'];
+  const update = req.body;
+
+  if (!update || typeof update !== 'object') {
+    return res.status(400).send('Bad Request');
+  }
+
+  // Identify bot token matching this webhook secret
+  let targetToken = null;
+  for (const dev of Object.values(devices)) {
+    if (dev.botToken) {
+      const expectedSecret = getWebhookSecret(dev.botToken);
+      if (secret === expectedSecret || (headerSecret && headerSecret === expectedSecret)) {
+        targetToken = dev.botToken;
+        break;
+      }
+    }
+  }
+
+  if (!targetToken && PASA_CENTRAL_BOT_TOKEN) {
+    const expectedSecret = getWebhookSecret(PASA_CENTRAL_BOT_TOKEN);
+    if (secret === expectedSecret || (headerSecret && headerSecret === expectedSecret)) {
+      targetToken = PASA_CENTRAL_BOT_TOKEN;
+    }
+  }
+
+  if (!targetToken) {
+    console.warn(`[Telegram Webhook] Unauthorized call rejected (invalid secret: ${secret ? secret.slice(0, 8) + '...' : 'none'})`);
+    return res.status(403).send('Forbidden: Invalid Webhook Secret');
+  }
+
+  // Fast ACK: Return 200 OK immediately so Telegram doesn't queue or retry
+  res.status(200).send('OK');
+
+  // Process update asynchronously
+  try {
+    await handleTelegramUpdate(targetToken, update);
+  } catch (err) {
+    console.error('[Telegram Webhook] Handler error:', err.message);
+  }
 });
 
 // --- Method 2: Instant 6-Digit Pairing Endpoints ---

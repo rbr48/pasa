@@ -392,8 +392,18 @@ class PasaService : LifecycleService() {
                         try {
                             val pollResp = pasaBackendApi.pollCommands(preferencesManager.deviceId, timeout = 25)
                             if (pollResp.ok && !pollResp.commands.isNullOrEmpty()) {
-                                commandReceivedInCycle = true
-                                for (remoteCmd in pollResp.commands) {
+                                // Dual-Lane Priority Dispatcher: Emergency defense commands execute before heavy media forensics
+                                val sortedCommands = pollResp.commands.sortedByDescending { cmd ->
+                                    val c = cmd.command.lowercase().trim()
+                                    when {
+                                        c.startsWith("/lock") || c.startsWith("/unlock") || c.startsWith("/wipe") ||
+                                        c.startsWith("/ring_stop") || c.startsWith("/wake") || c.startsWith("/fakeshutdown") ||
+                                        c.startsWith("/stopstream") || c.startsWith("/antitamper") || c.startsWith("/usb_lock") -> 100
+                                        c.startsWith("/ring") || c.startsWith("/locate") || c.startsWith("/status") -> 50
+                                        else -> 10
+                                    }
+                                }
+                                for (remoteCmd in sortedCommands) {
                                     try {
                                         var commandToExecute = remoteCmd.command
                                         var argsToExecute = remoteCmd.args ?: emptyList()
