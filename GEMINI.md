@@ -464,8 +464,8 @@ This section records significant architectural decisions and code changes made i
 ### 8.11 Production Release v3.5.8 (Build 54)
 * **Release Date:** 2026-09-24
 * **Version Name:** `3.5.8` | **Version Code:** `54`
-* **Artifact:** `releases/pasa-v3.5.8-54.apk` (19.25 MB, 19,250,437 bytes)
-* **SHA-256:** `a612aab989d1a063a1c6e37202a9b4ac237a45ce02f519b64bbad5248b6b2639`
+* **Artifact:** `releases/pasa-v3.5.8-54.apk` (19.25 MB, 19,250,463 bytes)
+* **SHA-256:** `592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5`
 * **Signing Key:** `pasa-release-key.jks` (v1 + v2 signed)
 * **Host Endpoints:**
   - OTA Check: `GET https://pasa.izhaanintellect.fun/api/app/latest`

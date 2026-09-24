@@ -283,16 +283,19 @@ class TamperDetectionCommand @Inject constructor(
                 }
             }
 
-            // Try to execute su command with timeout
-            val process = Runtime.getRuntime().exec("su")
-            try {
-                val exited = process.waitFor(100, java.util.concurrent.TimeUnit.MILLISECONDS)
-                if (exited && process.exitValue() == 0) {
-                    Log.w(TAG, "su command executable detected")
-                    return true
+            // Try to execute su command via known absolute path with timeout
+            val suExecutable = listOf("/system/bin/su", "/system/xbin/su", "/sbin/su").firstOrNull { java.io.File(it).exists() }
+            if (suExecutable != null) {
+                val process = Runtime.getRuntime().exec(arrayOf(suExecutable, "-c", "id"))
+                try {
+                    val exited = process.waitFor(100, java.util.concurrent.TimeUnit.MILLISECONDS)
+                    if (exited && process.exitValue() == 0) {
+                        Log.w(TAG, "su command executable detected: $suExecutable")
+                        return true
+                    }
+                } finally {
+                    try { process.destroy() } catch (_: Exception) {}
                 }
-            } finally {
-                try { process.destroy() } catch (_: Exception) {}
             }
 
             false
@@ -367,9 +370,10 @@ class TamperDetectionCommand @Inject constructor(
             if (result != null) return result
         } catch (_: Exception) {}
 
-        // 2. Shell getenforce check
+        // 2. Shell getenforce check with absolute path
         try {
-            val process = Runtime.getRuntime().exec("getenforce")
+            val getenforcePath = if (java.io.File("/system/bin/getenforce").exists()) "/system/bin/getenforce" else "getenforce"
+            val process = Runtime.getRuntime().exec(arrayOf(getenforcePath))
             val output = process.inputStream.bufferedReader().readLine()?.trim()
             process.waitFor()
             if (output.equals("Enforcing", ignoreCase = true)) return true

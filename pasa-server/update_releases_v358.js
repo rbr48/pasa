@@ -35,8 +35,8 @@ const newRel = {
   releaseDate: new Date().toISOString().split('T')[0],
   fileName: "pasa-v3.5.8-54.apk",
   downloadUrl: "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.8-54.apk",
-  sha256: sha256 || 'a612aab989d1a063a1c6e37202a9b4ac237a45ce02f519b64bbad5248b6b2639',
-  size: size || 19250437,
+  sha256: sha256 || '592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5',
+  size: size || 19250463,
   mandatory: false,
   releaseNotes: "v3.5.8: Extraction Pagination, Dual-SIM Calling & Cryptographic SIM Tray Lock — Full pagination, instant text export, and search across /contacts, /sms_log, /call_log, /history, and /list_files. Remote outbound calling with explicit SIM selection (/call <number> sim1|sim2). Cryptographic SIM Tray Lock (/sim_tray_lock) with deep Knox Kiosk lockdown, dynamic random PIN rotation, and package suspension upon unauthorized SIM insertion."
 };

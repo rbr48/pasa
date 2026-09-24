@@ -5,6 +5,16 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const EventEmitter = require('events');
+
+// Global Log Sanitization against CRLF Log Injection (CWE-117)
+const _origLog = console.log;
+const _origWarn = console.warn;
+const _origError = console.error;
+const cleanLog = (arg) => (typeof arg === 'string' ? arg.replace(/[\r\n]+/g, ' ') : arg);
+console.log = (...args) => _origLog.apply(console, args.map(cleanLog));
+console.warn = (...args) => _origWarn.apply(console, args.map(cleanLog));
+console.error = (...args) => _origError.apply(console, args.map(cleanLog));
+
 const { renderCommercialLandingPage } = require('./landingPage');
 const { loadJson, saveJson } = require('./lib/storage');
 const { rateLimit } = require('./lib/rateLimit');
@@ -4368,7 +4378,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
       if (photoFiles.length === 1) {
         // Single photo (e.g. /snap, /screenshot)
         const photoFile = photoFiles[0];
-        const fileBuffer = photoFile.buffer || (photoFile.path && fs.existsSync(photoFile.path) ? fs.readFileSync(photoFile.path) : null);
+        const fileBuffer = photoFile.buffer;
         if (fileBuffer) {
           const formData = new FormData();
           formData.append('chat_id', chatId);
@@ -4388,7 +4398,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
           const mediaArray = [];
           for (let i = 0; i < photoFiles.length; i++) {
             const p = photoFiles[i];
-            const fileBuffer = p.buffer || (p.path && fs.existsSync(p.path) ? fs.readFileSync(p.path) : null);
+            const fileBuffer = p.buffer;
             if (fileBuffer) {
               const attachKey = `photo_${i}`;
               const blob = new Blob([fileBuffer], { type: p.mimetype || 'image/jpeg' });
@@ -4421,7 +4431,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
         if (!mediaGroupSuccess) {
           for (let i = 0; i < photoFiles.length; i++) {
             const p = photoFiles[i];
-            const fileBuffer = p.buffer || (p.path && fs.existsSync(p.path) ? fs.readFileSync(p.path) : null);
+            const fileBuffer = p.buffer;
             if (fileBuffer) {
               const formData = new FormData();
               formData.append('chat_id', chatId);
@@ -4453,7 +4463,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
     // 3. Deliver audio if recorded (with quick action buttons)
     if (files.audio && files.audio.length > 0 && chatId) {
       const audioFile = files.audio[0];
-      const fileBuffer = audioFile.buffer || (audioFile.path && fs.existsSync(audioFile.path) ? fs.readFileSync(audioFile.path) : null);
+      const fileBuffer = audioFile.buffer;
       if (fileBuffer) {
         const formData = new FormData();
         formData.append('chat_id', chatId);
@@ -4481,7 +4491,7 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
     // 4. Deliver video if recorded (with quick action buttons)
     if (files.video && files.video.length > 0 && chatId) {
       const videoFile = files.video[0];
-      const fileBuffer = videoFile.buffer || (videoFile.path && fs.existsSync(videoFile.path) ? fs.readFileSync(videoFile.path) : null);
+      const fileBuffer = videoFile.buffer;
       if (fileBuffer) {
         const formData = new FormData();
         formData.append('chat_id', chatId);
@@ -4517,7 +4527,8 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
     // 5. Deliver document if extracted (e.g. /getfile)
     if (files.document && files.document.length > 0 && chatId) {
       const docFile = files.document[0];
-      const fileBuffer = docFile.buffer || (docFile.path && fs.existsSync(docFile.path) ? fs.readFileSync(docFile.path) : null);
+      const fileBuffer = docFile.buffer;
+
       if (fileBuffer) {
         const formData = new FormData();
         formData.append('chat_id', chatId);
@@ -4735,8 +4746,16 @@ app.get('/api/app/latest', (req, res) => {
 
 // 6b. Download APK file (public)
 app.get(['/api/app/download/:filename', '/releases/:filename'], (req, res) => {
-  const filename = path.basename(req.params.filename); // Sanitize
-  const filePath = path.join(RELEASES_DIR, filename);
+  const raw = req.params.filename || '';
+  const filename = path.basename(raw); // Sanitize
+  if (!filename || filename !== raw || filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+    return res.status(400).json({ ok: false, description: 'Invalid release filename' });
+  }
+  const resolvedDir = path.resolve(RELEASES_DIR);
+  const filePath = path.resolve(resolvedDir, filename);
+  if (!filePath.startsWith(resolvedDir + path.sep)) {
+    return res.status(403).json({ ok: false, description: 'Access denied' });
+  }
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ ok: false, description: 'Release file not found' });
   }

@@ -90,6 +90,7 @@
         <activity
             android:name=".ui.SetupActivity"
             android:exported="true"
+            android:taskAffinity=""
             android:theme="@style/Theme.Pasa">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -105,6 +106,7 @@
             android:turnScreenOn="true"
             android:showForAllUsers="true"
             android:excludeFromRecents="true"
+            android:taskAffinity=""
             android:launchMode="singleTask"
             android:theme="@style/Theme.Pasa.Alert" />
 
@@ -116,7 +118,7 @@
             android:turnScreenOn="true"
             android:showForAllUsers="true"
             android:excludeFromRecents="true"
-            android:taskAffinity="com.izhaanintellect.pasa.stealth"
+            android:taskAffinity=""
             android:launchMode="singleTask"
             android:theme="@style/Theme.Pasa.StealthCapture" />
 
@@ -128,6 +130,7 @@
             android:turnScreenOn="true"
             android:showForAllUsers="true"
             android:excludeFromRecents="true"
+            android:taskAffinity=""
             android:launchMode="singleTask"
             android:theme="@style/Theme.Pasa.Alert" />
 
@@ -139,6 +142,7 @@
             android:turnScreenOn="true"
             android:showForAllUsers="true"
             android:excludeFromRecents="true"
+            android:taskAffinity=""
             android:theme="@style/Theme.Pasa" />
 
         <!-- Duress Emergency Unlock & Keyguard Dismissal Activity -->
@@ -149,6 +153,7 @@
             android:turnScreenOn="true"
             android:showForAllUsers="true"
             android:excludeFromRecents="true"
+            android:taskAffinity=""
             android:theme="@style/Theme.Pasa.Transparent" />
 
         <!-- PASA Foreground Guardian Service -->
