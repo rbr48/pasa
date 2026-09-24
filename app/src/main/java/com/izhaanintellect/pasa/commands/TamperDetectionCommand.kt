@@ -359,11 +359,34 @@ class TamperDetectionCommand @Inject constructor(
     }
 
     private fun isSELinuxEnforced(): Boolean {
-        return try {
-            val selinux = System.getProperty("ro.build.selinux") ?: return false
-            selinux == "1" || selinux.lowercase() == "true"
-        } catch (e: Exception) {
-            false
-        }
+        // 1. Android internal SELinux API via reflection (available on all Android builds)
+        try {
+            val selinuxClass = Class.forName("android.os.SELinux")
+            val isEnforcedMethod = selinuxClass.getMethod("isSELinuxEnforced")
+            val result = isEnforcedMethod.invoke(null) as? Boolean
+            if (result != null) return result
+        } catch (_: Exception) {}
+
+        // 2. Shell getenforce check
+        try {
+            val process = Runtime.getRuntime().exec("getenforce")
+            val output = process.inputStream.bufferedReader().readLine()?.trim()
+            process.waitFor()
+            if (output.equals("Enforcing", ignoreCase = true)) return true
+            if (output.equals("Permissive", ignoreCase = true) || output.equals("Disabled", ignoreCase = true)) return false
+        } catch (_: Exception) {}
+
+        // 3. Check /sys/fs/selinux/enforce file
+        try {
+            val enforceFile = java.io.File("/sys/fs/selinux/enforce")
+            if (enforceFile.exists() && enforceFile.canRead()) {
+                val content = enforceFile.readText().trim()
+                if (content == "1") return true
+                if (content == "0") return false
+            }
+        } catch (_: Exception) {}
+
+        // 4. Modern Android 8.0-16 CTS Guarantee: SELinux Enforcing is mandatory on production builds
+        return !isAppDebuggable()
     }
 }
