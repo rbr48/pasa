@@ -30,5 +30,6 @@ PASA Sentinel is an enterprise-grade sovereign mobile defense and anti-theft ope
 - Technical Documentation (BN): https://pasa.izhaanintellect.fun/USER_MANUAL_BN.md
 - Sovereign System Audit Trail: https://pasa.izhaanintellect.fun/AUDIT_TRAIL.md
 - Independent VirusTotal Audit (70+ Clean): https://www.virustotal.com/gui/file/becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8
+- Independent Security Audit (SARIF Bundle): https://pasa.izhaanintellect.fun/audit/PASA-Security-Audit-SARIF-v3.5.6.zip
 - Production Signed APK: https://pasa.izhaanintellect.fun/releases/pasa-latest.apk
 - Windows Device Owner Kit: https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip

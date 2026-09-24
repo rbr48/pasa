@@ -333,6 +333,19 @@ To provide unimpeachable, third-party validation beyond internal assertions, PAS
 * **Engine:** TruffleHog v3 open-source secrets detector (`--only-verified`).
 * **Scope:** Continuous full git-history scanning for high-entropy strings, leaked private keys, API tokens, and credentials across all branches.
 
+### 12.5 Downloadable Cryptographic SARIF Audit Packages
+For independent verification by enterprise security teams, regulatory auditors, or individual researchers, all raw OASIS/ISO standard SARIF audit reports are published directly:
+* **Complete SARIF Audit Bundle:** [📦 PASA-Security-Audit-SARIF-v3.5.6.zip](https://pasa.izhaanintellect.fun/audit/PASA-Security-Audit-SARIF-v3.5.6.zip) (265 KB)
+* **Bundle SHA-256 Digest:**
+  ```text
+  63563b05bf50aeccdd4a7d012f31a42024fe0876712364b5d4e1f9a5a1d72974
+  ```
+* **Raw Individual SARIF Reports:**
+  - [CodeQL Android Client Audit (Kotlin/Java)](https://pasa.izhaanintellect.fun/audit/codeql-java-kotlin.sarif) (1.16 MB)
+  - [CodeQL Server & C2 Audit (JavaScript)](https://pasa.izhaanintellect.fun/audit/codeql-javascript.sarif) (980 KB)
+  - [MobSF Mobile App Security Report](https://pasa.izhaanintellect.fun/audit/mobsfscan.sarif) (1.01 MB)
+  - [Audit Summary & Provenance](https://pasa.izhaanintellect.fun/audit/independent_audit_summary.md)
+
 ---
 
 ## 13. Certification & Compliance Sign-Off
