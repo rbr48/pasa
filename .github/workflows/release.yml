@@ -22,34 +22,38 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ github.ref_name }}"
+          VERSION_NAME=$(jq -r '.[0].versionName' pasa-server/data/app_releases.json)
+          VERSION_CODE=$(jq -r '.[0].versionCode' pasa-server/data/app_releases.json)
+          APK_NAME=$(jq -r '.[0].fileName' pasa-server/data/app_releases.json)
+          APK_SHA256=$(jq -r '.[0].sha256' pasa-server/data/app_releases.json)
+          APK_SIZE=$(jq -r '.[0].size' pasa-server/data/app_releases.json)
+          RELEASE_NOTES=$(jq -r '.[0].releaseNotes' pasa-server/data/app_releases.json)
+
           if [ "$TAG" = "main" ] || [ "$TAG" = "master" ]; then
-            TAG="v3.5.6"
+            TAG="v$VERSION_NAME"
           fi
-          APK_FILE="releases/pasa-v3.5.6-52.apk"
-          LATEST_APK="releases/pasa-latest.apk"
+          
+          APK_FILE="releases/$APK_NAME"
+          if [ ! -f "$APK_FILE" ]; then
+            APK_FILE="releases/pasa-latest.apk"
+          fi
           SETUP_KIT="releases/PASA-Device-Owner-Setup-Kit.zip"
 
-          cat << 'EOF' > release_notes.md
-          ## 🛡️ PASA Sentinel v3.5.6 (Build 52) — Production Release
+          cat << EOF > release_notes.md
+          ## 🛡️ PASA Sentinel $TAG (Build $VERSION_CODE) — Production Release
 
           Next-Generation Sovereign Mobile Defense & Covert Anti-Theft Agent for Android (8.0 – 16 / API 26 – 36).
           Zero Google Play dependencies. Air-gapped cellular SMS fallback. Knox-grade Device Owner permanence. Dual-channel Telegram C2. Direct-to-Telegram Zero-Storage Architecture.
 
           ### 🔐 Cryptographic Integrity & Checksums
-          - **Production APK:** `pasa-v3.5.6-52.apk` (Symlink: `pasa-latest.apk`)
-          - **Byte Size:** `19,250,443` bytes (18.36 MB)
-          - **APK SHA-256 Digest:** `becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8`
-          - **Windows Setup Kit:** `PASA-Device-Owner-Setup-Kit.zip` (12.3 KB)
-          - **Setup Kit SHA-256 Digest:** `f5dfe1893638e2712556e705eb632c5800381324dbe7782b7d4c52c403542f63`
-          - **VirusTotal Audit (70+ AV Clean):** [Inspect VirusTotal Scan Report](https://www.virustotal.com/gui/file/becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8)
+          - **Production APK:** \`$APK_NAME\` (Symlink: \`pasa-latest.apk\`)
+          - **Byte Size:** \`$APK_SIZE\` bytes
+          - **APK SHA-256 Digest:** \`$APK_SHA256\`
+          - **Windows Setup Kit:** \`PASA-Device-Owner-Setup-Kit.zip\`
+          - **VirusTotal Consensus Audit:** [Inspect VirusTotal File](https://www.virustotal.com/gui/file/$APK_SHA256)
 
-          ### 🚀 What's New in v3.5.6 (Build 52)
-          - **Fail-Closed Cryptographic Envelope:** Android client rejects untrusted or unauthenticated command envelopes.
-          - **SELinux Modernization:** SELinux enforcement false-positive fix on modern Android 16 / Moto devices.
-          - **Unassigned Chat Hijack Defense:** Strictly verifies `ownerChatId` matching before command execution.
-          - **Wipe 2FA PIN Protection:** Master PIN confirmation required before factory wipe execution (`/wipe`).
-          - **100% Sovereign (Direct Telegram) Mode:** Direct communication with Telegram API without VPS intermediary.
-          - **6-Hub Executive Console:** Streamlined 86-command C2 console with interactive wizards.
+          ### 🚀 Release Highlights
+          $RELEASE_NOTES
 
           ### 🌐 Official Deployment Endpoints
           - **Web Operations Console:** https://pasa.izhaanintellect.fun/
@@ -57,18 +61,21 @@ jobs:
           - **OTA Manifest:** https://pasa.izhaanintellect.fun/api/app/latest?current_version_code=0
           EOF
 
-          AUDIT_BUNDLE="releases/PASA-Security-Audit-SARIF-v3.5.6.zip"
+          AUDIT_BUNDLE="releases/PASA-Security-Audit-SARIF-$TAG.zip"
+          ASSETS=("$APK_FILE" "$SETUP_KIT")
+          if [ -f "$AUDIT_BUNDLE" ]; then
+            ASSETS+=("$AUDIT_BUNDLE")
+          fi
 
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG already exists, updating notes and assets..."
-            gh release edit "$TAG" --title "PASA Sentinel $TAG (Build 52)" --notes-file release_notes.md
-            gh release upload "$TAG" "$APK_FILE" "$SETUP_KIT" "$AUDIT_BUNDLE" --clobber
+            gh release edit "$TAG" --title "PASA Sentinel $TAG (Build $VERSION_CODE)" --notes-file release_notes.md
+            gh release upload "$TAG" "${ASSETS[@]}" --clobber
           else
             echo "Creating new release for $TAG..."
             gh release create "$TAG" \
-              "$APK_FILE" \
-              "$SETUP_KIT" \
-              "$AUDIT_BUNDLE" \
-              --title "PASA Sentinel $TAG (Build 52)" \
+              "${ASSETS[@]}" \
+              --title "PASA Sentinel $TAG (Build $VERSION_CODE)" \
               --notes-file release_notes.md
           fi
+
