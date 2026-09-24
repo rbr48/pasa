@@ -45,8 +45,14 @@ jobs:
         languages: ${{ matrix.language }}
         queries: security-extended,security-and-quality
 
-    - name: Autobuild CodeQL
-      uses: github/codeql-action/autobuild@v3
+    - name: Build Code for CodeQL Extraction
+      run: |
+        if [ "${{ matrix.language }}" = "java-kotlin" ]; then
+          chmod +x gradlew
+          ./gradlew compileReleaseSources --no-daemon -Dorg.gradle.jvmargs="-Xmx4g"
+        else
+          echo "No compilation required for ${{ matrix.language }}"
+        fi
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
