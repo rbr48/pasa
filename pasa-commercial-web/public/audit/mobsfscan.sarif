@@ -144,60 +144,6 @@
               }
             },
             {
-              "id": "android_layout_sensitive_input_keyboard_cache",
-              "help": {
-                "text": "A sensitive input field is configured without a password input type or textNoSuggestions. Disable suggestions for sensitive input to reduce exposure through keyboard learning and suggestion history.\n\nReference: https://mas.owasp.org/MASTG/tests/android/MASVS-STORAGE/MASTG-TEST-0005/"
-              },
-              "name": "A sensitive input field is configured without a password input type or textNoSuggestions (CWE-524)",
-              "properties": {
-                "tags": [
-                  "security",
-                  "external/cwe/cwe-524",
-                  "owasp-mobile/m1",
-                  "masvs/storage-5"
-                ],
-                "precision": "high",
-                "security-severity": "5.5",
-                "problem.severity": "warning"
-              },
-              "defaultConfiguration": {},
-              "fullDescription": {
-                "text": "A sensitive input field is configured without a password input type or textNoSuggestions. Disable suggestions for sensitive input to reduce exposure through keyboard learning and suggestion history."
-              },
-              "helpUri": "https://mas.owasp.org/MASTG/tests/android/MASVS-STORAGE/MASTG-TEST-0005/",
-              "shortDescription": {
-                "text": "A sensitive input field is configured without a password input type or textNoSuggestions (CWE-524)"
-              }
-            },
-            {
-              "id": "android_ssl_pinning",
-              "help": {
-                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4"
-              },
-              "name": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel (CWE-295)",
-              "properties": {
-                "tags": [
-                  "security",
-                  "external/cwe/cwe-295",
-                  "owasp-mobile/m3",
-                  "masvs/network-4"
-                ],
-                "precision": "medium",
-                "security-severity": "2.0",
-                "problem.severity": "note"
-              },
-              "defaultConfiguration": {
-                "level": "note"
-              },
-              "fullDescription": {
-                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel."
-              },
-              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
-              "shortDescription": {
-                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel (CWE-295)"
-              }
-            },
-            {
               "id": "android_safetynet",
               "help": {
                 "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity. This check helps to ensure that the servers are interacting with the genuine app running on a genuine Android device.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1"
@@ -223,62 +169,6 @@
               "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
               "shortDescription": {
                 "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity (CWE-353)"
-              }
-            },
-            {
-              "id": "android_prevent_screenshot",
-              "help": {
-                "text": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#finding-sensitive-information-in-auto-generated-screenshots-mstg-storage-9"
-              },
-              "name": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc (CWE-200)",
-              "properties": {
-                "tags": [
-                  "security",
-                  "external/cwe/cwe-200",
-                  "owasp-mobile/m2",
-                  "masvs/storage-9"
-                ],
-                "precision": "medium",
-                "security-severity": "2.0",
-                "problem.severity": "note"
-              },
-              "defaultConfiguration": {
-                "level": "note"
-              },
-              "fullDescription": {
-                "text": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc."
-              },
-              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#finding-sensitive-information-in-auto-generated-screenshots-mstg-storage-9",
-              "shortDescription": {
-                "text": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc (CWE-200)"
-              }
-            },
-            {
-              "id": "android_tapjacking",
-              "help": {
-                "text": "This app does not have capabilities to prevent tapjacking attacks.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9"
-              },
-              "name": "This app does not have capabilities to prevent tapjacking attacks (CWE-200)",
-              "properties": {
-                "tags": [
-                  "security",
-                  "external/cwe/cwe-200",
-                  "owasp-mobile/m1",
-                  "masvs/platform-9"
-                ],
-                "precision": "medium",
-                "security-severity": "2.0",
-                "problem.severity": "note"
-              },
-              "defaultConfiguration": {
-                "level": "note"
-              },
-              "fullDescription": {
-                "text": "This app does not have capabilities to prevent tapjacking attacks."
-              },
-              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9",
-              "shortDescription": {
-                "text": "This app does not have capabilities to prevent tapjacking attacks (CWE-200)"
               }
             },
             {
@@ -310,6 +200,62 @@
               }
             },
             {
+              "id": "android_tapjacking",
+              "help": {
+                "text": "This app does not have capabilities to prevent tapjacking attacks.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9"
+              },
+              "name": "This app does not have capabilities to prevent tapjacking attacks (CWE-200)",
+              "properties": {
+                "tags": [
+                  "security",
+                  "external/cwe/cwe-200",
+                  "owasp-mobile/m1",
+                  "masvs/platform-9"
+                ],
+                "precision": "medium",
+                "security-severity": "2.0",
+                "problem.severity": "note"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "fullDescription": {
+                "text": "This app does not have capabilities to prevent tapjacking attacks."
+              },
+              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9",
+              "shortDescription": {
+                "text": "This app does not have capabilities to prevent tapjacking attacks (CWE-200)"
+              }
+            },
+            {
+              "id": "android_prevent_screenshot",
+              "help": {
+                "text": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#finding-sensitive-information-in-auto-generated-screenshots-mstg-storage-9"
+              },
+              "name": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc (CWE-200)",
+              "properties": {
+                "tags": [
+                  "security",
+                  "external/cwe/cwe-200",
+                  "owasp-mobile/m2",
+                  "masvs/storage-9"
+                ],
+                "precision": "medium",
+                "security-severity": "2.0",
+                "problem.severity": "note"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "fullDescription": {
+                "text": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc."
+              },
+              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#finding-sensitive-information-in-auto-generated-screenshots-mstg-storage-9",
+              "shortDescription": {
+                "text": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc (CWE-200)"
+              }
+            },
+            {
               "id": "android_certificate_transparency",
               "help": {
                 "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4"
@@ -336,6 +282,34 @@
               "shortDescription": {
                 "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority (CWE-295)"
               }
+            },
+            {
+              "id": "android_ssl_pinning",
+              "help": {
+                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4"
+              },
+              "name": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel (CWE-295)",
+              "properties": {
+                "tags": [
+                  "security",
+                  "external/cwe/cwe-295",
+                  "owasp-mobile/m3",
+                  "masvs/network-4"
+                ],
+                "precision": "medium",
+                "security-severity": "2.0",
+                "problem.severity": "note"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "fullDescription": {
+                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel."
+              },
+              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
+              "shortDescription": {
+                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel (CWE-295)"
+              }
             }
           ],
           "version": "1.0.1",
@@ -346,7 +320,7 @@
       "invocations": [
         {
           "executionSuccessful": true,
-          "endTimeUtc": "2026-09-24T14:19:35Z"
+          "endTimeUtc": "2026-09-24T18:15:54Z"
         }
       ],
       "results": [
@@ -3432,9 +3406,9 @@
                     "text": "        Log.i(TAG, \"Command received: '${parsed.command}' from chat ${parsed.chatId}\")"
                   },
                   "endColumn": 87,
-                  "endLine": 113,
+                  "endLine": 114,
                   "startColumn": 9,
-                  "startLine": 113
+                  "startLine": 114
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3465,9 +3439,9 @@
                     "text": "            Log.w(TAG, \"Rejected unauthorized command '${parsed.command}' from chat ${parsed.chatId}\")"
                   },
                   "endColumn": 103,
-                  "endLine": 117,
+                  "endLine": 118,
                   "startColumn": 13,
-                  "startLine": 117
+                  "startLine": 118
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3498,9 +3472,9 @@
                     "text": "            Log.w(TAG, \"Command '${parsed.command}' blocked by license gating\")"
                   },
                   "endColumn": 80,
-                  "endLine": 130,
+                  "endLine": 131,
                   "startColumn": 13,
-                  "startLine": 130
+                  "startLine": 131
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3531,9 +3505,9 @@
                     "text": "            Log.e(TAG, \"Command execution failure\", e)"
                   },
                   "endColumn": 55,
-                  "endLine": 202,
+                  "endLine": 203,
                   "startColumn": 13,
-                  "startLine": 202
+                  "startLine": 203
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3564,9 +3538,9 @@
                     "text": "            Log.w(TAG, \"Failed to encrypt evidence vault file: ${e.message}\")"
                   },
                   "endColumn": 78,
-                  "endLine": 233,
+                  "endLine": 237,
                   "startColumn": 13,
-                  "startLine": 233
+                  "startLine": 237
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3597,9 +3571,9 @@
                     "text": "        Log.i(TAG, \"Executing remote command '$commandId': ${parsed.command}\")"
                   },
                   "endColumn": 79,
-                  "endLine": 248,
+                  "endLine": 252,
                   "startColumn": 9,
-                  "startLine": 248
+                  "startLine": 252
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3630,9 +3604,9 @@
                     "text": "            Log.w(TAG, \"Rejected unauthorized remote command '${parsed.command}' from chat ${parsed.chatId}\")"
                   },
                   "endColumn": 110,
-                  "endLine": 251,
+                  "endLine": 255,
                   "startColumn": 13,
-                  "startLine": 251
+                  "startLine": 255
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3663,9 +3637,9 @@
                     "text": "            Log.w(TAG, \"Remote command '${parsed.command}' blocked by license gating\")"
                   },
                   "endColumn": 87,
-                  "endLine": 264,
+                  "endLine": 268,
                   "startColumn": 13,
-                  "startLine": 264
+                  "startLine": 268
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3696,9 +3670,9 @@
                     "text": "            Log.e(TAG, \"Remote command execution failure\", e)"
                   },
                   "endColumn": 62,
-                  "endLine": 381,
+                  "endLine": 402,
                   "startColumn": 13,
-                  "startLine": 381
+                  "startLine": 402
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3729,9 +3703,9 @@
                     "text": "            Log.w(TAG, \"Failed to relay response via VPS backend: ${e.message}\")"
                   },
                   "endColumn": 81,
-                  "endLine": 520,
+                  "endLine": 541,
                   "startColumn": 13,
-                  "startLine": 520
+                  "startLine": 541
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3762,9 +3736,9 @@
                     "text": "            Log.e(TAG, \"Failed to upload document: ${e.message}\", e)"
                   },
                   "endColumn": 69,
-                  "endLine": 706,
+                  "endLine": 728,
                   "startColumn": 13,
-                  "startLine": 706
+                  "startLine": 728
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3795,9 +3769,9 @@
                     "text": "            Log.e(TAG, \"Failed to upload video\", e)"
                   },
                   "endColumn": 52,
-                  "endLine": 740,
+                  "endLine": 762,
                   "startColumn": 13,
-                  "startLine": 740
+                  "startLine": 762
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3828,9 +3802,9 @@
                     "text": "            Log.e(TAG, \"Failed to send text message\", e)"
                   },
                   "endColumn": 57,
-                  "endLine": 751,
+                  "endLine": 773,
                   "startColumn": 13,
-                  "startLine": 751
+                  "startLine": 773
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3861,9 +3835,9 @@
                     "text": "            Log.e(TAG, \"Failed to upload photo\", e)"
                   },
                   "endColumn": 52,
-                  "endLine": 785,
+                  "endLine": 807,
                   "startColumn": 13,
-                  "startLine": 785
+                  "startLine": 807
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3894,9 +3868,9 @@
                     "text": "            Log.e(TAG, \"Failed to upload audio\", e)"
                   },
                   "endColumn": 52,
-                  "endLine": 819,
+                  "endLine": 841,
                   "startColumn": 13,
-                  "startLine": 819
+                  "startLine": 841
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3927,9 +3901,9 @@
                     "text": "            Log.e(TAG, \"Failed to dispatch location pin\", e)"
                   },
                   "endColumn": 61,
-                  "endLine": 830,
+                  "endLine": 852,
                   "startColumn": 13,
-                  "startLine": 830
+                  "startLine": 852
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -3960,9 +3934,9 @@
                     "text": "            Log.e(TAG, \"Error inserting command log\", e)"
                   },
                   "endColumn": 57,
-                  "endLine": 847,
+                  "endLine": 869,
                   "startColumn": 13,
-                  "startLine": 847
+                  "startLine": 869
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -4749,12 +4723,12 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                                            Log.i(TAG, \"Photo captured successfully: ${photoFile.absolutePath}\")"
+                    "text": "                                            Log.i(TAG, \"Photo captured successfully (EXIF stripped): ${photoFile.absolutePath}\")"
                   },
-                  "endColumn": 113,
-                  "endLine": 109,
+                  "endColumn": 129,
+                  "endLine": 110,
                   "startColumn": 45,
-                  "startLine": 109
+                  "startLine": 110
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/camera/StealthCameraManager.kt"
@@ -4785,9 +4759,9 @@
                     "text": "                                            Log.e(TAG, \"Photo capture failed\", exception)"
                   },
                   "endColumn": 90,
-                  "endLine": 116,
+                  "endLine": 117,
                   "startColumn": 45,
-                  "startLine": 116
+                  "startLine": 117
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/camera/StealthCameraManager.kt"
@@ -4818,9 +4792,9 @@
                     "text": "                                Log.e(TAG, \"Exception during takePicture\", e)"
                   },
                   "endColumn": 78,
-                  "endLine": 124,
+                  "endLine": 125,
                   "startColumn": 33,
-                  "startLine": 124
+                  "startLine": 125
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/camera/StealthCameraManager.kt"
@@ -4851,9 +4825,9 @@
                     "text": "                        Log.e(TAG, \"Failed to initialize CameraX\", e)"
                   },
                   "endColumn": 70,
-                  "endLine": 131,
+                  "endLine": 132,
                   "startColumn": 25,
-                  "startLine": 131
+                  "startLine": 132
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/camera/StealthCameraManager.kt"
@@ -4884,9 +4858,9 @@
                     "text": "            Log.e(TAG, \"Camera capture error\", e)"
                   },
                   "endColumn": 50,
-                  "endLine": 139,
+                  "endLine": 140,
                   "startColumn": 13,
-                  "startLine": 139
+                  "startLine": 140
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/camera/StealthCameraManager.kt"
@@ -4917,9 +4891,9 @@
                     "text": "            Log.e(TAG, \"Error cleaning up camera resources\", e)"
                   },
                   "endColumn": 64,
-                  "endLine": 149,
+                  "endLine": 150,
                   "startColumn": 13,
-                  "startLine": 149
+                  "startLine": 150
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/camera/StealthCameraManager.kt"
@@ -5640,12 +5614,12 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                    Log.i(TAG, \"Call placed via TelecomManager to $cleanNumber (speaker: $useSpeaker)\")"
+                    "text": "                Log.i(TAG, \"Call placed via TelecomManager to $cleanNumber (simSlot=$simSlot, speaker=$useSpeaker)\")"
                   },
-                  "endColumn": 104,
-                  "endLine": 107,
-                  "startColumn": 21,
-                  "startLine": 107
+                  "endColumn": 117,
+                  "endLine": 127,
+                  "startColumn": 17,
+                  "startLine": 127
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
@@ -5673,12 +5647,12 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                    Log.w(TAG, \"Speakerphone toggle notice: ${ae.message}\")"
+                    "text": "                    Log.w(TAG, \"Speakerphone toggle: ${ae.message}\")"
                   },
-                  "endColumn": 76,
-                  "endLine": 122,
+                  "endColumn": 69,
+                  "endLine": 139,
                   "startColumn": 21,
-                  "startLine": 122
+                  "startLine": 139
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
@@ -5709,9 +5683,9 @@
                     "text": "            Log.e(TAG, \"SecurityException placing call: ${e.message}\", e)"
                   },
                   "endColumn": 74,
-                  "endLine": 141,
+                  "endLine": 160,
                   "startColumn": 13,
-                  "startLine": 141
+                  "startLine": 160
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
@@ -5742,9 +5716,9 @@
                     "text": "            Log.e(TAG, \"Failed to place call: ${e.message}\", e)"
                   },
                   "endColumn": 64,
-                  "endLine": 144,
+                  "endLine": 163,
                   "startColumn": 13,
-                  "startLine": 144
+                  "startLine": 163
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
@@ -5772,12 +5746,243 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "        Log.i(TAG, \"Call placed via Intent.ACTION_CALL to $number\")"
+                    "text": "                Log.w(TAG, \"READ_PHONE_STATE not granted \u2014 cannot resolve SIM slot $slot\")"
                   },
-                  "endColumn": 68,
-                  "endLine": 155,
+                  "endColumn": 93,
+                  "endLine": 187,
+                  "startColumn": 17,
+                  "startLine": 187
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                Log.w(TAG, \"No active subscriptions found\")"
+                  },
+                  "endColumn": 60,
+                  "endLine": 195,
+                  "startColumn": 17,
+                  "startLine": 195
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                Log.w(TAG, \"No subscription at slot $slot (only ${subscriptions.size} SIM(s) active)\")"
+                  },
+                  "endColumn": 103,
+                  "endLine": 202,
+                  "startColumn": 17,
+                  "startLine": 202
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                    Log.i(TAG, \"Resolved PhoneAccount for slot $slot: $handle\")"
+                  },
+                  "endColumn": 80,
+                  "endLine": 215,
+                  "startColumn": 21,
+                  "startLine": 215
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                Log.i(TAG, \"Using fallback PhoneAccount[$slot]: $fallback\")"
+                  },
+                  "endColumn": 76,
+                  "endLine": 223,
+                  "startColumn": 17,
+                  "startLine": 223
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.w(TAG, \"Could not resolve PhoneAccount for slot $slot\")"
+                  },
+                  "endColumn": 72,
+                  "endLine": 227,
+                  "startColumn": 13,
+                  "startLine": 227
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.w(TAG, \"Error resolving phone account: ${e.message}\")"
+                  },
+                  "endColumn": 70,
+                  "endLine": 230,
+                  "startColumn": 13,
+                  "startLine": 230
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "        Log.i(TAG, \"Call placed via Intent.ACTION_CALL to $number (simSlot=$simSlot)\")"
+                  },
+                  "endColumn": 87,
+                  "endLine": 247,
                   "startColumn": 9,
-                  "startLine": 155
+                  "startLine": 247
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
@@ -5808,9 +6013,9 @@
                     "text": "                Log.w(TAG, \"Could not self-heal CALL_PHONE via Device Owner: ${e.message}\")"
                   },
                   "endColumn": 92,
-                  "endLine": 170,
+                  "endLine": 350,
                   "startColumn": 17,
-                  "startLine": 170
+                  "startLine": 350
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/CallCommand.kt"
@@ -9567,6 +9772,72 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
+                    "text": "                    Log.i(TAG, \"Un-suspended ${unsuspended.size} packages after SIM tray lock release\")"
+                  },
+                  "endColumn": 104,
+                  "endLine": 147,
+                  "startColumn": 21,
+                  "startLine": 147
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/SimTrayLockCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                    Log.w(TAG, \"Error un-suspending packages: ${e.message}\")"
+                  },
+                  "endColumn": 77,
+                  "endLine": 149,
+                  "startColumn": 21,
+                  "startLine": 149
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/SimTrayLockCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
                     "text": "        Log.i(TAG, \"Requesting photo from $cameraLabel camera headlessly\")"
                   },
                   "endColumn": 75,
@@ -10128,12 +10399,12 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                    Log.w(TAG, \"su command executable detected\")"
+                    "text": "                        Log.w(TAG, \"su command executable detected: $suExecutable\")"
                   },
-                  "endColumn": 65,
-                  "endLine": 291,
-                  "startColumn": 21,
-                  "startLine": 291
+                  "endColumn": 84,
+                  "endLine": 293,
+                  "startColumn": 25,
+                  "startLine": 293
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/TamperDetectionCommand.kt"
@@ -10164,9 +10435,9 @@
                     "text": "            Log.d(TAG, \"Root detection error (expected): ${e.message}\")"
                   },
                   "endColumn": 72,
-                  "endLine": 300,
+                  "endLine": 303,
                   "startColumn": 13,
-                  "startLine": 300
+                  "startLine": 303
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/TamperDetectionCommand.kt"
@@ -11286,9 +11557,9 @@
                     "text": "            Log.e(TAG, \"CRITICAL: Failed to create EncryptedSharedPreferences! Falling back to unencrypted SharedPreferences.\", e)"
                   },
                   "endColumn": 131,
-                  "endLine": 127,
+                  "endLine": 131,
                   "startColumn": 13,
-                  "startLine": 127
+                  "startLine": 131
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/data/PreferencesManager.kt"
@@ -14916,9 +15187,9 @@
                     "text": "                    Log.i(TAG, \"Device Knox Kiosk locked due to foreign SIM detection\")"
                   },
                   "endColumn": 88,
-                  "endLine": 394,
+                  "endLine": 403,
                   "startColumn": 21,
-                  "startLine": 394
+                  "startLine": 403
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
@@ -14949,9 +15220,9 @@
                     "text": "                Log.w(TAG, \"Failed to lock on foreign SIM: ${le.message}\")"
                   },
                   "endColumn": 75,
-                  "endLine": 397,
+                  "endLine": 406,
                   "startColumn": 17,
-                  "startLine": 397
+                  "startLine": 406
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
@@ -14982,9 +15253,273 @@
                     "text": "                Log.w(TAG, \"SIM swap mugshot attempt $attempt failed: ${e.message}\")"
                   },
                   "endColumn": 85,
-                  "endLine": 407,
+                  "endLine": 417,
                   "startColumn": 17,
-                  "startLine": 407
+                  "startLine": 417
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "        Log.w(TAG, \"\ud83d\udd10 SIM TRAY LOCK: Applying deep lockdown countermeasures\")"
+                  },
+                  "endColumn": 81,
+                  "endLine": 465,
+                  "startColumn": 9,
+                  "startLine": 465
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                        Log.i(TAG, \"SIM Tray Lock: Lockscreen PIN rotated to emergency PIN via escrow token\")"
+                  },
+                  "endColumn": 110,
+                  "endLine": 479,
+                  "startColumn": 25,
+                  "startLine": 479
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                        Log.w(TAG, \"SIM Tray Lock: resetPasswordWithToken returned false \u2014 token may not be armed yet\")"
+                  },
+                  "endColumn": 122,
+                  "endLine": 481,
+                  "startColumn": 25,
+                  "startLine": 481
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                Log.w(TAG, \"SIM Tray Lock: No escrow token enrolled \u2014 cannot rotate lockscreen PIN. Enroll via /escrow setup.\")"
+                  },
+                  "endColumn": 130,
+                  "endLine": 485,
+                  "startColumn": 17,
+                  "startLine": 485
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.e(TAG, \"SIM Tray Lock: Error rotating lockscreen PIN: ${e.message}\")"
+                  },
+                  "endColumn": 85,
+                  "endLine": 488,
+                  "startColumn": 13,
+                  "startLine": 488
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.i(TAG, \"SIM Tray Lock: Suspended $successCount/${allPackages.size} packages. Thief's device is now a brick.\")"
+                  },
+                  "endColumn": 126,
+                  "endLine": 501,
+                  "startColumn": 13,
+                  "startLine": 501
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.e(TAG, \"SIM Tray Lock: Error suspending packages: ${e.message}\")"
+                  },
+                  "endColumn": 81,
+                  "endLine": 503,
+                  "startColumn": 13,
+                  "startLine": 503
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "        Log.w(TAG, \"\ud83d\udd10 SIM TRAY LOCK: Deep lockdown complete. Emergency PIN: [REDACTED FROM LOGS]\")"
+                  },
+                  "endColumn": 102,
+                  "endLine": 514,
+                  "startColumn": 9,
+                  "startLine": 514
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
@@ -15015,9 +15550,9 @@
                     "text": "                        Log.w(TAG, \"Failed to send SIM location pin: ${locErr.message}\")"
                   },
                   "endColumn": 89,
-                  "endLine": 469,
+                  "endLine": 551,
                   "startColumn": 25,
-                  "startLine": 469
+                  "startLine": 551
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
@@ -15048,9 +15583,9 @@
                     "text": "                Log.e(TAG, \"Failed to dispatch SIM alert via Telegram: ${e.message}\")"
                   },
                   "endColumn": 86,
-                  "endLine": 473,
+                  "endLine": 555,
                   "startColumn": 17,
-                  "startLine": 473
+                  "startLine": 555
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/detection/SIMChangeReceiver.kt"
@@ -20757,39 +21292,6 @@
                     "text": "                                            Log.w(TAG, \"\ud83d\udea8 Security rejection: Unsigned command ${remoteCmd.id} (${remoteCmd.command}) rejected. Only cryptographically signed envelopes are accepted.\")"
                   },
                   "endColumn": 203,
-                  "endLine": 406,
-                  "startColumn": 45,
-                  "startLine": 406
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                                            Log.i(TAG, \"\u2705 Cryptographically verified command envelope: ${verified.action} (seq=${verified.sequence})\")"
-                  },
-                  "endColumn": 153,
                   "endLine": 416,
                   "startColumn": 45,
                   "startLine": 416
@@ -20820,12 +21322,45 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
+                    "text": "                                            Log.i(TAG, \"\u2705 Cryptographically verified command envelope: ${verified.action} (seq=${verified.sequence})\")"
+                  },
+                  "endColumn": 153,
+                  "endLine": 426,
+                  "startColumn": 45,
+                  "startLine": 426
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
                     "text": "                                            Log.i(TAG, \"Command ${remoteCmd.id} was already executed previously. Acknowledging duplicate delivery to VPS.\")"
                   },
                   "endColumn": 156,
-                  "endLine": 418,
+                  "endLine": 428,
                   "startColumn": 45,
-                  "startLine": 418
+                  "startLine": 428
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -20856,9 +21391,9 @@
                     "text": "                                            Log.w(TAG, \"\ud83d\udea8 Security rejection for command envelope ${remoteCmd.id}: ${e.message}\")"
                   },
                   "endColumn": 133,
-                  "endLine": 422,
+                  "endLine": 432,
                   "startColumn": 45,
-                  "startLine": 422
+                  "startLine": 432
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -20889,9 +21424,9 @@
                     "text": "                                            Log.e(TAG, \"Command ${remoteCmd.id} exceeded ${deadlineSec}s execution deadline!\")"
                   },
                   "endColumn": 127,
-                  "endLine": 449,
+                  "endLine": 459,
                   "startColumn": 45,
-                  "startLine": 449
+                  "startLine": 459
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -20922,9 +21457,9 @@
                     "text": "                                        Log.e(TAG, \"Error executing remote command ${remoteCmd.id}\", e)"
                   },
                   "endColumn": 104,
-                  "endLine": 453,
+                  "endLine": 463,
                   "startColumn": 41,
-                  "startLine": 453
+                  "startLine": 463
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -20955,9 +21490,9 @@
                     "text": "                            Log.w(TAG, \"VPS backend poll warning: ${e.message}\")"
                   },
                   "endColumn": 81,
-                  "endLine": 459,
+                  "endLine": 469,
                   "startColumn": 29,
-                  "startLine": 459
+                  "startLine": 469
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -20988,9 +21523,9 @@
                     "text": "                                    Log.e(TAG, \"Error executing update #${update.updateId}\", e)"
                   },
                   "endColumn": 96,
-                  "endLine": 483,
+                  "endLine": 493,
                   "startColumn": 37,
-                  "startLine": 483
+                  "startLine": 493
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21021,9 +21556,9 @@
                     "text": "                    Log.e(TAG, \"Polling error (#$consecutiveErrors): ${e.message}\")"
                   },
                   "endColumn": 84,
-                  "endLine": 508,
+                  "endLine": 518,
                   "startColumn": 21,
-                  "startLine": 508
+                  "startLine": 518
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21054,9 +21589,9 @@
                     "text": "            Log.i(TAG, \"Watchdog restart broadcast scheduled in 5s via PasaWatchdogReceiver\")"
                   },
                   "endColumn": 94,
-                  "endLine": 564,
+                  "endLine": 574,
                   "startColumn": 13,
-                  "startLine": 564
+                  "startLine": 574
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21087,9 +21622,9 @@
                     "text": "            Log.e(TAG, \"Failed to schedule restart\", e)"
                   },
                   "endColumn": 56,
-                  "endLine": 566,
+                  "endLine": 576,
                   "startColumn": 13,
-                  "startLine": 566
+                  "startLine": 576
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21120,9 +21655,9 @@
                     "text": "                        Log.d(TAG, \"Device physically unlocked (USER_PRESENT) \u2014 Dead Man's Switch heartbeat refreshed\")"
                   },
                   "endColumn": 122,
-                  "endLine": 581,
+                  "endLine": 591,
                   "startColumn": 25,
-                  "startLine": 581
+                  "startLine": 591
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21153,9 +21688,9 @@
                     "text": "            Log.i(TAG, \"Hardware thermal & heartbeat receiver registered\")"
                   },
                   "endColumn": 75,
-                  "endLine": 592,
+                  "endLine": 602,
                   "startColumn": 13,
-                  "startLine": 592
+                  "startLine": 602
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21186,9 +21721,9 @@
                     "text": "            Log.w(TAG, \"Failed to register thermal/heartbeat receiver: ${e.message}\")"
                   },
                   "endColumn": 86,
-                  "endLine": 594,
+                  "endLine": 604,
                   "startColumn": 13,
-                  "startLine": 594
+                  "startLine": 604
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21219,9 +21754,9 @@
                     "text": "                Log.w(TAG, \"\ud83d\udd25 CRITICAL THERMAL ANOMALY: Battery temp = ${tempC}\u00b0C >= ${threshold}\u00b0C while locked!\")"
                   },
                   "endColumn": 121,
-                  "endLine": 613,
+                  "endLine": 623,
                   "startColumn": 17,
-                  "startLine": 613
+                  "startLine": 623
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21252,9 +21787,9 @@
                     "text": "                Log.i(TAG, \"Hardware USB data pins severed via Thermal Anomaly Trap\")"
                   },
                   "endColumn": 86,
-                  "endLine": 628,
+                  "endLine": 638,
                   "startColumn": 17,
-                  "startLine": 628
+                  "startLine": 638
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21285,9 +21820,9 @@
                     "text": "                Log.w(TAG, \"Failed to sever USB data pins: ${e.message}\")"
                   },
                   "endColumn": 74,
-                  "endLine": 630,
+                  "endLine": 640,
                   "startColumn": 17,
-                  "startLine": 630
+                  "startLine": 640
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21318,9 +21853,9 @@
                     "text": "            Log.w(TAG, \"Thermal trap mugshot capture failed: ${e.message}\")"
                   },
                   "endColumn": 76,
-                  "endLine": 647,
+                  "endLine": 657,
                   "startColumn": 13,
-                  "startLine": 647
+                  "startLine": 657
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21351,9 +21886,9 @@
                     "text": "            Log.e(TAG, \"Failed to send thermal anomaly Telegram alert: ${e.message}\")"
                   },
                   "endColumn": 86,
-                  "endLine": 679,
+                  "endLine": 689,
                   "startColumn": 13,
-                  "startLine": 679
+                  "startLine": 689
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21384,9 +21919,9 @@
                     "text": "                        Log.e(TAG, \"\ud83d\udc80 DEAD MAN'S SWITCH EXPIRED! Elapsed: ${elapsed / 3600000}h >= ${preferencesManager.deadManTimeoutHours}h. PURGING DEVICE DATA NOW!\")"
                   },
                   "endColumn": 173,
-                  "endLine": 705,
+                  "endLine": 715,
                   "startColumn": 25,
-                  "startLine": 705
+                  "startLine": 715
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -21417,9 +21952,9 @@
                     "text": "                    Log.e(TAG, \"Error in Dead Man's Switch watchdog: ${e.message}\")"
                   },
                   "endColumn": 84,
-                  "endLine": 711,
+                  "endLine": 721,
                   "startColumn": 21,
-                  "startLine": 711
+                  "startLine": 721
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/service/PasaService.kt"
@@ -25308,6 +25843,138 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
+                    "text": "            Log.d(TAG, \"EXIF metadata stripped from ${file.name}\")"
+                  },
+                  "endColumn": 67,
+                  "endLine": 62,
+                  "startColumn": 13,
+                  "startLine": 62
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/PrivacyHygieneHelper.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.w(TAG, \"Failed to strip EXIF from ${file.name}: ${e.message}\")"
+                  },
+                  "endColumn": 79,
+                  "endLine": 65,
+                  "startColumn": 13,
+                  "startLine": 65
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/PrivacyHygieneHelper.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.d(TAG, \"Cryptographically shredded ${file.name} (length=$length, deleted=$deleted)\")"
+                  },
+                  "endColumn": 101,
+                  "endLine": 116,
+                  "startColumn": 13,
+                  "startLine": 116
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/PrivacyHygieneHelper.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.w(TAG, \"Secure shredding error on ${file.name}, falling back to direct delete: ${e.message}\")"
+                  },
+                  "endColumn": 110,
+                  "endLine": 119,
+                  "startColumn": 13,
+                  "startLine": 119
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/PrivacyHygieneHelper.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
                     "text": "                Log.d(TAG, \"Screen wake-lock acquired for $notificationTitle\")"
                   },
                   "endColumn": 79,
@@ -26026,6 +26693,39 @@
         },
         {
           "message": {
+            "text": "User controlled strings in exec() will result in command execution."
+          },
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                val process = Runtime.getRuntime().exec(arrayOf(suExecutable, \"-c\", \"id\"))"
+                  },
+                  "endColumn": 91,
+                  "endLine": 289,
+                  "startColumn": 31,
+                  "startLine": 289
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/TamperDetectionCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M7: Client Code Quality",
+            "masvs": "MSTG-PLATFORM-2",
+            "cwe": "CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x04h-Testing-Code-Quality.md#injection-flaws-mstg-arch-2-and-mstg-platform-2",
+            "security-severity": "9.0"
+          },
+          "ruleId": "android_kotlin_command_injection",
+          "ruleIndex": 1
+        },
+        {
+          "message": {
             "text": "SHA-1 is a weak hash known to have hash collisions."
           },
           "locations": [
@@ -26124,71 +26824,6 @@
         },
         {
           "message": {
-            "text": "A sensitive input field is configured without a password input type or textNoSuggestions. Disable suggestions for sensitive input to reduce exposure through keyboard learning and suggestion history."
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "sensitive EditText without protected inputType"
-                  },
-                  "endColumn": 1,
-                  "endLine": 1,
-                  "startColumn": 1,
-                  "startLine": 1
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/res/layout/activity_setup.xml"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "m1",
-            "masvs": "storage-5",
-            "cwe": "cwe-524",
-            "reference": "https://mas.owasp.org/MASTG/tests/android/MASVS-STORAGE/MASTG-TEST-0005/",
-            "security-severity": "5.5"
-          },
-          "ruleId": "android_layout_sensitive_input_keyboard_cache",
-          "ruleIndex": 5
-        },
-        {
-          "message": {
-            "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "Missing Best Practice"
-                  },
-                  "endColumn": 1,
-                  "endLine": 1,
-                  "startColumn": 1,
-                  "startLine": 1
-                },
-                "artifactLocation": {
-                  "uri": "."
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M3: Insecure Communication",
-            "masvs": "MSTG-NETWORK-4",
-            "cwe": "CWE-295: Improper Certificate Validation",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_ssl_pinning",
-          "ruleIndex": 6
-        },
-        {
-          "message": {
             "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity. This check helps to ensure that the servers are interacting with the genuine app running on a genuine Android device."
           },
           "level": "note",
@@ -26218,6 +26853,72 @@
             "security-severity": "2.0"
           },
           "ruleId": "android_safetynet",
+          "ruleIndex": 5
+        },
+        {
+          "message": {
+            "text": "This app does not have root detection capabilities. Running a sensitive application on a rooted device questions the device integrity and affects users data."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "Missing Best Practice"
+                  },
+                  "endColumn": 1,
+                  "endLine": 1,
+                  "startColumn": 1,
+                  "startLine": 1
+                },
+                "artifactLocation": {
+                  "uri": "."
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M8: Code Tampering",
+            "masvs": "MSTG-RESILIENCE-1",
+            "cwe": "CWE-919: Weaknesses in Mobile Applications",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_root_detection",
+          "ruleIndex": 6
+        },
+        {
+          "message": {
+            "text": "This app does not have capabilities to prevent tapjacking attacks."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "Missing Best Practice"
+                  },
+                  "endColumn": 1,
+                  "endLine": 1,
+                  "startColumn": 1,
+                  "startLine": 1
+                },
+                "artifactLocation": {
+                  "uri": "."
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-PLATFORM-9",
+            "cwe": "CWE-200: Information Exposure",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_tapjacking",
           "ruleIndex": 7
         },
         {
@@ -26255,72 +26956,6 @@
         },
         {
           "message": {
-            "text": "This app does not have capabilities to prevent tapjacking attacks."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "Missing Best Practice"
-                  },
-                  "endColumn": 1,
-                  "endLine": 1,
-                  "startColumn": 1,
-                  "startLine": 1
-                },
-                "artifactLocation": {
-                  "uri": "."
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-PLATFORM-9",
-            "cwe": "CWE-200: Information Exposure",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_tapjacking",
-          "ruleIndex": 9
-        },
-        {
-          "message": {
-            "text": "This app does not have root detection capabilities. Running a sensitive application on a rooted device questions the device integrity and affects users data."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "Missing Best Practice"
-                  },
-                  "endColumn": 1,
-                  "endLine": 1,
-                  "startColumn": 1,
-                  "startLine": 1
-                },
-                "artifactLocation": {
-                  "uri": "."
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M8: Code Tampering",
-            "masvs": "MSTG-RESILIENCE-1",
-            "cwe": "CWE-919: Weaknesses in Mobile Applications",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_root_detection",
-          "ruleIndex": 10
-        },
-        {
-          "message": {
             "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority."
           },
           "level": "note",
@@ -26350,7 +26985,40 @@
             "security-severity": "2.0"
           },
           "ruleId": "android_certificate_transparency",
-          "ruleIndex": 11
+          "ruleIndex": 9
+        },
+        {
+          "message": {
+            "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "Missing Best Practice"
+                  },
+                  "endColumn": 1,
+                  "endLine": 1,
+                  "startColumn": 1,
+                  "startLine": 1
+                },
+                "artifactLocation": {
+                  "uri": "."
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M3: Insecure Communication",
+            "masvs": "MSTG-NETWORK-4",
+            "cwe": "CWE-295: Improper Certificate Validation",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_ssl_pinning",
+          "ruleIndex": 10
         }
       ]
     }

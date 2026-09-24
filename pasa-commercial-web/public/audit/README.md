@@ -1,7 +1,7 @@
 ﻿# 🛡️ PASA Sentinel — Independent Security Audit Reports (SARIF)
-Production Release: v3.5.6 (Build 52)
-Target APK: pasa-v3.5.6-52.apk
-SHA-256 Digest: becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8
+Production Release: v3.5.8 (Build 54)
+Target APK: pasa-v3.5.8-54.apk
+SHA-256 Digest: 592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5
 
 ## Contents:
 1. codeql-java-kotlin.sarif - Static Application Security Testing (SAST) of native Android application (API 26-36).

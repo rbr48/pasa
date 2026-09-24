@@ -1907,8 +1907,8 @@ const SUPPORT_MAIN_TEXT = `🛡️ <b>PASA Sentinel Official Customer Support</b
   `How can our support team assist you today?\n\n` +
   `• 💎 <b>Licensing & Plans:</b> Pro Lifetime Shield & Enterprise Fleet\n` +
   `• ⚙️ <b>Knox Device Owner:</b> Setup Kit & ADB provisioning walkthrough\n` +
-  `• 📥 <b>Official Releases:</b> Download signed APK (v3.5.6) & Windows Kit\n` +
-  `• 📖 <b>Field Manual:</b> Bilingual documentation & 86 C2 commands\n` +
+  `• 📥 <b>Official Releases:</b> Download signed APK (v3.5.8) & Windows Kit\n` +
+  `• 📖 <b>Field Manual:</b> Bilingual documentation & 87 C2 commands\n` +
   `• ❓ <b>Troubleshooting:</b> Battery optimization & OEM settings\n` +
   `• 💬 <b>Live Assistance:</b> Type your question here for an engineer\n\n` +
   `<i>Select an option below or type your inquiry directly in this chat:</i>`;
@@ -1918,7 +1918,7 @@ const SUPPORT_PRICING_TEXT = `💎 <b>PASA Sovereign License Pricing</b>\n` +
   `We do not believe in predatory monthly subscriptions. Secure your hardware once with an offline Ed25519 cryptographic license.\n\n` +
   `🛡️ <b>Pro Lifetime Shield:</b> $25 USD / ৳3,000 BDT\n` +
   `• Complete sovereign defense suite for 1 Android device forever\n` +
-  `• All 86 Telegram C2 commands + SMS air-gapped fallback\n` +
+  `• All 87 Telegram C2 commands + SMS air-gapped fallback\n` +
   `• Knox-grade Device Owner provisioning & anti-uninstall lock\n` +
   `• Hardware Escrow Token PIN reset & Anti-EDL trap\n` +
   `• Lifetime OTA updates + 24-hour money-back guarantee\n\n` +
@@ -1976,7 +1976,7 @@ const SUPPORT_DOWNLOAD_TEXT = `📥 <b>Official Downloads & Releases</b>\n` +
   `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
   `All releases are cryptographically signed with our production release key (Scheme v2).\n\n` +
   `📱 <b>PASA Sentinel Android App:</b>\n` +
-  `• Version: <b>v3.5.6 (Build 52)</b>\n` +
+  `• Version: <b>v3.5.8 (Build 54)</b>\n` +
   `• Compatible: Android 8.0 – 16 (API 26 – 36)\n` +
   `• Download: <a href="https://pasa.izhaanintellect.fun/releases/pasa-latest.apk">pasa-latest.apk</a>\n\n` +
   `💻 <b>Windows Device Owner Setup Kit:</b>\n` +
@@ -1984,18 +1984,18 @@ const SUPPORT_DOWNLOAD_TEXT = `📥 <b>Official Downloads & Releases</b>\n` +
   `• Download: <a href="https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip">PASA-Device-Owner-Setup-Kit.zip</a>\n\n` +
   `🛡️ <b>Independent Antivirus Verification:</b>\n` +
   `• 100% Clean across 70+ Antivirus engines on VirusTotal\n` +
-  `• <a href="https://www.virustotal.com/gui/file/becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8">Inspect VirusTotal Scan Report ↗</a>`;
+  `• <a href="https://www.virustotal.com/gui/file/592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5">Inspect VirusTotal Scan Report ↗</a>`;
 
 const SUPPORT_DOWNLOAD_KEYBOARD = {
   inline_keyboard: [
     [
-      { text: '📥 Download APK (v3.5.6)', url: 'https://pasa.izhaanintellect.fun/releases/pasa-latest.apk' }
+      { text: '📥 Download APK (v3.5.8)', url: 'https://pasa.izhaanintellect.fun/releases/pasa-latest.apk' }
     ],
     [
       { text: '📦 Download Setup Kit (ZIP)', url: 'https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip' }
     ],
     [
-      { text: '🛡️ VirusTotal Clean Report', url: 'https://www.virustotal.com/gui/file/becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8' }
+      { text: '🛡️ VirusTotal Clean Report', url: 'https://www.virustotal.com/gui/file/592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5' }
     ],
     [
       { text: '🔙 Back to Support Menu', callback_data: 'support:main' }

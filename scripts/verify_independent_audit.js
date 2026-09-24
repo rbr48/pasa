@@ -4,7 +4,20 @@ const path = require('path');
 const crypto = require('crypto');
 const https = require('https');
 
-const apkPath = path.resolve(__dirname, '../releases/pasa-v3.5.6-52.apk');
+// Resolve latest release info
+let latestRelease = null;
+const releasesMetaPath = path.resolve(__dirname, '../pasa-server/data/app_releases.json');
+if (fs.existsSync(releasesMetaPath)) {
+  try {
+    const releasesData = JSON.parse(fs.readFileSync(releasesMetaPath, 'utf8'));
+    if (Array.isArray(releasesData) && releasesData.length > 0) {
+      latestRelease = releasesData[0];
+    }
+  } catch (e) {}
+}
+
+const targetBinaryName = latestRelease?.fileName || 'pasa-latest.apk';
+const apkPath = path.resolve(__dirname, '../releases', targetBinaryName);
 const setupKitPath = path.resolve(__dirname, '../releases/PASA-Device-Owner-Setup-Kit.zip');
 
 if (!fs.existsSync(apkPath)) {
@@ -29,7 +42,7 @@ if (fs.existsSync(setupKitPath)) {
 console.log('═══════════════════════════════════════════════════════════════════════');
 console.log('🛡️ PASA SENTINEL — INDEPENDENT SECURITY & INTEGRITY AUDIT');
 console.log('═══════════════════════════════════════════════════════════════════════');
-console.log(`[Target APK]:        pasa-v3.5.6-52.apk`);
+console.log(`[Target APK]:        ${targetBinaryName}`);
 console.log(`[File Size]:         ${apkSize.toLocaleString()} bytes (${(apkSize / 1024 / 1024).toFixed(2)} MB)`);
 console.log(`[SHA-256 Digest]:    ${apkSha256}`);
 console.log(`[SHA-1 Digest]:      ${apkSha1}`);
@@ -83,9 +96,9 @@ function fetchJson(url) {
   console.log('\n📋 3. INDEPENDENT AUDIT SUMMARY FOR PUBLIC SHARING:');
   const summary = {
     audit_date: new Date().toISOString(),
-    binary: 'pasa-v3.5.6-52.apk',
-    version: '3.5.6',
-    build: 52,
+    binary: targetBinaryName,
+    version: latestRelease?.versionName || '3.5.8',
+    build: latestRelease?.versionCode || 54,
     sha256: apkSha256,
     sha1: apkSha1,
     md5: apkMd5,
@@ -98,5 +111,11 @@ function fetchJson(url) {
   const summaryPath = path.resolve(__dirname, '../INDEPENDENT_AUDIT_REPORT.json');
   fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2), 'utf8');
   console.log(`   Report saved to: ${summaryPath}`);
+
+  const webSummaryPath = path.resolve(__dirname, '../pasa-commercial-web/public/INDEPENDENT_AUDIT_REPORT.json');
+  if (fs.existsSync(path.dirname(webSummaryPath))) {
+    fs.writeFileSync(webSummaryPath, JSON.stringify(summary, null, 2), 'utf8');
+    console.log(`   Web report saved to: ${webSummaryPath}`);
+  }
   console.log('═══════════════════════════════════════════════════════════════════════\n');
 })();
