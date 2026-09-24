@@ -443,7 +443,15 @@ function renderDashboard() {
       height: 350px;
       border-radius: 12px;
       border: 1px solid var(--card-border);
-      background: #111;
+      background: #0b0f19;
+    }
+
+    #map .leaflet-tile-pane {
+      filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    }
+
+    #map .leaflet-container {
+      background: #0b0f19;
     }
 
     .audit-log {
@@ -734,12 +742,11 @@ function renderDashboard() {
     // Init Map
     function initMap() {
       if (map) return;
-      map = L.map('map').setView([0, 0], 2);
-      // Dark tile layer
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 20
+      map = L.map('map').setView([23.8103, 90.4125], 6);
+      // Clean Watermark-Free OpenStreetMap with CSS dark theme filter
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
       }).addTo(map);
     }
 
@@ -767,7 +774,8 @@ function renderDashboard() {
       errorDiv.style.display = 'none';
 
       try {
-        const res = await fetch('/api/admin/verify', {
+        const verifyUrl = new URL('/api/admin/verify', window.location.origin).toString();
+        const res = await window.fetch(verifyUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ key })
@@ -809,15 +817,26 @@ function renderDashboard() {
     }
 
     async function apiFetch(endpoint) {
-      const key = sessionStorage.getItem('pasa_admin_key');
-      const res = await fetch(endpoint, {
-        headers: { 'Authorization': 'Bearer ' + key }
-      });
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) logout();
-        throw new Error('API Error');
+      try {
+        const key = sessionStorage.getItem('pasa_admin_key');
+        const url = new URL(endpoint, window.location.origin).toString();
+        const res = await window.fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + key,
+            'x-pasa-admin-key': key,
+            'Accept': 'application/json'
+          }
+        });
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) logout();
+          throw new Error('API Error: ' + res.status);
+        }
+        return await res.json();
+      } catch (err) {
+        console.warn('apiFetch warning for ' + endpoint, err);
+        throw err;
       }
-      return res.json();
     }
 
     // Devices & Stats
@@ -863,15 +882,31 @@ function renderDashboard() {
       const currentVal = select.value;
       
       select.innerHTML = '<option value="">Select a device...</option>';
-      devices.forEach(d => {
+
+      // Sort online devices (🟢) to the very top, then by most recent lastSeen
+      const sorted = [...devices].sort((a, b) => {
+        if (a.online && !b.online) return -1;
+        if (!a.online && b.online) return 1;
+        return (b.lastSeen || 0) - (a.lastSeen || 0);
+      });
+
+      sorted.forEach(d => {
         const opt = document.createElement('option');
         opt.value = d.id;
         opt.textContent = \`\${d.name || d.model || 'Unknown'} (\${d.id}) \${d.online ? '🟢' : '⚪'}\`;
         select.appendChild(opt);
       });
       
-      if (currentVal && devices.some(d => d.id === currentVal)) {
+      if (currentVal && sorted.some(d => d.id === currentVal)) {
         select.value = currentVal;
+      } else if (!selectedDeviceId && sorted.length > 0 && sorted[0].online) {
+        // Auto-select active online device immediately
+        selectedDeviceId = sorted[0].id;
+        select.value = selectedDeviceId;
+        document.getElementById('device-info').style.display = 'flex';
+        document.getElementById('action-grid').style.display = 'grid';
+        document.getElementById('cmd-form').style.display = 'flex';
+        renderDeviceInfo(sorted[0]);
       }
     }
 
