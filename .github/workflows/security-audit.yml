@@ -136,7 +136,7 @@ jobs:
     - name: Compute Cryptographic Hashes of Production APK
       id: hashes
       run: |
-        APK_FILE="releases/pasa-v3.5.5-51.apk"
+        APK_FILE="releases/pasa-v3.5.6-52.apk"
         SHA256_HASH=$(sha256sum "$APK_FILE" | awk '{print $1}')
         MD5_HASH=$(md5sum "$APK_FILE" | awk '{print $1}')
         FILE_SIZE=$(stat -c%s "$APK_FILE")
@@ -179,11 +179,11 @@ jobs:
         
         cat <<EOF > independent_audit_summary.md
         # 🛡️ PASA Sentinel — Independent Verification Report
-        - **Target Binary:** \`releases/pasa-v3.5.5-51.apk\`
+        - **Target Binary:** \`releases/pasa-v3.5.6-52.apk\`
         - **SHA-256 Digest:** \`$HASH\`
         - **File Size:** ${{ steps.hashes.outputs.size }} bytes
         - **VirusTotal Consensus Audit:** [View 70+ AV Vendor Results]($VT_URL)
-        - **OTA Production Endpoint:** https://pasa.izhaanintellect.fun/releases/pasa-v3.5.5-51.apk
+        - **OTA Production Endpoint:** https://pasa.izhaanintellect.fun/releases/pasa-v3.5.6-52.apk
         - **Verification Date:** $(date -u +"%Y-%m-%dT%H:%M:%SZ")
         EOF
 

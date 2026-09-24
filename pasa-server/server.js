@@ -1877,7 +1877,7 @@ const SUPPORT_MAIN_TEXT = `🛡️ <b>PASA Sentinel Official Customer Support</b
   `How can our support team assist you today?\n\n` +
   `• 💎 <b>Licensing & Plans:</b> Pro Lifetime Shield & Enterprise Fleet\n` +
   `• ⚙️ <b>Knox Device Owner:</b> Setup Kit & ADB provisioning walkthrough\n` +
-  `• 📥 <b>Official Releases:</b> Download signed APK (v3.5.5) & Windows Kit\n` +
+  `• 📥 <b>Official Releases:</b> Download signed APK (v3.5.6) & Windows Kit\n` +
   `• 📖 <b>Field Manual:</b> Bilingual documentation & 86 C2 commands\n` +
   `• ❓ <b>Troubleshooting:</b> Battery optimization & OEM settings\n` +
   `• 💬 <b>Live Assistance:</b> Type your question here for an engineer\n\n` +
@@ -1946,7 +1946,7 @@ const SUPPORT_DOWNLOAD_TEXT = `📥 <b>Official Downloads & Releases</b>\n` +
   `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
   `All releases are cryptographically signed with our production release key (Scheme v2).\n\n` +
   `📱 <b>PASA Sentinel Android App:</b>\n` +
-  `• Version: <b>v3.5.5 (Build 51)</b>\n` +
+  `• Version: <b>v3.5.6 (Build 52)</b>\n` +
   `• Compatible: Android 8.0 – 16 (API 26 – 36)\n` +
   `• Download: <a href="https://pasa.izhaanintellect.fun/releases/pasa-latest.apk">pasa-latest.apk</a>\n\n` +
   `💻 <b>Windows Device Owner Setup Kit:</b>\n` +
@@ -1954,18 +1954,18 @@ const SUPPORT_DOWNLOAD_TEXT = `📥 <b>Official Downloads & Releases</b>\n` +
   `• Download: <a href="https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip">PASA-Device-Owner-Setup-Kit.zip</a>\n\n` +
   `🛡️ <b>Independent Antivirus Verification:</b>\n` +
   `• 100% Clean across 70+ Antivirus engines on VirusTotal\n` +
-  `• <a href="https://www.virustotal.com/gui/file/1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894">Inspect VirusTotal Scan Report ↗</a>`;
+  `• <a href="https://www.virustotal.com/gui/file/becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8">Inspect VirusTotal Scan Report ↗</a>`;
 
 const SUPPORT_DOWNLOAD_KEYBOARD = {
   inline_keyboard: [
     [
-      { text: '📥 Download APK (v3.5.5)', url: 'https://pasa.izhaanintellect.fun/releases/pasa-latest.apk' }
+      { text: '📥 Download APK (v3.5.6)', url: 'https://pasa.izhaanintellect.fun/releases/pasa-latest.apk' }
     ],
     [
       { text: '📦 Download Setup Kit (ZIP)', url: 'https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip' }
     ],
     [
-      { text: '🛡️ VirusTotal Clean Report', url: 'https://www.virustotal.com/gui/file/1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894' }
+      { text: '🛡️ VirusTotal Clean Report', url: 'https://www.virustotal.com/gui/file/becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8' }
     ],
     [
       { text: '🔙 Back to Support Menu', callback_data: 'support:main' }

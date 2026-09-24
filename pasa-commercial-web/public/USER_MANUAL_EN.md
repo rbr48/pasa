@@ -1,7 +1,7 @@
 # 🛡️ PASA Sentinel (Private Android Security Agent)
 ## Sovereign Mobile Defense & Covert Anti-Theft System
 ### Comprehensive User Manual & Operational Field Guide (English Edition)
-**Production Version:** v3.5.5 (Build 51) | **OS Target:** Android 8.0 – 16 (API 26 – 36) | **Document Revision:** 2026.1
+**Production Version:** v3.5.6 (Build 52) | **OS Target:** Android 8.0 – 16 (API 26 – 36) | **Document Revision:** 2026.1
 
 ---
 

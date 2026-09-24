@@ -255,7 +255,7 @@ const template = `<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PASA Sentinel — Official User Manual &amp; Operational Field Guide</title>
-<meta name="description" content="Comprehensive technical user manual and operational field guide for PASA Sentinel (Private Android Security Agent) v3.5.5 in English and Bengali.">
+<meta name="description" content="Comprehensive technical user manual and operational field guide for PASA Sentinel (Private Android Security Agent) v3.5.6 in English and Bengali.">
 <meta name="theme-color" content="#05070d">
 <link rel="icon" type="image/png" href="/assets/img/logo.png">
 <link rel="apple-touch-icon" href="/assets/img/logo.png">
@@ -506,7 +506,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
     <img src="/assets/img/logo.png" alt="PASA">
     <div class="brand-title">
       PASA SENTINEL
-      <span id="headerSub">FIELD MANUAL // v3.5.5</span>
+      <span id="headerSub">FIELD MANUAL // v3.5.6</span>
     </div>
   </a>
 
@@ -542,7 +542,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
     <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--txt-3)">
       <div style="font-weight:600;color:var(--txt-2);margin-bottom:6px">Verification & Audit:</div>
       <div>• <a href="/AUDIT_TRAIL.md" target="_blank" class="doc-link">AUDIT_TRAIL.md</a></div>
-      <div>• <a href="https://www.virustotal.com/gui/file/1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894" target="_blank" rel="noopener" class="doc-link" style="color:var(--green);font-weight:600">VirusTotal Clean (70+ AV) ↗</a></div>
+      <div>• <a href="https://www.virustotal.com/gui/file/becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8" target="_blank" rel="noopener" class="doc-link" style="color:var(--green);font-weight:600">VirusTotal Clean (70+ AV) ↗</a></div>
       <div style="margin-top:10px;font-weight:600;color:var(--txt-2);margin-bottom:6px">Raw Documents:</div>
       <div>• <a href="/USER_MANUAL_EN.md" target="_blank" class="doc-link">USER_MANUAL_EN.md</a></div>
       <div>• <a href="/USER_MANUAL_BN.md" target="_blank" class="doc-link">USER_MANUAL_BN.md</a></div>
@@ -588,7 +588,7 @@ function switchLang(lang) {
   document.getElementById('contentBn').style.display = lang === 'bn' ? 'block' : 'none';
   document.getElementById('tocTitle').innerText = lang === 'en' ? 'Table of Contents' : 'ম্যানুয়াল সূচিপত্র';
   document.getElementById('searchInput').placeholder = lang === 'en' ? 'Filter sections...' : 'বিষয়বস্তু খুঁজুন...';
-  document.getElementById('headerSub').innerText = lang === 'en' ? 'FIELD MANUAL // v3.5.5' : 'ফিল্ড ম্যানুয়াল // v৩.৫.৫';
+  document.getElementById('headerSub').innerText = lang === 'en' ? 'FIELD MANUAL // v3.5.6' : 'ফিল্ড ম্যানুয়াল // v৩.৫.৬';
   renderToc();
 }
 
