@@ -1131,15 +1131,17 @@ a{color:inherit;text-decoration:none}
 /* Multi-Method Provisioning Tabs */
 .setup-nav-wrap{
   display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:12px;margin-bottom:24px;border-bottom:1px solid var(--line-2);
+  gap:14px;margin-bottom:24px;border-bottom:1px solid var(--line-2);
   padding-bottom:14px;
 }
-.setup-tabs{display:flex;flex-wrap:wrap;gap:8px}
+.setup-tabs{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1;
+}
 .setup-tab-btn{
-  display:inline-flex;align-items:center;gap:8px;padding:9px 16px;
+  display:inline-flex;align-items:center;gap:7px;padding:8px 14px;
   background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;
-  color:var(--txt-2);font-family:var(--display);font-size:13px;font-weight:600;
-  cursor:pointer;transition:all .2s;
+  color:var(--txt-2);font-family:var(--display);font-size:12.5px;font-weight:600;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
 }
 .setup-tab-btn:hover{background:rgba(255,255,255,.07);color:#fff;border-color:var(--line-2)}
 .setup-tab-btn.active{
@@ -1149,8 +1151,16 @@ a{color:inherit;text-decoration:none}
 .setup-tab-pane{display:none;animation:fadeIn .22s ease-in-out}
 .setup-tab-pane.active{display:block}
 
+@media(max-width:960px){
+  .setup-tabs{display:grid;grid-template-columns:repeat(2,1fr);width:100%}
+  .setup-tab-btn{justify-content:center}
+}
+@media(max-width:520px){
+  .setup-tabs{grid-template-columns:1fr}
+}
+
 .prov-grid{
-  display:grid;grid-template-columns:1.15fr 0.85fr;gap:28px;align-items:center;
+  display:grid;grid-template-columns:1.35fr 0.85fr;gap:24px;align-items:center;
   background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
   border:1px solid var(--line-2);border-radius:var(--r-lg);padding:30px 28px;
 }
@@ -1173,15 +1183,22 @@ a{color:inherit;text-decoration:none}
 .prov-step strong{color:#fff}
 
 .copy-box{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
   background:#02050b;border:1px solid var(--line-3);border-radius:8px;
-  padding:10px 14px;margin-top:10px;font-family:var(--mono);font-size:11.5px;
-  color:var(--cyan);word-break:break-all;
+  padding:10px 14px;margin-top:10px;box-sizing:border-box;max-width:100%;
 }
+.copy-box code{
+  font-family:var(--mono);font-size:11px;color:var(--cyan);
+  white-space:nowrap;overflow-x:auto;scrollbar-width:thin;
+  flex:1;min-width:0;padding:2px 0;line-height:1.45;
+}
+.copy-box code::-webkit-scrollbar{height:3px}
+.copy-box code::-webkit-scrollbar-thumb{background:rgba(41,224,255,.3);border-radius:2px}
 .copy-btn{
   background:rgba(255,255,255,.08);border:1px solid var(--line-2);
   color:var(--txt);padding:6px 12px;border-radius:6px;font-family:var(--mono);
   font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;
+  flex-shrink:0;
 }
 .copy-btn:hover{background:var(--cyan);color:#02050b;border-color:var(--cyan)}
 
@@ -2114,19 +2131,19 @@ table.matrix tbody tr:last-child td{border-bottom:none}
     <div class="setup-tabs">
       <button type="button" class="setup-tab-btn active" id="setupTabBtn_webadb" onclick="setSetupTab('webadb')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        <span>⚡ 1-Click WebADB (Browser USB)</span>
+        <span>WebADB (Browser USB)</span>
       </button>
       <button type="button" class="setup-tab-btn" id="setupTabBtn_qr" onclick="setSetupTab('qr')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span>📲 Zero-Touch QR (Phone-Only)</span>
+        <span>Zero-Touch QR (Phone)</span>
       </button>
       <button type="button" class="setup-tab-btn" id="setupTabBtn_phone" onclick="setSetupTab('phone')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-        <span>📱 Wireless ADB (No PC)</span>
+        <span>Wireless ADB (No PC)</span>
       </button>
       <button type="button" class="setup-tab-btn" id="setupTabBtn_windows" onclick="setSetupTab('windows')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        <span>🖥️ Windows Setup Kit (.ZIP)</span>
+        <span>Windows Setup Kit</span>
       </button>
     </div>
     <div style="font-family:var(--mono);font-size:11px;color:var(--cyan);display:flex;align-items:center;gap:6px">
@@ -2141,20 +2158,20 @@ table.matrix tbody tr:last-child td{border-bottom:none}
       <div class="prov-info">
         <div class="module-tag" style="color:var(--cyan)">ZERO-DOWNLOAD BROWSER PROVISIONING</div>
         <h3>Provision Directly From Your Browser via WebUSB</h3>
-        <p>No ZIP files to download, no scripts to run. If you are using <b>Google Chrome</b>, <b>Microsoft Edge</b>, or any Chromium browser, you can connect your phone via USB and grant Knox Device Owner privileges directly over the web.</p>
+        <p>No ZIP files to download, no local terminal scripts. Using <b>Google Chrome</b>, <b>Microsoft Edge</b>, or any Chromium browser, connect your phone via USB and grant Knox Device Owner privileges directly over the web.</p>
         
         <div class="prov-steps">
           <div class="prov-step">
             <span class="prov-step-num">1</span>
-            <div><strong>Enable USB Debugging:</strong> Go to Settings > Developer options > Toggle on <i>USB debugging</i>.</div>
+            <div><strong>Enable USB Debugging:</strong> Go to Settings &gt; Developer options &gt; Toggle on <i>USB debugging</i>.</div>
           </div>
           <div class="prov-step">
             <span class="prov-step-num">2</span>
-            <div><strong>Temporarily Remove Accounts:</strong> Settings > Accounts > Remove Google/Samsung accounts (required by Android security policy before setting Device Owner).</div>
+            <div><strong>Temporarily Remove Accounts:</strong> Settings &gt; Accounts &gt; Remove Google/Samsung accounts (required by Android before provisioning Device Owner).</div>
           </div>
           <div class="prov-step">
             <span class="prov-step-num">3</span>
-            <div><strong>Connect &amp; Grant:</strong> Plug in your phone via USB and launch the WebADB interactive terminal.</div>
+            <div><strong>Launch Shell &amp; Run:</strong> Click <b>Launch WebADB Shell</b> below &gt; Click <i>"Add device"</i> in WebADB to select your phone &gt; Paste command &amp; press Enter!</div>
           </div>
         </div>
 
@@ -2166,27 +2183,38 @@ table.matrix tbody tr:last-child td{border-bottom:none}
           </div>
         </div>
 
-        <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
-          <a href="https://webadb.com/" target="_blank" rel="noopener" class="btn btn-red">
+        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <a href="https://app.webadb.com/shell" target="_blank" rel="noopener" class="btn btn-red">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             <span>Launch WebADB Shell ↗</span>
           </a>
+          <a href="https://yume-chan.github.io/ya-webadb/shell" target="_blank" rel="noopener" class="btn btn-ghost" title="Backup GitHub Pages terminal mirror">
+            <span>GitHub Mirror ↗</span>
+          </a>
           <button type="button" class="btn btn-ghost" onclick="setSetupTab('windows')">
-            <span>Use Windows Batch Wizard Instead</span>
+            <span>Use Windows Batch Wizard</span>
           </button>
         </div>
       </div>
 
       <div class="qr-center-box">
-        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:12px;letter-spacing:.08em">
+        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:10px;letter-spacing:.08em">
           ⚡ WEBUSB DIRECT CONNECTION
         </div>
-        <div style="font-size:12.5px;color:var(--txt-2);line-height:1.6;margin-bottom:16px;max-width:320px">
-          WebUSB connects securely through Chrome/Edge sandboxed USB driver. Your phone will prompt: <i>"Allow USB debugging?"</i> — Tap <b>Always Allow</b>.
+        <div style="font-size:12.5px;color:var(--txt-2);line-height:1.6;margin-bottom:14px;max-width:320px">
+          Connect your phone with a USB cable. On your phone screen, tap <b>"Always allow from this computer"</b> when prompted.
         </div>
-        <div style="background:rgba(41,224,255,.06);border:1px dashed rgba(41,224,255,.3);border-radius:10px;padding:16px;width:100%;max-width:320px">
-          <div style="font-family:var(--mono);font-size:10px;color:var(--green);font-weight:800;letter-spacing:.1em;margin-bottom:4px">STATUS: BROWSER CAPABLE</div>
-          <div style="font-size:11.5px;color:var(--txt-3)">WebUSB API is active in Chromium. No local drivers or ADB installation needed.</div>
+        <div id="webUsbStatusBox" style="background:rgba(41,224,255,.06);border:1px solid rgba(41,224,255,.25);border-radius:8px;padding:14px;width:100%;max-width:320px;text-align:left;box-sizing:border-box">
+          <div id="webUsbStatusTag" style="font-family:var(--mono);font-size:10px;color:var(--green);font-weight:800;letter-spacing:.1em;margin-bottom:4px">
+            ● BROWSER WEBUSB: READY
+          </div>
+          <div id="webUsbStatusText" style="font-size:11.5px;color:var(--txt-3);line-height:1.45;margin-bottom:12px">
+            Chromium WebUSB detected. You can pair your Android device directly from this browser.
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnPairWebUsb" onclick="pairWebUsbDevice()" style="width:100%;justify-content:center;padding:7px 12px;font-size:11.5px;border-color:rgba(41,224,255,.3)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span id="btnPairWebUsbText">Pair Phone via WebUSB</span>
+          </button>
         </div>
       </div>
     </div>
@@ -3181,6 +3209,7 @@ function setSetupTab(tabId){
     if(btn) btn.classList.toggle('active', t === tabId);
     if(pane) pane.classList.toggle('active', t === tabId);
   });
+  if(tabId === 'webadb') initWebUsbStatus();
 }
 function copyText(text, btnId){
   navigator.clipboard.writeText(text).then(()=>{
@@ -3200,6 +3229,61 @@ function copyText(text, btnId){
   }).catch(()=>{
     showToast(text);
   });
+}
+
+function initWebUsbStatus(){
+  const statusTag = document.getElementById('webUsbStatusTag');
+  const statusText = document.getElementById('webUsbStatusText');
+  const btn = document.getElementById('btnPairWebUsb');
+  if(!navigator.usb){
+    if(statusTag){
+      statusTag.textContent = currentLang === 'bn' ? '⚠ WebUSB সাপোর্ট নেই' : '⚠ WebUSB NOT SUPPORTED';
+      statusTag.style.color = 'var(--amber)';
+    }
+    if(statusText){
+      statusText.textContent = currentLang === 'bn' 
+        ? 'আপনার বর্তমান ব্রাউজারে WebUSB নেই। গুগল ক্রোম অথবা মাইক্রোসফট এজ ব্রাউজার ব্যবহার করুন।'
+        : 'Your current browser lacks WebUSB support. Please open this page in Google Chrome, Microsoft Edge, or Brave.';
+    }
+    if(btn) btn.style.display = 'none';
+  }
+}
+
+async function pairWebUsbDevice(){
+  if(!navigator.usb){
+    alert(currentLang === 'bn' ? 'আপনার ব্রাউজারে WebUSB সাপোর্ট নেই। অনুগ্রহ করে গুগল ক্রোম বা মাইক্রোসফট এজ ব্যবহার করুন।' : 'WebUSB is not supported in this browser. Please use Google Chrome, Microsoft Edge, or Brave.');
+    return;
+  }
+  const btn = document.getElementById('btnPairWebUsb');
+  const btnText = document.getElementById('btnPairWebUsbText');
+  const statusTag = document.getElementById('webUsbStatusTag');
+  const statusText = document.getElementById('webUsbStatusText');
+  try{
+    if(btnText) btnText.textContent = currentLang === 'bn' ? 'ডিভাইস নির্বাচন করুন...' : 'Selecting Phone...';
+    const device = await navigator.usb.requestDevice({
+      filters: [{ classCode: 255, subclassCode: 66, protocolCode: 1 }]
+    });
+    if(device){
+      const name = device.productName || 'Android Device';
+      if(statusTag){
+        statusTag.textContent = currentLang === 'bn' ? '✓ ডিভাইস পেয়ার সম্পন্ন!' : '✓ PHONE PAIRED!';
+        statusTag.style.color = 'var(--green)';
+      }
+      if(statusText){
+        statusText.innerHTML = currentLang === 'bn'
+          ? '<b>' + name + '</b> ব্রাউজারে সফলভাবে পেয়ার হয়েছে। এখন নিচে <b>Launch WebADB Shell</b> এ ক্লিক করে সরাসরি টার্মিনালে কমান্ডটি পেস্ট করুন।'
+          : '<b>' + name + '</b> paired successfully! Now click <b>Launch WebADB Shell</b> below to paste your command in the terminal.';
+        statusText.style.color = '#fff';
+      }
+      if(btnText) btnText.textContent = currentLang === 'bn' ? '✓ পুনরায় পেয়ার' : '✓ Re-Pair Device';
+      showToast(currentLang === 'bn' ? 'ফোন সফলভাবে সংযুক্ত হয়েছে!' : 'Phone connected via WebUSB!');
+    }
+  }catch(err){
+    if(btnText) btnText.textContent = currentLang === 'bn' ? 'পেয়ার করুন' : 'Pair Phone via WebUSB';
+    if(err.name !== 'NotFoundError'){
+      console.warn('WebUSB error:', err);
+    }
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -3495,6 +3579,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   init3DParallax();
   initReveal();
   initRail();
+  initWebUsbStatus();
 });
 </script>
 
