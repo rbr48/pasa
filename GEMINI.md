@@ -424,3 +424,14 @@ This section records significant architectural decisions and code changes made i
 | Telegram message unencrypted | ❌ Cannot fix — Telegram design | Accepted risk; documented |
 | VPS compromise → device mapping exposed | SQLite WAL, no GPS tracks | Medium — device↔chatId mapping in local DB |
 
+### 8.8 Backdoors & Unauthorized Control Vectors Closed
+1. **Unsigned VPS Command Injection Neutralized:**
+   - In `PasaService.kt`, previous code executed commands even if `envelope.isNullOrBlank()`.
+   - **Patch:** Enforced strict fail-closed cryptographic envelope verification. Any remote command from VPS without a valid Ed25519 signature is immediately rejected and reported.
+2. **Device Hijacking via Unassigned `ownerChatId` Closed:**
+   - In `server.js` `isDeviceMatchingBot`, previous code allowed loose matches if `ownerChatId` was null/empty.
+   - **Patch:** Strictly requires `d.ownerChatId` to be set and strictly equal to `chatId`. No unowned or mismatched device can ever be claimed or commanded.
+3. **Forced VPS Fallback in Onboarding Removed:**
+   - In `SetupActivity.kt`, leaving Server URL blank previously fell back to `DEFAULT_SERVER_URL`.
+   - **Patch:** Removed forced fallback. Users can now run in **100% Sovereign (Direct Telegram) Mode** where the phone communicates directly with `api.telegram.org` and never connects to any VPS.
+
