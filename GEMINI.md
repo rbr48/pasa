@@ -61,12 +61,26 @@ e:/Projects/PrivateApp/
 │   ├── scripts/
 │   │   └── build_landing.js             # Node.js build script generating index.html from data objects
 │   └── public/                          # Static web root served by Nginx
-│       ├── index.html                   # "The Intercept Room" operations console (bilingual EN/BN)
-│       ├── favicon.png                  # PASA logo (2.1 MB PNG)
-│       ├── assets/img/logo.png          # Branding logo
-│       ├── releases/                    # Symlinked/copied release binaries (gitignored)
-│       │   ├── pasa-latest.apk          # Current production APK
-│       │   └── PASA-Device-Owner-Setup-Kit.zip
+│       ├── index.html                   # "The Intercept Room" operations console (bilingual EN/BN, JSON-LD Schema)
+│       ├── llms.txt                     # Standardized AI search crawler knowledge base (Perplexity, ChatGPT, Claude)
+│       ├── .well-known/security.txt     # RFC 9116 security disclosure standard
+│       ├── security.txt                 # Root fallback RFC 9116 standard
+│       ├── robots.txt                   # Search & AI bot crawl directives
+│       ├── sitemap.xml                  # Multi-priority XML sitemap with hreflang and image tags
+│       ├── knox-anti-uninstall.html     # Programmatic pillar page: Knox anti-uninstall architecture
+│       ├── offline-sms-tracker.html     # Programmatic pillar page: Air-gapped offline SMS tracking
+│       ├── cellebrite-usb-blocker.html  # Programmatic pillar page: Cellebrite/GrayKey USB killswitch
+│       ├── anti-snatch-alarm.html       # Programmatic pillar page: Kinetic 2.65G accelerometer trap
+│       ├── pasa-vs-google-find-my-device.html # Programmatic pillar page: Architectural showdown vs Google FMD
+│       ├── manual.html                  # Interactive bilingual field manual
+│       ├── USER_MANUAL_EN.md / _BN.md   # Complete technical user manuals
+│       ├── AUDIT_TRAIL.md               # Cryptographic system audit log
+│       ├── INDEPENDENT_AUDIT_REPORT.json# Automated security audit verification
+│       ├── favicon.png                  # PASA logo
+│       ├── assets/img/                  # Logo, bKash icon, and enterprise provisioning QR SVGs
+│       ├── releases/                    # Hosted production binaries
+│       │   ├── pasa-latest.apk          # Current production APK (v3.5.5-51)
+│       │   └── PASA-Device-Owner-Setup-Kit.zip # Windows guided setup wizard
 │       ├── privacy.html                 # Privacy policy
 │       └── terms.html                   # Terms of service
 ├── pasa-setup-kit/                      # Windows Device Owner Setup Kit (non-technical user wizard)
@@ -279,7 +293,7 @@ e:/Projects/PrivateApp/
 * **Safety:** ZIP contains no APK, no secrets, no credentials. All network calls go to `dl.google.com` (ADB) and `pasa.izhaanintellect.fun` (APK). No phone data transmitted to any server. Safe to share publicly.
 * **Updating Kit:** When releasing a new PASA version, rebuild ZIP with `Compress-Archive -Path pasa-setup-kit\* -DestinationPath releases\PASA-Device-Owner-Setup-Kit.zip` and SCP to VPS `releases/`. No code changes needed — wizard always pulls latest APK from server at runtime.
 
-### 6.5 Commercial Web Landing Page (Docker/Nginx)
+### 6.5 Commercial Web Landing Page & SEO Architecture (Docker/Nginx)
 * **Container Name:** `pasa-commercial-app` (nginx:alpine, port `127.0.0.1:8165 → 80`).
 * **Host Directory:** `/opt/pasa-commercial-web/public/` (NOT bind-mounted — files must be `docker cp`'d into the container).
 * **Live Domain:** `https://pasa.izhaanintellect.fun/` (Cloudflare proxy, dynamic cache bypass).
@@ -294,11 +308,26 @@ e:/Projects/PrivateApp/
   - Intel briefing FAQ with 38 questions across 6 category tabs.
   - 3-tier pricing (Free Tactical Evaluation / Pro Lifetime $25 / Enterprise Fleet $99).
   - Bilingual (108 EN + 108 BN `data-i18n` translation keys, 0 missing).
+* **4 Device Owner Provisioning Pathways (Zero-PC Capable):**
+  1. **Windows 1-Click Setup Kit:** Automated PowerShell wizard detecting ADB, removing accounts, and running DPM provisioning in 60s.
+  2. **Android 6-Tap Welcome Screen QR (Zero PC):** On factory reset or new device, tapping 6 times anywhere on the initial setup screen opens camera; scanning `qr-enterprise-provisioning.svg` installs and provisions Device Owner automatically.
+  3. **WebADB Browser Setup (Mac/Linux/ChromeOS/Chromium Phone):** Direct WebUSB browser connection via `https://app.webadb.com` running the DPM command with no terminal required.
+  4. **Manual Terminal ADB:** Standard `adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin`.
+* **Hyper-Aggressive SEO & AI Discovery Engine:**
+  - **JSON-LD Schema Graphs:** `SoftwareApplication` (4.9 rating, $25, SecurityApplication), `Organization` (Izhaan Intellect), `FAQPage` (6-question Knowledge Graph takeover), and `TechArticle` schemas.
+  - **AI Search Specification (`/llms.txt`):** Authoritative markdown context engineered specifically for Perplexity, ChatGPT Search, Claude, and Gemini SGE.
+  - **RFC 9116 Standard (`/.well-known/security.txt`):** Authoritative vulnerability reporting policy and security crawler trust score enhancement.
+  - **5 Programmatic Tactical Pillar Pages:** Dedicated, lightweight HTML pages targeting exact-match commercial keywords:
+    1. `/knox-anti-uninstall.html` (Knox Enterprise Device Owner anti-uninstall immunity).
+    2. `/offline-sms-tracker.html` (Air-gapped TOTP RFC 6238 SMS command & control).
+    3. `/cellebrite-usb-blocker.html` (Android 12+ hardware USB data pin killswitch).
+    4. `/anti-snatch-alarm.html` (Kinetic 2.65G accelerometer snatch alarm & mugshot trap).
+    5. `/pasa-vs-google-find-my-device.html` (Forensic comparison vs Google Find My Device).
+  - **Sitemap & Crawl Directives:** Priority-weighted `sitemap.xml` with image & `hreflang` declarations; `robots.txt` welcoming standard and generative AI search crawlers.
 * **Deployment Workflow:**
-  1. Build HTML: `node pasa-commercial-web/scripts/build_landing.js` (or deploy pre-built HTML directly).
-  2. Upload: `scp -O -P 2222 -i ~/.ssh/id_rsa_dbm pasa-commercial-web/public/index.html root@148.135.137.245:/opt/pasa-commercial-web/public/index.html`
-  3. Docker cp: `ssh ... "docker cp /opt/pasa-commercial-web/public/index.html pasa-commercial-app:/usr/share/nginx/html/index.html"`
-  4. Releases: Copy APK and setup kit to `/opt/pasa-commercial-web/public/releases/` then `docker cp` the releases directory.
+  1. Build HTML: `node pasa-commercial-web/scripts/build_landing.js` (or edit/author HTML directly).
+  2. Upload: `scp -O -P 2222 -i ~/.ssh/id_rsa_dbm <files> root@148.135.137.245:/opt/pasa-commercial-web/public/`
+  3. Docker cp & reload: `ssh root@148.135.137.245 -p 2222 "docker cp /opt/pasa-commercial-web/public/. pasa-commercial-app:/usr/share/nginx/html/ && docker exec pasa-commercial-app nginx -s reload"`
 * **Nginx Config:** Gzip on, `try_files $uri $uri/ $uri.html /index.html`, 30-day cache for static assets.
 
 ---
