@@ -554,6 +554,27 @@ async function callTelegram(token, method, body = null, isMultipart = false, for
 
 // Register all commands in Telegram menu autocomplete
 async function registerTelegramBotCommands(token) {
+  if (PASA_CENTRAL_BOT_TOKEN && token === PASA_CENTRAL_BOT_TOKEN) {
+    const supportCommands = [
+      { command: "start", description: "🛡️ Open Customer Support Menu" },
+      { command: "pricing", description: "💎 Pro & Enterprise License Pricing" },
+      { command: "setup", description: "⚙️ Knox Device Owner Setup Guide" },
+      { command: "download", description: "📥 Download APK & Setup Kit" },
+      { command: "manual", description: "📖 Read Field Manual & Commands" },
+      { command: "faq", description: "❓ Common Questions & Solutions" },
+      { command: "contact", description: "💬 Message Human Support Team" },
+      { command: "license", description: "🔑 License Status & Activation" }
+    ];
+    try {
+      await callTelegram(token, 'setMyCommands', { commands: supportCommands });
+      await callTelegram(token, 'setChatMenuButton', { menu_button: { type: 'commands' } });
+      console.log(`[Telegram] Registered customer support commands for @pasa_sentinel_bot`);
+    } catch (e) {
+      console.error(`[Telegram] Error setting support bot commands:`, e.message);
+    }
+    return;
+  }
+
   const commandsList = [
     { command: "menu", description: "📱 Open interactive touchscreen control panel" },
     { command: "help", description: "📖 Show full help manual & command guide" },
@@ -1744,8 +1765,566 @@ function startBotPoller(token) {
   })();
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// PASA Sentinel — Official Customer Support Agent Bot (@pasa_sentinel_bot)
+// Dedicated Concierge for Licensing, Onboarding, Downloads, FAQ & Human Chat Relay
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const SUPPORT_MAIN_KEYBOARD = {
+  inline_keyboard: [
+    [
+      { text: '💎 Pricing & License Plans', callback_data: 'support:pricing' },
+      { text: '🔑 Activate Key', callback_data: 'support:activate' }
+    ],
+    [
+      { text: '📥 Download APK & Setup Kit', callback_data: 'support:download' },
+      { text: '⚙️ Device Owner Setup Guide', callback_data: 'support:setup' }
+    ],
+    [
+      { text: '📖 Field Manual & Commands', callback_data: 'support:manual' },
+      { text: '❓ Common FAQ & Solutions', callback_data: 'support:faq' }
+    ],
+    [
+      { text: '💬 Chat with Human Support Concierge', callback_data: 'support:contact' }
+    ],
+    [
+      { text: '🌐 Official Website', url: 'https://pasa.izhaanintellect.fun' },
+      { text: '📱 WhatsApp Support', url: 'https://wa.me/8801762033445' }
+    ]
+  ]
+};
+
+const SUPPORT_MAIN_TEXT = `🛡️ <b>PASA Sentinel Official Customer Support</b>\n` +
+  `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+  `Welcome to the official support channel for <b>PASA Sentinel</b> (Private Android Security Agent).\n\n` +
+  `How can our support team assist you today?\n\n` +
+  `• 💎 <b>Licensing & Plans:</b> Pro Lifetime Shield & Enterprise Fleet\n` +
+  `• ⚙️ <b>Knox Device Owner:</b> Setup Kit & ADB provisioning walkthrough\n` +
+  `• 📥 <b>Official Releases:</b> Download signed APK (v3.5.5) & Windows Kit\n` +
+  `• 📖 <b>Field Manual:</b> Bilingual documentation & 86 C2 commands\n` +
+  `• ❓ <b>Troubleshooting:</b> Battery optimization & OEM settings\n` +
+  `• 💬 <b>Live Assistance:</b> Type your question here for an engineer\n\n` +
+  `<i>Select an option below or type your inquiry directly in this chat:</i>`;
+
+const SUPPORT_PRICING_TEXT = `💎 <b>PASA Sovereign License Pricing</b>\n` +
+  `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+  `We do not believe in predatory monthly subscriptions. Secure your hardware once with an offline Ed25519 cryptographic license.\n\n` +
+  `🛡️ <b>Pro Lifetime Shield:</b> $25 USD / ৳3,000 BDT\n` +
+  `• Complete sovereign defense suite for 1 Android device forever\n` +
+  `• All 86 Telegram C2 commands + SMS air-gapped fallback\n` +
+  `• Knox-grade Device Owner provisioning & anti-uninstall lock\n` +
+  `• Hardware Escrow Token PIN reset & Anti-EDL trap\n` +
+  `• Lifetime OTA updates + 24-hour money-back guarantee\n\n` +
+  `🏢 <b>Enterprise Fleet:</b> $99 USD / ৳12,000 BDT\n` +
+  `• 5x Pro Lifetime Device Licenses\n` +
+  `• Dedicated relay server node + VIP WhatsApp hotline\n\n` +
+  `<b>Accepted Payment Methods:</b>\n` +
+  `• <b>Binance Pay (Crypto/USDT):</b> UID <code>756303714</code> (Nickname: <code>RBR48</code>)\n` +
+  `• <b>bKash (BD Mobile Banking):</b> Contact WhatsApp below for official account\n\n` +
+  `👉 <i>After payment, send your TxID here or via WhatsApp to receive your Ed25519 license key.</i>`;
+
+const SUPPORT_PRICING_KEYBOARD = {
+  inline_keyboard: [
+    [
+      { text: '🛒 Open Web Checkout', url: 'https://pasa.izhaanintellect.fun/#pricing' },
+      { text: '📱 bKash via WhatsApp', url: 'https://wa.me/8801762033445?text=Hello%20PASA%20Support%2C%20I%20want%20to%20buy%20a%20Pro%20License%20via%20bKash' }
+    ],
+    [
+      { text: '🔑 Activate Purchased Key', callback_data: 'support:activate' }
+    ],
+    [
+      { text: '🔙 Back to Support Menu', callback_data: 'support:main' }
+    ]
+  ]
+};
+
+const SUPPORT_SETUP_TEXT = `⚙️ <b>Knox Device Owner Setup Guide</b>\n` +
+  `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+  `Device Owner is the highest Android security privilege, granting irreversible anti-uninstall protection.\n\n` +
+  `<b>6-Step Provisioning Walkthrough:</b>\n` +
+  `1. <b>Download Setup Kit:</b> Download <code>PASA-Device-Owner-Setup-Kit.zip</code> on your Windows PC and extract it.\n` +
+  `2. <b>Enable USB Debugging:</b> On your phone, go to <i>Settings → About Phone</i> → tap <i>Build Number</i> 7 times. Go to <i>Developer Options</i> → turn on <i>USB Debugging</i>.\n` +
+  `3. <b>Remove Accounts (Mandatory):</b> Temporarily remove Google & Samsung accounts in <i>Settings → Accounts</i>. (Android OS requires zero accounts during initial Device Owner enrollment. You can re-add them immediately after setup!)\n` +
+  `4. <b>Install APK:</b> Install <code>pasa-latest.apk</code> on your phone.\n` +
+  `5. <b>Run Setup Wizard:</b> Connect phone to PC via USB. Double-click <b>PASA Device Owner Setup.bat</b> in the extracted folder.\n` +
+  `6. <b>Verify:</b> Open PASA Sentinel on your phone. You will see <i>"Device Owner: Active (Knox-Grade)"</i>.\n\n` +
+  `<i>Need live assistance? Tap 'Chat with Human Support' below.</i>`;
+
+const SUPPORT_SETUP_KEYBOARD = {
+  inline_keyboard: [
+    [
+      { text: '📦 Download Setup Kit (ZIP)', url: 'https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip' },
+      { text: '📥 Download APK', url: 'https://pasa.izhaanintellect.fun/releases/pasa-latest.apk' }
+    ],
+    [
+      { text: '📖 Read Setup Manual', url: 'https://pasa.izhaanintellect.fun/manual.html#setup' }
+    ],
+    [
+      { text: '🔙 Back to Support Menu', callback_data: 'support:main' }
+    ]
+  ]
+};
+
+const SUPPORT_DOWNLOAD_TEXT = `📥 <b>Official Downloads & Releases</b>\n` +
+  `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+  `All releases are cryptographically signed with our production release key (Scheme v2).\n\n` +
+  `📱 <b>PASA Sentinel Android App:</b>\n` +
+  `• Version: <b>v3.5.5 (Build 51)</b>\n` +
+  `• Compatible: Android 8.0 – 16 (API 26 – 36)\n` +
+  `• Download: <a href="https://pasa.izhaanintellect.fun/releases/pasa-latest.apk">pasa-latest.apk</a>\n\n` +
+  `💻 <b>Windows Device Owner Setup Kit:</b>\n` +
+  `• Guided non-technical setup wizard with built-in ADB\n` +
+  `• Download: <a href="https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip">PASA-Device-Owner-Setup-Kit.zip</a>\n\n` +
+  `🛡️ <b>Independent Antivirus Verification:</b>\n` +
+  `• 100% Clean across 70+ Antivirus engines on VirusTotal\n` +
+  `• <a href="https://www.virustotal.com/gui/file/1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894">Inspect VirusTotal Scan Report ↗</a>`;
+
+const SUPPORT_DOWNLOAD_KEYBOARD = {
+  inline_keyboard: [
+    [
+      { text: '📥 Download APK (v3.5.5)', url: 'https://pasa.izhaanintellect.fun/releases/pasa-latest.apk' }
+    ],
+    [
+      { text: '📦 Download Setup Kit (ZIP)', url: 'https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip' }
+    ],
+    [
+      { text: '🛡️ VirusTotal Clean Report', url: 'https://www.virustotal.com/gui/file/1547ce858bae6bf09f55181cea226fc912540cba5804bec6687bcc325edb2894' }
+    ],
+    [
+      { text: '🔙 Back to Support Menu', callback_data: 'support:main' }
+    ]
+  ]
+};
+
+const SUPPORT_FAQ_TEXT = `❓ <b>Frequently Asked Questions (FAQ)</b>\n` +
+  `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+  `<b>1. Why does DPM require removing accounts?</b>\n` +
+  `Android OS security enforces that Device Owner can only be provisioned when no user accounts exist. Once provisioned, you can add all your Google, Samsung, and social accounts back immediately.\n\n` +
+  `<b>2. How to prevent OEM battery killers?</b>\n` +
+  `On Xiaomi/MIUI: Enable <i>Autostart</i> and set Battery Saver to <i>No Restrictions</i>.\n` +
+  `On Samsung: Exclude PASA from <i>Sleeping Apps</i> in Device Care.\n\n` +
+  `<b>3. Can a thief uninstall PASA?</b>\n` +
+  `No. As Knox Device Owner, uninstallation is permanently blocked by the Android kernel. The "Uninstall" button is greyed out with <i>"Managed by your organization"</i>.\n\n` +
+  `<b>4. How does offline SMS control work?</b>\n` +
+  `Send an SMS formatted as:\n` +
+  `<code>PASA &lt;6-digit-TOTP-or-MasterPIN&gt; /locate</code>\n` +
+  `The phone replies with its GPS pin directly via cellular radio without needing internet.\n\n` +
+  `<i>Have a different question? Click 'Chat with Human Support' below.</i>`;
+
+const SUPPORT_FAQ_KEYBOARD = {
+  inline_keyboard: [
+    [
+      { text: '💬 Ask Support Engineering', callback_data: 'support:contact' }
+    ],
+    [
+      { text: '📖 Read Full Field Manual', url: 'https://pasa.izhaanintellect.fun/manual.html' }
+    ],
+    [
+      { text: '🔙 Back to Support Menu', callback_data: 'support:main' }
+    ]
+  ]
+};
+
+const SUPPORT_MANUAL_TEXT = `📖 <b>PASA Field Manual & 86 C2 Commands</b>\n` +
+  `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+  `PASA Sentinel provides 86 high-level covert operations commands organized into 6 core hubs:\n\n` +
+  `📍 <b>Location & Cellular RF:</b> <code>/locate</code>, <code>/tower</code>, <code>/sim</code>, <code>/track</code>, <code>/geofence</code>\n` +
+  `📸 <b>Covert Forensics:</b> <code>/snap</code>, <code>/video</code>, <code>/record</code>, <code>/screenshot</code>, <code>/getfile</code>\n` +
+  `🔒 <b>Lockdown & Defense:</b> <code>/lock</code>, <code>/set_os_pin</code>, <code>/fakeshutdown</code>, <code>/ring</code>, <code>/wake</code>\n` +
+  `👑 <b>Knox Device Owner:</b> <code>/usb_lock</code>, <code>/camera_lock</code>, <code>/antitamper</code>, <code>/dns</code>, <code>/app_firewall</code>\n` +
+  `🛡️ <b>Autonomous Traps:</b> <code>/trap snatch</code>, <code>/trap pocket</code>, <code>/sim_lock</code>, <code>/thermal</code>\n` +
+  `📇 <b>Extraction & Telephony:</b> <code>/call</code>, <code>/contacts</code>, <code>/call_log</code>, <code>/sms_log</code>, <code>/sendsms</code>\n\n` +
+  `📖 Complete bilingual Field Manual (English & Bengali):\n` +
+  `👉 <a href="https://pasa.izhaanintellect.fun/manual.html">https://pasa.izhaanintellect.fun/manual.html</a>`;
+
+const SUPPORT_MANUAL_KEYBOARD = {
+  inline_keyboard: [
+    [
+      { text: '📖 Open Full Field Manual', url: 'https://pasa.izhaanintellect.fun/manual.html' }
+    ],
+    [
+      { text: '🔙 Back to Support Menu', callback_data: 'support:main' }
+    ]
+  ]
+};
+
+const SUPPORT_CONTACT_TEXT = `💬 <b>PASA Sentinel Human Support Concierge</b>\n` +
+  `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+  `Need personalized help from our security engineers?\n\n` +
+  `✍️ <b>Simply type your message or question right here in this chat!</b>\n` +
+  `You can send text, error logs, or screenshots of your phone screen.\n\n` +
+  `Our engineers will review your ticket and reply directly to you right here.\n\n` +
+  `📞 <b>Direct WhatsApp Hotline:</b> <a href="https://wa.me/8801762033445">+880 1762-033445</a>\n` +
+  `✉️ <b>Email Support:</b> <code>support@izhaanintellect.fun</code>`;
+
+const SUPPORT_CONTACT_KEYBOARD = {
+  inline_keyboard: [
+    [
+      { text: '📱 Open WhatsApp Hotline', url: 'https://wa.me/8801762033445' }
+    ],
+    [
+      { text: '🔙 Back to Support Menu', callback_data: 'support:main' }
+    ]
+  ]
+};
+
+const SUPPORT_ACTIVATE_TEXT = `🔑 <b>Activate Your License Key</b>\n` +
+  `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+  `If you have purchased a license key (e.g. <code>PASA-LIFE-XXXX-XXXX</code>):\n\n` +
+  `1. Open the <b>PASA Sentinel</b> app on your Android phone.\n` +
+  `2. Navigate to <b>Settings → License & Pro Status</b>.\n` +
+  `3. Tap <b>Activate License Key</b> and enter your key.\n` +
+  `4. Your device will instantly verify the offline Ed25519 signature and unlock all 86 commands permanently!\n\n` +
+  `<i>Don't have a license key yet? Tap 'Pricing & License Plans' to get one.</i>`;
+
+const SUPPORT_ACTIVATE_KEYBOARD = {
+  inline_keyboard: [
+    [
+      { text: '💎 View Pricing & Buy', callback_data: 'support:pricing' }
+    ],
+    [
+      { text: '🔙 Back to Support Menu', callback_data: 'support:main' }
+    ]
+  ]
+};
+
+async function handleCustomerSupportUpdate(token, update) {
+  try {
+    // 1. Handle Inline Button Clicks
+    if (update.callback_query) {
+      const query = update.callback_query;
+      const chatId = query.message.chat.id;
+      const messageId = query.message.message_id;
+      const data = query.data || '';
+
+      await callTelegram(token, 'answerCallbackQuery', { callback_query_id: query.id });
+
+      // Admin Order Approval Handlers
+      if (data.startsWith('lic:approve:') || data.startsWith('lic:reject:')) {
+        if (String(chatId) !== String(ADMIN_CHAT_ID)) {
+          await callTelegram(token, 'sendMessage', {
+            chat_id: chatId,
+            text: `⛔ Access Denied. Only designated Administrator (${ADMIN_CHAT_ID}) can approve orders.`
+          });
+          return;
+        }
+        if (data.startsWith('lic:approve:')) {
+          const orderId = data.substring('lic:approve:'.length);
+          const order = licenseOrders[orderId];
+          if (order) {
+            order.status = 'APPROVED';
+            order.approvedAt = Date.now();
+            saveJson(ORDERS_FILE, licenseOrders);
+            await callTelegram(token, 'editMessageText', {
+              chat_id: chatId,
+              message_id: messageId,
+              text: `✅ <b>Order ${orderId} Approved!</b> Key: <code>${order.licenseKey}</code>`,
+              parse_mode: 'HTML'
+            });
+          }
+          return;
+        }
+        if (data.startsWith('lic:reject:')) {
+          const orderId = data.substring('lic:reject:'.length);
+          const order = licenseOrders[orderId];
+          if (order) {
+            order.status = 'REJECTED';
+            saveJson(ORDERS_FILE, licenseOrders);
+            await callTelegram(token, 'editMessageText', {
+              chat_id: chatId,
+              message_id: messageId,
+              text: `❌ <b>Order ${orderId} Rejected.</b>`,
+              parse_mode: 'HTML'
+            });
+          }
+          return;
+        }
+      }
+
+      let text = SUPPORT_MAIN_TEXT;
+      let keyboard = SUPPORT_MAIN_KEYBOARD;
+
+      if (data === 'support:main') {
+        text = SUPPORT_MAIN_TEXT;
+        keyboard = SUPPORT_MAIN_KEYBOARD;
+      } else if (data === 'support:pricing') {
+        text = SUPPORT_PRICING_TEXT;
+        keyboard = SUPPORT_PRICING_KEYBOARD;
+      } else if (data === 'support:setup') {
+        text = SUPPORT_SETUP_TEXT;
+        keyboard = SUPPORT_SETUP_KEYBOARD;
+      } else if (data === 'support:download') {
+        text = SUPPORT_DOWNLOAD_TEXT;
+        keyboard = SUPPORT_DOWNLOAD_KEYBOARD;
+      } else if (data === 'support:faq') {
+        text = SUPPORT_FAQ_TEXT;
+        keyboard = SUPPORT_FAQ_KEYBOARD;
+      } else if (data === 'support:manual') {
+        text = SUPPORT_MANUAL_TEXT;
+        keyboard = SUPPORT_MANUAL_KEYBOARD;
+      } else if (data === 'support:contact') {
+        text = SUPPORT_CONTACT_TEXT;
+        keyboard = SUPPORT_CONTACT_KEYBOARD;
+      } else if (data === 'support:activate') {
+        text = SUPPORT_ACTIVATE_TEXT;
+        keyboard = SUPPORT_ACTIVATE_KEYBOARD;
+      }
+
+      await callTelegram(token, 'editMessageText', {
+        chat_id: chatId,
+        message_id: messageId,
+        text,
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
+        disable_web_page_preview: true
+      }).catch(async () => {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text,
+          parse_mode: 'HTML',
+          reply_markup: keyboard,
+          disable_web_page_preview: true
+        });
+      });
+      return;
+    }
+
+    // 2. Handle Text & Media Messages
+    if (!update.message) return;
+    const msg = update.message;
+    const chatId = msg.chat.id;
+    const rawText = (msg.text || msg.caption || '').trim();
+    const lowerText = rawText.toLowerCase();
+
+    // Check if Sender is Admin
+    const isAdmin = (String(chatId) === String(ADMIN_CHAT_ID));
+
+    // Admin Command: /reply <chatId> <message>
+    if (isAdmin && (lowerText.startsWith('/reply') || lowerText.startsWith('reply '))) {
+      const parts = rawText.split(/\s+/);
+      const targetChatId = parts[1];
+      const replyBody = parts.slice(2).join(' ');
+      if (!targetChatId || !replyBody) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `⚠️ <b>Usage:</b> <code>/reply &lt;chatId&gt; &lt;your response&gt;</code>`,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      const res = await callTelegram(token, 'sendMessage', {
+        chat_id: targetChatId,
+        text: `🛡️ <b>PASA Support Concierge Response:</b>\n━━━━━━━━━━━━━━━━━━━━\n${replyBody}\n\n<i>Have more questions? Reply directly in this chat anytime.</i>`,
+        parse_mode: 'HTML'
+      });
+      if (res && res.ok) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `✅ <b>Reply successfully delivered to customer:</b> <code>${targetChatId}</code>`,
+          parse_mode: 'HTML'
+        });
+      } else {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `❌ <b>Failed to deliver reply:</b> ${res?.description || 'Unknown error'}`,
+          parse_mode: 'HTML'
+        });
+      }
+      return;
+    }
+
+    // Admin Command: /license issue <email> <tier> <maxDevs>
+    if (isAdmin && lowerText.startsWith('/license issue')) {
+      const parts = rawText.split(/\s+/);
+      const targetEmail = parts[2] || 'manual-client@pasa.sec';
+      const targetTier = (parts[3] || 'PRO_LIFETIME').toUpperCase();
+      const maxDevs = parseInt(parts[4], 10) || 1;
+      const newLic = licensing.createLicense(targetEmail, targetTier, maxDevs, { paymentMethod: 'ADMIN_MANUAL_ISSUE' });
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: `👑 <b>ADMIN LICENSE ISSUED</b>\n━━━━━━━━━━━━━━━━━━━━\n` +
+              `<b>Key:</b> <code>${newLic.key}</code>\n` +
+              `<b>Recipient:</b> <code>${targetEmail}</code>\n` +
+              `<b>Tier:</b> ${newLic.tier}\n` +
+              `<b>Max Devices:</b> ${newLic.maxDevices}\n` +
+              `<b>Status:</b> ${newLic.status}\n\n` +
+              `<i>Copy and send this key to the customer.</i>`,
+        parse_mode: 'HTML'
+      });
+      return;
+    }
+
+    // Admin Command: /pending
+    if (isAdmin && lowerText === '/pending') {
+      const pendingOrders = Object.values(licenseOrders).filter(o => o.status === 'PENDING_APPROVAL');
+      if (pendingOrders.length === 0) {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `✅ <b>No Pending Orders:</b> All orders are approved or processed.`,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+      let summary = `📋 <b>Pending Orders (${pendingOrders.length})</b>\n━━━━━━━━━━━━━━━━━━━━\n`;
+      for (const po of pendingOrders.slice(0, 10)) {
+        summary += `• <b>Order:</b> <code>${po.orderId}</code> | ${po.tier} (${po.amountUsdt || po.price})\n  Email: <code>${po.email}</code>\n  TX: <code>${po.binanceTxId || po.txId || 'N/A'}</code>\n`;
+      }
+      await callTelegram(token, 'sendMessage', { chat_id: chatId, text: summary, parse_mode: 'HTML' });
+      return;
+    }
+
+    // Customer Navigation Commands
+    if (lowerText === '/start' || lowerText === '/menu' || lowerText === 'start' || lowerText === 'menu') {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: SUPPORT_MAIN_TEXT,
+        parse_mode: 'HTML',
+        reply_markup: SUPPORT_MAIN_KEYBOARD,
+        disable_web_page_preview: true
+      });
+      return;
+    }
+
+    if (lowerText === '/pricing' || lowerText === 'pricing' || lowerText === '/buy' || lowerText === 'buy' || lowerText === 'price') {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: SUPPORT_PRICING_TEXT,
+        parse_mode: 'HTML',
+        reply_markup: SUPPORT_PRICING_KEYBOARD,
+        disable_web_page_preview: true
+      });
+      return;
+    }
+
+    if (lowerText === '/setup' || lowerText === 'setup' || lowerText === 'adb' || lowerText === 'device owner') {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: SUPPORT_SETUP_TEXT,
+        parse_mode: 'HTML',
+        reply_markup: SUPPORT_SETUP_KEYBOARD,
+        disable_web_page_preview: true
+      });
+      return;
+    }
+
+    if (lowerText === '/download' || lowerText === 'download' || lowerText === '/apk' || lowerText === 'apk') {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: SUPPORT_DOWNLOAD_TEXT,
+        parse_mode: 'HTML',
+        reply_markup: SUPPORT_DOWNLOAD_KEYBOARD,
+        disable_web_page_preview: true
+      });
+      return;
+    }
+
+    if (lowerText === '/faq' || lowerText === 'faq' || lowerText === 'troubleshoot' || lowerText === 'troubleshooting') {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: SUPPORT_FAQ_TEXT,
+        parse_mode: 'HTML',
+        reply_markup: SUPPORT_FAQ_KEYBOARD,
+        disable_web_page_preview: true
+      });
+      return;
+    }
+
+    if (lowerText === '/manual' || lowerText === 'manual' || lowerText === '/commands' || lowerText === 'commands' || lowerText === '/help' || lowerText === 'help') {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: SUPPORT_MANUAL_TEXT,
+        parse_mode: 'HTML',
+        reply_markup: SUPPORT_MANUAL_KEYBOARD,
+        disable_web_page_preview: true
+      });
+      return;
+    }
+
+    if (lowerText === '/contact' || lowerText === 'contact' || lowerText === 'support' || lowerText === 'human') {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: SUPPORT_CONTACT_TEXT,
+        parse_mode: 'HTML',
+        reply_markup: SUPPORT_CONTACT_KEYBOARD,
+        disable_web_page_preview: true
+      });
+      return;
+    }
+
+    if (lowerText.startsWith('/license') || lowerText.startsWith('license')) {
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: SUPPORT_ACTIVATE_TEXT,
+        parse_mode: 'HTML',
+        reply_markup: SUPPORT_ACTIVATE_KEYBOARD,
+        disable_web_page_preview: true
+      });
+      return;
+    }
+
+    // General Customer Message / Inquiry / Feedback -> Send Auto-Ack and Relay to Admin
+    const senderName = [msg.from?.first_name, msg.from?.last_name].filter(Boolean).join(' ') || 'Customer';
+    const username = msg.from?.username ? '@' + msg.from.username : 'No @handle';
+
+    // 1. Send friendly acknowledgment to customer
+    await callTelegram(token, 'sendMessage', {
+      chat_id: chatId,
+      text: `📨 <b>Inquiry Received!</b>\n━━━━━━━━━━━━━━━━━━━━\n` +
+            `Thank you, <b>${senderName}</b>. Your message has been routed to our security engineering team.\n\n` +
+            `An agent will review and reply directly to you right here in this chat.\n\n` +
+            `<i>Need urgent assistance? Reach our emergency WhatsApp hotline at <a href="https://wa.me/8801762033445">+880 1762-033445</a>.</i>`,
+      parse_mode: 'HTML',
+      reply_markup: SUPPORT_MAIN_KEYBOARD,
+      disable_web_page_preview: true
+    });
+
+    // 2. Relay Ticket to Admin (if ADMIN_CHAT_ID is set and not chatting with self)
+    if (ADMIN_CHAT_ID && String(chatId) !== String(ADMIN_CHAT_ID)) {
+      const ticketText = `📩 <b>NEW CUSTOMER SUPPORT INQUIRY</b>\n` +
+        `━━━━━━━━━━━━━━━━━━━━\n` +
+        `👤 <b>From:</b> ${senderName} (${username})\n` +
+        `🆔 <b>User Chat ID:</b> <code>${chatId}</code>\n` +
+        `📅 <b>Time:</b> ${new Date().toLocaleString()}\n\n` +
+        `💬 <b>Customer Message:</b>\n${rawText || '(Media attachment)'}\n\n` +
+        `────────────────────\n` +
+        `👉 <b>To reply to this customer, send:</b>\n` +
+        `<code>/reply ${chatId} &lt;your message&gt;</code>`;
+
+      if (msg.photo && msg.photo.length > 0) {
+        const photo = msg.photo[msg.photo.length - 1];
+        await callTelegram(token, 'sendPhoto', {
+          chat_id: ADMIN_CHAT_ID,
+          photo: photo.file_id,
+          caption: ticketText,
+          parse_mode: 'HTML'
+        });
+      } else if (msg.document) {
+        await callTelegram(token, 'sendDocument', {
+          chat_id: ADMIN_CHAT_ID,
+          document: msg.document.file_id,
+          caption: ticketText,
+          parse_mode: 'HTML'
+        });
+      } else {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: ADMIN_CHAT_ID,
+          text: ticketText,
+          parse_mode: 'HTML'
+        });
+      }
+    }
+  } catch (err) {
+    console.error('[Customer Support Bot Error]:', err);
+  }
+}
+
 // Handle an incoming update from Telegram (both messages and callback button clicks)
 async function handleTelegramUpdate(token, update) {
+  // If update is received on the official Central Support Bot (@pasa_sentinel_bot), route to Support Agent
+  if (PASA_CENTRAL_BOT_TOKEN && token === PASA_CENTRAL_BOT_TOKEN) {
+    return handleCustomerSupportUpdate(token, update);
+  }
+
   // 1. Handle Inline Keyboard Button Clicks
   if (update.callback_query) {
     const query = update.callback_query;
