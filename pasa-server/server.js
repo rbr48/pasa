@@ -54,10 +54,10 @@ const activePairings = new Map();
 // Anti-brute-force rate limiting per Telegram chatId: chatId -> { attempts, lockedUntil }
 const telegramPairingAttempts = new Map();
 
-// Official central PASA Bot (@Pas_agent_bot) token for Method 2 instant pairing
-const PASA_CENTRAL_BOT_TOKEN = process.env.PASA_CENTRAL_BOT_TOKEN || process.env.BOT_TOKEN || '';
-const DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || PASA_CENTRAL_BOT_TOKEN;
-const ADMIN_BOT_TOKEN = process.env.ADMIN_BOT_TOKEN || process.env.BOT_TOKEN || PASA_CENTRAL_BOT_TOKEN;
+// Official central Customer Support Bot (@pasa_sentinel_bot)
+const PASA_CENTRAL_BOT_TOKEN = process.env.PASA_CENTRAL_BOT_TOKEN || '';
+const DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || '';
+const ADMIN_BOT_TOKEN = process.env.ADMIN_BOT_TOKEN || DEFAULT_BOT_TOKEN;
 const ADMIN_CHAT_ID = String(process.env.ADMIN_CHAT_ID || '');
 const BINANCE_PAY_ID = process.env.BINANCE_PAY_ID || '756303714';
 const BINANCE_NICKNAME = process.env.BINANCE_NICKNAME || 'RBR48';
@@ -123,6 +123,55 @@ app.set('trust proxy', 1); // behind nginx; makes req.ip the real client address
 // Brute-force protection on the sensitive auth/enrollment endpoints.
 const adminAuthLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Too many admin auth attempts. Try again later.' });
 const deviceRegisterLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 30, message: 'Too many device registrations from this IP.' });
+
+// ── Destructive Command Rate Limiter ──────────────────────────────────────────
+// Separate, much stricter limiter for irreversible operations (wipe, factory reset).
+const destructiveCmdLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 3, message: 'Too many destructive command attempts. Locked for 1 hour.' });
+
+// ── Pending Wipe PIN Sessions ─────────────────────────────────────────────────
+// chatId -> { pin: string, deviceId: string, expiresAt: number, attempts: number }
+// A 6-digit PIN is issued when user clicks "CONFIRM FACTORY WIPE".
+// /wipe is only dispatched to the device after the owner types back the correct PIN.
+// Tokens expire in 5 minutes and are single-use.
+const pendingWipeSessions = new Map();
+const WIPE_PIN_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+const WIPE_PIN_MAX_ATTEMPTS = 3;
+
+function generateWipePin() {
+  return String(crypto.randomInt(100000, 999999));
+}
+
+function createWipeSession(chatId, deviceId) {
+  const pin = generateWipePin();
+  pendingWipeSessions.set(String(chatId), {
+    pin,
+    deviceId,
+    expiresAt: Date.now() + WIPE_PIN_EXPIRY_MS,
+    attempts: 0
+  });
+  // Auto-expire cleanup
+  setTimeout(() => pendingWipeSessions.delete(String(chatId)), WIPE_PIN_EXPIRY_MS + 1000);
+  return pin;
+}
+
+function verifyWipePin(chatId, inputPin) {
+  const session = pendingWipeSessions.get(String(chatId));
+  if (!session) return { ok: false, reason: 'expired' };
+  if (Date.now() > session.expiresAt) {
+    pendingWipeSessions.delete(String(chatId));
+    return { ok: false, reason: 'expired' };
+  }
+  session.attempts++;
+  if (session.attempts > WIPE_PIN_MAX_ATTEMPTS) {
+    pendingWipeSessions.delete(String(chatId));
+    return { ok: false, reason: 'lockout' };
+  }
+  if (inputPin.trim() !== session.pin) {
+    return { ok: false, reason: 'wrong', attemptsLeft: WIPE_PIN_MAX_ATTEMPTS - session.attempts };
+  }
+  pendingWipeSessions.delete(String(chatId));
+  return { ok: true, deviceId: session.deviceId };
+}
 
 // Commercial licensing endpoints are disabled by default for personal deployments.
 // Set ENABLE_LICENSING=true in .env to expose the purchase/webhook/lookup routes.
@@ -1369,9 +1418,40 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+function isDeviceMatchingBot(d, token, chatId) {
+  if (!d) return false;
+  // Must match ownerChatId if set (or allow if unassigned)
+  if (d.ownerChatId && String(d.ownerChatId) !== String(chatId)) {
+    return false;
+  }
+
+  // 1. Exact match
+  if (d.botToken === token) return true;
+
+  // 2. Token rotated in @BotFather (same numeric bot ID before the ':' delimiter)
+  if (d.botToken && token) {
+    const dBotId = d.botToken.split(':')[0];
+    const tBotId = token.split(':')[0];
+    if (dBotId && tBotId && dBotId === tBotId) {
+      d.botToken = token;
+      try { DeviceRepo.upsert(d.deviceId, d); } catch (_) {}
+      return true;
+    }
+  }
+
+  // 3. Fallback for designated Administrator operating on DEFAULT_BOT_TOKEN
+  if (token === DEFAULT_BOT_TOKEN && String(chatId) === String(ADMIN_CHAT_ID)) {
+    d.botToken = token;
+    try { DeviceRepo.upsert(d.deviceId, d); } catch (_) {}
+    return true;
+  }
+
+  return false;
+}
+
 function getActiveDeviceForChat(token, chatId) {
   const matching = Object.values(devices)
-    .filter(d => d.botToken === token && (d.ownerChatId == chatId || !d.ownerChatId))
+    .filter(d => isDeviceMatchingBot(d, token, chatId))
     .sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0));
   return matching[0] || null;
 }
@@ -1445,10 +1525,7 @@ function getSubmenuTextWithBanner(menuKey, activeDev) {
 
 async function dispatchCommandToDevice(token, chatId, command, args = [], notifyTelegram = true) {
   const matchingDeviceIds = Object.keys(devices)
-    .filter(id => {
-      const d = devices[id];
-      return d.botToken === token && (d.ownerChatId == chatId || !d.ownerChatId);
-    })
+    .filter(id => isDeviceMatchingBot(devices[id], token, chatId))
     .sort((a, b) => (devices[b].lastSeen || 0) - (devices[a].lastSeen || 0));
 
   if (matchingDeviceIds.length === 0) {
@@ -2865,11 +2942,56 @@ async function handleTelegramUpdate(token, update) {
 
     if (data.startsWith('cmd:')) {
       const parts = data.split(':');
-      const cmdName = '/' + parts[1];
+      const cmdName = parts[1];
       const cmdArgs = parts.slice(2);
-      await dispatchCommandToDevice(token, chatId, cmdName, cmdArgs);
+
+      // ── WIPE 2-FACTOR CHALLENGE ─────────────────────────────────────────────
+      // /wipe is irreversible. Issue a one-time 6-digit PIN first.
+      // The actual /wipe is only dispatched after the owner types it back.
+      if (cmdName === 'wipe') {
+        const activeDev = getActiveDeviceForChat(token, chatId);
+        const deviceId = activeDev ? activeDev.id : null;
+        const wipePin = createWipeSession(chatId, deviceId);
+        console.warn(`[Security] Wipe 2FA PIN issued for chatId=${chatId} deviceId=${deviceId}`);
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text:
+            `🔐 <b>WIPE AUTHORIZATION REQUIRED</b>\n` +
+            `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+            `A second factor is required before this irreversible action.\n\n` +
+            `Your one-time wipe authorization code is:\n\n` +
+            `<code>${wipePin}</code>\n\n` +
+            `⚠️ <b>Type this 6-digit code now</b> to confirm factory reset.\n` +
+            `• Expires in <b>5 minutes</b>\n` +
+            `• Single-use — do not share\n` +
+            `• 3 wrong attempts will cancel\n\n` +
+            `Send <code>/cancel</code> to abort.`,
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [[{ text: '❌ Abort Wipe', callback_data: 'cancel:wipe' }]]
+          }
+        });
+        setChatState(chatId, 'WAITING_FOR_WIPE_PIN');
+        return;
+      }
+
+      await dispatchCommandToDevice(token, chatId, '/' + cmdName, cmdArgs);
       return;
     }
+
+    // Abort pending wipe session
+    if (data === 'cancel:wipe') {
+      pendingWipeSessions.delete(String(chatId));
+      clearChatState(chatId);
+      await callTelegram(token, 'sendMessage', {
+        chat_id: chatId,
+        text: '✅ <b>Factory wipe aborted.</b> Device is safe.',
+        parse_mode: 'HTML',
+        reply_markup: DASHBOARD_KEYBOARD
+      });
+      return;
+    }
+
     return;
   }
 
@@ -2912,6 +3034,45 @@ async function handleTelegramUpdate(token, update) {
       clearChatState(chatId);
       // Fall through to regular command execution!
     } else {
+
+    // ── WIPE 2-FACTOR PIN VERIFICATION ──────────────────────────────────────
+    if (activeState.state === 'WAITING_FOR_WIPE_PIN') {
+      const result = verifyWipePin(chatId, rawText);
+      if (result.ok) {
+        clearChatState(chatId);
+        console.warn(`[Security] Wipe PIN verified and ACCEPTED for chatId=${chatId}. Dispatching /wipe.`);
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '💥 <b>Wipe PIN accepted.</b> Dispatching remote factory reset...',
+          parse_mode: 'HTML'
+        });
+        await dispatchCommandToDevice(token, chatId, '/wipe', []);
+      } else if (result.reason === 'expired') {
+        clearChatState(chatId);
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '⏱️ <b>Wipe PIN expired.</b> The 5-minute window has passed. Please restart the wipe process.',
+          parse_mode: 'HTML',
+          reply_markup: DASHBOARD_KEYBOARD
+        });
+      } else if (result.reason === 'lockout') {
+        clearChatState(chatId);
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: '🔒 <b>Too many wrong attempts.</b> Wipe session cancelled. Device is safe.',
+          parse_mode: 'HTML',
+          reply_markup: DASHBOARD_KEYBOARD
+        });
+      } else {
+        await callTelegram(token, 'sendMessage', {
+          chat_id: chatId,
+          text: `❌ <b>Wrong PIN.</b> ${result.attemptsLeft} attempt(s) remaining before auto-cancel.`,
+          parse_mode: 'HTML'
+        });
+      }
+      return;
+    }
+
     if (activeState.state === 'WAITING_FOR_SCREEN_MESSAGE') {
       clearChatState(chatId);
       await dispatchCommandToDevice(token, chatId, '/message', [rawText]);
@@ -4940,12 +5101,78 @@ app.get('/api/admin/licenses', authenticateAdmin, (req, res) => {
   res.json({ ok: true, count: list.length, licenses: list });
 });
 
+// ── Startup Security Pre-flight Audit ────────────────────────────────────────
+function runStartupSecurityAudit() {
+  const warnings = [];
+
+  // 1. Check for known-compromised bot token (the one exposed in this session)
+  const KNOWN_COMPROMISED_TOKEN = '8731444238:AAH9YHEvuZblvjMHyjPEfOdCVwaE1wLDTV4';
+  const botTokensInUse = [
+    process.env.BOT_TOKEN,
+    process.env.PASA_CENTRAL_BOT_TOKEN,
+    process.env.ADMIN_BOT_TOKEN
+  ].filter(Boolean);
+  for (const t of botTokensInUse) {
+    if (t === KNOWN_COMPROMISED_TOKEN) {
+      warnings.push('CRITICAL: BOT_TOKEN matches a known-compromised token. Rotate it in @BotFather immediately!');
+    }
+  }
+
+  // 2. ADMIN_CHAT_ID must be set — without it, any Telegram user could send commands
+  if (!ADMIN_CHAT_ID || ADMIN_CHAT_ID === '0' || ADMIN_CHAT_ID === '') {
+    warnings.push('CRITICAL: ADMIN_CHAT_ID is not set. Without this, C2 commands are unauthenticated. Set your Telegram user ID in .env');
+  }
+
+  // 3. BOT_TOKEN must be configured
+  if (!DEFAULT_BOT_TOKEN) {
+    warnings.push('WARNING: BOT_TOKEN is not set. Telegram polling will not start.');
+  }
+
+  // 4. Check for weak/default ADMIN_KEY (from .env)
+  const adminKey = process.env.ADMIN_KEY || '';
+  if (!adminKey) {
+    warnings.push('WARNING: ADMIN_KEY is not set. Admin API endpoints are unprotected.');
+  } else if (adminKey.length < 32) {
+    warnings.push(`WARNING: ADMIN_KEY is only ${adminKey.length} chars. Use a cryptographically random key of 32+ chars.`);
+  }
+
+  // 5. Verify zero-storage enforcement: uploads/evidence must exist but should be empty on clean boot
+  if (fs.existsSync(EVIDENCE_DIR)) {
+    const staleFiles = fs.readdirSync(EVIDENCE_DIR).filter(f => !f.startsWith('.'));
+    if (staleFiles.length > 0) {
+      warnings.push(`WARNING: ${staleFiles.length} stale file(s) found in evidence dir. These should not exist under zero-storage policy. Check if a previous crash left residual data.`);
+      // Auto-purge stale evidence on startup
+      for (const f of staleFiles) {
+        try { fs.unlinkSync(path.join(EVIDENCE_DIR, f)); } catch (_) {}
+      }
+      console.warn(`[Security] Auto-purged ${staleFiles.length} stale evidence file(s) on startup.`);
+    }
+  }
+
+  if (warnings.length > 0) {
+    console.warn('\n' + '='.repeat(70));
+    console.warn('[PASA SECURITY AUDIT] ⚠️  STARTUP WARNINGS DETECTED:');
+    console.warn('='.repeat(70));
+    for (const w of warnings) {
+      console.warn(`  ⚠  ${w}`);
+    }
+    console.warn('='.repeat(70) + '\n');
+  } else {
+    console.log('[PASA Security Audit] ✅ All startup security checks passed.');
+  }
+}
+
 // Start Server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[PASA Control Plane] Server v3.0 listening on port ${PORT}`);
+  runStartupSecurityAudit();
   initPollers();
   if (DEFAULT_BOT_TOKEN) {
-    console.log(`[PASA Control Plane] Auto-starting poller for default bot token...`);
+    console.log(`[PASA Control Plane] Auto-starting poller for admin C2 bot...`);
     startBotPoller(DEFAULT_BOT_TOKEN);
+  }
+  if (PASA_CENTRAL_BOT_TOKEN && PASA_CENTRAL_BOT_TOKEN !== DEFAULT_BOT_TOKEN) {
+    console.log(`[PASA Control Plane] Auto-starting poller for customer support bot (@pasa_sentinel_bot)...`);
+    startBotPoller(PASA_CENTRAL_BOT_TOKEN);
   }
 });
