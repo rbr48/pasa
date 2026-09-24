@@ -472,7 +472,7 @@ a{color:inherit;text-decoration:none}
 @media(max-width:1000px){
   .hp-body{grid-template-columns:1fr;gap:28px;padding:22px 18px}
   .hp-copy{text-align:center}
-  .hp-ctas-v2,.hero-smart-suite,.hero-trust-chips{justify-content:center;margin-left:auto;margin-right:auto}
+  .hero-clean-suite,.hero-btns-row,.hero-audit-line,.hero-trust-line{justify-content:center;margin-left:auto;margin-right:auto}
 }
 
 /* copy column */
@@ -513,142 +513,96 @@ a{color:inherit;text-decoration:none}
 .hp-sub .hl-red{color:#fb7185;font-weight:600}
 .hp-sub .hl-green{color:#4ade80;font-weight:600}
 
-/* ── Smart Hero Suite & Actions ── */
-.hero-smart-suite{
-  display:flex;flex-direction:column;gap:12px;
-  max-width:580px;margin-bottom:18px;
+/* ── Clean & Smart Hero Actions ── */
+.hero-clean-suite{
+  display:flex;flex-direction:column;gap:14px;
+  max-width:540px;margin-bottom:20px;
 }
-.hp-ctas-v2{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch}
-.cta-primary-group{
-  display:inline-flex;align-items:stretch;border-radius:10px;
-  box-shadow:0 8px 24px -6px rgba(225,29,72,.36);
-  transition:transform .2s ease,box-shadow .2s ease;
-  flex:1 1 250px;
+.hero-btns-row{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px;
 }
-.cta-primary-group:hover{
-  transform:translateY(-2px);
-  box-shadow:0 12px 28px -6px rgba(225,29,72,.48);
-}
-.btn-hero-primary{
-  display:inline-flex;align-items:center;gap:12px;
-  padding:12px 18px;border-radius:10px 0 0 10px;
-  background:linear-gradient(135deg,#e11d48 0%,#9f1239 100%);
-  color:#fff;text-decoration:none;border:1px solid rgba(255,120,150,.35);
-  border-right:none;transition:background .2s;flex:1;
-}
-.btn-hero-primary:hover{background:linear-gradient(135deg,#f43f5e 0%,#be123c 100%)}
-.btn-hero-icon{
-  display:flex;align-items:center;justify-content:center;
-  width:34px;height:34px;background:rgba(255,255,255,.15);
-  border-radius:8px;flex-shrink:0;
-}
-.btn-hero-text{display:flex;flex-direction:column;text-align:left}
-.btn-hero-text .btn-main-title{
-  font-family:var(--display);font-size:14px;font-weight:700;
-  letter-spacing:.02em;line-height:1.2;
-}
-.btn-hero-text .btn-sub-meta{
-  font-family:var(--mono);font-size:9.5px;font-weight:600;
-  color:rgba(255,255,255,.85);letter-spacing:.04em;margin-top:2px;
-}
-.btn-hero-qr{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:12px 14px;border-radius:0 10px 10px 0;
-  background:#881337;color:#fecdd3;
+.btn-clean-primary{
+  display:inline-flex;align-items:center;gap:9px;
+  height:46px;padding:0 20px;border-radius:9px;
+  background:linear-gradient(135deg,#e11d48 0%,#be123c 100%);
+  color:#fff;font-family:var(--display);font-size:14px;font-weight:700;
+  letter-spacing:.02em;text-decoration:none;
   border:1px solid rgba(255,120,150,.35);
-  font-family:var(--mono);font-size:11px;font-weight:700;
-  cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 18px -2px rgba(225,29,72,.42);
+  transition:all .2s ease;white-space:nowrap;
 }
-.btn-hero-qr:hover{background:#9f1239;color:#fff}
-
-.btn-hero-secondary{
-  display:inline-flex;align-items:center;gap:12px;
-  padding:12px 18px;border-radius:10px;
-  background:rgba(255,255,255,.04);color:var(--txt);
-  text-decoration:none;border:1px solid var(--line-2);
-  box-shadow:0 4px 16px rgba(0,0,0,.3);transition:all .2s;
-  flex:1 1 220px;
+.btn-clean-primary:hover{
+  background:linear-gradient(135deg,#f43f5e 0%,#e11d48 100%);
+  box-shadow:0 6px 24px -2px rgba(225,29,72,.58);
+  transform:translateY(-1px);color:#fff;
 }
-.btn-hero-secondary:hover{
-  background:rgba(255,255,255,.08);border-color:rgba(41,224,255,.3);
-  transform:translateY(-2px);color:#fff;
-}
-.btn-hero-secondary .btn-hero-icon{
-  display:flex;align-items:center;justify-content:center;
-  width:34px;height:34px;background:rgba(255,255,255,.06);
-  border-radius:8px;color:var(--cyan);flex-shrink:0;
-}
-.btn-hero-secondary .btn-main-title{
-  font-family:var(--display);font-size:14px;font-weight:700;line-height:1.2;
-}
-.btn-hero-secondary .btn-sub-meta{
-  font-family:var(--mono);font-size:9.5px;color:var(--txt-3);margin-top:2px;
+.btn-clean-primary .btn-tag{
+  font-family:var(--mono);font-size:10.5px;font-weight:700;
+  background:rgba(0,0,0,.28);padding:2px 7px;border-radius:4px;
+  color:#fecdd3;margin-left:3px;
 }
 
-/* ── Smart Security Audit Strip ── */
-.hero-audit-strip{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:10px 14px;background:linear-gradient(90deg,rgba(34,224,122,.08) 0%,rgba(41,224,255,.05) 50%,rgba(10,14,24,.75) 100%);
-  border:1px solid rgba(34,224,122,.28);border-radius:10px;cursor:pointer;
-  transition:all .2s ease;
+.btn-clean-qr{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:46px;height:46px;border-radius:9px;
+  background:rgba(255,255,255,.05);border:1px solid var(--line-2);
+  color:var(--txt-2);cursor:pointer;transition:all .2s ease;flex-shrink:0;
 }
-.hero-audit-strip:hover{
-  background:linear-gradient(90deg,rgba(34,224,122,.15) 0%,rgba(41,224,255,.09) 50%,rgba(15,22,38,.9) 100%);
-  border-color:rgba(34,224,122,.52);box-shadow:0 0 20px rgba(34,224,122,.16);
-  transform:translateY(-1px);
-}
-.audit-strip-left{display:flex;align-items:center;gap:10px;min-width:0}
-.audit-pulse-beacon{
-  width:8px;height:8px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 8px var(--green);animation:blink 1.6s infinite;flex-shrink:0;
-}
-.audit-shield-badge{font-size:17px;flex-shrink:0;line-height:1}
-.audit-strip-copy{display:flex;flex-direction:column;min-width:0;text-align:left}
-.audit-strip-heading{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.audit-lead-tag{
-  font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--green);
-}
-.audit-status-tag{
-  font-family:var(--mono);font-size:9px;font-weight:700;color:#86efac;
-  background:rgba(34,224,122,.12);padding:1px 6px;border-radius:4px;
-  border:1px solid rgba(34,224,122,.25);
-}
-.audit-strip-details{
-  font-size:11.5px;color:var(--txt-2);line-height:1.35;margin-top:2px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.audit-strip-details b{color:#fff;font-weight:600}
-.audit-strip-right{flex-shrink:0}
-.audit-view-btn{
-  display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;
-  background:rgba(34,224,122,.12);border:1px solid rgba(34,224,122,.32);
-  color:#86efac;font-family:var(--mono);font-size:10.5px;font-weight:700;
-  transition:all .18s;
-}
-.hero-audit-strip:hover .audit-view-btn{
-  background:var(--green);color:#05070d;border-color:var(--green);
-}
-@media(max-width:560px){
-  .hero-audit-strip{flex-direction:column;align-items:stretch;gap:8px}
-  .audit-strip-details{white-space:normal}
-  .audit-strip-right{align-self:flex-end}
+.btn-clean-qr:hover{
+  background:rgba(255,255,255,.1);border-color:rgba(255,120,150,.45);
+  color:#fff;transform:translateY(-1px);
 }
 
-/* ── Tactical Reassurance Chips ── */
-.hero-trust-chips{
-  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+.btn-clean-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  height:46px;padding:0 18px;border-radius:9px;
+  background:rgba(255,255,255,.04);color:var(--txt-2);
+  font-family:var(--display);font-size:13.5px;font-weight:600;
+  letter-spacing:.01em;text-decoration:none;
+  border:1px solid var(--line-2);transition:all .2s ease;white-space:nowrap;
 }
-.t-chip{
-  display:inline-flex;align-items:center;gap:6px;padding:5px 10px;
-  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
-  border-radius:6px;font-family:var(--mono);font-size:10.5px;color:var(--txt-3);
-  transition:all .18s;
+.btn-clean-secondary:hover{
+  background:rgba(255,255,255,.08);border-color:rgba(41,224,255,.35);
+  color:#fff;transform:translateY(-1px);
 }
-.t-chip:hover{
-  background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);
-  color:var(--txt-2);
+
+/* Smart Audit Link Pill */
+.hero-audit-line{display:flex;align-items:center}
+.audit-pill-link{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 13px;border-radius:100px;
+  background:rgba(34,224,122,.06);border:1px solid rgba(34,224,122,.24);
+  color:var(--txt-2);font-family:var(--mono);font-size:11px;
+  cursor:pointer;transition:all .2s ease;text-align:left;
 }
-.t-chip .tc-ico{color:#22c55e;font-weight:800;font-style:normal}
+.audit-pill-link:hover{
+  background:rgba(34,224,122,.12);border-color:rgba(34,224,122,.5);
+  color:#fff;transform:translateY(-1px);box-shadow:0 0 16px rgba(34,224,122,.12);
+}
+.audit-live-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 6px var(--green);animation:blink 1.8s infinite;flex-shrink:0;
+}
+.audit-pill-text strong{color:var(--green);font-weight:700}
+.audit-pill-arrow{color:var(--green);font-weight:700;transition:transform .15s ease}
+.audit-pill-link:hover .audit-pill-arrow{transform:translate(2px, -2px)}
+
+/* Clean Trust Line */
+.hero-trust-line{
+  display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;
+  font-family:var(--mono);font-size:11px;color:var(--txt-3);
+}
+.hero-trust-line span{display:inline-flex;align-items:center;gap:5px}
+.hero-trust-line .c-green{color:#22c55e;font-style:normal;font-weight:800}
+.hero-trust-line .c-dot{color:var(--txt-4)}
+
+@media(max-width:600px){
+  .hero-btns-row{width:100%}
+  .btn-clean-primary{flex:1;justify-content:center}
+  .btn-clean-secondary{width:100%;justify-content:center}
+  .audit-pill-link{border-radius:8px;font-size:10.5px}
+  .hero-trust-line{justify-content:center}
+}
 
 /* ── Independent Security Audit Modal ── */
 .audit-modal-backdrop{
@@ -1916,65 +1870,43 @@ table.matrix tbody tr:last-child td{border-bottom:none}
           When standard trackers go blind in 10 seconds, PASA Sentinel enforces <span class="hl-cyan">Knox-grade hardware lockdown</span>, captures <span class="hl-red">perpetrator forensics</span> headlessly, and protects your <span class="hl-green">sovereign personal data</span> with zero cloud storage.
         </p>
 
-        <div class="hero-smart-suite">
-          <!-- Primary & Secondary Action CTAs -->
-          <div class="hp-ctas-v2">
-            <div class="cta-primary-group">
-              <a href="/releases/pasa-latest.apk" class="btn-hero-primary" download>
-                <div class="btn-hero-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
-                </div>
-                <div class="btn-hero-text">
-                  <span class="btn-main-title" data-i18n="hero_cta_apk">Download Tactical APK</span>
-                  <span class="btn-sub-meta">v3.5.6 (Build 52) • 19.3 MB • Signed APK</span>
-                </div>
-              </a>
-              <button type="button" class="btn-hero-qr" onclick="toggleQrModal()" title="Scan QR Code to install directly on phone">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="7" y1="7" x2="7.01" y2="7"/><line x1="17" y1="7" x2="17.01" y2="7"/><line x1="7" y1="17" x2="7.01" y2="17"/><line x1="17" y1="17" x2="17.01" y2="17"/></svg>
-                <span>QR</span>
-              </button>
-            </div>
+        <div class="hero-clean-suite">
+          <!-- Sleek Action Buttons Row -->
+          <div class="hero-btns-row">
+            <a href="/releases/pasa-latest.apk" class="btn-clean-primary" download>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
+              <span data-i18n="hero_cta_apk">Download Tactical APK</span>
+              <span class="btn-tag">v3.5.6</span>
+            </a>
 
-            <a href="/releases/PASA-Device-Owner-Setup-Kit.zip" class="btn-hero-secondary" download>
-              <div class="btn-hero-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-              </div>
-              <div class="btn-hero-text">
-                <span class="btn-main-title" data-i18n="hero_cta_setup">Device Owner Setup Kit</span>
-                <span class="btn-sub-meta">Windows 6-Step Guided Wizard</span>
-              </div>
+            <button type="button" class="btn-clean-qr" onclick="toggleQrModal()" title="Scan QR Code to install directly on phone" aria-label="QR Code Sideload">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="7" y1="7" x2="7.01" y2="7"/><line x1="17" y1="7" x2="17.01" y2="7"/><line x1="7" y1="17" x2="7.01" y2="17"/><line x1="17" y1="17" x2="17.01" y2="17"/></svg>
+            </button>
+
+            <a href="/releases/PASA-Device-Owner-Setup-Kit.zip" class="btn-clean-secondary" download>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <span data-i18n="hero_cta_setup">Windows Setup Kit</span>
             </a>
           </div>
 
-          <!-- Smart Security Audit Strip -->
-          <div class="hero-audit-strip" onclick="toggleAuditModal()" role="button" tabindex="0" title="Click to inspect independent audit findings">
-            <div class="audit-strip-left">
-              <span class="audit-pulse-beacon"></span>
-              <span class="audit-shield-badge">🛡️</span>
-              <div class="audit-strip-copy">
-                <div class="audit-strip-heading">
-                  <span class="audit-lead-tag" data-i18n="hero_audit_lead">INDEPENDENT SECURITY AUDIT</span>
-                  <span class="audit-status-tag" data-i18n="hero_audit_tag">100% CLEAN // CERTIFIED</span>
-                </div>
-                <div class="audit-strip-details" data-i18n="hero_audit_details">
-                  <b>70+ AV Clean</b> (VirusTotal) • <b>CodeQL SAST</b> &amp; <b>MobSF</b> SARIF Audited • 0 Warnings
-                </div>
-              </div>
-            </div>
-            <div class="audit-strip-right">
-              <span class="audit-view-btn" data-i18n="hero_audit_btn">
-                <span>View Full Audit</span>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-              </span>
-            </div>
+          <!-- Smart Minimalist Audit Pill -->
+          <div class="hero-audit-line">
+            <button type="button" class="audit-pill-link" onclick="toggleAuditModal()">
+              <span class="audit-live-dot"></span>
+              <span class="audit-pill-text" data-i18n="hero_audit_pill"><strong>Security Audit Passed:</strong> 70+ AV Clean (VirusTotal) • CodeQL &amp; MobSF Verified</span>
+              <span class="audit-pill-arrow">↗</span>
+            </button>
           </div>
 
-          <!-- Tactical Reassurance Chips -->
-          <div class="hero-trust-chips">
-            <span class="t-chip"><i class="tc-ico">✓</i> <span data-i18n="hero_chip_trial">7-Day Free Trial</span></span>
-            <span class="t-chip"><i class="tc-ico">✓</i> <span data-i18n="hero_chip_zero">Zero Cloud Storage</span></span>
-            <span class="t-chip"><i class="tc-ico">✓</i> <span data-i18n="hero_chip_knox">Knox Supervisor Lock</span></span>
-            <span class="t-chip"><i class="tc-ico">✓</i> <span data-i18n="hero_chip_sms">Air-Gapped SMS C2</span></span>
+          <!-- Clean Trust Line -->
+          <div class="hero-trust-line">
+            <span><i class="c-green">✓</i> <span data-i18n="hero_chip_trial">7-Day Free Trial</span></span>
+            <span class="c-dot">•</span>
+            <span><i class="c-green">✓</i> <span data-i18n="hero_chip_zero">Zero Cloud Storage</span></span>
+            <span class="c-dot">•</span>
+            <span><i class="c-green">✓</i> <span data-i18n="hero_chip_knox">Knox Supervisor Lock</span></span>
+            <span class="c-dot">•</span>
+            <span><i class="c-green">✓</i> <span data-i18n="hero_chip_sms">Air-Gapped SMS C2</span></span>
           </div>
         </div>
       </div>
@@ -2738,6 +2670,7 @@ const translations = {
     hero_cta_apk:"Download Tactical APK",hero_cta_setup:"Device Owner Setup Kit",
     hero_audit_lead:"INDEPENDENT SECURITY AUDIT",
     hero_audit_tag:"100% CLEAN // CERTIFIED",
+    hero_audit_pill:"Security Audit Passed: 70+ AV Clean (VirusTotal) • CodeQL & MobSF Verified",
     hero_audit_details:"70+ AV Clean (VirusTotal) • CodeQL SAST & MobSF SARIF Audited • 0 Warnings",
     hero_audit_btn:"View Full Audit",
     hero_chip_trial:"7-Day Free Trial",
@@ -2824,6 +2757,7 @@ const translations = {
     hero_cta_apk:"ট্যাকটিক্যাল এপিকে ডাউনলোড",hero_cta_setup:"ডিভাইস ওনার সেটআপ কিট",
     hero_audit_lead:"স্বাধীন সিকিউরিটি অডিট",
     hero_audit_tag:"১০০% নিরাপদ // সার্টিফায়েড",
+    hero_audit_pill:"সিকিউরিটি অডিট পাস: ৭০+ এন্টিভাইরাস ক্লিন (VirusTotal) • CodeQL ও MobSF ভেরিফাইড",
     hero_audit_details:"৭০+ এন্টিভাইরাস ক্লিন (VirusTotal) • CodeQL SAST ও MobSF SARIF ভেরিফাইড • ০ ওয়ার্নিং",
     hero_audit_btn:"অডিট রিপোর্ট দেখুন",
     hero_chip_trial:"৭ দিনের ফ্রি ট্রায়াল",
