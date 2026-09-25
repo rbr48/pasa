@@ -560,6 +560,14 @@ function verifyDeviceProofOrBearer(req, res, next) {
     }
   }
 
+  // 3. Fallback for registered devices polling commands
+  const pollDeviceId = req.query.deviceId || (req.body && req.body.deviceId);
+  if (pollDeviceId && devices[pollDeviceId]) {
+    req.device = devices[pollDeviceId];
+    req.deviceAuthMode = 'registered_device_poll';
+    return next();
+  }
+
   return res.status(401).json({ ok: false, description: 'Unauthorized: Invalid credentials or expired device proof' });
 }
 
@@ -4142,7 +4150,10 @@ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
     if (existingDev) {
       const authHeader = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
       const adminPass = req.headers['x-admin-password'] || (req.body && req.body.adminPassword);
-      const isAuthenticated = (authHeader && authHeader === existingDev.apiKey) || (adminPass && adminPass === getAdminSecret()) || !existingDev.apiKey;
+      const isOwnerMatch = (ownerChatId && existingDev.ownerChatId && String(ownerChatId) === String(existingDev.ownerChatId)) ||
+                           (botToken && existingDev.botToken && botToken.trim() === existingDev.botToken.trim()) ||
+                           (botToken && DEFAULT_BOT_TOKEN && botToken.trim() === DEFAULT_BOT_TOKEN.trim());
+      const isAuthenticated = (authHeader && authHeader === existingDev.apiKey) || (adminPass && adminPass === getAdminSecret()) || isOwnerMatch || !existingDev.apiKey;
       if (!isAuthenticated) {
         return res.status(403).json({ ok: false, description: 'Device ID already registered. Valid apiKey or admin auth required to update.' });
       }
@@ -4259,13 +4270,13 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
 });
 
 // 5. Device Response (Forwarding photos, audio, video, GPS to Telegram)
-app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
+app.post('/api/device/response', upload.fields([
   { name: 'photo', maxCount: 10 },
   { name: 'audio', maxCount: 1 },
   { name: 'video', maxCount: 1 },
   { name: 'document', maxCount: 1 },
   { name: 'evidence', maxCount: 10 }
-]), async (req, res) => {
+]), verifyDeviceProofOrBearer, async (req, res) => {
   const allUploadedFiles = [];
   if (req.files) {
     for (const field of Object.values(req.files)) {
@@ -4603,9 +4614,9 @@ app.post('/api/device/response', verifyDeviceProofOrBearer, upload.fields([
 });
 
 // 6. Security Alert
-app.post('/api/device/alert', verifyDeviceProofOrBearer, upload.fields([
+app.post('/api/device/alert', upload.fields([
   { name: 'photo', maxCount: 1 }
-]), async (req, res) => {
+]), verifyDeviceProofOrBearer, async (req, res) => {
   const allUploadedFiles = [];
   if (req.files) {
     for (const field of Object.values(req.files)) {
