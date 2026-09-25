@@ -354,11 +354,13 @@ class PasaService : LifecycleService() {
                         }
 
                         if (preferencesManager.apiKey.isBlank()) {
+                            // Zero-Data Privacy: botToken and ownerChatId NEVER leave the device.
+                            // Only non-sensitive identifiers (deviceId, deviceName) are transmitted.
                             val req = com.izhaanintellect.pasa.network.RegisterDeviceRequest(
                                 deviceId = preferencesManager.deviceId,
                                 deviceName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (Android ${android.os.Build.VERSION.RELEASE})",
-                                botToken = preferencesManager.botToken,
-                                ownerChatId = preferencesManager.ownerChatId
+                                botToken = null,
+                                ownerChatId = null
                             )
                             val regResp = pasaBackendApi.registerDevice(req)
                             if (regResp.ok) {

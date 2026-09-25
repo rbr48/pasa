@@ -4257,9 +4257,12 @@ app.post('/api/verify-bot', async (req, res) => {
 });
 
 // 3. Register Device with Hardware Key Exchange
-app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
+ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
   try {
-    const { deviceId, deviceName, botToken, ownerChatId, masterPasswordHash, email, publicKeyJwk, attestationChain } = req.body;
+    // Zero-Data Privacy Architecture: botToken and ownerChatId are FORBIDDEN on this endpoint.
+    // Sovereign Mode devices poll api.telegram.org directly — the VPS must never hold credentials.
+    // Any client sending these fields is using a legacy build; they are silently dropped here.
+    const { deviceId, deviceName, masterPasswordHash, email, publicKeyJwk, attestationChain } = req.body;
     if (!deviceId) {
       return res.status(400).json({ ok: false, description: 'deviceId required' });
     }
@@ -4268,30 +4271,9 @@ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
     if (existingDev) {
       const authHeader = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
       const adminPass = req.headers['x-admin-password'] || (req.body && req.body.adminPassword);
-      const isOwnerMatch = (ownerChatId && existingDev.ownerChatId && String(ownerChatId) === String(existingDev.ownerChatId)) ||
-                           (botToken && existingDev.botToken && botToken.trim() === existingDev.botToken.trim()) ||
-                           (botToken && DEFAULT_BOT_TOKEN && botToken.trim() === DEFAULT_BOT_TOKEN.trim());
-      const isAuthenticated = (authHeader && authHeader === existingDev.apiKey) || (adminPass && adminPass === getAdminSecret()) || isOwnerMatch || !existingDev.apiKey;
+      const isAuthenticated = (authHeader && authHeader === existingDev.apiKey) || (adminPass && adminPass === getAdminSecret()) || !existingDev.apiKey;
       if (!isAuthenticated) {
         return res.status(403).json({ ok: false, description: 'Device ID already registered. Valid apiKey or admin auth required to update.' });
-      }
-    }
-
-    const cleanNewToken = (botToken || '').trim();
-    const oldToken = existingDev ? (existingDev.botToken || '').trim() : '';
-
-    // Hot-swap poller cleanly if bot token changed
-    if (cleanNewToken && oldToken && cleanNewToken !== oldToken) {
-      console.log(`[Token Rotation] Device ${deviceId} rotated bot token from ...${oldToken.slice(-8)} to ...${cleanNewToken.slice(-8)}`);
-      stopBotPoller(oldToken);
-      if (oldToken === DEFAULT_BOT_TOKEN || String(ownerChatId) === String(ADMIN_CHAT_ID)) {
-        DEFAULT_BOT_TOKEN = cleanNewToken;
-        updateEnvBotToken(cleanNewToken);
-      }
-    } else if (cleanNewToken && !oldToken) {
-      if (!DEFAULT_BOT_TOKEN || String(ownerChatId) === String(ADMIN_CHAT_ID)) {
-        DEFAULT_BOT_TOKEN = cleanNewToken;
-        updateEnvBotToken(cleanNewToken);
       }
     }
 
@@ -4301,8 +4283,10 @@ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
       ...existingDevObj,
       deviceId,
       deviceName: deviceName || existingDevObj.deviceName || 'Android Device',
-      botToken: cleanNewToken || existingDevObj.botToken || '',
-      ownerChatId: ownerChatId || existingDevObj.ownerChatId || '',
+      // Zero-Data: botToken and ownerChatId are NEVER stored via this endpoint.
+      // They remain undefined / empty — the device communicates with Telegram directly.
+      botToken: existingDevObj.botToken || '',
+      ownerChatId: existingDevObj.ownerChatId || '',
       email: email || existingDevObj.email || '',
       apiKey: apiKey,
       publicKeyJwk: publicKeyJwk || existingDevObj.publicKeyJwk || null,
@@ -4316,9 +4300,8 @@ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
     };
     persistDevice(deviceId);
 
-    if (devices[deviceId].botToken) {
-      startBotPoller(devices[deviceId].botToken);
-    }
+    // No bot poller started — Sovereign Mode devices poll Telegram directly.
+
 
     // Automatically deliver interactive console to owner on Telegram
     if (devices[deviceId].botToken && devices[deviceId].ownerChatId) {
