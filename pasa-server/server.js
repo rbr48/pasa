@@ -5239,10 +5239,14 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`[PASA Control Plane] Server v3.0 listening on port ${PORT}`);
   runStartupSecurityAudit();
   initPollers();
+  // Zero-Data Sovereign Mode: Admin/Device C2 bot polling is handled directly by Android devices.
+  // VPS server never polls user bots to prevent 409 conflict and ensure zero customer data touches VPS.
+  /*
   if (DEFAULT_BOT_TOKEN) {
     console.log(`[PASA Control Plane] Auto-starting poller for admin C2 bot...`);
     startBotPoller(DEFAULT_BOT_TOKEN);
   }
+  */
   if (PASA_CENTRAL_BOT_TOKEN && PASA_CENTRAL_BOT_TOKEN !== DEFAULT_BOT_TOKEN) {
     console.log(`[PASA Control Plane] Auto-starting poller for customer support bot (@pasa_sentinel_bot)...`);
     startBotPoller(PASA_CENTRAL_BOT_TOKEN);

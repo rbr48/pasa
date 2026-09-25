@@ -115,11 +115,17 @@ object AppModule {
             .build()
     }
 
+    // Zero-Data Unblocked Sovereign Proxy:
+    // Routes Telegram Bot API requests through our stateless, memory-only Cloudflare/Nginx reverse proxy
+    // to bypass regional ISP blocks (e.g. Bangladesh BTRC filtering) without requiring third-party VPNs.
+    // Zero logs, zero caching, zero disk storage on proxy.
+    private const val TELEGRAM_GATEWAY_URL = "https://pasa.izhaanintellect.fun/tg/"
+
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.telegram.org/")
+            .baseUrl(TELEGRAM_GATEWAY_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

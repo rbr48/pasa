@@ -92,9 +92,9 @@ class SetupViewModel @Inject constructor(
             if (token.isBlank()) {
                 return@withContext Result.failure(Exception("Bot token cannot be blank"))
             }
-            // Zero-Data: Always verify directly with Telegram — never send token to VPS
+            // Zero-Data: Always verify via unblocked gateway — never send token to VPS backend
             try {
-                val directUrl = "https://api.telegram.org/bot$token/getMe"
+                val directUrl = "https://pasa.izhaanintellect.fun/tg/bot$token/getMe"
                 val resp = telegramApi.getMeDirect(directUrl)
                 if (resp.ok && resp.result != null) {
                     Result.success(resp.result.username ?: resp.result.firstName)

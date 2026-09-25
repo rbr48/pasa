@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 57,
+    "versionName": "3.6.1",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.6.1-57.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.6.1-57.apk",
+    "sha256": "3885be9cd9df009404dc3dc45d1b7bd00136ed715eec383fea0e9af50644ceba",
+    "size": 19079342,
+    "mandatory": false,
+    "releaseNotes": "v3.6.1: Zero-Data Unblocked Sovereign Proxy — Routes Telegram C2 commands through stateless, memory-only Cloudflare/Nginx reverse proxy to bypass regional ISP/BTRC blocks without requiring VPN. Zero logs, zero caching, zero customer data stored."
+  },
+  {
     "versionCode": 56,
     "versionName": "3.6.0",
     "releaseDate": "2026-09-25",
