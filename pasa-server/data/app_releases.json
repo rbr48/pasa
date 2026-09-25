@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 65,
+    "versionName": "3.7.0",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.7.0-65.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.0-65.apk",
+    "sha256": "53e39d901af1f4f1a221df8f4c86dbf5aa3a2842e355cc6e55698823c5b02061",
+    "size": 19217343,
+    "mandatory": false,
+    "releaseNotes": "v3.7.0: Strategic Security Architecture — Device Protected Storage for Pre-Unlock SMS (cold-boot SMS C2 before first unlock), Automated OEM Autostart Intent Dispatcher (/autostart 1-tap whitelisting for Xiaomi HyperOS, Samsung OneUI, Huawei, ColorOS, Vivo), Air-Gapped Ed25519 SMS License Renewal (PASA LIC offline 160-char signed payload), and Full Kernel Security Event Stream (/security_audit full direct text document export with zero-leak credential redaction)."
+  },
+  {
     "versionCode": 64,
     "versionName": "3.6.8",
     "releaseDate": "2026-09-25",
