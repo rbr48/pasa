@@ -131,4 +131,20 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Terms of Service & EULA -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/terms.html</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Privacy Policy & Zero-Telemetry Guarantee -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/privacy.html</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 </urlset>
