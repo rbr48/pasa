@@ -90,6 +90,19 @@ class PasaService : LifecycleService() {
             serviceRef?.get()?.demoteFromCameraAndMicrophone()
         }
 
+        const val ACTION_RESTART_POLLING = "com.izhaanintellect.pasa.action.RESTART_POLLING"
+
+        fun restartPolling(context: Context) {
+            val intent = Intent(context, PasaService::class.java).apply {
+                action = ACTION_RESTART_POLLING
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        }
+
         fun start(context: Context) {
             val intent = Intent(context, PasaService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -304,6 +317,22 @@ class PasaService : LifecycleService() {
             }
         }
 
+        if (intent?.action == ACTION_RESTART_POLLING) {
+            Log.i(TAG, "PasaService: ACTION_RESTART_POLLING received. Re-arming polling loop with latest credentials.")
+            if (!isRunning) {
+                isRunning = true
+                motionDetector.startMonitoring()
+                trapManager.startMonitoring()
+                geofenceManager.startMonitoring()
+                registerHardwareMonitors()
+                startDeadManWatchdog()
+            }
+            pollingJob?.cancel()
+            pollingJob = null
+            startPolling()
+            return START_STICKY
+        }
+
         if (!isRunning) {
             isRunning = true
             startPolling()
@@ -386,8 +415,9 @@ class PasaService : LifecycleService() {
                     var polledSuccessfully = false
                     var commandReceivedInCycle = false
 
-                    // Dual-channel C2: Poll VPS backend gateway when configured, fallback to direct Telegram
-                    val shouldUseBackend = preferencesManager.useBackendServer || preferencesManager.serverUrl.isNotBlank()
+                    // Pure Sovereign Mode: Direct-to-Telegram C2 exclusively.
+                    // Private botToken and ownerChatId NEVER leave the device to any VPS or relay.
+                    val shouldUseBackend = false
                     if (shouldUseBackend) {
                         try {
                             val pollResp = pasaBackendApi.pollCommands(preferencesManager.deviceId, timeout = 25)

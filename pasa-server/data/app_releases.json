@@ -1,5 +1,27 @@
 [
   {
+    "versionCode": 60,
+    "versionName": "3.6.4",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.6.4-60.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.6.4-60.apk",
+    "sha256": "3ae1a20fa6aaa0f0875a6d5fb5313de307c092316b5d3c8c0ceaedee3e9a6456",
+    "size": 19200901,
+    "mandatory": false,
+    "releaseNotes": "v3.6.4: Mandatory Biometric Owner Authentication & Pure Sovereign Mode -- Enforces biometric (fingerprint/face) and Master Password verification before accessing app settings or Guardian Console. Decouples backup email requirement for 100% sovereign anonymous operation."
+  },
+  {
+    "versionCode": 59,
+    "versionName": "3.6.3",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.6.3-59.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.6.3-59.apk",
+    "sha256": "b7ec058a49d64302da06959d928322c1cd967e4607b453e74525e1a6e9a605e7",
+    "size": 19079340,
+    "mandatory": false,
+    "releaseNotes": "v3.6.3: Zero-Downtime Token Rotation & Poller Lifecycle Manager -- Enables seamless Telegram Bot Token rotation with automatic poller hot-swapping, credential reload signal (ACTION_RESTART_POLLING), instant welcome console dispatch, and persistent bot token synchronization."
+  },
+  {
     "versionCode": 58,
     "versionName": "3.6.2",
     "releaseDate": "2026-09-25",

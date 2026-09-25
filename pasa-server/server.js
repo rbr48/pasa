@@ -66,7 +66,7 @@ const telegramPairingAttempts = new Map();
 
 // Official central Customer Support Bot (@pasa_sentinel_bot)
 const PASA_CENTRAL_BOT_TOKEN = process.env.PASA_CENTRAL_BOT_TOKEN || '';
-const DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || '';
+let DEFAULT_BOT_TOKEN = process.env.BOT_TOKEN || '';
 const ADMIN_BOT_TOKEN = process.env.ADMIN_BOT_TOKEN || DEFAULT_BOT_TOKEN;
 const ADMIN_CHAT_ID = String(process.env.ADMIN_CHAT_ID || '');
 const BINANCE_PAY_ID = process.env.BINANCE_PAY_ID || '756303714';
@@ -1472,7 +1472,8 @@ function isDeviceMatchingBot(d, token, chatId) {
     const tBotId = token.split(':')[0];
     if (dBotId && tBotId && dBotId === tBotId) {
       d.botToken = token;
-      try { DeviceRepo.upsert(d.deviceId, d); } catch (_) {}
+      try { DeviceRepo.upsert(d); } catch (_) {}
+      persistDevice(d.deviceId);
       return true;
     }
   }
@@ -1480,7 +1481,16 @@ function isDeviceMatchingBot(d, token, chatId) {
   // 3. Fallback for designated Administrator operating on DEFAULT_BOT_TOKEN
   if (token === DEFAULT_BOT_TOKEN && String(chatId) === String(ADMIN_CHAT_ID)) {
     d.botToken = token;
-    try { DeviceRepo.upsert(d.deviceId, d); } catch (_) {}
+    try { DeviceRepo.upsert(d); } catch (_) {}
+    persistDevice(d.deviceId);
+    return true;
+  }
+
+  // 4. Fallback for owner matching chat ID on active bot poller
+  if (d.ownerChatId && String(chatId) === String(d.ownerChatId) && activePollers.has(token)) {
+    d.botToken = token;
+    try { DeviceRepo.upsert(d); } catch (_) {}
+    persistDevice(d.deviceId);
     return true;
   }
 
@@ -1633,10 +1643,11 @@ async function dispatchCommandToDevice(token, chatId, command, args = [], notify
   // Enqueue for relevant devices and notify long-pollers immediately
   for (const devId of targetDeviceIds) {
     if (!commands[devId]) commands[devId] = [];
-    const signedEnvelope = signCommandEnvelope(devId, action, args, chatId, cmdId);
+    const devCmdId = targetDeviceIds.length > 1 ? `${cmdId}_${devId.slice(-6)}` : cmdId;
+    const signedEnvelope = signCommandEnvelope(devId, action, args, chatId, devCmdId);
 
     const cmdRecord = {
-      id: cmdId,
+      id: devCmdId,
       command,
       args,
       chatId,
@@ -1799,6 +1810,38 @@ async function handleCheckUpdateCommand(token, chatId, args = []) {
   }
 }
 
+// Stop an existing bot poller cleanly
+function stopBotPoller(token) {
+  if (!token || typeof token !== 'string') return;
+  token = token.trim();
+  const state = activePollers.get(token);
+  if (state) {
+    state.isRunning = false;
+    activePollers.delete(token);
+    console.log(`[Telegram Poller] Stopped poller for token: ...${token.slice(-8)}`);
+  }
+}
+
+// Persist rotated bot token to .env for persistence across PM2 restarts
+function updateEnvBotToken(newToken) {
+  if (!newToken || typeof newToken !== 'string' || !newToken.includes(':')) return;
+  try {
+    const envPath = path.resolve(__dirname, '.env');
+    if (fs.existsSync(envPath)) {
+      let content = fs.readFileSync(envPath, 'utf8');
+      if (content.includes('BOT_TOKEN=')) {
+        content = content.replace(/^BOT_TOKEN=.*$/m, `BOT_TOKEN=${newToken.trim()}`);
+      } else {
+        content += `\nBOT_TOKEN=${newToken.trim()}\n`;
+      }
+      fs.writeFileSync(envPath, content, 'utf8');
+      console.log(`[PASA Control Plane] Updated BOT_TOKEN in .env to ...${newToken.trim().slice(-8)}`);
+    }
+  } catch (err) {
+    console.error('[PASA Control Plane] Failed to update .env BOT_TOKEN:', err.message);
+  }
+}
+
 // Telegram Bot long-poller loop
 function startBotPoller(token) {
   if (!token || typeof token !== 'string' || token.trim().length === 0) return;
@@ -1815,6 +1858,11 @@ function startBotPoller(token) {
   registerTelegramBotCommands(token);
 
   (async () => {
+    // Clear any active webhook to prevent 409 Conflict with getUpdates
+    try {
+      await callTelegram(token, 'deleteWebhook', { drop_pending_updates: false });
+    } catch (_) {}
+
     while (pollerState.isRunning) {
       try {
         const url = `https://api.telegram.org/bot${token}/getUpdates?timeout=25${pollerState.offset ? `&offset=${pollerState.offset}` : ''}`;
@@ -3861,9 +3909,17 @@ function initPollers() {
     console.log(`[PASA Control Plane] Starting poller for default/admin C2 bot...`);
     startBotPoller(DEFAULT_BOT_TOKEN);
   }
+  const seenTokens = new Set();
+  if (DEFAULT_BOT_TOKEN) seenTokens.add(DEFAULT_BOT_TOKEN);
+  if (PASA_CENTRAL_BOT_TOKEN) seenTokens.add(PASA_CENTRAL_BOT_TOKEN);
+
+  const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
   for (const device of Object.values(devices)) {
-    if (device.botToken) {
-      startBotPoller(device.botToken);
+    if (device.botToken && !seenTokens.has(device.botToken)) {
+      if ((device.lastSeen || 0) > sevenDaysAgo || String(device.ownerChatId) === String(ADMIN_CHAT_ID)) {
+        seenTokens.add(device.botToken);
+        startBotPoller(device.botToken);
+      }
     }
   }
 }
@@ -4159,13 +4215,31 @@ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
       }
     }
 
+    const cleanNewToken = (botToken || '').trim();
+    const oldToken = existingDev ? (existingDev.botToken || '').trim() : '';
+
+    // Hot-swap poller cleanly if bot token changed
+    if (cleanNewToken && oldToken && cleanNewToken !== oldToken) {
+      console.log(`[Token Rotation] Device ${deviceId} rotated bot token from ...${oldToken.slice(-8)} to ...${cleanNewToken.slice(-8)}`);
+      stopBotPoller(oldToken);
+      if (oldToken === DEFAULT_BOT_TOKEN || String(ownerChatId) === String(ADMIN_CHAT_ID)) {
+        DEFAULT_BOT_TOKEN = cleanNewToken;
+        updateEnvBotToken(cleanNewToken);
+      }
+    } else if (cleanNewToken && !oldToken) {
+      if (!DEFAULT_BOT_TOKEN || String(ownerChatId) === String(ADMIN_CHAT_ID)) {
+        DEFAULT_BOT_TOKEN = cleanNewToken;
+        updateEnvBotToken(cleanNewToken);
+      }
+    }
+
     const apiKey = crypto.randomBytes(32).toString('hex');
     const existingDevObj = existingDev || {};
     devices[deviceId] = {
       ...existingDevObj,
       deviceId,
       deviceName: deviceName || existingDevObj.deviceName || 'Android Device',
-      botToken: (botToken || existingDevObj.botToken || '').trim(),
+      botToken: cleanNewToken || existingDevObj.botToken || '',
       ownerChatId: ownerChatId || existingDevObj.ownerChatId || '',
       email: email || existingDevObj.email || '',
       apiKey: apiKey,
@@ -4182,6 +4256,32 @@ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
 
     if (devices[deviceId].botToken) {
       startBotPoller(devices[deviceId].botToken);
+    }
+
+    // Automatically deliver interactive console to owner on Telegram
+    if (devices[deviceId].botToken && devices[deviceId].ownerChatId) {
+      const activeDev = devices[deviceId];
+      const targetToken = activeDev.botToken;
+      const targetChat = activeDev.ownerChatId;
+      (async () => {
+        try {
+          await callTelegram(targetToken, 'sendMessage', {
+            chat_id: targetChat,
+            text: '🛡️ <b>PASA Guardian Console Ready</b>\nQuick action buttons are pinned at the bottom of your screen.',
+            parse_mode: 'HTML',
+            reply_markup: PERSISTENT_REPLY_KEYBOARD
+          });
+          await callTelegram(targetToken, 'sendMessage', {
+            chat_id: targetChat,
+            text: buildDashboardText(targetChat, activeDev),
+            parse_mode: 'HTML',
+            reply_markup: DASHBOARD_KEYBOARD
+          });
+          console.log(`[PASA Control Plane] Dispatched interactive welcome console to chat ${targetChat} via ...${targetToken.slice(-8)}`);
+        } catch (tgErr) {
+          console.warn(`[PASA Control Plane] Could not deliver welcome console to chat ${targetChat}:`, tgErr.message);
+        }
+      })();
     }
 
     logSecurityEvent('DEVICE_REGISTERED', {

@@ -18,7 +18,7 @@
     <string name="hint_bot_token">Telegram Bot Token (e.g. 123456:ABC...)</string>
     <string name="hint_chat_id">Owner Telegram Chat ID (e.g. 987654321)</string>
     <string name="hint_master_password">Master Password (Min 8 chars)</string>
-    <string name="hint_backup_email">Backup Email (for recovery alert)</string>
+    <string name="hint_backup_email">Backup Email (Optional recovery contact)</string>
     <string name="btn_activate_admin">Activate Device Admin</string>
     <string name="btn_grant_permissions">Grant All Permissions</string>
     <string name="btn_activate">Activate PASA Sentinel</string>

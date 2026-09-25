@@ -18,10 +18,14 @@ import android.widget.Toast
 import android.graphics.Color
 import android.text.Html
 import android.text.Spanned
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -29,6 +33,7 @@ import com.izhaanintellect.pasa.R
 import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.databinding.ActivitySetupBinding
+import com.izhaanintellect.pasa.security.AuthManager
 import com.izhaanintellect.pasa.service.PasaService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -44,6 +49,10 @@ class SetupActivity : AppCompatActivity() {
     @Inject lateinit var preferencesManager: PreferencesManager
     @Inject lateinit var ringCommand: com.izhaanintellect.pasa.commands.RingCommand
     @Inject lateinit var screenshotManager: com.izhaanintellect.pasa.camera.ScreenshotManager
+    @Inject lateinit var authManager: AuthManager
+
+    private var isSessionAuthenticated = false
+    private var isAuthenticating = false
 
     private lateinit var binding: ActivitySetupBinding
     private val viewModel: SetupViewModel by viewModels()
@@ -115,9 +124,27 @@ class SetupActivity : AppCompatActivity() {
             binding.etBotToken.hint = "Enter your Telegram Bot Token"
         }
 
-        if (preferencesManager.isSetupComplete) {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (preferencesManager.isSetupComplete && binding.layoutSetupWizard.visibility == android.view.View.VISIBLE) {
+                    showDashboard()
+                } else {
+                    finish()
+                }
+            }
+        })
+
+        if (preferencesManager.isSetupComplete && authManager.hasMasterPassword()) {
             PasaService.start(this)
-            showDashboard()
+            binding.layoutDashboard.visibility = android.view.View.GONE
+            binding.layoutSetupWizard.visibility = android.view.View.GONE
+            authenticateOwner(
+                title = "PASA Sentinel Verification",
+                subtitle = "Confirm identity to access Guardian Console",
+                isStartup = true
+            ) {
+                showDashboard()
+            }
         } else {
             showSetupWizard()
         }
@@ -339,8 +366,8 @@ class SetupActivity : AppCompatActivity() {
         }
         binding.tilMasterPassword.error = null
 
-        if (email.isEmpty()) {
-            binding.tilBackupEmail.error = getString(R.string.error_empty_email)
+        if (email.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.tilBackupEmail.error = "Please enter a valid email address (or leave empty)"
             return
         }
         binding.tilBackupEmail.error = null
@@ -361,8 +388,8 @@ class SetupActivity : AppCompatActivity() {
             // Deliver activation confirmation
             viewModel.sendSetupConfirmation()
 
-            // Start guardian background service
-            PasaService.start(this@SetupActivity)
+            // Restart guardian background service fresh with new credentials
+            viewModel.restartGuardianService()
 
             if (stealthMode) {
                 val componentName = ComponentName(this@SetupActivity, SetupActivity::class.java)
@@ -404,6 +431,16 @@ class SetupActivity : AppCompatActivity() {
     private fun showSetupWizard() {
         binding.layoutDashboard.visibility = android.view.View.GONE
         binding.layoutSetupWizard.visibility = android.view.View.VISIBLE
+        if (preferencesManager.botToken.isNotBlank()) {
+            binding.etBotToken.setText(preferencesManager.botToken)
+        }
+        if (preferencesManager.ownerChatId.isNotBlank()) {
+            binding.etChatId.setText(preferencesManager.ownerChatId)
+        }
+        if (preferencesManager.backupEmail.isNotBlank()) {
+            binding.etBackupEmail.setText(preferencesManager.backupEmail)
+        }
+        binding.etServerUrl.setText(viewModel.getSavedServerUrl())
         updateUI()
     }
 
@@ -537,26 +574,114 @@ class SetupActivity : AppCompatActivity() {
     }
 
     private fun promptReconfigure() {
+        authenticateOwner(
+            title = "Administrator Authentication",
+            subtitle = "Verify identity to reconfigure Sentinel settings",
+            isStartup = false
+        ) {
+            Toast.makeText(this, "✅ Administrator Authenticated", Toast.LENGTH_SHORT).show()
+            showSetupWizard()
+        }
+    }
+
+    private fun authenticateOwner(
+        title: String,
+        subtitle: String,
+        isStartup: Boolean = false,
+        onSuccess: () -> Unit
+    ) {
+        if (isAuthenticating) return
+        isAuthenticating = true
+
+        val biometricManager = BiometricManager.from(this)
+        val canAuthenticate = biometricManager.canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK
+        )
+
+        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
+            val executor = ContextCompat.getMainExecutor(this)
+            val prompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    isAuthenticating = false
+                    isSessionAuthenticated = true
+                    onSuccess()
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    isAuthenticating = false
+                    if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+                        showMasterPasswordDialog(title, subtitle, isStartup, onSuccess)
+                    } else if (errorCode == BiometricPrompt.ERROR_USER_CANCELED) {
+                        if (isStartup) {
+                            finish()
+                        }
+                    } else {
+                        showMasterPasswordDialog(title, subtitle, isStartup, onSuccess)
+                    }
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                }
+            })
+
+            val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .setSubtitle(subtitle)
+                .setNegativeButtonText("Use Master Password")
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK)
+                .build()
+
+            prompt.authenticate(promptInfo)
+        } else {
+            isAuthenticating = false
+            showMasterPasswordDialog(title, subtitle, isStartup, onSuccess)
+        }
+    }
+
+    private fun showMasterPasswordDialog(
+        title: String,
+        subtitle: String,
+        isStartup: Boolean,
+        onSuccess: () -> Unit
+    ) {
         val input = android.widget.EditText(this).apply {
             inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
             hint = "Enter Master Password"
-            setPadding(40, 30, 40, 30)
+            setPadding(48, 36, 48, 36)
+            imeOptions = imeOptions or EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING
         }
 
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Administrator Authentication")
-            .setMessage("Please enter your Master Password to unlock Sentinel settings:")
+            .setTitle(title)
+            .setMessage(if (subtitle.isNotBlank()) "$subtitle\n\nEnter Master Password to proceed:" else "Enter your Master Password to proceed:")
             .setView(input)
-            .setPositiveButton("Unlock") { _, _ ->
+            .setCancelable(!isStartup)
+            .setPositiveButton("Verify") { _, _ ->
                 val entered = input.text.toString()
                 if (viewModel.verifyMasterPassword(entered)) {
-                    Toast.makeText(this, "✅ Administrator Authenticated", Toast.LENGTH_SHORT).show()
-                    showSetupWizard()
+                    isSessionAuthenticated = true
+                    Toast.makeText(this, "✅ Owner Identity Verified", Toast.LENGTH_SHORT).show()
+                    onSuccess()
                 } else {
-                    Toast.makeText(this, "❌ Invalid Master Password", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "❌ Invalid Master Password", Toast.LENGTH_LONG).show()
+                    if (isStartup) {
+                        finish()
+                    }
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("Cancel") { _, _ ->
+                if (isStartup) {
+                    finish()
+                }
+            }
+            .setOnCancelListener {
+                if (isStartup) {
+                    finish()
+                }
+            }
             .show()
     }
 

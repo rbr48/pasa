@@ -49,8 +49,7 @@ class SetupViewModel @Inject constructor(
     }
 
     fun restartGuardianService() {
-        com.izhaanintellect.pasa.service.PasaService.stop(context)
-        com.izhaanintellect.pasa.service.PasaService.start(context)
+        com.izhaanintellect.pasa.service.PasaService.restartPolling(context)
     }
 
     fun verifyMasterPassword(password: String): Boolean = authManager.verifyMasterPassword(password)
@@ -130,12 +129,15 @@ class SetupViewModel @Inject constructor(
             return false
         }
 
+        if (preferencesManager.botToken != cleanToken) {
+            preferencesManager.updateOffset = 0L
+        }
         preferencesManager.botToken = cleanToken
         preferencesManager.ownerChatId = chatId.trim()
         preferencesManager.backupEmail = email.trim()
         preferencesManager.isStealthMode = stealthMode
         preferencesManager.serverUrl = serverUrl.trim()
-        preferencesManager.useBackendServer = true
+        preferencesManager.useBackendServer = false // Pure Sovereign Mode
         preferencesManager.isSetupComplete = true
 
         try {
@@ -156,20 +158,11 @@ class SetupViewModel @Inject constructor(
 
     suspend fun registerDeviceWithBackend(context: android.content.Context? = null): Boolean {
         return withContext(Dispatchers.IO) {
-            try {
-                val deviceName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (Android ${android.os.Build.VERSION.RELEASE})"
-                val req = com.izhaanintellect.pasa.network.RegisterDeviceRequest(
-                    deviceId = preferencesManager.deviceId,
-                    deviceName = deviceName,
-                    botToken = preferencesManager.botToken,
-                    ownerChatId = preferencesManager.ownerChatId
-                )
-                val resp = pasaBackendApi.registerDevice(req)
-                resp.ok
-            } catch (e: Exception) {
-                Log.w(TAG, "VPS device registration deferred: ${e.message}")
-                true
-            }
+            // Pure Sovereign Mode: VPS registration is disabled.
+            // Private botToken and ownerChatId NEVER leave the phone.
+            // All C2 is handled directly by the device via Telegram.
+            Log.i(TAG, "🛡️ Pure Sovereign Mode: VPS registration disabled. All C2 is 100% Sovereign (direct Telegram).")
+            true
         }
     }
 

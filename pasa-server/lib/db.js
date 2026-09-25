@@ -410,7 +410,7 @@ const CommandRepo = {
 
   add(cmd) {
     db.prepare(`
-      INSERT INTO commands (id, deviceId, command, args, chatId, status, createdAt, envelope)
+      INSERT OR REPLACE INTO commands (id, deviceId, command, args, chatId, status, createdAt, envelope)
       VALUES (?, ?, ?, ?, ?, 'PENDING', ?, ?)
     `).run(
       cmd.id,
