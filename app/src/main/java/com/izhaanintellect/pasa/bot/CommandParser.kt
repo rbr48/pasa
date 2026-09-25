@@ -23,9 +23,33 @@ class CommandParser @Inject constructor() {
     )
 
     fun parse(update: Update): ParsedCommand? {
-        val message = update.message ?: return null
-        val text = message.text?.trim() ?: return null
-        val chatId = message.chat.id
+        val (text, chatId, senderName) = when {
+            update.message != null -> {
+                val message = update.message
+                val raw = message.text?.trim() ?: return null
+                val name = listOfNotNull(message.from?.firstName, message.from?.lastName)
+                    .joinToString(" ")
+                    .ifEmpty { message.from?.username ?: "Unknown" }
+                Triple(raw, message.chat.id, name)
+            }
+            update.callbackQuery != null -> {
+                val cb = update.callbackQuery
+                var raw = cb.data?.trim() ?: return null
+                if (raw.startsWith("dev_cmd:")) {
+                    raw = "/" + raw.removePrefix("dev_cmd:").replace(":", " ")
+                } else if (raw.startsWith("cmd:")) {
+                    raw = "/" + raw.removePrefix("cmd:").replace(":", " ")
+                } else if (!raw.startsWith("/")) {
+                    raw = "/$raw"
+                }
+                val name = listOfNotNull(cb.from.firstName, cb.from.lastName)
+                    .joinToString(" ")
+                    .ifEmpty { cb.from.username ?: "Unknown" }
+                val cId = cb.message?.chat?.id ?: cb.from.id
+                Triple(raw, cId, name)
+            }
+            else -> return null
+        }
 
         val parts = text.split("\\s+".toRegex())
         val firstWord = parts[0].lowercase()
@@ -76,14 +100,11 @@ class CommandParser @Inject constructor() {
                 clean.contains("factory reset") || clean.contains("reset protection") -> Pair("/factory_reset_defense", parts.drop(1))
                 clean.contains("license") || clean.contains("pro key") -> Pair("/license", parts.drop(1))
                 clean.contains("sms help") || clean == "sms" || clean == "sms commands" || clean == "sms guide" -> Pair("/sms_help", emptyList())
+                clean.contains("device owner") || clean.contains("device_owner") -> Pair("/device_owner", emptyList())
                 clean.contains("control panel") || clean == "menu" || clean == "help" -> Pair("/help", emptyList())
                 else -> return null
             }
         }
-
-        val senderName = listOfNotNull(message.from?.firstName, message.from?.lastName)
-            .joinToString(" ")
-            .ifEmpty { message.from?.username ?: "Unknown" }
 
         Log.d(TAG, "Parsed command '$command' with ${args.size} args from $senderName ($chatId)")
 

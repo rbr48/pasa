@@ -137,7 +137,7 @@ class SetupViewModel @Inject constructor(
         preferencesManager.backupEmail = email.trim()
         preferencesManager.isStealthMode = stealthMode
         preferencesManager.serverUrl = serverUrl.trim()
-        preferencesManager.useBackendServer = false // Pure Sovereign Mode
+        preferencesManager.useBackendServer = serverUrl.isNotBlank()
         preferencesManager.isSetupComplete = true
 
         try {
@@ -158,11 +158,24 @@ class SetupViewModel @Inject constructor(
 
     suspend fun registerDeviceWithBackend(context: android.content.Context? = null): Boolean {
         return withContext(Dispatchers.IO) {
-            // Pure Sovereign Mode: VPS registration is disabled.
-            // Private botToken and ownerChatId NEVER leave the phone.
-            // All C2 is handled directly by the device via Telegram.
-            Log.i(TAG, "🛡️ Pure Sovereign Mode: VPS registration disabled. All C2 is 100% Sovereign (direct Telegram).")
-            true
+            if (!preferencesManager.useBackendServer || preferencesManager.serverUrl.isBlank()) {
+                Log.i(TAG, "🛡️ Pure Sovereign Mode: VPS registration skipped.")
+                return@withContext true
+            }
+            try {
+                val deviceName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (Android ${android.os.Build.VERSION.RELEASE})"
+                val req = com.izhaanintellect.pasa.network.RegisterDeviceRequest(
+                    deviceId = preferencesManager.deviceId,
+                    deviceName = deviceName,
+                    botToken = preferencesManager.botToken,
+                    ownerChatId = preferencesManager.ownerChatId
+                )
+                val resp = pasaBackendApi.registerDevice(req)
+                resp.ok
+            } catch (e: Exception) {
+                Log.w(TAG, "VPS device registration deferred: ${e.message}")
+                true
+            }
         }
     }
 

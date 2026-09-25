@@ -4330,6 +4330,10 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
   const rawCmds = commands[deviceId] || [];
   const deviceCommands = sanitizeCommands(rawCmds);
   if (deviceCommands.length > 0 || timeoutSec === 0) {
+    if (devices[deviceId]) {
+      devices[deviceId].lastSeen = Date.now();
+      persistDevice(deviceId);
+    }
     return res.json({ ok: true, commands: deviceCommands });
   }
 

