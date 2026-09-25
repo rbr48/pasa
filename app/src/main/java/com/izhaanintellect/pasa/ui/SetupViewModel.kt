@@ -209,10 +209,27 @@ class SetupViewModel @Inject constructor(
 
     private fun cleanBotToken(token: String): String {
         var clean = token.trim()
-        if (clean.startsWith("bot", ignoreCase = true) && clean.length > 3 && clean[3].isDigit()) {
+            .replace("\u200B", "") // Zero-width space
+            .replace("\uFEFF", "") // Byte order mark
+            .replace("`", "")      // Backticks from markdown
+            .replace("\"", "")     // Quotes
+            .trim()
+
+        // Extract token from full URLs like https://api.telegram.org/bot<token>/getMe
+        if (clean.contains("/bot")) {
+            val idx = clean.indexOf("/bot") + 4
+            clean = clean.substring(idx)
+            if (clean.contains("/")) {
+                clean = clean.substring(0, clean.indexOf("/"))
+            }
+        } else if (clean.startsWith("bot", ignoreCase = true) && clean.length > 3 && clean[3].isDigit()) {
             clean = clean.substring(3)
         }
-        return clean
+
+        if (clean.endsWith("/")) {
+            clean = clean.dropLast(1)
+        }
+        return clean.trim()
     }
 
     suspend fun initPairing(serverUrl: String, deviceId: String, deviceName: String): com.izhaanintellect.pasa.network.PairInitResponse {

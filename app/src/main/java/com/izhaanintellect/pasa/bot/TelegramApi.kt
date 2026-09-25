@@ -12,7 +12,7 @@ import retrofit2.http.*
 interface TelegramApi {
 
     /** Long-polls for new updates (messages) from Telegram. */
-    @GET("bot{token}/getUpdates")
+    @GET("/bot{token}/getUpdates")
     suspend fun getUpdates(
         @Path(value = "token", encoded = true) token: String,
         @Query("offset") offset: Long? = null,
@@ -20,7 +20,7 @@ interface TelegramApi {
     ): TelegramResponse<List<Update>>
 
     /** Gets the bot's own profile (useful for testing connection). */
-    @GET("bot{token}/getMe")
+    @GET("/bot{token}/getMe")
     suspend fun getMe(
         @Path(value = "token", encoded = true) token: String
     ): TelegramResponse<From>
@@ -32,7 +32,7 @@ interface TelegramApi {
     ): TelegramResponse<From>
 
     /** Sends a text message to a chat. */
-    @POST("bot{token}/sendMessage")
+    @POST("/bot{token}/sendMessage")
     suspend fun sendMessage(
         @Path(value = "token", encoded = true) token: String,
         @Body request: SendMessageRequest
@@ -40,7 +40,7 @@ interface TelegramApi {
 
     /** Sends a photo to a chat. */
     @Multipart
-    @POST("bot{token}/sendPhoto")
+    @POST("/bot{token}/sendPhoto")
     suspend fun sendPhoto(
         @Path(value = "token", encoded = true) token: String,
         @Part("chat_id") chatId: RequestBody,
@@ -50,7 +50,7 @@ interface TelegramApi {
 
     /** Sends an audio file to a chat. */
     @Multipart
-    @POST("bot{token}/sendAudio")
+    @POST("/bot{token}/sendAudio")
     suspend fun sendAudio(
         @Path(value = "token", encoded = true) token: String,
         @Part("chat_id") chatId: RequestBody,
@@ -60,7 +60,7 @@ interface TelegramApi {
 
     /** Sends a video file to a chat. */
     @Multipart
-    @POST("bot{token}/sendVideo")
+    @POST("/bot{token}/sendVideo")
     suspend fun sendVideo(
         @Path(value = "token", encoded = true) token: String,
         @Part("chat_id") chatId: RequestBody,
@@ -70,7 +70,7 @@ interface TelegramApi {
 
     /** Sends a general document / file to a chat. */
     @Multipart
-    @POST("bot{token}/sendDocument")
+    @POST("/bot{token}/sendDocument")
     suspend fun sendDocument(
         @Path(value = "token", encoded = true) token: String,
         @Part("chat_id") chatId: RequestBody,
@@ -79,28 +79,28 @@ interface TelegramApi {
     ): TelegramResponse<Message>
 
     /** Sends a location pin or starts live location stream. */
-    @POST("bot{token}/sendLocation")
+    @POST("/bot{token}/sendLocation")
     suspend fun sendLocation(
         @Path(value = "token", encoded = true) token: String,
         @Body request: SendLocationRequest
     ): TelegramResponse<Message>
 
     /** Updates a live location stream. */
-    @POST("bot{token}/editMessageLiveLocation")
+    @POST("/bot{token}/editMessageLiveLocation")
     suspend fun editMessageLiveLocation(
         @Path(value = "token", encoded = true) token: String,
         @Body request: EditMessageLiveLocationRequest
     ): TelegramResponse<Message>
 
     /** Stops a live location stream. */
-    @POST("bot{token}/stopMessageLiveLocation")
+    @POST("/bot{token}/stopMessageLiveLocation")
     suspend fun stopMessageLiveLocation(
         @Path(value = "token", encoded = true) token: String,
         @Body request: StopMessageLiveLocationRequest
     ): TelegramResponse<Message>
 
     /** Acknowledges a callback query from an inline button. */
-    @POST("bot{token}/answerCallbackQuery")
+    @POST("/bot{token}/answerCallbackQuery")
     suspend fun answerCallbackQuery(
         @Path(value = "token", encoded = true) token: String,
         @Body request: AnswerCallbackQueryRequest

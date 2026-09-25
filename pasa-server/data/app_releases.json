@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 66,
+    "versionName": "3.7.1",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.7.1-66.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.1-66.apk",
+    "sha256": "24465711c5b08d7afb4b84f6519ecc84ada3876bc77f2b59e146869347dc5bd3",
+    "size": 19217342,
+    "mandatory": false,
+    "releaseNotes": "v3.7.1: Telegram Bot C2 Connection Fix — resolved RFC 3986 relative URL scheme parsing error on TelegramApi endpoints and added robust copy-paste token sanitization; includes all v3.7.0 Strategic Roadmap features (Pre-Unlock Direct Boot SMS C2, /autostart OEM Dispatcher, Air-Gapped Ed25519 SMS License Renewal, and Full Kernel Security Event Stream)."
+  },
+  {
     "versionCode": 65,
     "versionName": "3.7.0",
     "releaseDate": "2026-09-25",
