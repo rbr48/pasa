@@ -5,13 +5,16 @@
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.5.6%20(Build%2052)-blue.svg)](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
+[![Version](https://img.shields.io/badge/Release-v3.5.9%20(Build%2055)-blue.svg)](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
+[![License](https://img.shields.io/badge/License-BSL%201.1-orange.svg)](LICENSE.md)
+[![VirusTotal](https://img.shields.io/badge/VirusTotal-70%2B%20AV%20Clean-brightgreen.svg)](https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4)
+[![CodeQL](https://img.shields.io/badge/CodeQL-Passed-brightgreen.svg)](https://github.com/rbr48/pasa/security/code-scanning)
 [![Zero Storage](https://img.shields.io/badge/Zero%20Storage-Direct--to--Telegram-brightgreen.svg)](PRIVACY.md)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Cloud%20Telemetry-brightgreen.svg)](PRIVACY.md)
 [![Ed25519 Security](https://img.shields.io/badge/Cryptography-Ed25519%20Offline%20Certificates-blueviolet.svg)](#commercial-licensing--payment-methods)
+[![Responsible Use](https://img.shields.io/badge/Ethical%20Charter-Anti--Stalkerware-red.svg)](RESPONSIBLE_USE.md)
+[![Security Policy](https://img.shields.io/badge/Security-RFC%209116-blue.svg)](SECURITY.md)
 [![Terms of Service](https://img.shields.io/badge/Legal-Terms%20of%20Service%20%26%20EULA-blueviolet.svg)](TERMS.md)
-[![Binance Pay](https://img.shields.io/badge/Payments-Binance%20Pay%20Verified-F0B90B.svg)](#commercial-licensing--payment-methods)
-[![bKash](https://img.shields.io/badge/Payments-bKash%20Personal%20Verified-E2136E.svg)](#commercial-licensing--payment-methods)
 
 ---
 
@@ -29,11 +32,13 @@
 9. [Offline Air-Gapped SMS Defense](#-offline-air-gapped-sms-defense)
 10. [Commercial Licensing & Payment Methods](#-commercial-licensing--payment-methods)
     - [7-Day Money-Back Guarantee](#-7-day-no-questions-asked-money-back-guarantee)
-11. [Building from Source](#-building-from-source)
-12. [Release Verification & Integrity](#-release-verification--integrity)
-13. [Zero-Telemetry Privacy Policy](PRIVACY.md)
-14. [Terms of Service & EULA (Mandatory)](TERMS.md)
-15. [Frequently Asked Questions (FAQ) — পূর্ণাঙ্গ প্রশ্নোত্তর](FAQ.md)
+11. [Source-Available Architecture & Responsible Use](#-source-available-architecture--responsible-use)
+12. [Security & Vulnerability Disclosure](#-security--vulnerability-disclosure)
+13. [Building from Source](#-building-from-source)
+14. [Release Verification & Integrity](#-release-verification--integrity)
+15. [Zero-Telemetry Privacy Policy](PRIVACY.md)
+16. [Terms of Service & EULA (Mandatory)](TERMS.md)
+17. [Frequently Asked Questions (FAQ) — পূর্ণাঙ্গ প্রশ্নোত্তর](FAQ.md)
 
 ---
 
@@ -307,8 +312,8 @@ PASA operates on a sovereign, one-time payment model — **no recurrent monthly 
 | Tier | Price | Devices | Features |
 |---|---|---|---|
 | **Community Trial** | Free (7 Days) | 1 Device | Core Telegram C2, Camera & Siren triggers, Full Pro Evaluation |
-| **Pro Lifetime** | **৳3,490 / $29 USD** ($29 USDT) | 3 Devices | Full Airgap SMS, Fake Shutdown, Duress SOS, Anti-Snatch, Lifetime OTA Updates |
-| **Fleet / Enterprise**| **৳9,990 / $84 USD** ($84 USDT) | 10 Devices | Dedicated fleet deployment engineering, ADB automation scripts |
+| **Pro Lifetime** | **৳3,000 BDT / $25 USD** ($25 USDT) | 3 Devices | Full Airgap SMS, Fake Shutdown, Duress SOS, Anti-Snatch, Lifetime OTA Updates |
+| **Fleet / Enterprise**| **৳12,000 BDT / $99 USD** ($99 USDT) | 10 Devices | Dedicated fleet deployment engineering, ADB automation scripts |
 
 ### Offline Ed25519 Cryptographic Verification:
 * Licenses are cryptographically signed with military-grade **Ed25519** elliptic curves.
@@ -319,6 +324,31 @@ Every paid license comes with an unconditional **7-day money-back guarantee**:
 * **Full Refund:** If PASA Sentinel doesn't meet your defense requirements or your device has OEM constraints, simply request a refund within 7 days.
 * **Rapid Payout:** 100% of your payment is sent back within 24 hours.
 * **How to Claim:** Message Customer Support on WhatsApp at [**+880 1762-033445**](https://wa.me/8801762033445) or email [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun).
+
+---
+
+## ⚖️ Source-Available Architecture & Responsible Use
+
+PASA Sentinel is developed under a **Source-Available Security Model** licensed under the [Business Source License 1.1 (BSL 1.1)](LICENSE.md).
+
+### Sovereign Non-Commercial Rights
+* **100% Code Auditability:** The complete Android client, Telegram bot C2 server, and deployment scripts are openly auditable by anyone to verify the strict Zero-Storage and Zero-Telemetry guarantees.
+* **Personal Defense Grant:** Individuals are free to inspect, compile, test, and run PASA Sentinel for their personal asset defense on devices they physically own.
+* **Commercial Protection:** Unlicensed commercial resale, white-label distribution, or managed cloud/SaaS surveillance hosting is strictly prohibited. On September 25, 2030, this code transitions automatically to GPL-3.0-or-later.
+
+### Strict Anti-Stalkerware Ethical Charter
+PASA Sentinel is engineered exclusively as a **defensive countermeasure** against phone theft, street robbery, extortion, and forensic exploitation. Deploying PASA Sentinel to track, monitor, or intercept spouses, partners, or third parties without their documented, explicit consent is strictly prohibited and constitutes a criminal offense. See [RESPONSIBLE_USE.md](RESPONSIBLE_USE.md) for full legal and ethical guidelines.
+
+---
+
+## 🛡️ Security & Vulnerability Disclosure
+
+Security is fundamental to our mission. PASA Sentinel adheres to **RFC 9116** for coordinated vulnerability disclosure:
+
+* **Security Policy:** [SECURITY.md](SECURITY.md)
+* **Canonical Security Contact:** [security@izhaanintellect.fun](mailto:security@izhaanintellect.fun)
+* **RFC 9116 Metadata:** [https://pasa.izhaanintellect.fun/.well-known/security.txt](https://pasa.izhaanintellect.fun/.well-known/security.txt)
+* **Audit Verification Log:** [AUDIT_TRAIL.md](https://pasa.izhaanintellect.fun/AUDIT_TRAIL.md) | [INDEPENDENT_AUDIT_REPORT.json](https://pasa.izhaanintellect.fun/INDEPENDENT_AUDIT_REPORT.json)
 
 ---
 
@@ -349,21 +379,21 @@ The signed APK will be output to:
 
 Download the official signed release binary directly from GitHub or our high-speed CDN:
 
-* **Direct Release Binary:** [📦 pasa-v3.5.6-52.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.5.6-52.apk)
+* **Direct Release Binary:** [📦 pasa-v3.5.9-55.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.5.9-55.apk)
 * **Direct Rolling Latest:** [📦 pasa-latest.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk)
 * **High-Speed CDN Mirror:** [https://pasa.izhaanintellect.fun/releases/pasa-latest.apk](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
 * **Windows Setup Kit:** [📦 PASA-Device-Owner-Setup-Kit.zip](https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip)
-* **Official Version:** `v3.5.6` (Build Code `52`)
-* **File Size:** `19,250,443 bytes` (18.36 MB)
+* **Official Version:** `v3.5.9` (Build Code `55`)
+* **File Size:** `19,079,349 bytes` (18.19 MB)
 * **APK SHA-256 Checksum:**
   ```text
-  becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8
+  1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4
   ```
 * **Setup Kit SHA-256 Checksum:**
   ```text
   f5dfe1893638e2712556e705eb632c5800381324dbe7782b7d4c52c403542f63
   ```
-* **VirusTotal Consensus (70+ AV Clean):** [Inspect VirusTotal Audit Report](https://www.virustotal.com/gui/file/becdb9b13beaac9d790960fc83cbafb957c788800a0f911c284903d1621fa5c8)
+* **VirusTotal Consensus (70+ AV Clean):** [Inspect VirusTotal Audit Report](https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4)
 
 ### Verify on Windows PowerShell:
 ```powershell
@@ -377,7 +407,10 @@ sha256sum pasa-latest.apk
 
 ---
 
-## ⚖️ License & Disclaimer
+## ⚖️ License & Legal Attribution
 
+* **Software License:** Licensed under the [Business Source License 1.1 (BSL 1.1)](LICENSE.md). Free for personal defense, academic research, and cryptographic inspection. Transitions to GPL-3.0-or-later on September 25, 2030.
+* **Ethical Use Charter:** Use is governed by the mandatory [Responsible Use Policy (Anti-Stalkerware)](RESPONSIBLE_USE.md).
+* **Commercial Rights:** Production binaries, automated VPS control plane infrastructure, and enterprise deployment services are proprietary to Izhaan Intellect.
 * **Disclaimer:** PASA Sentinel is a sovereign defensive security tool intended strictly for personal asset recovery, anti-theft defense, and enterprise device tracking on devices you legally own. Unauthorized surveillance of third parties without consent is strictly prohibited.
 * **Copyright:** &copy; 2026 PASA Sentinel / Izhaan Intellect. All rights reserved.
