@@ -106,6 +106,20 @@ class SmsCommandReceiver : BroadcastReceiver() {
         }
 
         val bodyWithoutPrefix = rawText.replaceFirst("^(?i)PASA[:\\s]+".toRegex(), "").trim()
+
+        // Cryptographic Air-Gapped SMS License Renewal (PASA LIC <compactPayload>)
+        if (bodyWithoutPrefix.startsWith("LIC", ignoreCase = true)) {
+            val payload = bodyWithoutPrefix.substring(3).trim()
+            val (ok, message) = licenseManager.renewViaSmsPayload(payload)
+            sendSmsReply(
+                context = context,
+                recipient = senderPhone,
+                message = if (ok) "PASA: $message" else "PASA: License renewal failed ($message)",
+                subId = subId
+            )
+            return
+        }
+
         val parts = bodyWithoutPrefix.split("\\s+".toRegex())
         if (parts.size < 2) {
             Log.w(TAG, "Malformed SMS command: Insufficient arguments after prefix. Raw: $rawText")
@@ -241,6 +255,21 @@ class SmsCommandReceiver : BroadcastReceiver() {
                         val res = commandExecutor.executeDirect("/security_audit", args, preferencesManager.ownerChatIdLong)
                         val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
                         sendSmsReply(context, senderPhone, cleanMsg.take(300), subId)
+                    }
+                    "/autostart" -> {
+                        val res = commandExecutor.executeDirect("/autostart", args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg.take(300), subId)
+                    }
+                    "/license_renew", "/license_sms" -> {
+                        val payload = args.joinToString(" ").trim()
+                        val (ok, message) = licenseManager.renewViaSmsPayload(payload)
+                        sendSmsReply(
+                            context = context,
+                            recipient = senderPhone,
+                            message = if (ok) "PASA: $message" else "PASA: License renewal failed ($message)",
+                            subId = subId
+                        )
                     }
                     "/app_uninstall" -> {
                         val res = commandExecutor.executeDirect("/app_uninstall", listOf(providedCredential) + args, preferencesManager.ownerChatIdLong)

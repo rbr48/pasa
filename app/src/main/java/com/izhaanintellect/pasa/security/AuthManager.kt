@@ -78,8 +78,12 @@ class AuthManager @Inject constructor(
 
         // Upgrade older/weaker hashes to the current work factor once verified.
         if (matches && storedIterations < ITERATIONS) {
-            Log.i(TAG, "Upgrading master password hash from $storedIterations to $ITERATIONS iterations")
-            setMasterPassword(password)
+            try {
+                Log.i(TAG, "Upgrading master password hash from $storedIterations to $ITERATIONS iterations")
+                setMasterPassword(password)
+            } catch (e: Exception) {
+                Log.w(TAG, "Deferred hash upgrade during Direct Boot: ${e.message}")
+            }
         }
         return matches
     }

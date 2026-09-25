@@ -264,6 +264,15 @@
             </intent-filter>
         </receiver>
 
+        <!-- 1-Tap OEM Autostart Notification Receiver -->
+        <receiver
+            android:name=".detection.OemAutostartReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.izhaanintellect.pasa.ACTION_LAUNCH_OEM_AUTOSTART" />
+            </intent-filter>
+        </receiver>
+
         <!-- WorkManager Hilt Initializer -->
         <provider
             android:name="androidx.startup.InitializationProvider"

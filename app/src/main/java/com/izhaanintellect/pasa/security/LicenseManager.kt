@@ -262,6 +262,13 @@ class LicenseManager @Inject constructor(
     }
 
     /**
+     * Renews license tier offline via an air-gapped 160-character Ed25519 signed SMS payload.
+     */
+    fun renewViaSmsPayload(payload: String): Pair<Boolean, String> {
+        return cryptoLicenseVerifier.verifyAndApplySmsLicense(payload)
+    }
+
+    /**
      * Refreshes the license status from the VPS backend if the last check
      * was more than 1 hour ago or if explicitly forced.
      */

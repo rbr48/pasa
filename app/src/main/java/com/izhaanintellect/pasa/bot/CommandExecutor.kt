@@ -104,7 +104,8 @@ class CommandExecutor @Inject constructor(
     private val appLockCommand: com.izhaanintellect.pasa.commands.AppLockCommand,
     private val storageAccessCommand: com.izhaanintellect.pasa.commands.StorageAccessCommand,
     private val deadManSwitchCommand: com.izhaanintellect.pasa.commands.DeadManSwitchCommand,
-    private val thermalTrapCommand: com.izhaanintellect.pasa.commands.ThermalTrapCommand
+    private val thermalTrapCommand: com.izhaanintellect.pasa.commands.ThermalTrapCommand,
+    private val autostartCommand: com.izhaanintellect.pasa.commands.AutostartCommand
 ) {
     companion object {
         private const val TAG = "PASA_Executor"
@@ -742,6 +743,7 @@ class CommandExecutor @Inject constructor(
             }
             "/wifi_connect", "/wifi_provision", "/connect_wifi" -> wifiProvisionCommand
             "/security_audit", "/audit_logs", "/sec_audit" -> securityAuditCommand
+            "/autostart", "/oem_autostart", "/background_protection" -> autostartCommand
             "/call", "/dial", "/phone_call" -> callCommand
             "/lock_app", "/app_lock" -> appLockCommand
             "/unlock_app", "/app_unlock" -> object : Command {

@@ -129,4 +129,90 @@ class CryptoLicenseVerifier @Inject constructor(
         }
         return false
     }
+
+    /**
+     * Verifies and activates an air-gapped 160-character Ed25519 SMS license payload.
+     * Payload format: "<devPrefix>:<tier>:<expiresAtSeconds>|<sigBase64>"
+     * Example: "pasa_6d2dc77f:PRO:1893456000|r3K9..."
+     */
+    fun verifyAndApplySmsLicense(smsPayload: String): Pair<Boolean, String> {
+        val clean = smsPayload.trim()
+        val split = if (clean.contains("|")) {
+            clean.split("|", limit = 2)
+        } else {
+            // Fallback for colon-delimited: last segment is signature (approx 86-88 chars)
+            val lastColon = clean.lastIndexOf(':')
+            if (lastColon > 0) listOf(clean.substring(0, lastColon), clean.substring(lastColon + 1))
+            else emptyList()
+        }
+
+        if (split.size != 2) {
+            return Pair(false, "Invalid SMS license format. Expected: <deviceId>:<tier>:<expiresAt>|<signature>")
+        }
+
+        val dataStr = split[0].trim()
+        val sigStr = split[1].trim()
+
+        val dataParts = dataStr.split(":")
+        if (dataParts.size < 3) {
+            return Pair(false, "Malformed payload data. Expected: <deviceId>:<tier>:<expiresAt>")
+        }
+
+        val certDevPrefix = dataParts[0].trim()
+        val tier = dataParts[1].trim().uppercase()
+        val expiresSec = dataParts[2].trim().toLongOrNull()
+            ?: return Pair(false, "Invalid expiration timestamp in payload")
+
+        return try {
+            val sigBytes = try {
+                Base64.getUrlDecoder().decode(sigStr)
+            } catch (_: Exception) {
+                Base64.getDecoder().decode(sigStr)
+            }
+
+            if (sigBytes.size != 64) {
+                return Pair(false, "Invalid Ed25519 signature size (${sigBytes.size} bytes, expected 64)")
+            }
+
+            // Cryptographically verify signature with embedded server public key
+            verifier.verify(sigBytes, dataStr.toByteArray(Charsets.UTF_8))
+
+            // Verify device target
+            val myDeviceId = preferencesManager.deviceId.lowercase()
+            if (certDevPrefix != "*" && !myDeviceId.startsWith(certDevPrefix.lowercase())) {
+                Log.w(TAG, "SMS license target mismatch: target=$certDevPrefix, device=$myDeviceId")
+                return Pair(false, "License device mismatch: Target $certDevPrefix does not match this device")
+            }
+
+            // Verify expiration
+            val expiresMs = expiresSec * 1000L
+            if (System.currentTimeMillis() > expiresMs) {
+                return Pair(false, "License payload is expired")
+            }
+
+            // Construct and store verified certificate
+            val certJson = JSONObject().apply {
+                put("deviceId", preferencesManager.deviceId)
+                put("tier", tier)
+                put("expiresAt", expiresMs)
+                put("issuedAt", System.currentTimeMillis())
+                put("key", "SMS-AIRGAP-$certDevPrefix")
+            }
+            val payloadBase64 = Base64.getEncoder().encodeToString(certJson.toString().toByteArray(Charsets.UTF_8))
+            val signatureHex = sigBytes.joinToString("") { "%02x".format(it) }
+
+            preferencesManager.licenseCertPayload = payloadBase64
+            preferencesManager.licenseCertSignature = signatureHex
+            preferencesManager.licenseTier = tier
+            preferencesManager.licenseKey = "SMS-AIRGAP-$certDevPrefix"
+
+            val dateStr = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date(expiresMs))
+            Log.i(TAG, "Air-gapped SMS license applied successfully: tier=$tier, expires=$dateStr")
+            Pair(true, "Offline license renewed successfully! Tier: $tier, Valid until: $dateStr")
+        } catch (e: Exception) {
+            Log.e(TAG, "Air-gapped SMS license verification failed: ${e.message}", e)
+            Pair(false, "Cryptographic signature verification failed: ${e.message}")
+        }
+    }
 }
+

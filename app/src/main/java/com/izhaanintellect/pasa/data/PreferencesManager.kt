@@ -133,14 +133,23 @@ class PreferencesManager @Inject constructor(
         }
     }
 
+    private val dePrefs: SharedPreferences by lazy {
+        val deContext = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            context.createDeviceProtectedStorageContext()
+        } else {
+            context
+        }
+        deContext.getSharedPreferences("pasa_de_secure_prefs", Context.MODE_PRIVATE)
+    }
+
     // --- Bot Configuration ---
 
     var botToken: String
-        get() = prefs.getString(KEY_BOT_TOKEN, "") ?: ""
+        get() = try { prefs.getString(KEY_BOT_TOKEN, "") ?: "" } catch (_: Exception) { "" }
         set(value) = prefs.edit().putString(KEY_BOT_TOKEN, value).apply()
 
     var ownerChatId: String
-        get() = prefs.getString(KEY_OWNER_CHAT_ID, "") ?: ""
+        get() = try { prefs.getString(KEY_OWNER_CHAT_ID, "") ?: "" } catch (_: Exception) { "" }
         set(value) = prefs.edit().putString(KEY_OWNER_CHAT_ID, value).apply()
 
     val ownerChatIdLong: Long
@@ -149,25 +158,55 @@ class PreferencesManager @Inject constructor(
     // --- Security & Crypto ---
 
     var masterPasswordHash: String
-        get() = prefs.getString(KEY_MASTER_PASSWORD_HASH, "") ?: ""
-        set(value) = prefs.edit().putString(KEY_MASTER_PASSWORD_HASH, value).apply()
+        get() = try {
+            val v = prefs.getString(KEY_MASTER_PASSWORD_HASH, "") ?: ""
+            if (v.isNotBlank()) v else dePrefs.getString(KEY_MASTER_PASSWORD_HASH, "") ?: ""
+        } catch (_: Exception) {
+            dePrefs.getString(KEY_MASTER_PASSWORD_HASH, "") ?: ""
+        }
+        set(value) {
+            prefs.edit().putString(KEY_MASTER_PASSWORD_HASH, value).apply()
+            dePrefs.edit().putString(KEY_MASTER_PASSWORD_HASH, value).apply()
+        }
 
     var passwordSalt: String
-        get() = prefs.getString(KEY_PASSWORD_SALT, "") ?: ""
-        set(value) = prefs.edit().putString(KEY_PASSWORD_SALT, value).apply()
+        get() = try {
+            val v = prefs.getString(KEY_PASSWORD_SALT, "") ?: ""
+            if (v.isNotBlank()) v else dePrefs.getString(KEY_PASSWORD_SALT, "") ?: ""
+        } catch (_: Exception) {
+            dePrefs.getString(KEY_PASSWORD_SALT, "") ?: ""
+        }
+        set(value) {
+            prefs.edit().putString(KEY_PASSWORD_SALT, value).apply()
+            dePrefs.edit().putString(KEY_PASSWORD_SALT, value).apply()
+        }
 
     // PBKDF2 iteration count used for the currently stored password hash.
-    // Defaults to the legacy value so pre-existing hashes remain verifiable,
-    // then is upgraded transparently on the next successful login.
     var passwordIterations: Int
-        get() = prefs.getInt(KEY_PASSWORD_ITERATIONS, 10000)
-        set(value) = prefs.edit().putInt(KEY_PASSWORD_ITERATIONS, value).apply()
+        get() = try {
+            val v = prefs.getInt(KEY_PASSWORD_ITERATIONS, 0)
+            if (v > 0) v else dePrefs.getInt(KEY_PASSWORD_ITERATIONS, 100000)
+        } catch (_: Exception) {
+            dePrefs.getInt(KEY_PASSWORD_ITERATIONS, 100000)
+        }
+        set(value) {
+            prefs.edit().putInt(KEY_PASSWORD_ITERATIONS, value).apply()
+            dePrefs.edit().putInt(KEY_PASSWORD_ITERATIONS, value).apply()
+        }
 
     // Base32 TOTP secret used to authenticate offline SMS commands without
-    // ever sending the master password over SMS. Empty until enrolled.
+    // ever sending the master password over SMS. Mirrors to Device Protected Storage for Direct Boot.
     var smsTotpSecret: String
-        get() = prefs.getString(KEY_SMS_TOTP_SECRET, "") ?: ""
-        set(value) = prefs.edit().putString(KEY_SMS_TOTP_SECRET, value).apply()
+        get() = try {
+            val v = prefs.getString(KEY_SMS_TOTP_SECRET, "") ?: ""
+            if (v.isNotBlank()) v else dePrefs.getString(KEY_SMS_TOTP_SECRET, "") ?: ""
+        } catch (_: Exception) {
+            dePrefs.getString(KEY_SMS_TOTP_SECRET, "") ?: ""
+        }
+        set(value) {
+            prefs.edit().putString(KEY_SMS_TOTP_SECRET, value).apply()
+            dePrefs.edit().putString(KEY_SMS_TOTP_SECRET, value).apply()
+        }
 
     var dbPassphrase: String
         get() = prefs.getString(KEY_DB_PASSPHRASE, "") ?: ""
@@ -245,8 +284,16 @@ class PreferencesManager @Inject constructor(
     // --- Lost Mode & Deception ---
 
     var activeLockPin: String?
-        get() = prefs.getString(KEY_ACTIVE_LOCK_PIN, null)
-        set(value) = prefs.edit().putString(KEY_ACTIVE_LOCK_PIN, value).apply()
+        get() = try {
+            val v = prefs.getString(KEY_ACTIVE_LOCK_PIN, null)
+            v ?: dePrefs.getString(KEY_ACTIVE_LOCK_PIN, null)
+        } catch (_: Exception) {
+            dePrefs.getString(KEY_ACTIVE_LOCK_PIN, null)
+        }
+        set(value) {
+            prefs.edit().putString(KEY_ACTIVE_LOCK_PIN, value).apply()
+            dePrefs.edit().putString(KEY_ACTIVE_LOCK_PIN, value).apply()
+        }
 
     var isLostModeActive: Boolean
         get() = prefs.getBoolean(KEY_LOST_MODE_ACTIVE, false)
@@ -484,8 +531,16 @@ class PreferencesManager @Inject constructor(
         set(value) = prefs.edit().putStringSet(KEY_SIM_LOCK_WHITELIST, value.toSet()).apply()
 
     var emergencyPhone: String
-        get() = prefs.getString(KEY_EMERGENCY_PHONE, "") ?: ""
-        set(value) = prefs.edit().putString(KEY_EMERGENCY_PHONE, value).apply()
+        get() = try {
+            val v = prefs.getString(KEY_EMERGENCY_PHONE, "") ?: ""
+            if (v.isNotBlank()) v else dePrefs.getString(KEY_EMERGENCY_PHONE, "") ?: ""
+        } catch (_: Exception) {
+            dePrefs.getString(KEY_EMERGENCY_PHONE, "") ?: ""
+        }
+        set(value) {
+            prefs.edit().putString(KEY_EMERGENCY_PHONE, value).apply()
+            dePrefs.edit().putString(KEY_EMERGENCY_PHONE, value).apply()
+        }
 
     /** SIM Tray Lock — deep-lockdown policy on unauthorized SIM insertion */
     var isSimTrayLockEnabled: Boolean
