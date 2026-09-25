@@ -63,7 +63,7 @@ interface PasaBackendApi {
 
     @GET("api/license/check")
     suspend fun checkLicense(
-        @Query("deviceId") deviceId: String
+        @Query("deviceHash") deviceHash: String
     ): LicenseCheckResponse
 
     @POST("api/license/activate")
@@ -130,14 +130,8 @@ data class BotInfo(
 )
 
 data class RegisterDeviceRequest(
-    @SerializedName("deviceId") val deviceId: String,
-    @SerializedName("deviceName") val deviceName: String,
-    @SerializedName("botToken") val botToken: String,
-    @SerializedName("ownerChatId") val ownerChatId: String,
-    @SerializedName("masterPasswordHash") val masterPasswordHash: String? = null,
-    @SerializedName("email") val email: String? = null,
-    @SerializedName("publicKeyJwk") val publicKeyJwk: String? = null,
-    @SerializedName("attestationChain") val attestationChain: List<String>? = null
+    @SerializedName("deviceId") val deviceId: String
+    // Zero-Data: botToken, ownerChatId, deviceName, publicKeyJwk removed — server never receives credentials
 )
 
 data class RegisterDeviceResponse(
@@ -205,7 +199,7 @@ data class LicenseCheckResponse(
 
 data class LicenseActivateRequest(
     @SerializedName("key") val key: String,
-    @SerializedName("deviceId") val deviceId: String
+    @SerializedName("deviceHash") val deviceHash: String  // SHA256(deviceId + key) — never raw deviceId
 )
 
 data class LicenseActivateResponse(

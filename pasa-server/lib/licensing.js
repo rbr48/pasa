@@ -20,13 +20,14 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
   let licenses = loadJson(licensesFile, {});
   let ed25519Key = ed25519KeyFile ? loadJson(ed25519KeyFile, null) : null;
 
-  function signDeviceCertificate(deviceId, tier, expiresAt, licenseKey) {
+  function signDeviceCertificate(deviceHash, tier, _ignoredExpiresAt, licenseKey) {
     if (!ed25519Key || !ed25519Key.privPem) return null;
+    const certExpiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000); // Always 7 days
     try {
       const payloadObj = {
-        deviceId: String(deviceId).trim(),
+        deviceHash: String(deviceHash).trim(),
         tier: String(tier).trim().toUpperCase(),
-        expiresAt: Number(expiresAt) || 0,
+        expiresAt: certExpiresAt,
         issuedAt: Date.now(),
         key: licenseKey ? String(licenseKey).trim().toUpperCase() : ''
       };
@@ -82,40 +83,42 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
     return licenses[key];
   }
 
-  function activateLicense(key, deviceId) {
+  function activateLicense(key, deviceHash) {
     if (!key || typeof key !== 'string') return { ok: false, message: 'Invalid license key format' };
     const cleanKey = key.trim().toUpperCase();
     const lic = licenses[cleanKey];
     if (!lic) return { ok: false, message: 'License key not found. Please check your key or buy one at https://pasa.izhaanintellect.fun/#pricing' };
     if (lic.status !== 'ACTIVE') return { ok: false, message: `License is ${lic.status}` };
+    if (lic.revoked === 1) return { ok: false, message: 'License has been revoked. Contact support.' };
     if (lic.expiresAt && Date.now() > lic.expiresAt) {
       lic.status = 'EXPIRED';
       saveJson(licensesFile, licenses);
       return { ok: false, message: 'License key has expired' };
     }
 
-    if (!lic.activatedDevices.includes(deviceId)) {
-      if (lic.activatedDevices.length >= lic.maxDevices) {
-        return {
-          ok: false,
-          message: `Device limit reached (${lic.maxDevices} device${lic.maxDevices > 1 ? 's' : ''} already bound)`
-        };
-      }
-      lic.activatedDevices.push(deviceId);
-      saveJson(licensesFile, licenses);
+    // Check if this deviceHash already activated — re-issue certificate
+    if (!lic.activatedDeviceHashes) lic.activatedDeviceHashes = [];
+    if (lic.activatedDeviceHashes.includes(deviceHash)) {
+      const certExpiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000);
+      const cert = signDeviceCertificate(deviceHash, lic.tier, certExpiresAt, cleanKey);
+      const daysLeft = lic.expiresAt ? Math.max(0, Math.ceil((lic.expiresAt - Date.now()) / (24 * 60 * 60 * 1000))) : 99999;
+      return { ok: true, message: 'License re-confirmed', tier: lic.tier,
+        daysLeft, expiresAt: lic.expiresAt, certificate: cert };
     }
 
-    const dev = getDevice(deviceId);
-    if (dev) {
-      dev.licenseKey = cleanKey;
-      dev.licenseTier = lic.tier;
-      dev.licenseExpiresAt = lic.expiresAt;
-      persistDevices();
+    // Check max device limit
+    if (lic.activatedDeviceHashes.length >= (lic.maxDevices || 1)) {
+      return { ok: false, message: `License already activated on maximum ${lic.maxDevices || 1} device(s). Contact support to transfer.` };
     }
 
-    logSecurityEvent('LICENSE_ACTIVATED', { key: cleanKey, deviceId, tier: lic.tier });
+    // Activate: add deviceHash (no PII stored, no device object touched)
+    lic.activatedDeviceHashes.push(deviceHash);
+    saveJson(licensesFile, licenses);
+
+    logSecurityEvent('LICENSE_ACTIVATED', { key: cleanKey, deviceHashPrefix: deviceHash.substring(0, 12) + '...', tier: lic.tier });
     const daysLeft = lic.expiresAt ? Math.max(0, Math.ceil((lic.expiresAt - Date.now()) / (24 * 60 * 60 * 1000))) : 99999;
-    const cert = signDeviceCertificate(deviceId, lic.tier, lic.expiresAt, cleanKey);
+    const certExpiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000);
+    const cert = signDeviceCertificate(deviceHash, lic.tier, certExpiresAt, cleanKey);
     return {
       ok: true,
       message: `License activated successfully (${lic.tier})`,
@@ -126,86 +129,52 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
     };
   }
 
-  function getDeviceLicenseStatus(deviceId) {
-    const dev = getDevice(deviceId);
+  function getDeviceLicenseStatus(deviceHash) {
     const now = Date.now();
+    let foundLic = null;
 
-    // 1. Check bound active license
-    let activeLic = null;
-    if (dev && dev.licenseKey && licenses[dev.licenseKey]) {
-      activeLic = licenses[dev.licenseKey];
-    } else {
-      // Fallback: Check if this deviceId is present in activatedDevices of any active license
-      for (const key of Object.keys(licenses)) {
-        const lic = licenses[key];
-        if (lic && Array.isArray(lic.activatedDevices) && lic.activatedDevices.includes(deviceId)) {
-          activeLic = lic;
-          if (dev) {
-            dev.licenseKey = lic.key;
-            dev.licenseTier = lic.tier;
-            dev.licenseExpiresAt = lic.expiresAt;
-            persistDevices();
-          }
-          break;
-        }
+    // Scan all licenses for this deviceHash
+    for (const key of Object.keys(licenses)) {
+      const lic = licenses[key];
+      if (lic && Array.isArray(lic.activatedDeviceHashes) && lic.activatedDeviceHashes.includes(deviceHash)) {
+        foundLic = lic;
+        break;
       }
     }
 
-    if (activeLic && activeLic.status === 'ACTIVE' && (!activeLic.expiresAt || activeLic.expiresAt > now)) {
-      const daysLeft = activeLic.expiresAt ? Math.max(0, Math.ceil((activeLic.expiresAt - now) / (24 * 60 * 60 * 1000))) : 99999;
-      const cert = signDeviceCertificate(deviceId, activeLic.tier, activeLic.expiresAt, activeLic.key);
+    if (foundLic) {
+      // Revocation check
+      if (foundLic.revoked === 1 || foundLic.status === 'REVOKED') {
+        return {
+          hasPro: false, tier: 'REVOKED', status: 'REVOKED',
+          isTrial: false, daysLeft: 0, certificate: null
+        };
+      }
+      // Expiry check
+      if (foundLic.expiresAt && now > foundLic.expiresAt) {
+        return {
+          hasPro: false, tier: foundLic.tier, status: 'EXPIRED',
+          isTrial: false, daysLeft: 0, certificate: null
+        };
+      }
+      // Active — issue fresh 7-day certificate
+      const certExpiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000);
+      const cert = signDeviceCertificate(deviceHash, foundLic.tier, certExpiresAt, foundLic.key);
+      const daysLeft = foundLic.expiresAt ? Math.max(0, Math.ceil((foundLic.expiresAt - now) / (24 * 60 * 60 * 1000))) : 99999;
       return {
         hasPro: true,
-        tier: activeLic.tier,
+        tier: foundLic.tier,
         status: 'ACTIVE',
         isTrial: false,
         daysLeft,
-        expiresAt: activeLic.expiresAt,
-        licenseKey: activeLic.key,
+        expiresAt: foundLic.expiresAt,
+        licenseKey: foundLic.key,
         certificate: cert
       };
     }
 
-    // 2. Default 7-day trial from registration time
-    const registeredAt = (dev && dev.registeredAt) || now;
-    const trialDuration = 7 * 24 * 60 * 60 * 1000;
-    const trialExpiresAt = registeredAt + trialDuration;
-    const msLeft = trialExpiresAt - now;
-    const trialDaysLeft = Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
-
-    if (now < trialExpiresAt) {
-      const trialCert = signDeviceCertificate(deviceId, 'FREE_TRIAL', trialExpiresAt, null);
-      const days = Math.floor(msLeft / (24 * 60 * 60 * 1000));
-      const hours = Math.floor((msLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-      const minutes = Math.floor((msLeft % (60 * 60 * 1000)) / (60 * 1000));
-      return {
-        hasPro: true,
-        tier: 'FREE_TRIAL',
-        status: 'TRIAL',
-        isTrial: true,
-        daysLeft: days,
-        hoursLeft: hours,
-        minutesLeft: minutes,
-        msLeft: msLeft,
-        expiresAt: trialExpiresAt,
-        licenseKey: null,
-        certificate: trialCert
-      };
-    }
-
-    return {
-      hasPro: false,
-      tier: 'EXPIRED_TRIAL',
-      status: 'EXPIRED',
-      isTrial: true,
-      daysLeft: 0,
-      hoursLeft: 0,
-      minutesLeft: 0,
-      msLeft: 0,
-      expiresAt: trialExpiresAt,
-      licenseKey: null,
-      certificate: null
-    };
+    // No license found for this hash — trial is managed on-device
+    return { hasPro: false, tier: 'FREE_TRIAL', status: 'ACTIVE', isTrial: true, daysLeft: 7 };
   }
 
   function getTrialBanner(deviceId) {
@@ -264,6 +233,7 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
     const lic = licenses[cleanKey];
     if (lic) {
       lic.status = 'REVOKED';
+      lic.revoked = 1;
       lic.revokeReason = reason;
       saveJson(licensesFile, licenses);
       logSecurityEvent('LICENSE_REVOKED', { key: cleanKey, reason });

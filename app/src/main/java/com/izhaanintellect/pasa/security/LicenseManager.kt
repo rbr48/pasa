@@ -87,6 +87,17 @@ class LicenseManager @Inject constructor(
 
     fun isProCommand(command: String): Boolean = command.lowercase() in PRO_COMMANDS
 
+    /**
+     * Computes an anonymous one-way device hash for license server communication.
+     * SHA256(deviceId:licenseKey) — irreversible; the server cannot recover the raw deviceId.
+     */
+    private fun computeDeviceHash(licenseKey: String): String {
+        val input = "${preferencesManager.deviceId}:${licenseKey}"
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+        val hashBytes = digest.digest(input.toByteArray(Charsets.UTF_8))
+        return hashBytes.joinToString("") { "%02x".format(it) }
+    }
+
     fun getTrialRemainingMs(): Long {
         val now = System.currentTimeMillis()
         val expiresAt = preferencesManager.trialExpiresAt
@@ -222,8 +233,10 @@ class LicenseManager @Inject constructor(
     suspend fun activateLicenseKey(key: String): Boolean {
         return try {
             val cleanKey = key.trim().uppercase()
+            // Compute anonymous hash — server never receives raw deviceId
+            val deviceHash = computeDeviceHash(cleanKey)
             val response = pasaBackendApi.activateLicense(
-                com.izhaanintellect.pasa.network.LicenseActivateRequest(cleanKey, preferencesManager.deviceId)
+                com.izhaanintellect.pasa.network.LicenseActivateRequest(cleanKey, deviceHash)
             )
             if (response.ok) {
                 if (response.certificate != null) {
@@ -254,6 +267,12 @@ class LicenseManager @Inject constructor(
      */
     suspend fun refreshIfStale(force: Boolean = false) {
         try {
+            // Trial users: license status is local. Only refresh if a license key is activated.
+            if (preferencesManager.licenseKey.isBlank()) {
+                Log.d(TAG, "No license key — skipping server refresh (trial is local)")
+                return
+            }
+
             val lastCheck = preferencesManager.run {
                 val prefs = javaClass.getDeclaredField("prefs").apply { isAccessible = true }.get(this) as android.content.SharedPreferences
                 prefs.getLong(KEY_LAST_LICENSE_CHECK, 0L)
@@ -263,7 +282,9 @@ class LicenseManager @Inject constructor(
                 return
             }
 
-            val response = pasaBackendApi.checkLicense(preferencesManager.deviceId)
+            // Use anonymous deviceHash — never send raw deviceId to server
+            val deviceHash = computeDeviceHash(preferencesManager.licenseKey)
+            val response = pasaBackendApi.checkLicense(deviceHash)
             if (response.ok) {
                 // If backend returned cryptographic certificate, verify and store it
                 if (response.certificate != null) {

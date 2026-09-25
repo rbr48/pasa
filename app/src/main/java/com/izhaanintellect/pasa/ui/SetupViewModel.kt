@@ -1,14 +1,11 @@
 package com.izhaanintellect.pasa.ui
 
-import android.os.Build
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.network.PasaBackendApi
-import com.izhaanintellect.pasa.network.RegisterDeviceRequest
-import com.izhaanintellect.pasa.network.VerifyBotRequest
 import com.izhaanintellect.pasa.security.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -86,8 +83,8 @@ class SetupViewModel @Inject constructor(
     }
 
     /**
-     * Handshake verification: queries VPS backend /api/verify-bot first (robust against
-     * ISP throttling and Retrofit encoding bugs), falling back to direct Telegram API if needed.
+     * Verifies the bot token by calling Telegram directly.
+     * Zero-Data: botToken is NEVER sent to the VPS — direct Telegram only.
      */
     suspend fun testBotConnection(rawToken: String): Result<String> {
         return withContext(Dispatchers.IO) {
@@ -95,22 +92,7 @@ class SetupViewModel @Inject constructor(
             if (token.isBlank()) {
                 return@withContext Result.failure(Exception("Bot token cannot be blank"))
             }
-
-            // 1. First Attempt: Verify through VPS Backend Gateway
-            if (preferencesManager.useBackendServer) {
-                try {
-                    val vpsRes = pasaBackendApi.verifyBot(VerifyBotRequest(token))
-                    if (vpsRes.ok && vpsRes.bot != null) {
-                        return@withContext Result.success(vpsRes.bot.username ?: vpsRes.bot.firstName ?: "Bot")
-                    } else if (!vpsRes.description.isNullOrBlank()) {
-                        return@withContext Result.failure(Exception(vpsRes.description))
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "VPS backend verify failed, falling back to direct Telegram: ${e.message}")
-                }
-            }
-
-            // 2. Direct Telegram API Fallback (using clean direct URL)
+            // Zero-Data: Always verify directly with Telegram — never send token to VPS
             try {
                 val directUrl = "https://api.telegram.org/bot$token/getMe"
                 val resp = telegramApi.getMeDirect(directUrl)
@@ -143,7 +125,7 @@ class SetupViewModel @Inject constructor(
         preferencesManager.backupEmail = email.trim()
         preferencesManager.isStealthMode = stealthMode
         preferencesManager.serverUrl = serverUrl.trim()
-        preferencesManager.useBackendServer = serverUrl.trim().isNotBlank()
+        preferencesManager.useBackendServer = false  // Zero-Data: Always Sovereign Mode (direct Telegram)
         preferencesManager.isSetupComplete = true
 
         try {
@@ -164,50 +146,12 @@ class SetupViewModel @Inject constructor(
 
     suspend fun registerDeviceWithBackend(context: android.content.Context? = null): Boolean {
         return withContext(Dispatchers.IO) {
-            try {
-                if (!preferencesManager.useBackendServer) {
-                    Log.i(TAG, "🛡️ Direct Sovereign Mode active: skipping VPS registration (Zero VPS telemetry)")
-                    return@withContext true
-                }
-
-                var publicKeyJwkStr: String? = null
-                var attestationList: List<String>? = null
-
-                context?.let { ctx ->
-                    com.izhaanintellect.pasa.crypto.DeviceIdentity.ensureKey(ctx)
-                    val level = com.izhaanintellect.pasa.crypto.DeviceIdentity.securityLevel()
-                    preferencesManager.deviceKeySecurityLevel = level
-
-                    if (com.izhaanintellect.pasa.crypto.DeviceIdentity.exists()) {
-                        publicKeyJwkStr = com.izhaanintellect.pasa.crypto.DeviceIdentity.publicJwk().toString()
-                        attestationList = com.izhaanintellect.pasa.crypto.DeviceIdentity.attestationChain()
-                    }
-                }
-
-                val req = RegisterDeviceRequest(
-                    deviceId = preferencesManager.deviceId,
-                    deviceName = "${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE})",
-                    botToken = preferencesManager.botToken,
-                    ownerChatId = preferencesManager.ownerChatId,
-                    email = preferencesManager.backupEmail,
-                    publicKeyJwk = publicKeyJwkStr,
-                    attestationChain = attestationList
-                )
-                val resp = pasaBackendApi.registerDevice(req)
-                if (resp.ok) {
-                    if (!resp.apiKey.isNullOrBlank()) {
-                        preferencesManager.apiKey = resp.apiKey
-                    }
-                    if (!resp.signingKeyId.isNullOrBlank() && !resp.commandSigningPublicJwk.isNullOrBlank()) {
-                        preferencesManager.addTrustedCommandKey(resp.signingKeyId, resp.commandSigningPublicJwk)
-                        Log.i(TAG, "Enrolled trusted command signing key: ${resp.signingKeyId}")
-                    }
-                }
-                resp.ok
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to register with VPS backend: ${e.message}")
-                false
-            }
+            // Zero-Data Architecture: Device registration is disabled.
+            // The server never receives botToken, ownerChatId, or device credentials.
+            // All C2 (commands) are handled via direct Telegram polling (Sovereign Mode).
+            // License activation is the only server contact, using anonymous deviceHash.
+            Log.i(TAG, "🛡️ Zero-Data Mode: VPS registration disabled. All C2 is Sovereign (direct Telegram).")
+            true
         }
     }
 

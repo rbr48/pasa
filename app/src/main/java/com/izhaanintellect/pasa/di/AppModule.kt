@@ -27,6 +27,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    // Zero-Data: License calls always go to the canonical PASA server — never a user-supplied URL.
+    private const val PASA_LICENSE_SERVER = "https://izhaanintellect.fun/pasa/"
+
     @Provides
     @Singleton
     fun providePreferencesManager(
@@ -131,70 +134,14 @@ object AppModule {
     @Provides
     @Singleton
     fun providePasaBackendApi(
-        okHttpClient: OkHttpClient,
-        preferencesManager: PreferencesManager
+        okHttpClient: OkHttpClient
     ): com.izhaanintellect.pasa.network.PasaBackendApi {
-        val client = okHttpClient.newBuilder()
-            .addInterceptor { chain ->
-                var request = chain.request()
-                val currentBase = preferencesManager.serverUrl.trim()
-                try {
-                    val uri = java.net.URI.create(currentBase)
-                    val host = uri.host
-                    if (!host.isNullOrBlank()) {
-                        val scheme = uri.scheme ?: "https"
-                        val port = if (uri.port != -1) uri.port else (if (scheme == "http") 80 else 443)
-                        val basePath = (uri.path ?: "").trim('/')
-                        val endpointPath = request.url.encodedPath.trim('/')
-
-                        val finalEndpoint = if (basePath.isNotEmpty() && endpointPath.startsWith(basePath)) {
-                            endpointPath
-                        } else if (basePath.isNotEmpty()) {
-                            "$basePath/$endpointPath"
-                        } else {
-                            endpointPath
-                        }
-
-                        val newUrl = request.url.newBuilder()
-                            .scheme(scheme)
-                            .host(host)
-                            .port(port)
-                            .encodedPath("/$finalEndpoint")
-                            .build()
-                        val requestBuilder = request.newBuilder().url(newUrl)
-                        val apiKey = preferencesManager.apiKey
-                        if (apiKey.isNotBlank()) {
-                            requestBuilder.header("Authorization", "Bearer $apiKey")
-                        }
-
-                        // Hardware-backed Proof-of-Possession Header (ASTRA Hardened Layer)
-                        if (com.izhaanintellect.pasa.crypto.DeviceIdentity.exists()) {
-                            val method = request.method
-                            val proofPath = "/$finalEndpoint"
-                            try {
-                                val proof = com.izhaanintellect.pasa.crypto.DeviceAuth.proof(
-                                    deviceId = preferencesManager.deviceId,
-                                    method = method,
-                                    path = proofPath
-                                )
-                                requestBuilder.header(com.izhaanintellect.pasa.crypto.DeviceAuth.headerName(), proof)
-                            } catch (e: Exception) {
-                                android.util.Log.w("AppModule", "Failed to generate device proof: ${e.message}")
-                            }
-                        }
-
-                        request = requestBuilder.build()
-                    }
-                } catch (e: Exception) {
-                    android.util.Log.w("AppModule", "Failed to parse custom server URL: $currentBase", e)
-                }
-                chain.proceed(request)
-            }
-            .build()
-
+        // Zero-Data Architecture: The backend API is used exclusively for license operations.
+        // botToken and ownerChatId are NEVER sent here. C2 polling is Sovereign (direct Telegram).
+        val baseUrl = PASA_LICENSE_SERVER
         return Retrofit.Builder()
-            .baseUrl("http://localhost/")
-            .client(client)
+            .baseUrl(baseUrl)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(com.izhaanintellect.pasa.network.PasaBackendApi::class.java)

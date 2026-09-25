@@ -109,15 +109,28 @@ function initDatabase(dbPath) {
       customerEmail TEXT,
       orderId TEXT,
       createdAt INTEGER NOT NULL,
-      expiresAt INTEGER
+      expiresAt INTEGER,
+      revoked INTEGER DEFAULT 0,
+      revokeReason TEXT
     );
 
     CREATE TABLE IF NOT EXISTS device_licenses (
-      deviceId TEXT PRIMARY KEY,
+      deviceHash TEXT PRIMARY KEY,
       licenseKey TEXT NOT NULL,
       activatedAt INTEGER NOT NULL
     );
-  `);
+    `);
+
+  // Safe schema migrations for existing databases
+  const existingCols = (tableName) => {
+    try {
+      return db.prepare(`PRAGMA table_info(${tableName})`).all().map(r => r.name);
+    } catch(e) { return []; }
+  };
+  if (!existingCols('licenses').includes('revoked')) {
+    db.exec('ALTER TABLE licenses ADD COLUMN revoked INTEGER DEFAULT 0;');
+    db.exec('ALTER TABLE licenses ADD COLUMN revokeReason TEXT;');
+  }
 
   return db;
 }

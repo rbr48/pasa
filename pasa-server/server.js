@@ -3849,11 +3849,9 @@ async function handleTelegramUpdate(token, update) {
 }
 
 function initPollers() {
-  for (const device of Object.values(devices)) {
-    if (device.botToken) {
-      startBotPoller(device.botToken);
-    }
-  }
+  // Zero-Data Mode: Bot polling disabled on server.
+  // All Telegram communication is handled directly by the device (Sovereign Mode).
+  console.log('[PASA] Zero-Data mode: VPS bot polling disabled. Devices poll Telegram directly.');
 }
 
 // --- REST Endpoints ---
@@ -4126,58 +4124,23 @@ app.post('/api/verify-bot', async (req, res) => {
   }
 });
 
-// 3. Register Device with Hardware Key Exchange
+// 3. Register Device — Zero-Data Mode (license server only)
 app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
   try {
-    const { deviceId, deviceName, botToken, ownerChatId, masterPasswordHash, email, publicKeyJwk, attestationChain } = req.body;
-    if (!deviceId || !botToken) {
-      return res.status(400).json({ ok: false, description: 'deviceId and botToken required' });
+    const { deviceId } = req.body;
+    if (!deviceId) {
+      return res.status(400).json({ ok: false, description: 'deviceId required' });
     }
 
-    const existingDev = devices[deviceId];
-    if (existingDev) {
-      const authHeader = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
-      const adminPass = req.headers['x-admin-password'] || (req.body && req.body.adminPassword);
-      const isAuthenticated = (authHeader && authHeader === existingDev.apiKey) || (adminPass && adminPass === getAdminSecret());
-      if (!isAuthenticated) {
-        return res.status(403).json({ ok: false, description: 'Device ID already registered. Valid apiKey or admin auth required to update.' });
-      }
-    }
+    // Zero-Data Mode: We do NOT store botToken, ownerChatId, deviceName, or publicKeyJwk.
+    // All C2 is handled directly by the device via Telegram. Server is license-only.
+    const apiKey = require('crypto').randomBytes(32).toString('hex');
 
-    const apiKey = crypto.randomBytes(32).toString('hex');
-    const existingDevObj = existingDev || {};
-    devices[deviceId] = {
-      ...existingDevObj,
-      deviceId,
-      deviceName: deviceName || existingDevObj.deviceName || 'Android Device',
-      botToken: botToken.trim(),
-      ownerChatId: ownerChatId || existingDevObj.ownerChatId || '',
-      email: email || existingDevObj.email || '',
-      apiKey: apiKey,
-      publicKeyJwk: publicKeyJwk || existingDevObj.publicKeyJwk || null,
-      attestationChain: attestationChain || existingDevObj.attestationChain || [],
-      lastSequence: existingDevObj.lastSequence || 0,
-      licenseKey: existingDevObj.licenseKey,
-      licenseTier: existingDevObj.licenseTier,
-      licenseExpiresAt: existingDevObj.licenseExpiresAt,
-      registeredAt: existingDevObj.registeredAt || Date.now(),
-      lastSeen: Date.now()
-    };
-    persistDevice(deviceId);
-
-    // Launch Telegram poller for this bot token on VPS
-    startBotPoller(botToken.trim());
-
-    logSecurityEvent('DEVICE_REGISTERED', {
-      deviceId,
-      deviceName: deviceName || 'Android Device',
-      ownerChatId: ownerChatId || '',
-      hasHardwareKey: !!publicKeyJwk
-    });
+    logSecurityEvent('DEVICE_REGISTER_ATTEMPT', { deviceId: deviceId.substring(0, 8) + '...' });
 
     res.json({
       ok: true,
-      message: 'Device registered successfully with hardware key binding',
+      message: 'Zero-Data mode active. License server ready.',
       deviceId,
       apiKey,
       signingKeyId: SERVER_KEY_ID,
@@ -5118,27 +5081,27 @@ app.post('/api/ciso-inquiry', (req, res) => {
   }
 });
 
-// 7b. Activate License on Device
+// 7b. Activate License on Device (Zero-Data: accepts deviceHash, not deviceId)
 app.post('/api/license/activate', (req, res) => {
-  const { key, deviceId } = req.body || {};
-  if (!key || !deviceId) {
-    return res.status(400).json({ ok: false, description: 'Both key and deviceId are required' });
+  const { key, deviceHash } = req.body || {};
+  if (!key || !deviceHash) {
+    return res.status(400).json({ ok: false, description: 'Both key and deviceHash are required' });
   }
-  const result = licensing.activateLicense(key, deviceId);
+  const result = licensing.activateLicense(key, deviceHash);
   if (!result.ok) {
     return res.status(400).json(result);
   }
   res.json(result);
 });
 
-// 7c. Check Device License Status
+// 7c. Check Device License Status (Zero-Data: accepts deviceHash query param)
 app.get('/api/license/check', (req, res) => {
-  const deviceId = req.query.deviceId;
-  if (!deviceId) {
-    return res.status(400).json({ ok: false, description: 'deviceId query parameter is required' });
+  const deviceHash = req.query.deviceHash;
+  if (!deviceHash) {
+    return res.status(400).json({ ok: false, description: 'deviceHash query parameter is required' });
   }
-  const status = licensing.getDeviceLicenseStatus(deviceId);
-  res.json({ ok: true, deviceId, ...status });
+  const status = licensing.getDeviceLicenseStatus(deviceHash);
+  res.json({ ok: true, ...status });
 });
 
 // 7d. Lookup License by Key or Email
