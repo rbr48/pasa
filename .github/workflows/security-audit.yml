@@ -39,6 +39,15 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Set up Android SDK
+      if: matrix.language == 'java-kotlin'
+      uses: android-actions/setup-android@v3
+
+    - name: Accept Android SDK Licenses
+      if: matrix.language == 'java-kotlin'
+      run: |
+        yes | sdkmanager --licenses || true
+
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
