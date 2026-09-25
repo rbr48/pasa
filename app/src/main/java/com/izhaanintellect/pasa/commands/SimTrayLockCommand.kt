@@ -7,56 +7,71 @@ import android.telephony.SubscriptionManager
 import android.util.Log
 import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
 import com.izhaanintellect.pasa.data.PreferencesManager
+import com.izhaanintellect.pasa.security.AuthManager
+import com.izhaanintellect.pasa.security.Totp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * SIM Tray Lock — Cryptographic Hardware Defense Against Unauthorized SIM Insertion
- *
- * This is an escalation layer on top of /sim_lock. When armed and an unauthorized SIM
- * is inserted, PASA executes a full Device Owner deep-lockdown that makes the device
- * COMPLETELY UNUSABLE to anyone without the owner's remote authorization:
- *
- *   1. Lockscreen PIN is ROTATED to a cryptographically random 8-digit PIN via
- *      dpm.resetPasswordWithToken() — the PIN is sent ONLY to owner via Telegram.
- *      The thief cannot unlock the device without the owner's approval.
- *
- *   2. ALL installed apps (except PASA itself) are SUSPENDED via
- *      dpm.setPackagesSuspended() — the thief sees every app greyed out and unlaunchable.
- *
- *   3. Full Knox Kiosk Lost Mode engages (same as /sim_lock lock action).
- *
- *   4. Biometrics disabled — forces PIN entry only (which thief doesn't know).
- *
- *   5. Owner receives: emergency PIN + mugshot + GPS + new SIM carrier details.
- *
- * The device cannot be used or reset (DISALLOW_FACTORY_RESET is enforced). Only the
- * owner can un-brick it remotely via /sim_tray_lock release.
- *
- * Commands:
- *   /sim_tray_lock enable     — Arm tray lock and whitelist current SIM(s)
- *   /sim_tray_lock disable    — Disarm
- *   /sim_tray_lock release    — Un-suspend all apps + restore lockscreen (after breach)
- *   /sim_tray_lock whitelist  — Authorize currently inserted SIM(s) as trusted
- *   /sim_tray_lock status     — Show armed state and whitelisted SIMs
  */
 @Singleton
 class SimTrayLockCommand @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val authManager: AuthManager
 ) : Command {
 
     override val name = "/sim_tray_lock"
-    override val description = "Cryptographic SIM tray lock — device becomes completely unusable on unauthorized SIM insertion"
-    override val usage = "/sim_tray_lock [enable|disable|release|whitelist|status]"
+    override val description = "Cryptographic SIM tray lock (Requires Master Password to release/disarm)"
+    override val usage = "/sim_tray_lock [enable|status|whitelist] | /sim_tray_lock <master_password> [disable|release]"
 
     companion object {
         private const val TAG = "PASA_SimTrayLock"
+        private val ACTION_WORDS = setOf(
+            "enable", "on", "arm",
+            "disable", "off", "disarm",
+            "release", "unlock", "restore",
+            "whitelist", "trust", "allow",
+            "status", "help"
+        )
+    }
+
+    private fun verifyCredentials(candidate: String?): Boolean {
+        if (candidate.isNullOrBlank()) return false
+        val isPass = authManager.verifyMasterPassword(candidate)
+        val totpSecret = preferencesManager.smsTotpSecret
+        val isTotp = totpSecret.isNotBlank() && Totp.verify(totpSecret, candidate, window = 3)
+        return isPass || isTotp
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        val action = args.firstOrNull()?.lowercase()?.trim() ?: "status"
+        val action = args.firstOrNull { it.lowercase().trim() in ACTION_WORDS }?.lowercase()?.trim() ?: "status"
+        val candidate = args.firstOrNull { it.lowercase().trim() !in ACTION_WORDS }?.trim()
+
+        if (action in setOf("disable", "off", "disarm", "release", "unlock", "restore") && authManager.hasMasterPassword()) {
+            val actionLabel = if (action in setOf("release", "unlock", "restore")) "Release Lockdown" else "Disarm SIM Tray Lock"
+            if (candidate.isNullOrBlank()) {
+                return CommandResult(
+                    success = false,
+                    message = """
+                        🔑 <b>$actionLabel (Zero-Trust Guard)</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        To $actionLabel, Master Password verification is required.
+
+                        <b>Syntax:</b> <code>/sim_tray_lock &lt;master_password&gt; $action</code>
+                        <b>Example:</b> <code>/sim_tray_lock MySecretPass123 $action</code>
+                    """.trimIndent()
+                )
+            }
+            if (!verifyCredentials(candidate)) {
+                return CommandResult(
+                    success = false,
+                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. Operation rejected."
+                )
+            }
+        }
 
         return when (action) {
             "enable", "on", "arm"           -> enableTrayLock()
@@ -73,7 +88,7 @@ class SimTrayLockCommand @Inject constructor(
         val isDO = PasaDeviceAdmin.isDeviceOwner(context)
 
         // Capture current SIM ICCIDs as authorized baseline
-        val whitelistResult = whitelistCurrentSims()
+        whitelistCurrentSims()
 
         preferencesManager.isSimTrayLockEnabled = true
         // Also ensure the standard sim_lock monitoring is active

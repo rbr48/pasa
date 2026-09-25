@@ -4,28 +4,31 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.izhaanintellect.pasa.data.PreferencesManager
+import com.izhaanintellect.pasa.security.AuthManager
+import com.izhaanintellect.pasa.security.Totp
 import com.izhaanintellect.pasa.ui.AlertMessageActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Remote unlock via Telegram (one of two remote-only unlock methods).
+ * Remote unlock via Telegram or SMS.
  *
  * PRODUCTION-READY SECURITY:
+ * ✅ Zero-trust Master Password or TOTP verification required
  * ✅ Remote-only (no local PIN)
- * ✅ Requires Telegram bot access
- * ✅ Complements SMS unlock (/sms_unlock)
+ * ✅ Device Owner lockdown reversal
  */
 @Singleton
 class UnlockCommand @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val authManager: AuthManager
 ) : Command {
 
     override val name = "/unlock"
-    override val description = "Remotely unlock device via Telegram"
-    override val usage = "/unlock"
+    override val description = "Remotely unlock device (Requires Master Password)"
+    override val usage = "/unlock <master_password>"
 
     companion object {
         private const val TAG = "PASA_TelegramUnlock"
@@ -40,7 +43,36 @@ class UnlockCommand @Inject constructor(
             )
         }
 
-        Log.i(TAG, "🔓 Processing remote unlock via Telegram")
+        // Zero-Trust verification: If Master Password is set, require authentication
+        if (authManager.hasMasterPassword()) {
+            val candidate = args.firstOrNull()?.trim()
+            if (candidate.isNullOrBlank()) {
+                return CommandResult(
+                    success = false,
+                    message = """
+                        🔑 <b>Release Lost Mode (Zero-Trust Guard)</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        To release Lost Mode and restore full device access, Master Password verification is required.
+
+                        <b>Syntax:</b> <code>/unlock &lt;master_password&gt;</code>
+                        <b>Example:</b> <code>/unlock MySecretPass123</code>
+                    """.trimIndent()
+                )
+            }
+
+            val totpSecret = preferencesManager.smsTotpSecret
+            val isTotpValid = totpSecret.isNotBlank() && Totp.verify(totpSecret, candidate, window = 3)
+            val isPassValid = authManager.verifyMasterPassword(candidate)
+
+            if (!isTotpValid && !isPassValid) {
+                return CommandResult(
+                    success = false,
+                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password or TOTP. Unlock rejected."
+                )
+            }
+        }
+
+        Log.i(TAG, "🔓 Processing remote unlock")
 
         try {
             // 1. Clear Lost Mode preferences

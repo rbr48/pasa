@@ -15,35 +15,46 @@ class SetMasterPinCommand @Inject constructor(
 ) : Command {
 
     override val name = "/set_master_pin"
-    override val description = "Set or update PASA Master Emergency PIN/Password"
-    override val usage = "/set_master_pin <new_pin>"
+    override val description = "Set or update PASA Master Emergency PIN/Password (Requires current password)"
+    override val usage = "/set_master_pin <current_password> <new_pin>"
 
     companion object {
         private val PIN_REGEX = Regex("^[A-Za-z0-9@#\$%^&*!_\\-]{4,32}$")
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        val newPin = args.firstOrNull()?.trim()
+        if (authManager.hasMasterPassword()) {
+            if (args.size < 2) {
+                return CommandResult(
+                    success = false,
+                    message = """
+                        🔐 <b>Rotate Master Emergency PIN / Password</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        To prevent unauthorized server abuse, updating your Master Password strictly requires confirming your current password.
+                        
+                        <b>Syntax:</b> <code>/set_master_pin &lt;current_password&gt; &lt;new_pin&gt;</code>
+                        <b>Example:</b> <code>/set_master_pin MyCurrentPass123 5892</code>
+                        
+                        <i>Rules: 4 to 32 alphanumeric or standard symbol characters.</i>
+                    """.trimIndent()
+                )
+            }
+
+            val currentPassword = args[0]
+            if (!authManager.verifyMasterPassword(currentPassword)) {
+                return CommandResult(
+                    success = false,
+                    message = "⛔ <b>Authentication Failed!</b> Incorrect current Master Password. Credential rotation rejected."
+                )
+            }
+        }
+
+        val newPin = (if (authManager.hasMasterPassword()) args.getOrNull(1) else args.firstOrNull())?.trim()
 
         if (newPin.isNullOrBlank()) {
             return CommandResult(
                 success = false,
-                message = """
-                    🔐 <b>Set Master Emergency PIN / Password</b>
-                    ━━━━━━━━━━━━━━━━━━━━
-                    Updates the primary authorization PIN for PASA Sentinel.
-                    
-                    <b>Syntax:</b> <code>/set_master_pin &lt;new_pin&gt;</code>
-                    <b>Example:</b> <code>/set_master_pin 5892</code>
-                    
-                    <b>Used For:</b>
-                    • Authenticating offline SMS commands (<code>PASA &lt;pin&gt; /locate</code>)
-                    • Dismissing Lost Mode & Kiosk lockdown
-                    • In-app settings access
-                    • Confirming emergency remote wipe (<code>/wipe_confirm</code>)
-                    
-                    <i>Rules: 4 to 32 alphanumeric or standard symbol characters.</i>
-                """.trimIndent()
+                message = "❌ Missing new PIN. Usage: <code>/set_master_pin &lt;current_password&gt; &lt;new_pin&gt;</code>"
             )
         }
 

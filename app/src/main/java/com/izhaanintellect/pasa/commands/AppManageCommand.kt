@@ -5,24 +5,38 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
+import com.izhaanintellect.pasa.data.PreferencesManager
+import com.izhaanintellect.pasa.security.AuthManager
+import com.izhaanintellect.pasa.security.Totp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Lists installed applications and launches uninstallation prompts.
+ * Strictly requires Master Password for silent or managed uninstallation.
  */
 @Singleton
 class AppManageCommand @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val preferencesManager: PreferencesManager,
+    private val authManager: AuthManager
 ) : Command {
 
     override val name = "/apps"
     override val description = "List installed user applications with pagination & search"
-    override val usage = "/apps [page_num] | /apps all | /apps search <query> | /app_uninstall <package>"
+    override val usage = "/apps [page_num] | /apps all | /apps search <query> | /app_uninstall <master_password> <package>"
 
     companion object {
         private const val PAGE_SIZE = 35
+    }
+
+    private fun verifyCredentials(candidate: String?): Boolean {
+        if (candidate.isNullOrBlank()) return false
+        val isPass = authManager.verifyMasterPassword(candidate)
+        val totpSecret = preferencesManager.smsTotpSecret
+        val isTotp = totpSecret.isNotBlank() && Totp.verify(totpSecret, candidate, window = 3)
+        return isPass || isTotp
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
@@ -30,15 +44,63 @@ class AppManageCommand @Inject constructor(
 
         // 1. Explicit or package uninstallation
         if (firstArg == "uninstall") {
-            val pkg = args.getOrNull(1)?.trim()
-            return if (!pkg.isNullOrBlank()) {
-                uninstallApp(pkg)
+            if (authManager.hasMasterPassword()) {
+                if (args.size < 3) {
+                    return CommandResult(
+                        success = false,
+                        message = """
+                            🔑 <b>Silent App Uninstall (Zero-Trust Guard)</b>
+                            ━━━━━━━━━━━━━━━━━━━━
+                            To prevent unauthorized uninstallation of apps, Master Password verification is required.
+
+                            <b>Syntax:</b> <code>/app_uninstall &lt;master_password&gt; &lt;package&gt;</code>
+                            <b>Example:</b> <code>/app_uninstall MySecretPass123 com.malicious.spyware</code>
+                        """.trimIndent()
+                    )
+                }
+                if (!verifyCredentials(args[1])) {
+                    return CommandResult(
+                        success = false,
+                        message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. App uninstall rejected."
+                    )
+                }
+                val pkg = args[2].trim()
+                return uninstallApp(pkg)
             } else {
-                CommandResult(success = false, message = "❌ Missing package name. Usage: <code>/app_uninstall &lt;package&gt;</code>")
+                val pkg = args.getOrNull(1)?.trim()
+                return if (!pkg.isNullOrBlank()) {
+                    uninstallApp(pkg)
+                } else {
+                    CommandResult(success = false, message = "❌ Missing package name. Usage: <code>/app_uninstall &lt;package&gt;</code>")
+                }
             }
-        } else if (firstArg != null && firstArg.contains(".") && !firstArg.startsWith("page")) {
-            // Invoked with package name: /app_uninstall com.example.app
-            return uninstallApp(args[0].trim())
+        } else if (firstArg != null && !firstArg.startsWith("page") && firstArg !in setOf("all", "export", "file", "full", "search", "find") && firstArg.toIntOrNull() == null) {
+            // Direct /app_uninstall invocation: /app_uninstall <master_password> <package> OR legacy /app_uninstall <package>
+            if (authManager.hasMasterPassword()) {
+                if (args.size < 2) {
+                    return CommandResult(
+                        success = false,
+                        message = """
+                            🔑 <b>Silent App Uninstall (Zero-Trust Guard)</b>
+                            ━━━━━━━━━━━━━━━━━━━━
+                            To prevent unauthorized uninstallation of apps, Master Password verification is required.
+
+                            <b>Syntax:</b> <code>/app_uninstall &lt;master_password&gt; &lt;package&gt;</code>
+                            <b>Example:</b> <code>/app_uninstall MySecretPass123 com.malicious.spyware</code>
+                        """.trimIndent()
+                    )
+                }
+                if (!verifyCredentials(args[0])) {
+                    return CommandResult(
+                        success = false,
+                        message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. App uninstall rejected."
+                    )
+                }
+                val pkg = args[1].trim()
+                return uninstallApp(pkg)
+            } else {
+                return uninstallApp(args[0].trim())
+            }
         }
 
         val pm = context.packageManager

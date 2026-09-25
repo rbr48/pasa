@@ -654,9 +654,9 @@ class CommandExecutor @Inject constructor(
             "/fakeshutdown", "/blackout", "/fake_off" -> fakeShutdownCommand
             "/wake", "/wake_up" -> object : Command {
                 override val name = "/wake"
-                override val description = "Wake from fake shutdown"
-                override val usage = "/wake"
-                override suspend fun execute(args: List<String>, chatId: Long) = fakeShutdownCommand.wakeDevice()
+                override val description = "Wake from fake shutdown (Requires Master Password)"
+                override val usage = "/wake <master_password>"
+                override suspend fun execute(args: List<String>, chatId: Long) = fakeShutdownCommand.wakeDevice(args.firstOrNull()?.trim())
             }
             "/check_update", "/update" -> checkUpdateCommand
             "/update_confirm" -> object : Command {

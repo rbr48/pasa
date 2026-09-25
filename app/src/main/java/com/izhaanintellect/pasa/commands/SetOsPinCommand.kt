@@ -3,6 +3,7 @@ package com.izhaanintellect.pasa.commands
 import android.content.Context
 import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
 import com.izhaanintellect.pasa.data.PreferencesManager
+import com.izhaanintellect.pasa.security.AuthManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -10,17 +11,18 @@ import javax.inject.Singleton
 /**
  * Remotely resets or updates the device's native Android OS lock screen password/PIN.
  * Utilizes Android Enterprise Escrow Token API (resetPasswordWithToken).
- * Requires Enterprise Device Owner permissions.
+ * Requires Enterprise Device Owner permissions and Master Password authentication.
  */
 @Singleton
 class SetOsPinCommand @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val authManager: AuthManager
 ) : Command {
 
     override val name = "/set_os_pin"
-    override val description = "Reset Android OS hardware lockscreen PIN (Device Owner)"
-    override val usage = "/set_os_pin <new_pin>"
+    override val description = "Reset Android OS hardware lockscreen PIN (Requires Master Password)"
+    override val usage = "/set_os_pin <master_password> <new_pin>"
 
     companion object {
         private val PIN_REGEX = Regex("^[0-9]{4,16}$")
@@ -38,21 +40,39 @@ class SetOsPinCommand @Inject constructor(
             )
         }
 
-        val newPin = args.firstOrNull()?.trim()
-        if (newPin.isNullOrBlank()) {
-            val isTokenActive = try {
-                val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
-                dpm.isResetPasswordTokenActive(PasaDeviceAdmin.getComponentName(context))
-            } catch (_: Exception) { false }
+        if (authManager.hasMasterPassword()) {
+            if (args.size < 2) {
+                val isTokenActive = try {
+                    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
+                    dpm.isResetPasswordTokenActive(PasaDeviceAdmin.getComponentName(context))
+                } catch (_: Exception) { false }
 
+                return CommandResult(
+                    success = false,
+                    message = "🔑 <b>Reset OS Lockscreen PIN (Zero-Trust Guard)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                            "To prevent unauthorized server abuse, resetting the phone's lockscreen PIN strictly requires your Master Password.\n\n" +
+                            "<b>Syntax:</b> <code>/set_os_pin &lt;master_password&gt; &lt;new_pin&gt;</code>\n" +
+                            "<b>Example:</b> <code>/set_os_pin MySecretPass123 5892</code>\n\n" +
+                            "<b>Device Owner:</b> ✅ Active\n" +
+                            "<b>Escrow Token Active:</b> ${if (isTokenActive) "✅ Ready (Hardware escrow armed)" else "⚠️ Waiting for initial unlock verification"}\n\n" +
+                            "<i>Note: The new PIN must be 4 to 16 numeric digits.</i>"
+                )
+            }
+
+            val masterPassword = args[0]
+            if (!authManager.verifyMasterPassword(masterPassword)) {
+                return CommandResult(
+                    success = false,
+                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. Hardware lockscreen PIN change rejected."
+                )
+            }
+        }
+
+        val newPin = (if (authManager.hasMasterPassword()) args.getOrNull(1) else args.firstOrNull())?.trim()
+        if (newPin.isNullOrBlank()) {
             return CommandResult(
                 success = false,
-                message = "🔑 <b>Reset OS Lockscreen PIN</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                        "<b>Syntax:</b> <code>/set_os_pin &lt;new_pin&gt;</code>\n" +
-                        "<b>Example:</b> <code>/set_os_pin 5892</code>\n\n" +
-                        "<b>Device Owner:</b> ✅ Active\n" +
-                        "<b>Escrow Token Active:</b> ${if (isTokenActive) "✅ Ready (Hardware escrow armed)" else "⚠️ Waiting for initial unlock verification"}\n\n" +
-                        "<i>Note: The PIN must be 4 to 16 digits.</i>"
+                message = "❌ Missing new PIN. Usage: <code>/set_os_pin &lt;master_password&gt; &lt;new_pin&gt;</code>"
             )
         }
 
@@ -66,13 +86,11 @@ class SetOsPinCommand @Inject constructor(
         // ANDROID 16 FIX: Retry with backoff in case of token activation delay
         var success = false
         var message = ""
-        var lastAttempt = false
 
         for (attempt in 1..2) {
             val (result, msg) = PasaDeviceAdmin.resetDevicePassword(context, newPin, preferencesManager)
             success = result
             message = msg
-            lastAttempt = (attempt == 2)
 
             if (success || attempt == 1 && PasaDeviceAdmin.isResetPasswordTokenActive(context)) {
                 break

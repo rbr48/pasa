@@ -203,7 +203,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                         }
                     }
                     "/usb_lock", "/usb_data" -> {
-                        val res = commandExecutor.executeDirect("/usb_lock", args, preferencesManager.ownerChatIdLong)
+                        val res = commandExecutor.executeDirect("/usb_lock", listOf(providedCredential) + args, preferencesManager.ownerChatIdLong)
                         val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
                         sendSmsReply(context, senderPhone, cleanMsg, subId)
                     }
@@ -243,7 +243,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                         sendSmsReply(context, senderPhone, cleanMsg.take(300), subId)
                     }
                     "/app_uninstall" -> {
-                        val res = commandExecutor.executeDirect("/app_uninstall", args, preferencesManager.ownerChatIdLong)
+                        val res = commandExecutor.executeDirect("/app_uninstall", listOf(providedCredential) + args, preferencesManager.ownerChatIdLong)
                         val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
                         sendSmsReply(context, senderPhone, cleanMsg, subId)
                     }
@@ -268,7 +268,12 @@ class SmsCommandReceiver : BroadcastReceiver() {
                         sendSmsReply(context, senderPhone, cleanMsg, subId)
                     }
                     "/antitamper" -> {
-                        val res = commandExecutor.executeDirect("/antitamper", args, preferencesManager.ownerChatIdLong)
+                        val res = commandExecutor.executeDirect("/antitamper", listOf(providedCredential) + args, preferencesManager.ownerChatIdLong)
+                        val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                        sendSmsReply(context, senderPhone, cleanMsg, subId)
+                    }
+                    "/sim_tray_lock" -> {
+                        val res = commandExecutor.executeDirect("/sim_tray_lock", listOf(providedCredential) + args, preferencesManager.ownerChatIdLong)
                         val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
                         sendSmsReply(context, senderPhone, cleanMsg, subId)
                     }
@@ -337,7 +342,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                     "/lock" -> {
                         commandExecutor.executeDirect(
                             command = "/lock",
-                            args = args,
+                            args = listOf(providedCredential) + args,
                             chatId = preferencesManager.ownerChatIdLong
                         )
                         sendSmsReply(context, senderPhone, "PASA: Screen locked & Lost Mode applied.$warningSuffix", subId)
@@ -345,7 +350,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                     "/unlock" -> {
                         commandExecutor.executeDirect(
                             command = "/unlock",
-                            args = args,
+                            args = listOf(providedCredential) + args,
                             chatId = preferencesManager.ownerChatIdLong
                         )
                         sendSmsReply(context, senderPhone, "PASA: Lost Mode released & unlocked.$warningSuffix", subId)
@@ -370,7 +375,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                     "/fakeshutdown", "/blackout" -> {
                         commandExecutor.executeDirect(
                             command = "/fakeshutdown",
-                            args = args,
+                            args = listOf(providedCredential) + args,
                             chatId = preferencesManager.ownerChatIdLong
                         )
                         sendSmsReply(context, senderPhone, "PASA: Fake shutdown activated.$warningSuffix", subId)
@@ -378,7 +383,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                     "/wake" -> {
                         commandExecutor.executeDirect(
                             command = "/wake",
-                            args = args,
+                            args = listOf(providedCredential) + args,
                             chatId = preferencesManager.ownerChatIdLong
                         )
                         sendSmsReply(context, senderPhone, "PASA: Device awakened from blackout.$warningSuffix", subId)

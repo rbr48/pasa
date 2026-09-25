@@ -8,6 +8,8 @@ import android.provider.MediaStore
 import android.util.Log
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.data.PreferencesManager
+import com.izhaanintellect.pasa.security.AuthManager
+import com.izhaanintellect.pasa.security.Totp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,20 +29,21 @@ import javax.inject.Singleton
  * Handles remote storage inspection, file downloading, and camera roll extraction.
  *
  * Usage:
- *   /gallery_latest [count]   (extract 1-10 most recent photos directly to Telegram)
- *   /getfile <path>           (download any storage file up to 50MB)
- *   /list_files [directory]   (browse files in directory)
+ *   /gallery_latest <master_password> [count]   (extract 1-10 most recent photos)
+ *   /getfile <master_password> <path>           (download any storage file up to 50MB)
+ *   /list_files [directory]                     (browse files in directory)
  */
 @Singleton
 class StorageAccessCommand @Inject constructor(
     @ApplicationContext private val context: Context,
     private val telegramApi: TelegramApi,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val authManager: AuthManager
 ) : Command {
 
     override val name = "/gallery_latest"
-    override val description = "Extract recent gallery photos or download files from storage"
-    override val usage = "/gallery_latest [count] | /getfile <#|name|path> | /list_files [dir|shortcut]"
+    override val description = "Extract recent gallery photos or download files from storage (Requires Master Password)"
+    override val usage = "/gallery_latest <master_password> [count] | /getfile <master_password> <#|name|path> | /list_files [dir|shortcut]"
 
     companion object {
         private const val TAG = "PASA_StorageAccess"
@@ -54,12 +57,44 @@ class StorageAccessCommand @Inject constructor(
         fun getLastListedDirectory(): File? = lastListedDirectory
     }
 
+    private fun verifyCredentials(candidate: String?): Boolean {
+        if (candidate.isNullOrBlank()) return false
+        val isPass = authManager.verifyMasterPassword(candidate)
+        val totpSecret = preferencesManager.smsTotpSecret
+        val isTotp = totpSecret.isNotBlank() && Totp.verify(totpSecret, candidate, window = 3)
+        return isPass || isTotp
+    }
+
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
         return executeGalleryLatest(args, chatId)
     }
 
     suspend fun executeGalleryLatest(args: List<String>, chatId: Long): CommandResult = withContext(Dispatchers.IO) {
-        val requestedCount = args.firstOrNull()?.toIntOrNull()?.coerceIn(1, 10) ?: 3
+        if (authManager.hasMasterPassword()) {
+            val candidate = args.firstOrNull()?.trim()
+            if (candidate.isNullOrBlank()) {
+                return@withContext CommandResult(
+                    success = false,
+                    message = """
+                        🔑 <b>Gallery Extraction (Zero-Trust Guard)</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        To extract camera roll photos, Master Password verification is required.
+
+                        <b>Syntax:</b> <code>/gallery_latest &lt;master_password&gt; [count 1-10]</code>
+                        <b>Example:</b> <code>/gallery_latest MySecretPass123 3</code>
+                    """.trimIndent()
+                )
+            }
+            if (!verifyCredentials(candidate)) {
+                return@withContext CommandResult(
+                    success = false,
+                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. Gallery extraction rejected."
+                )
+            }
+        }
+
+        val requestedCount = (if (authManager.hasMasterPassword()) args.getOrNull(1) else args.firstOrNull())
+            ?.toIntOrNull()?.coerceIn(1, 10) ?: 3
 
         val projection = arrayOf(
             MediaStore.Images.Media._ID,
@@ -146,29 +181,46 @@ class StorageAccessCommand @Inject constructor(
     }
 
     suspend fun executeGetFile(args: List<String>, chatId: Long): CommandResult = withContext(Dispatchers.IO) {
-        if (args.isEmpty()) {
-            val lastDirNote = lastListedDirectory?.let {
-                "\n📂 <b>Active Directory:</b> <code>${it.absolutePath}</code>\n" +
-                if (lastListedFiles.isNotEmpty()) "🔢 <b>Available Numbers:</b> <code>1</code> to <code>${lastListedFiles.size}</code> (e.g. <code>/getfile 1</code>)\n" else ""
-            } ?: ""
+        val remainingArgs = if (authManager.hasMasterPassword()) {
+            if (args.isEmpty()) {
+                val lastDirNote = lastListedDirectory?.let {
+                    "\n📂 <b>Active Directory:</b> <code>${it.absolutePath}</code>\n" +
+                    if (lastListedFiles.isNotEmpty()) "🔢 <b>Available Numbers:</b> <code>1</code> to <code>${lastListedFiles.size}</code>\n" else ""
+                } ?: ""
 
+                return@withContext CommandResult(
+                    success = false,
+                    message = """
+                        🔑 <b>File Download (Zero-Trust Guard)</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        To download files from device storage, Master Password verification is required.$lastDirNote
+                        <b>Syntax:</b> <code>/getfile &lt;master_password&gt; &lt;#|name|path&gt;</code>
+                        <b>Example:</b> <code>/getfile MySecretPass123 1</code>
+                        <b>Example:</b> <code>/getfile MySecretPass123 /sdcard/Download/document.pdf</code>
+                    """.trimIndent()
+                )
+            }
+
+            val candidate = args[0].trim()
+            if (!verifyCredentials(candidate)) {
+                return@withContext CommandResult(
+                    success = false,
+                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. File extraction rejected."
+                )
+            }
+            args.drop(1)
+        } else {
+            args
+        }
+
+        if (remainingArgs.isEmpty()) {
             return@withContext CommandResult(
                 success = false,
-                message = """
-                    📁 <b>Remote File Extraction</b>
-                    ━━━━━━━━━━━━━━━━━━━━
-                    Extract any file from storage directly to Telegram.$lastDirNote
-                    ⚡ <b>Quick Usage:</b>
-                    • <code>/getfile 1</code> (download by number from last <code>/list_files</code>)
-                    • <code>/getfile filename.jpg</code> (download from active folder)
-                    • <code>/getfile /absolute/path/to/file</code>
-
-                    💡 <b>Tip:</b> Run <code>/list_files camera</code> to browse photos and get 1-tap download numbers.
-                """.trimIndent()
+                message = "❌ Missing file target. Usage: <code>/getfile &lt;master_password&gt; &lt;#|name|path&gt;</code>"
             )
         }
 
-        val rawInput = args.joinToString(" ").trim()
+        val rawInput = remainingArgs.joinToString(" ").trim()
         val index = rawInput.toIntOrNull()
 
         val targetFile: File = when {

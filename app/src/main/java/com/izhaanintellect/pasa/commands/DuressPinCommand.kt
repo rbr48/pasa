@@ -61,7 +61,28 @@ class DuressPinCommand @Inject constructor(
             )
         }
 
-        val target = args[0].trim()
+        if (authManager.hasMasterPassword()) {
+            if (args.size < 2) {
+                return CommandResult(
+                    success = false,
+                    message = "🔐 <b>Duress Coercion PIN (Zero-Trust Guard)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                            "To prevent unauthorized server tampering, configuring or clearing your decoy Duress PIN requires your Master Password.\n\n" +
+                            "<b>Set:</b> <code>/duress_pin &lt;master_password&gt; &lt;4-8 digits&gt;</code>\n" +
+                            "<b>Clear:</b> <code>/duress_pin &lt;master_password&gt; clear</code>\n" +
+                            "<b>Status:</b> <code>/duress_pin status</code>"
+                )
+            }
+
+            val masterPassword = args[0]
+            if (!authManager.verifyMasterPassword(masterPassword)) {
+                return CommandResult(
+                    success = false,
+                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. Duress PIN operation rejected."
+                )
+            }
+        }
+
+        val target = (if (authManager.hasMasterPassword()) args.getOrNull(1) else args.firstOrNull())?.trim() ?: ""
 
         if (target.equals("clear", ignoreCase = true) || target.equals("remove", ignoreCase = true)) {
             preferencesManager.duressPin = null

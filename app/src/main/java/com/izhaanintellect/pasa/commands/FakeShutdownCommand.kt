@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.security.AuthManager
+import com.izhaanintellect.pasa.security.Totp
 import com.izhaanintellect.pasa.ui.FakeShutdownActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -14,6 +15,7 @@ import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 
 /**
  * Handles simulated power-off deception (/fakeshutdown) and restoration (/wake).
+ * Strictly requires Master Password for zero-trust protection.
  */
 @Singleton
 class FakeShutdownCommand @Inject constructor(
@@ -23,29 +25,82 @@ class FakeShutdownCommand @Inject constructor(
 ) : Command {
 
     override val name = "/fakeshutdown"
-    override val description = "Simulate power off with black screen and touch forensics"
-    override val usage = "/fakeshutdown | /blackout | /wake"
+    override val description = "Simulate power off with black screen and touch forensics (Requires Master Password)"
+    override val usage = "/fakeshutdown <master_password> | /wake <master_password>"
 
     companion object {
         private const val TAG = "PASA_FakeShutdownCmd"
         const val NOTIFICATION_ID = 2003
     }
 
-    override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        val first = args.firstOrNull()?.lowercase()
-        val second = args.getOrNull(1)?.lowercase()
-
-        val isWake = first == "wake" || first == "stop" || first == "off" ||
-                     second == "wake" || second == "stop" || second == "off"
-
-        return if (isWake) {
-            wakeDevice()
-        } else {
-            startFakeShutdown()
-        }
+    private fun verifyCredentials(candidate: String?): Boolean {
+        if (candidate.isNullOrBlank()) return false
+        val isPass = authManager.verifyMasterPassword(candidate)
+        val totpSecret = preferencesManager.smsTotpSecret
+        val isTotp = totpSecret.isNotBlank() && Totp.verify(totpSecret, candidate, window = 3)
+        return isPass || isTotp
     }
 
-    fun wakeDevice(): CommandResult {
+    override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
+        val isWake = args.any { it.lowercase() in setOf("wake", "stop", "off") }
+        val candidate = args.firstOrNull { it.lowercase() !in setOf("wake", "stop", "off") }?.trim()
+
+        if (isWake) {
+            return wakeDevice(candidate)
+        }
+
+        // Fake Shutdown activation
+        if (authManager.hasMasterPassword()) {
+            if (candidate.isNullOrBlank()) {
+                return CommandResult(
+                    success = false,
+                    message = """
+                        🔑 <b>Fake Shutdown Deception (Zero-Trust Guard)</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        Because Fake Shutdown places the device into an authentic OEM power-down blackout and suppresses hardware buttons, activating it strictly requires your Master Password.
+
+                        This guarantees that a compromised server or unauthorized entity can never black out your device.
+
+                        <b>Syntax:</b> <code>/fakeshutdown &lt;master_password&gt;</code>
+                        <b>Wake Device:</b> <code>/wake &lt;master_password&gt;</code>
+                        <b>Example:</b> <code>/fakeshutdown MySecretPass123</code>
+                    """.trimIndent()
+                )
+            }
+            if (!verifyCredentials(candidate)) {
+                return CommandResult(
+                    success = false,
+                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password or TOTP. Fake shutdown rejected."
+                )
+            }
+        }
+
+        return startFakeShutdown()
+    }
+
+    fun wakeDevice(candidate: String? = null): CommandResult {
+        if (authManager.hasMasterPassword()) {
+            if (candidate.isNullOrBlank()) {
+                return CommandResult(
+                    success = false,
+                    message = """
+                        🔑 <b>Wake Device (Zero-Trust Guard)</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        To wake the device from Fake Shutdown blackout canvas, Master Password verification is required.
+
+                        <b>Syntax:</b> <code>/wake &lt;master_password&gt;</code>
+                        <b>Example:</b> <code>/wake MySecretPass123</code>
+                    """.trimIndent()
+                )
+            }
+            if (!verifyCredentials(candidate)) {
+                return CommandResult(
+                    success = false,
+                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password or TOTP. Wake rejected."
+                )
+            }
+        }
+
         Log.i(TAG, "Waking device from Fake Shutdown")
         preferencesManager.isFakeShutdownActive = false
 

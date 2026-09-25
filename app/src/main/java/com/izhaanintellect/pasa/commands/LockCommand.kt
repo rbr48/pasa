@@ -6,6 +6,8 @@ import android.os.Build
 import android.util.Log
 import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
 import com.izhaanintellect.pasa.data.PreferencesManager
+import com.izhaanintellect.pasa.security.AuthManager
+import com.izhaanintellect.pasa.security.Totp
 import com.izhaanintellect.pasa.ui.AlertMessageActivity
 import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,6 +18,7 @@ import javax.inject.Singleton
  * Remote-only device locking with Lost Mode Guard activation.
  *
  * PRODUCTION-READY SECURITY DESIGN:
+ * ✅ Zero-trust Master Password verification prevents unauthorized server lockout
  * ✅ No local PIN entry (eliminates brute force attack)
  * ✅ Remote-only unlock via Telegram or SMS
  * ✅ Device Owner hardening enabled
@@ -24,12 +27,13 @@ import javax.inject.Singleton
 @Singleton
 class LockCommand @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val authManager: AuthManager
 ) : Command {
 
     override val name = "/lock"
-    override val description = "Lock device with Lost Mode (remote-only unlock)"
-    override val usage = "/lock | /lock <message>"
+    override val description = "Lock device with Lost Mode (Requires Master Password)"
+    override val usage = "/lock <master_password> [message|instant]"
 
     companion object {
         private const val TAG = "PASA_Lock"
@@ -46,11 +50,46 @@ class LockCommand @Inject constructor(
             )
         }
 
+        // Zero-Trust verification: If Master Password is set, require authentication
+        val remainingArgs = if (authManager.hasMasterPassword()) {
+            val candidate = args.firstOrNull()?.trim()
+            if (candidate.isNullOrBlank()) {
+                return CommandResult(
+                    success = false,
+                    message = """
+                        🔑 <b>Device Lockout (Zero-Trust Guard)</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        Because Lost Mode puts the device into a strict Kiosk lockdown without local keypad unlock, activating it requires your Master Password.
+
+                        This guarantees that a compromised server or unauthorized party can never lock you out of your device.
+
+                        <b>Syntax:</b> <code>/lock &lt;master_password&gt; [optional message]</code>
+                        <b>Instant Sleep:</b> <code>/lock &lt;master_password&gt; instant</code>
+                        <b>Example:</b> <code>/lock MySecretPass123 Device is reported lost</code>
+                    """.trimIndent()
+                )
+            }
+
+            val totpSecret = preferencesManager.smsTotpSecret
+            val isTotpValid = totpSecret.isNotBlank() && Totp.verify(totpSecret, candidate, window = 3)
+            val isPassValid = authManager.verifyMasterPassword(candidate)
+
+            if (!isTotpValid && !isPassValid) {
+                return CommandResult(
+                    success = false,
+                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password or TOTP. Device lock rejected."
+                )
+            }
+            args.drop(1)
+        } else {
+            args
+        }
+
         return try {
             val isDeviceOwner = PasaDeviceAdmin.isDeviceOwner(context)
 
-            // Allow explicit instant sleep via "/lock instant" or "/lock now"
-            if (args.isNotEmpty() && (args[0].equals("instant", ignoreCase = true) || args[0].equals("now", ignoreCase = true))) {
+            // Allow explicit instant sleep via "/lock <password> instant" or "/lock instant"
+            if (remainingArgs.isNotEmpty() && (remainingArgs[0].equals("instant", ignoreCase = true) || remainingArgs[0].equals("now", ignoreCase = true))) {
                 dpm.lockNow()
                 Log.i(TAG, "🔒 Instant hardware lock executed")
                 return CommandResult(
@@ -60,15 +99,15 @@ class LockCommand @Inject constructor(
             }
 
             // Get message (optional)
-            val messageText = if (args.isEmpty()) {
+            val messageText = if (remainingArgs.isEmpty()) {
                 "🔒 Device has been reported lost or stolen.\n\nTo unlock:\n" +
                 "📱 Send /unlock from Telegram\n" +
-                "📞 Send SMS: unlock <master_password>"
+                "📞 Send SMS: PASA <pin> /unlock"
             } else {
-                args.joinToString(" ").trim().ifBlank {
+                remainingArgs.joinToString(" ").trim().ifBlank {
                     "🔒 Device has been reported lost or stolen.\n\nTo unlock:\n" +
                     "📱 Send /unlock from Telegram\n" +
-                    "📞 Send SMS: unlock <master_password>"
+                    "📞 Send SMS: PASA <pin> /unlock"
                 }
             }
 
