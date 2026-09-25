@@ -3849,9 +3849,15 @@ async function handleTelegramUpdate(token, update) {
 }
 
 function initPollers() {
-  // Zero-Data Mode: Bot polling disabled on server.
-  // All Telegram communication is handled directly by the device (Sovereign Mode).
-  console.log('[PASA] Zero-Data mode: VPS bot polling disabled. Devices poll Telegram directly.');
+  if (DEFAULT_BOT_TOKEN) {
+    console.log(`[PASA Control Plane] Starting poller for default/admin C2 bot...`);
+    startBotPoller(DEFAULT_BOT_TOKEN);
+  }
+  for (const device of Object.values(devices)) {
+    if (device.botToken) {
+      startBotPoller(device.botToken);
+    }
+  }
 }
 
 // --- REST Endpoints ---
@@ -4124,23 +4130,59 @@ app.post('/api/verify-bot', async (req, res) => {
   }
 });
 
-// 3. Register Device — Zero-Data Mode (license server only)
+// 3. Register Device with Hardware Key Exchange
 app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
   try {
-    const { deviceId } = req.body;
+    const { deviceId, deviceName, botToken, ownerChatId, masterPasswordHash, email, publicKeyJwk, attestationChain } = req.body;
     if (!deviceId) {
       return res.status(400).json({ ok: false, description: 'deviceId required' });
     }
 
-    // Zero-Data Mode: We do NOT store botToken, ownerChatId, deviceName, or publicKeyJwk.
-    // All C2 is handled directly by the device via Telegram. Server is license-only.
-    const apiKey = require('crypto').randomBytes(32).toString('hex');
+    const existingDev = devices[deviceId];
+    if (existingDev) {
+      const authHeader = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+      const adminPass = req.headers['x-admin-password'] || (req.body && req.body.adminPassword);
+      const isAuthenticated = (authHeader && authHeader === existingDev.apiKey) || (adminPass && adminPass === getAdminSecret()) || !existingDev.apiKey;
+      if (!isAuthenticated) {
+        return res.status(403).json({ ok: false, description: 'Device ID already registered. Valid apiKey or admin auth required to update.' });
+      }
+    }
 
-    logSecurityEvent('DEVICE_REGISTER_ATTEMPT', { deviceId: deviceId.substring(0, 8) + '...' });
+    const apiKey = crypto.randomBytes(32).toString('hex');
+    const existingDevObj = existingDev || {};
+    devices[deviceId] = {
+      ...existingDevObj,
+      deviceId,
+      deviceName: deviceName || existingDevObj.deviceName || 'Android Device',
+      botToken: (botToken || existingDevObj.botToken || '').trim(),
+      ownerChatId: ownerChatId || existingDevObj.ownerChatId || '',
+      email: email || existingDevObj.email || '',
+      apiKey: apiKey,
+      publicKeyJwk: publicKeyJwk || existingDevObj.publicKeyJwk || null,
+      attestationChain: attestationChain || existingDevObj.attestationChain || [],
+      lastSequence: existingDevObj.lastSequence || 0,
+      licenseKey: existingDevObj.licenseKey,
+      licenseTier: existingDevObj.licenseTier,
+      licenseExpiresAt: existingDevObj.licenseExpiresAt,
+      registeredAt: existingDevObj.registeredAt || Date.now(),
+      lastSeen: Date.now()
+    };
+    persistDevice(deviceId);
+
+    if (devices[deviceId].botToken) {
+      startBotPoller(devices[deviceId].botToken);
+    }
+
+    logSecurityEvent('DEVICE_REGISTERED', {
+      deviceId,
+      deviceName: deviceName || 'Android Device',
+      ownerChatId: ownerChatId || '',
+      hasHardwareKey: !!publicKeyJwk
+    });
 
     res.json({
       ok: true,
-      message: 'Zero-Data mode active. License server ready.',
+      message: 'Device registered successfully with hardware key binding',
       deviceId,
       apiKey,
       signingKeyId: SERVER_KEY_ID,

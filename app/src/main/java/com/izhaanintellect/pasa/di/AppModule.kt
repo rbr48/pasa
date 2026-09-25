@@ -140,11 +140,10 @@ object AppModule {
     @Provides
     @Singleton
     fun providePasaBackendApi(
-        okHttpClient: OkHttpClient
+        okHttpClient: OkHttpClient,
+        preferencesManager: PreferencesManager
     ): com.izhaanintellect.pasa.network.PasaBackendApi {
-        // Zero-Data Architecture: The backend API is used exclusively for license operations.
-        // botToken and ownerChatId are NEVER sent here. C2 polling is Sovereign (direct Telegram).
-        val baseUrl = PASA_LICENSE_SERVER
+        val baseUrl = if (preferencesManager.serverUrl.isNotBlank()) preferencesManager.serverUrl else PASA_LICENSE_SERVER
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient)
