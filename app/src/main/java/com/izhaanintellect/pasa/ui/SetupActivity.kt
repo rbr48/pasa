@@ -11,6 +11,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 
 import androidx.activity.enableEdgeToEdge
@@ -76,11 +78,23 @@ class SetupActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Enforce FLAG_SECURE: Blocks OS recents screenshots, malicious screen recorders, and screen casts
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
+
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         binding = ActivitySetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Programmatic IME Sanitization: Prevent third-party & Gboard learning dictionaries from caching credentials
+        val noLearningFlag = EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING
+        binding.etBotToken.imeOptions = binding.etBotToken.imeOptions or noLearningFlag
+        binding.etMasterPassword.imeOptions = binding.etMasterPassword.imeOptions or noLearningFlag
+        binding.etChatId.imeOptions = binding.etChatId.imeOptions or noLearningFlag
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

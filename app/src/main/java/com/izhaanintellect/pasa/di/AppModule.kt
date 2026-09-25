@@ -60,10 +60,17 @@ object AppModule {
         // (GoDaddy G2, Google Trust Services, Cloudflare edge certs) without advance notice,
         // which would cause immediate SSLPeerUnverifiedException and permanently brick the C2.
         //
+        // Cloudflare-Resilient Multi-Root CA Pinning for pasa.izhaanintellect.fun:
+        // For PASA's own VPS C2 gateway (pasa.izhaanintellect.fun), we enforce CertificatePinner
+        // pinned against Cloudflare's trusted root authority set (ISRG Root X1, GTS Root R1/R4,
+        // GlobalSign ECC Root R4, GlobalSign Root CA, and current Leaf SPKI). This blocks rogue CA
+        // interception while ensuring edge certificate rotations will NEVER brick the sovereign client.
+        //
         // PASA provides three layers of sovereign MITM defense:
         // 1. OS-Level (res/xml/network_security_config.xml): Cleartext traffic is completely
         //    disabled, and only trusted system CAs are accepted (user-installed proxy CAs rejected).
-        // 2. Transport-Level: Strict Modern TLS (TLS 1.2 and TLS 1.3) connection specification.
+        // 2. Transport-Level: Strict Modern TLS (TLS 1.2 and TLS 1.3) connection specification
+        //    and Cloudflare-resilient multi-root certificate pinning for sovereign infrastructure.
         // 3. Application-Level (ASTRA Cryptographic Layer):
         //    - Outbound requests carry hardware-backed ECDSA StrongBox/TEE DeviceAuth proofs.
         //    - Inbound C2 commands require valid Ed25519 cryptographic signatures; even a full
@@ -73,8 +80,30 @@ object AppModule {
             .tlsVersions(okhttp3.TlsVersion.TLS_1_3, okhttp3.TlsVersion.TLS_1_2)
             .build()
 
+        val certificatePinner = okhttp3.CertificatePinner.Builder()
+            .add(
+                "pasa.izhaanintellect.fun",
+                "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=", // ISRG Root X1 (Let's Encrypt)
+                "sha256/hxqRlPTuQARG9qEBQROPqqrrnM3aEP5RQTJQKplIbho=", // GTS Root R1 (Google Trust Services)
+                "sha256/mEflZT5enoR1FuXLgYYGqnVEoZvmf9c2bVBpiOjYQ0c=", // GTS Root R4 (Google Trust Services ECC)
+                "sha256/CLOmGQukYCuZGPx3ZPAvMkpagnBm38asb+zMaGQe3nI=", // GlobalSign ECC Root R4 (Cloudflare Active Root)
+                "sha256/K87oWBWMECbeeJn0gWSacZZhfNmMITGsquUsMxphyk4=", // GlobalSign Root CA (R1)
+                "sha256/sGQ5UCWb+T8nZPejelA8MafJ5HOY7FoTUsZS7hP6DGg="  // Current Leaf SPKI (Cloudflare Edge)
+            )
+            .add(
+                "*.izhaanintellect.fun",
+                "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=",
+                "sha256/hxqRlPTuQARG9qEBQROPqqrrnM3aEP5RQTJQKplIbho=",
+                "sha256/mEflZT5enoR1FuXLgYYGqnVEoZvmf9c2bVBpiOjYQ0c=",
+                "sha256/CLOmGQukYCuZGPx3ZPAvMkpagnBm38asb+zMaGQe3nI=",
+                "sha256/K87oWBWMECbeeJn0gWSacZZhfNmMITGsquUsMxphyk4=",
+                "sha256/sGQ5UCWb+T8nZPejelA8MafJ5HOY7FoTUsZS7hP6DGg="
+            )
+            .build()
+
         return OkHttpClient.Builder()
             .connectionSpecs(listOf(modernTlsSpec))
+            .certificatePinner(certificatePinner)
             .addInterceptor(userAgentInterceptor)
             .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)

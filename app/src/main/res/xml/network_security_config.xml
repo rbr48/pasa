@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Base configuration: Trust system certificates -->
+    <!-- Base configuration: Block all cleartext traffic & trust only system CAs -->
     <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system" />
         </trust-anchors>
     </base-config>
+
+    <!-- Explicit sovereign C2 domain configuration -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">pasa.izhaanintellect.fun</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
 </network-security-config>
