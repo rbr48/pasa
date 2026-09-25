@@ -5213,15 +5213,16 @@ app.get('/api/admin/licenses', authenticateAdmin, (req, res) => {
 function runStartupSecurityAudit() {
   const warnings = [];
 
-  // 1. Check for known-compromised bot token (the one exposed in this session)
-  const KNOWN_COMPROMISED_TOKEN = '8731444238:AAH9YHEvuZblvjMHyjPEfOdCVwaE1wLDTV4';
+  // 1. Check for known-compromised bot token using SHA-256 hash (avoids exposing token plaintext)
+  const KNOWN_COMPROMISED_HASH = '13b35520eec9a79fa4f686caad9dc2068e82a93946fe9f33d7b00329598ef01f';
   const botTokensInUse = [
     process.env.BOT_TOKEN,
     process.env.PASA_CENTRAL_BOT_TOKEN,
     process.env.ADMIN_BOT_TOKEN
   ].filter(Boolean);
   for (const t of botTokensInUse) {
-    if (t === KNOWN_COMPROMISED_TOKEN) {
+    const tHash = crypto.createHash('sha256').update(t).digest('hex');
+    if (tHash === KNOWN_COMPROMISED_HASH) {
       warnings.push('CRITICAL: BOT_TOKEN matches a known-compromised token. Rotate it in @BotFather immediately!');
     }
   }

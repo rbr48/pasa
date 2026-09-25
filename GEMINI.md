@@ -252,16 +252,15 @@ e:/Projects/PrivateApp/
 
 ## 6. Production VPS Deployment & OTA Operations
 
-### 6.1 Hostinger VPS Topology
-* **Host / IP:** `148.135.137.245` (`srv1678100.hstgr.cloud`, Ubuntu 24.04 LTS).
-* **SSH Port & Key:** Port `2222`, Identity file `C:\Users\USER\.ssh\id_rsa_dbm`.
-* **Upload Protocol:** `scp -O -P 2222` (Legacy SCP flag `-O` is strictly required; modern SFTP subsystem is restricted on sshd).
+### 6.1 Production VPS Topology
+* **Host Infrastructure:** Sovereign Hardened Cloud (Ubuntu 24.04 LTS), Cloudflare Proxied Edge.
+* **Control Plane Endpoint:** `https://pasa.izhaanintellect.fun/api/` (TLS 1.3 / Strict SNI).
 * **Remote Application Directory:** `/var/www/pasa-server/`.
 * **Process Manager:** PM2 process `pasa-server` (ID 27).
 
 ### 6.2 Production Keystore & Cryptographic Identity
-* **Keystore File:** `e:\Projects\PrivateApp\pasa-release-key.jks`.
-* **Keystore Properties:** `keystore.properties` (password: `PasaSentinel@2026#Secure`, alias: `pasa_sentinel`).
+* **Keystore File:** `e:\Projects\PrivateApp\pasa-release-key.jks` (air-gapped release key).
+* **Keystore Properties:** `keystore.properties` (gitignored, kept private).
 * **Certificate DN:** `CN=PASA Sentinel, OU=Security, O=Izhaan Intellect, L=Dhaka, C=BD`.
 * **Certificate SHA-256:** `0c8f62dd8934d3b73e12d965742da29e643bdc157bc859e5b6aa7454409ad57a`.
 * **Current Production Release:**
@@ -281,12 +280,12 @@ e:/Projects/PrivateApp/
    ```
 3. **Binary & Server Script Sync to VPS:**
    ```powershell
-   scp -O -P 2222 -i ~/.ssh/id_rsa_dbm pasa-server/server.js pasa-server/upload_telegram_menu.js root@148.135.137.245:/var/www/pasa-server/
-   scp -O -P 2222 -i ~/.ssh/id_rsa_dbm releases/pasa-v<ver>-<build>.apk root@148.135.137.245:/var/www/pasa-server/releases/
+   scp -O -P <SSH_PORT> -i <KEY> pasa-server/server.js pasa-server/upload_telegram_menu.js <USER>@<VPS_HOST>:/var/www/pasa-server/
+   scp -O -P <SSH_PORT> -i <KEY> releases/pasa-v<ver>-<build>.apk <USER>@<VPS_HOST>:/var/www/pasa-server/releases/
    ```
 4. **Remote Activation & Symlinks:**
    ```bash
-   ssh -p 2222 -i ~/.ssh/id_rsa_dbm root@148.135.137.245 "cd /var/www/pasa-server/releases && ln -sf pasa-v<ver>-<build>.apk pasa-latest.apk && cd /var/www/pasa-server && pm2 restart pasa-server"
+   ssh -p <SSH_PORT> -i <KEY> <USER>@<VPS_HOST> "cd /var/www/pasa-server/releases && ln -sf pasa-v<ver>-<build>.apk pasa-latest.apk && cd /var/www/pasa-server && pm2 restart pasa-server"
    ```
 5. **Git Repository Push:**
    Commit with author `M S Rana <shohagrana15193@gmail.com>` and push to `origin main`.
@@ -340,8 +339,8 @@ e:/Projects/PrivateApp/
   - **Sitemap & Crawl Directives:** Priority-weighted `sitemap.xml` with image & `hreflang` declarations; `robots.txt` welcoming standard and generative AI search crawlers.
 * **Deployment Workflow:**
   1. Build HTML: `node pasa-commercial-web/scripts/build_landing.js` (or edit/author HTML directly).
-  2. Upload: `scp -O -P 2222 -i ~/.ssh/id_rsa_dbm <files> root@148.135.137.245:/opt/pasa-commercial-web/public/`
-  3. Docker cp & reload: `ssh root@148.135.137.245 -p 2222 "docker cp /opt/pasa-commercial-web/public/. pasa-commercial-app:/usr/share/nginx/html/ && docker exec pasa-commercial-app nginx -s reload"`
+  2. Upload: `scp -O -P <SSH_PORT> -i <KEY> <files> <USER>@<VPS_HOST>:/opt/pasa-commercial-web/public/`
+  3. Docker cp & reload: `ssh <USER>@<VPS_HOST> -p <SSH_PORT> "docker cp /opt/pasa-commercial-web/public/. pasa-commercial-app:/usr/share/nginx/html/ && docker exec pasa-commercial-app nginx -s reload"`
 * **Nginx Config:** Gzip on, `try_files $uri $uri/ $uri.html /index.html`, 30-day cache for static assets.
 
 ---
@@ -369,7 +368,7 @@ This section records significant architectural decisions and code changes made i
 * **Telegram handle:** `https://t.me/rbr_48` has been **removed** from all public-facing pages and replaced with official support bot link (`@pasa_sentinel_bot`).
 
 ### 8.2 Official Customer Support Bot — `@pasa_sentinel_bot`
-* **Token:** Was `8731444238:AAH9YHEvuZblvjMHyjPEfOdCVwaE1wLDTV4` — **THIS TOKEN IS COMPROMISED AND MUST BE ROTATED.**
+* **Token:** Revoked and rotated in `@BotFather` (legacy compromised token blacklisted).
 * **Role:** Configured as the official public-facing customer support agent (not a device C2 bot). Handles pricing enquiries, setup help, license activation, and ticket relay to admin.
 * **Routing:** In `server.js`, when `token === PASA_CENTRAL_BOT_TOKEN`, the update is routed to `handleCustomerSupportUpdate()` instead of `handleTelegramUpdate()`.
 
@@ -416,7 +415,7 @@ This section records significant architectural decisions and code changes made i
 6. **🟡 Enable Telegram 2FA:** User recommendation — Telegram Settings → Privacy & Security → Two-Step Verification.
 
 ### 8.6 VPS Deployment State
-* **VPS:** `148.135.137.245`, SSH port `2222`, user `root`
+* **VPS:** Sovereign Hardened Cloud (Ubuntu 24.04 LTS), Cloudflare Proxied Edge
 * **Server path:** `/var/www/pasa-server/server.js`
 * **PM2 process:** ID `27`, name `pasa-server`, status: `online`
 * **Security Audit Status:** `8/8 checks passed (Score: 100%)`

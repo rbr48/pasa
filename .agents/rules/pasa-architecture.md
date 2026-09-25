@@ -2,11 +2,11 @@
 
 ## Memory Anchor
 This repository contains the complete source code for **PASA Sentinel (Private Android Security Agent)**:
-- Current Release: v3.5.6 (Build 52), production signed with `pasa-release-key.jks` (Scheme v2).
+- Current Release: v3.5.9 (Build 55), production signed with `pasa-release-key.jks` (Scheme v2).
 - Target: Android 8.0 – 16 (API 26 – 36), compileSdk 36, targetSdk 36.
 - Stack: Kotlin 2.0.0, Jetpack Compose / ViewBinding, Hilt DI, Room with SQLCipher, CameraX, WorkManager.
 - Server: Node.js 22, Express, node:sqlite (WAL mode), Multer (memoryStorage only).
-- VPS Deployment: Hostinger Ubuntu 24.04 (`148.135.137.245:2222`, user `root`, key `~/.ssh/id_ed25519`, PM2 `pasa-server`, legacy SCP `scp -O`).
+- VPS Deployment: Sovereign Cloud (Ubuntu 24.04 LTS, PM2 `pasa-server`, Cloudflare Edge Proxy).
 - C2 Console: Dual-channel Telegram Bot (86 modular commands with 6-Hub Interactive Console) + air-gapped cellular SMS fallback (TOTP RFC 6238).
 
 ## Inviolable Directives

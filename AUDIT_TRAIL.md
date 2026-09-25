@@ -13,7 +13,7 @@ This document provides the definitive, end-to-end multi-dimensional audit trail 
 ### Core Audit Parameters
 * **Target Application:** `com.izhaanintellect.pasa` (v3.5.9, Build 55).
 * **Target Hardware Matrix:** Android 8.0 – 16 (API 26 – 36, 32-bit & 64-bit ARM/x86).
-* **Control Plane Infrastructure:** Hostinger Cloud Ubuntu 24.04 LTS (`148.135.137.245:2222`), PM2 process #27 (`pasa-server`).
+* **Control Plane Infrastructure:** Sovereign Hardened Cloud (Ubuntu 24.04 LTS), Node.js PM2 process (`pasa-server`) reverse-proxied via Cloudflare Edge.
 * **Distribution Frontend:** Docker container `pasa-commercial-app` (nginx:alpine on port 8165) reverse-proxied via Cloudflare at `https://pasa.izhaanintellect.fun/`.
 * **Lead Architect & Maintainer:** M S Rana (`shohagrana15193@gmail.com`).
 
@@ -158,8 +158,8 @@ Android 14+ removed the legacy `resetPassword()` method. PASA Sentinel implement
 ## 6. Production VPS Control Plane & SQLite WAL Database Audit
 
 ### 6.1 Server Host Topology
-* **Host Address:** `148.135.137.245` (`srv1678100.hstgr.cloud`, Ubuntu 24.04 LTS).
-* **SSH Port & Protocol:** Port `2222`, Identity file `~/.ssh/id_rsa_dbm`, SCP flag `-O`.
+* **Host Infrastructure:** Sovereign Hardened Cloud (Ubuntu 24.04 LTS), Cloudflare Proxied Edge.
+* **Control Plane Endpoint:** `https://pasa.izhaanintellect.fun/api/` (TLS 1.3 / Strict SNI).
 * **Runtime Environment:** Node.js 22, Express 4.19.2, Node native `node:sqlite` in WAL mode.
 * **PM2 Process Manager:** Process ID 27 (`pasa-server`, PID `3130649`, status: `online`, CPU: `0%`, RAM: `20.6MB` – `141MB`).
 * **Host System Resources:** 16 GB Total RAM (9.7 GB free), 193 GB NVMe Storage (125 GB / 64% available).

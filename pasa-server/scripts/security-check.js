@@ -40,13 +40,16 @@ function warn(msg)     { results.warn.push(msg); }
 function critical(msg) { results.critical.push(msg); }
 
 // ── 1. Known-compromised token check ─────────────────────────────────────────
-const KNOWN_COMPROMISED = '8731444238:AAH9YHEvuZblvjMHyjPEfOdCVwaE1wLDTV4';
+const KNOWN_COMPROMISED_HASH = '13b35520eec9a79fa4f686caad9dc2068e82a93946fe9f33d7b00329598ef01f';
 const tokensToCheck = ['BOT_TOKEN', 'PASA_CENTRAL_BOT_TOKEN', 'ADMIN_BOT_TOKEN'];
 let tokenFound = false;
 for (const key of tokensToCheck) {
-  if (env[key] === KNOWN_COMPROMISED) {
-    critical(`${key} matches a known-compromised token. Rotate in @BotFather NOW.`);
-    tokenFound = true;
+  if (env[key]) {
+    const hash = crypto.createHash('sha256').update(env[key]).digest('hex');
+    if (hash === KNOWN_COMPROMISED_HASH) {
+      critical(`${key} matches a known-compromised token. Rotate in @BotFather NOW.`);
+      tokenFound = true;
+    }
   }
 }
 if (!tokenFound) pass('No known-compromised bot tokens detected.');

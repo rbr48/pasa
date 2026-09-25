@@ -8,7 +8,7 @@ Please see [GEMINI.md](file:///e:/Projects/PrivateApp/GEMINI.md) for the compreh
 - **Current Production Build:** v3.5.9 (Build 55), signed with `pasa-release-key.jks` (Scheme v2).
 - **Core Modules:**
   - Android client: `app/src/main/java/com/izhaanintellect/pasa/`
-  - VPS server: `pasa-server/` (Node.js 22, SQLite WAL mode, PM2 process `pasa-server` (ID 27) on `148.135.137.245:2222`)
+  - VPS server: `pasa-server/` (Node.js 22, SQLite WAL mode, PM2 process `pasa-server` (ID 27) on sovereign control plane)
   - Web landing: `pasa-commercial-web/` (Docker container `pasa-commercial-app` on port `8165`, Nginx serving `https://pasa.izhaanintellect.fun/`)
   - Release binaries: `releases/` (`pasa-v3.5.9-55.apk`, `pasa-latest.apk`, `PASA-Device-Owner-Setup-Kit.zip`)
   - Setup kit: `pasa-setup-kit/` (Windows Device Owner provisioning wizard)
