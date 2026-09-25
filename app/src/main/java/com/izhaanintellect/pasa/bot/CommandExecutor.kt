@@ -108,10 +108,42 @@ class CommandExecutor @Inject constructor(
 ) {
     companion object {
         private const val TAG = "PASA_Executor"
+
+        val defaultMenuKeyboard = ReplyKeyboardMarkup(
+            keyboard = listOf(
+                listOf(
+                    KeyboardButton("📍 Location"),
+                    KeyboardButton("📸 Photo"),
+                    KeyboardButton("📱 Screen")
+                ),
+                listOf(
+                    KeyboardButton("🚨 Siren"),
+                    KeyboardButton("🔒 Lock"),
+                    KeyboardButton("📊 Status")
+                ),
+                listOf(
+                    KeyboardButton("👑 Device Owner"),
+                    KeyboardButton("🛡️ Traps"),
+                    KeyboardButton("❓ Help")
+                )
+            ),
+            resizeKeyboard = true,
+            isPersistent = true
+        )
     }
 
     suspend fun execute(parsed: CommandParser.ParsedCommand): String {
         Log.i(TAG, "Command received: '${parsed.command}' from chat ${parsed.chatId}")
+
+        // Acknowledge inline button tap immediately so Telegram spinner stops
+        if (!parsed.callbackQueryId.isNullOrBlank()) {
+            try {
+                telegramApi.answerCallbackQuery(
+                    token = preferencesManager.botToken,
+                    request = AnswerCallbackQueryRequest(callbackQueryId = parsed.callbackQueryId)
+                )
+            } catch (_: Exception) {}
+        }
 
         // 1. Authorization Verification
         if (!authManager.isAuthorizedChat(parsed.chatId)) {
@@ -138,7 +170,7 @@ class CommandExecutor @Inject constructor(
         val handler = resolveHandler(parsed.command)
         if (handler == null) {
             val response = "❓ Unknown command: <code>${parsed.command}</code>\nSend <code>/help</code> for available commands."
-            sendText(parsed.chatId, response)
+            sendText(parsed.chatId, response, defaultMenuKeyboard)
             logExecution(parsed, "FAILED", response)
             return response
         }
@@ -147,8 +179,38 @@ class CommandExecutor @Inject constructor(
         return try {
             val result = handler.execute(parsed.args, parsed.chatId)
 
+            val cmdClean = parsed.command.lowercase().trim()
+            val replyMarkup: Any? = when (cmdClean) {
+                "/start", "/menu", "/help", "/dashboard" -> defaultMenuKeyboard
+                "/status" -> InlineKeyboardMarkup(
+                    inlineKeyboard = listOf(
+                        listOf(
+                            InlineKeyboardButton("📍 Locate", callbackData = "cmd:locate"),
+                            InlineKeyboardButton("📸 Front Photo", callbackData = "cmd:snap:front")
+                        ),
+                        listOf(
+                            InlineKeyboardButton("🚨 Siren", callbackData = "cmd:ring:60"),
+                            InlineKeyboardButton("🔒 Lock", callbackData = "cmd:lock")
+                        )
+                    )
+                )
+                "/locate" -> InlineKeyboardMarkup(
+                    inlineKeyboard = listOf(
+                        listOf(
+                            InlineKeyboardButton("🔄 Refresh GPS", callbackData = "cmd:locate"),
+                            InlineKeyboardButton("🚨 Sound Siren", callbackData = "cmd:ring:60")
+                        ),
+                        listOf(
+                            InlineKeyboardButton("🔒 Lock Device", callbackData = "cmd:lock"),
+                            InlineKeyboardButton("📸 Front Photo", callbackData = "cmd:snap:front")
+                        )
+                    )
+                )
+                else -> null
+            }
+
             // Deliver text response
-            sendText(parsed.chatId, result.message)
+            sendText(parsed.chatId, result.message, replyMarkup)
 
             // Deliver photo(s) if generated (encrypted into vault & queued in WorkManager)
             val allPhotos = result.photoFiles ?: (result.photoFile?.let { listOf(it) } ?: emptyList())
@@ -707,7 +769,7 @@ class CommandExecutor @Inject constructor(
                 override val usage = "/sms_help"
                 override suspend fun execute(args: List<String>, chatId: Long) = helpCommand.executeSmsHelp()
             }
-            "/help", "/start" -> helpCommand
+            "/help", "/start", "/menu", "/dashboard" -> helpCommand
             else -> null
         }
     }
@@ -764,11 +826,11 @@ class CommandExecutor @Inject constructor(
         }
     }
 
-    private suspend fun sendText(chatId: Long, message: String) {
+    private suspend fun sendText(chatId: Long, message: String, replyMarkup: Any? = null) {
         try {
             telegramApi.sendMessage(
                 token = preferencesManager.botToken,
-                request = SendMessageRequest(chatId = chatId, text = message)
+                request = SendMessageRequest(chatId = chatId, text = message, replyMarkup = replyMarkup)
             )
         } catch (e: Exception) {
             Log.e(TAG, "Failed to send text message", e)

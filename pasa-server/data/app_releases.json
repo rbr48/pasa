@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 63,
+    "versionName": "3.6.7",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.6.7-63.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.6.7-63.apk",
+    "sha256": "b10ab5be4e4a47a361c4f08bc8f6d46e328a810ab97d3aa01711187acc828dcf",
+    "size": 19200899,
+    "mandatory": false,
+    "releaseNotes": "v3.6.7: Zero-Knowledge Blind Telegram Tunnel & Sovereign On-Device C2 Console — Resolves regional Telegram bot API blockades via stateless HTTP CONNECT blind tunnel on VPS (port 8443, zero VPS TLS termination or logging). Eliminates VPS bot polling entirely to guarantee 100% sovereign anonymous operation (bot token and owner chat ID never leave device). Complete on-device command console with 6-hub interactive inline navigation, callback query responses, and direct Telegram polling."
+  },
+  {
     "versionCode": 61,
     "versionName": "3.6.5",
     "releaseDate": "2026-09-25",

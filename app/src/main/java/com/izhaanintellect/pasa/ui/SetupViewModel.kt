@@ -91,27 +91,19 @@ class SetupViewModel @Inject constructor(
             if (token.isBlank()) {
                 return@withContext Result.failure(Exception("Bot token cannot be blank"))
             }
-            // 1. Try unblocked gateway first
+            // Zero-Knowledge Blind Verification:
+            // Verifies directly with official Telegram API via our blind CONNECT tunnel.
+            // botToken is NEVER sent to the VPS or any intermediate server.
             try {
-                val directUrl = "https://pasa.izhaanintellect.fun/tg/bot$token/getMe"
-                val resp = telegramApi.getMeDirect(directUrl)
+                val resp = telegramApi.getMe(token)
                 if (resp.ok && resp.result != null) {
-                    return@withContext Result.success(resp.result.username ?: resp.result.firstName)
+                    Result.success(resp.result.username ?: resp.result.firstName)
+                } else {
+                    Result.failure(Exception(resp.description ?: "Invalid bot response from Telegram"))
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "Direct bot test failed: ${e.message}, falling back to VPS verify-bot")
-            }
-
-            // 2. Fallback to VPS backend verify-bot endpoint
-            try {
-                val vpsResp = pasaBackendApi.verifyBot(com.izhaanintellect.pasa.network.VerifyBotRequest(token))
-                if (vpsResp.ok && vpsResp.bot != null) {
-                    Result.success(vpsResp.bot.username ?: vpsResp.bot.firstName ?: "PASA Bot")
-                } else {
-                    Result.failure(Exception(vpsResp.description ?: "Invalid bot response"))
-                }
-            } catch (e2: Exception) {
-                Result.failure(e2)
+                Log.e(TAG, "Direct bot verification error: ${e.message}", e)
+                Result.failure(e)
             }
         }
     }

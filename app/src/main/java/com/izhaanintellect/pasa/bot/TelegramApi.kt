@@ -98,6 +98,13 @@ interface TelegramApi {
         @Path(value = "token", encoded = true) token: String,
         @Body request: StopMessageLiveLocationRequest
     ): TelegramResponse<Message>
+
+    /** Acknowledges a callback query from an inline button. */
+    @POST("bot{token}/answerCallbackQuery")
+    suspend fun answerCallbackQuery(
+        @Path(value = "token", encoded = true) token: String,
+        @Body request: AnswerCallbackQueryRequest
+    ): TelegramResponse<Boolean>
 }
 
 // --- Data Models ---
@@ -188,4 +195,33 @@ data class EditMessageLiveLocationRequest(
 data class StopMessageLiveLocationRequest(
     @SerializedName("chat_id") val chatId: Long,
     @SerializedName("message_id") val messageId: Long
+)
+
+/** Request body for answerCallbackQuery. */
+data class AnswerCallbackQueryRequest(
+    @SerializedName("callback_query_id") val callbackQueryId: String,
+    @SerializedName("text") val text: String? = null,
+    @SerializedName("show_alert") val showAlert: Boolean = false
+)
+
+/** Telegram ReplyKeyboardMarkup helper for persistent touch dashboard */
+data class ReplyKeyboardMarkup(
+    @SerializedName("keyboard") val keyboard: List<List<KeyboardButton>>,
+    @SerializedName("resize_keyboard") val resizeKeyboard: Boolean = true,
+    @SerializedName("is_persistent") val isPersistent: Boolean = true
+)
+
+data class KeyboardButton(
+    @SerializedName("text") val text: String
+)
+
+/** Telegram InlineKeyboardMarkup helper for interactive actionable callbacks */
+data class InlineKeyboardMarkup(
+    @SerializedName("inline_keyboard") val inlineKeyboard: List<List<InlineKeyboardButton>>
+)
+
+data class InlineKeyboardButton(
+    @SerializedName("text") val text: String,
+    @SerializedName("callback_data") val callbackData: String? = null,
+    @SerializedName("url") val url: String? = null
 )

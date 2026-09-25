@@ -104,7 +104,28 @@ object AppModule {
             )
             .build()
 
+        val sovereignProxySelector = object : java.net.ProxySelector() {
+            private val tunnelProxy = java.net.Proxy(
+                java.net.Proxy.Type.HTTP,
+                java.net.InetSocketAddress("148.135.137.245", 8443)
+            )
+
+            override fun select(uri: java.net.URI?): List<java.net.Proxy> {
+                val host = uri?.host ?: ""
+                return if (host.contains("telegram.org")) {
+                    listOf(tunnelProxy, java.net.Proxy.NO_PROXY)
+                } else {
+                    listOf(java.net.Proxy.NO_PROXY)
+                }
+            }
+
+            override fun connectFailed(uri: java.net.URI?, sa: java.net.SocketAddress?, ioe: java.io.IOException?) {
+                android.util.Log.w("PASA_Network", "Blind tunnel proxy connection warning for $uri: ${ioe?.message}")
+            }
+        }
+
         return OkHttpClient.Builder()
+            .proxySelector(sovereignProxySelector)
             .connectionSpecs(listOf(modernTlsSpec))
             .certificatePinner(certificatePinner)
             .addInterceptor(userAgentInterceptor)
@@ -115,17 +136,18 @@ object AppModule {
             .build()
     }
 
-    // Zero-Data Unblocked Sovereign Proxy:
-    // Routes Telegram Bot API requests through our stateless, memory-only Cloudflare/Nginx reverse proxy
-    // to bypass regional ISP blocks (e.g. Bangladesh BTRC filtering) without requiring third-party VPNs.
-    // Zero logs, zero caching, zero disk storage on proxy.
-    private const val TELEGRAM_GATEWAY_URL = "https://pasa.izhaanintellect.fun/tg/"
+    // Zero-Knowledge Blind Telegram Tunnel Architecture:
+    // Connects directly to official Telegram Bot API (api.telegram.org).
+    // Uses the blind HTTP CONNECT proxy on port 8443 to bypass regional ISP filtering (e.g. Bangladesh)
+    // without terminating TLS on the proxy. The device conducts the TLS handshake directly with Telegram.
+    // The VPS sees only raw encrypted TCP packets — zero bot tokens, zero messages, zero media, zero logs.
+    private const val TELEGRAM_API_URL = "https://api.telegram.org/"
 
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(TELEGRAM_GATEWAY_URL)
+            .baseUrl(TELEGRAM_API_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

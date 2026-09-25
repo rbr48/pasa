@@ -19,10 +19,12 @@ class CommandParser @Inject constructor() {
         val args: List<String>,
         val chatId: Long,
         val senderName: String,
-        val rawText: String
+        val rawText: String,
+        val callbackQueryId: String? = null
     )
 
     fun parse(update: Update): ParsedCommand? {
+        var callbackQueryId: String? = null
         val (text, chatId, senderName) = when {
             update.message != null -> {
                 val message = update.message
@@ -34,6 +36,7 @@ class CommandParser @Inject constructor() {
             }
             update.callbackQuery != null -> {
                 val cb = update.callbackQuery
+                callbackQueryId = cb.id
                 var raw = cb.data?.trim() ?: return null
                 if (raw.startsWith("dev_cmd:")) {
                     raw = "/" + raw.removePrefix("dev_cmd:").replace(":", " ")
@@ -65,6 +68,8 @@ class CommandParser @Inject constructor() {
                 clean.contains("locate") || clean.contains("location") || clean.contains("gps") -> Pair("/locate", emptyList())
                 clean.contains("siren") || clean.contains("alarm") || clean.contains("ring") -> Pair("/ring", if (parts.size > 1) parts.drop(1) else listOf("60"))
                 clean.contains("photo") || clean.contains("snap") || clean.contains("selfie") -> Pair("/snap", listOf("front"))
+                clean.contains("screen") && (clean.contains("record") || clean.contains("video")) -> Pair("/screenrecord", listOf("15"))
+                clean.contains("screen") || clean.contains("screenshot") -> Pair("/screenshot", emptyList())
                 clean.contains("livestream") || clean.contains("stream") -> {
                     if (clean.contains("diag") || clean.contains("debug")) {
                         Pair("/livestream_diag", emptyList())
@@ -93,7 +98,6 @@ class CommandParser @Inject constructor() {
                 clean.contains("vibrate") || clean.contains("pulse") || clean.contains("sos") -> Pair("/vibrate_pulse", parts.drop(1))
                 clean.contains("pattern") || clean.contains("unlock attempt") || clean.contains("unlock guard") -> Pair("/pattern_guard", parts.drop(1))
                 clean.contains("firewall") || clean.contains("app firewall") || clean.contains("rat block") -> Pair("/app_firewall", parts.drop(1))
-                clean.contains("battery") || clean.contains("charge") || clean.contains("drain") -> Pair("/battery_alert", parts.drop(1))
                 clean.contains("tamper") || clean.contains("root") || clean.contains("debug") -> Pair("/tamper_detect", parts.drop(1))
                 clean.contains("dead drop") || clean.contains("vault") || clean.contains("backup") -> Pair("/dead_drop", parts.drop(1))
                 clean.contains("harden boot") || clean.contains("lock recovery") -> Pair("/harden_boot", parts.drop(1))
@@ -101,7 +105,8 @@ class CommandParser @Inject constructor() {
                 clean.contains("license") || clean.contains("pro key") -> Pair("/license", parts.drop(1))
                 clean.contains("sms help") || clean == "sms" || clean == "sms commands" || clean == "sms guide" -> Pair("/sms_help", emptyList())
                 clean.contains("device owner") || clean.contains("device_owner") -> Pair("/device_owner", emptyList())
-                clean.contains("control panel") || clean == "menu" || clean == "help" -> Pair("/help", emptyList())
+                clean.contains("control panel") || clean == "menu" || clean == "main menu" || clean == "dashboard" -> Pair("/menu", emptyList())
+                clean == "help" -> Pair("/help", emptyList())
                 else -> return null
             }
         }
@@ -113,7 +118,8 @@ class CommandParser @Inject constructor() {
             args = args,
             chatId = chatId,
             senderName = senderName,
-            rawText = text
+            rawText = text,
+            callbackQueryId = callbackQueryId
         )
     }
 }
