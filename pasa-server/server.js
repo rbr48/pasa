@@ -1439,6 +1439,14 @@ const SUBMENUS = {
           { text: '📋 Copy /reboot', callback_data: 'sms_template:reboot' }
         ],
         [
+          { text: '📋 Copy /fakeshutdown', callback_data: 'sms_template:fakeshutdown' },
+          { text: '📋 Copy /sendsms', callback_data: 'sms_template:sendsms' }
+        ],
+        [
+          { text: '📋 Copy /sim_tray_lock', callback_data: 'sms_template:sim_tray_lock' },
+          { text: '📋 Copy /antitamper', callback_data: 'sms_template:antitamper' }
+        ],
+        [
           { text: '📲 Enroll TOTP (/smssetup)', callback_data: 'cmd:smssetup' }
         ],
         [
@@ -2966,15 +2974,30 @@ async function handleTelegramUpdate(token, update) {
       } else if (type === 'lock') {
         tpl = 'PASA <PIN> /lock 5892';
         desc = 'Locks device screen immediately and enforces Kiosk defense overlay.';
+      } else if (type === 'unlock') {
+        tpl = 'PASA <PIN> /unlock';
+        desc = 'Releases screen lock and dismisses Kiosk defense overlay.';
       } else if (type === 'call') {
         tpl = 'PASA <PIN> /call +1234567890';
         desc = 'Instructs the device to place an immediate outbound phone call over cellular radio.';
+      } else if (type === 'sendsms') {
+        tpl = 'PASA <PIN> /sendsms +1234567890 Emergency alert';
+        desc = 'Dispatches an outbound cellular SMS directly from target device SIM.';
       } else if (type === 'lock_app') {
         tpl = 'PASA <PIN> /lock_app gallery';
         desc = 'Freezes the photo gallery, dialer, or target application via Knox Device Owner.';
+      } else if (type === 'unlock_app') {
+        tpl = 'PASA <PIN> /unlock_app gallery';
+        desc = 'Restores target application via Knox Device Owner.';
       } else if (type === 'camera_lock') {
         tpl = 'PASA <PIN> /camera_lock on';
         desc = 'Completely disables all front and rear cameras OS-wide (anti-spy killswitch).';
+      } else if (type === 'bluetooth_lock') {
+        tpl = 'PASA <PIN> /bluetooth_lock on';
+        desc = 'Disallows Bluetooth pairing and file transfers via Knox Device Owner.';
+      } else if (type === 'mic_mute') {
+        tpl = 'PASA <PIN> /mic_mute on';
+        desc = 'Hardware master audio mute at HAL level via Knox Device Owner.';
       } else if (type === 'usb_lock') {
         tpl = 'PASA <PIN> /usb_lock on';
         desc = 'Physically cuts USB data signaling pins to block forensic extraction boxes and juice-jacking.';
@@ -2984,6 +3007,39 @@ async function handleTelegramUpdate(token, update) {
       } else if (type === 'reboot') {
         tpl = 'PASA <PIN> /reboot';
         desc = 'Forces immediate phone hardware restart (Device Owner).';
+      } else if (type === 'fakeshutdown') {
+        tpl = 'PASA <PIN> /fakeshutdown';
+        desc = 'Simulates power-down and engages 0-nit stealth blackout canvas.';
+      } else if (type === 'wake') {
+        tpl = 'PASA <PIN> /wake';
+        desc = 'Awakens phone display from 0-nit blackout canvas.';
+      } else if (type === 'sim_tray_lock') {
+        tpl = 'PASA <PIN> /sim_tray_lock status';
+        desc = 'Checks or arms cryptographic SIM tray lock with Knox escrow token PIN rotation.';
+      } else if (type === 'antitamper') {
+        tpl = 'PASA <PIN> /antitamper on';
+        desc = 'Enforces safe boot, airplane mode, factory reset and network tampering protections.';
+      } else if (type === 'biometrics') {
+        tpl = 'PASA <PIN> /biometrics off';
+        desc = 'Disables fingerprint and face recognition to thwart physical biometric coercion.';
+      } else if (type === 'autolock') {
+        tpl = 'PASA <PIN> /autolock 30';
+        desc = 'Enforces screen inactivity autolock timeout (in seconds).';
+      } else if (type === 'lockscreen_info') {
+        tpl = 'PASA <PIN> /lockscreen_info Emergency: Call +1234567890';
+        desc = 'Pins persistent recovery contact notice to the lockscreen keyguard.';
+      } else if (type === 'security_audit') {
+        tpl = 'PASA <PIN> /security_audit';
+        desc = 'Queries low-level Linux kernel security audit logs.';
+      } else if (type === 'app_uninstall') {
+        tpl = 'PASA <PIN> /app_uninstall com.malware.spyapp';
+        desc = 'Silently uninstalls package without user confirmation.';
+      } else if (type === 'set_master_pin') {
+        tpl = 'PASA <PIN> /set_master_pin 1234';
+        desc = 'Remotely rotates master emergency authentication PIN.';
+      } else if (type === 'wipe') {
+        tpl = 'PASA <PIN> /wipe';
+        desc = 'Initiates authenticated remote factory reset.';
       }
 
       await callTelegram(token, 'sendMessage', {
@@ -2993,7 +3049,7 @@ async function handleTelegramUpdate(token, update) {
           `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
           `<b>Action:</b> ${desc}\n\n` +
           `<b>Tap to copy command:</b>\n` +
-          `<code>${tpl}</code>\n\n` +
+          `<code>${escapeHtml(tpl)}</code>\n\n` +
           `<i>Replace <code>&lt;PIN&gt;</code> with your 4–8 digit Master PIN or current 6-digit TOTP code, then send via cellular SMS to your phone's SIM number.</i>`,
         parse_mode: 'HTML',
         reply_markup: {
