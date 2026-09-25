@@ -26,6 +26,9 @@ All telemetry and commands are exchanged exclusively over user-controlled commun
    - When mobile data and Wi-Fi are disconnected or jammed, the device processes incoming raw GSM SMS PDUs locally.
    - GPS satellite coordinates are texted back directly from your phone’s SIM to the authorized sender phone number, bypassing the internet entirely.
 
+> **Note on Telecommunication Intermediaries:**  
+> While PASA Sentinel never stores telemetry on its servers, media transmitted via Telegram is processed subject to Telegram's Privacy Policy and infrastructure, and SMS transmissions travel across standard cellular carrier baseband networks. Operators requiring maximum air-gapped isolation should deploy dedicated private bot tokens (Method 1 via @BotFather) or cellular TOTP SMS commands.
+
 ---
 
 ## 🔑 3. Android Permissions Transparency
@@ -33,7 +36,7 @@ All telemetry and commands are exchanged exclusively over user-controlled commun
 PASA Sentinel requests elevated operating system permissions solely for defensive, user-authorized operations:
 
 | Permission | Purpose & Scope | Execution Model |
-|---|---|---|
+| :--- | :--- | :--- |
 | `ACCESS_FINE_LOCATION` / `BACKGROUND` | Queries hardware GNSS receiver for latitude, longitude, and accuracy. | Executed **only** when `/locate` is received or Anti-Snatch is triggered. |
 | `CAMERA` | Captures silent front/rear mugshots without waking screen or sounding shutter. | Triggered **only** on `/snap` command or unauthorized theft attempt. |
 | `RECORD_AUDIO` | Records ambient room audio for recovery intelligence. | Triggered **only** on remote `/record` command. |
@@ -42,9 +45,9 @@ PASA Sentinel requests elevated operating system permissions solely for defensiv
 
 ---
 
-## 💰 4. 7-Day Money-Back Guarantee (Binance Pay)
+## 💰 4. 7-Day Money-Back Guarantee (Binance Pay & bKash)
 
-We stand 100% behind our software. Every commercial license purchase (**Pro Lifetime $29 USD / $29 USDT** or **Fleet Enterprise $84 USD / $84 USDT**) is protected by an unconditional **7-day money-back guarantee**.
+We stand 100% behind our software. Every commercial license purchase (**Pro Lifetime $25 USD / 25 USDT / ৳3,000 BDT** or **Fleet Enterprise $99 USD / 99 USDT / ৳12,000 BDT**) is protected by an unconditional **7-day money-back guarantee**.
 
 ### Refund Terms:
 * **Duration:** 7 full calendar days from the moment your license key is issued.
@@ -54,6 +57,7 @@ We stand 100% behind our software. Every commercial license purchase (**Pro Life
   - Any dissatisfaction with performance or feature set.
   - Simple change of mind.
 * **Refund Method:** **100% full refund in USDT** transferred directly back to your Binance Pay ID / Binance UID within 24 hours. No hidden deductions, no network fees withheld.
+* **Fee Transparency:** Binance Pay internal UID-to-UID transfers incur **0% transaction fees** (100% full gross refund). Direct on-chain network gas fees (only if external on-chain cryptocurrency transfer is requested) may be deducted by the respective blockchain network. Domestic bKash refunds are returned in full.
 
 ### How to Claim:
 1. Message our Customer Support on WhatsApp: **[+880 1762-033445](https://wa.me/8801762033445)** or email **support@izhaanintellect.fun**.

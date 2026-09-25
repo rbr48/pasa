@@ -137,6 +137,11 @@ tr:last-child td{border-bottom:none}
     <li><strong>Cellular SMS Fallback (Air-Gapped Mode):</strong> When mobile data is unavailable or jammed, incoming SMS commands authenticated via TOTP (RFC 6238) are processed locally by the device baseband, and satellite coordinates are replied back via cellular radio directly to your phone number.</li>
   </ul>
 
+  <div class="callout" style="border-left-color:var(--cyan);background:var(--panel-2)">
+    <strong>Note on Telecommunication Intermediaries:</strong><br>
+    While PASA Sentinel stores zero evidence on its servers, media transmitted via Telegram is processed subject to Telegram's official Privacy Policy and global infrastructure, and SMS transmissions travel across standard cellular carrier baseband networks. Operators requiring maximum air-gapped compartmentalization should deploy dedicated private bot tokens (<span style="color:var(--cyan)">Method 1 via @BotFather</span>) or cellular TOTP SMS fallback.
+  </div>
+
   <h2>3. Android Permissions Transparency</h2>
   <div class="table-wrap">
     <table>
@@ -178,11 +183,12 @@ tr:last-child td{border-bottom:none}
   </div>
 
   <h2>4. 7-Day Money-Back Guarantee (Binance Pay & bKash)</h2>
-  <p>We stand 100% behind our mobile defense software. Every commercial license purchase (<strong>Pro Lifetime $29 USD / USDT</strong> or <strong>Enterprise Fleet $84 USD / USDT</strong>) is backed by an unconditional <strong>7-day money-back guarantee</strong>.</p>
+  <p>We stand 100% behind our mobile defense software. Every commercial license purchase (<strong>Pro Lifetime $25 USD / 25 USDT / ৳3,000 BDT</strong> or <strong>Enterprise Fleet $99 USD / 99 USDT / ৳12,000 BDT</strong>) is backed by an unconditional <strong>7-day money-back guarantee</strong>.</p>
   <ul>
     <li><strong>Duration:</strong> 7 full calendar days from the timestamp your license key is generated.</li>
     <li><strong>Eligible Scenarios:</strong> OEM background service kill issues, ADB setup difficulties, dissatisfaction with performance, or simple change of mind.</li>
     <li><strong>Refund Method:</strong> 100% full refund in USDT transferred directly to your Binance Pay ID / UID within 24 hours with zero hidden deductions, or bKash reversal for domestic orders.</li>
+    <li><strong>Fee Transparency:</strong> Binance Pay internal UID-to-UID transfers incur <strong>0% transaction fees</strong> (100% full gross refund). Direct on-chain cryptocurrency network gas fees (only if an external on-chain crypto transfer is requested) may be deducted by the respective blockchain network. Domestic bKash refunds are returned in full.</li>
   </ul>
 
   <h3>How to Request a Refund:</h3>

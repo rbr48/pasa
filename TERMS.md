@@ -69,10 +69,11 @@ Certain jurisdictions enforce strict **two-party (all-party) consent laws** gove
 
 ---
 
-## 5. Software License & Intellectual Property
+## 5. Software License, Intellectual Property & Export Compliance
 
 * **License Grant:** Subject to compliance with these Terms, Provider grants you a revocable, non-exclusive, non-transferable, limited personal or enterprise license to run PASA Sentinel on supported Android hardware.
 * **Reverse Engineering:** Except to the extent permitted by applicable open-source components, you agree not to distribute malicious forks, decompile for malicious repurposing, or bypass the licensing verification mechanisms.
+* **Export Control & Trade Sanctions:** PASA Sentinel implements low-level kernel cryptography (AES-256-GCM, StrongBox Keymaster, TEE) and administrative hardware lockout mechanisms that may be classified as dual-use technologies under international trade frameworks (including the Wassenaar Arrangement and United States Export Administration Regulations - EAR). You represent, warrant, and certify that you are not located in, organized under the laws of, or a national or resident of any country or territory subject to comprehensive international sanctions or embargoes, nor are you listed on any denied persons, specially designated nationals (SDN), or blocked parties lists maintained by relevant national or international trade and security authorities.
 
 ---
 
@@ -103,9 +104,18 @@ You agree to defend, indemnify, and hold harmless Izhaan Intellect, its director
 
 ---
 
-## 9. Contact Information
+## 9. Governing Law & Dispute Resolution
+
+This Agreement, its interpretation, performance, and any disputes arising out of or in connection with the software or services provided herein, shall be governed by, construed, and enforced in accordance with the substantive laws of **Bangladesh**, without regard to conflict of laws principles.
+
+Any legal dispute, controversy, claim, or proceeding arising under or relating to this Agreement or the breach, termination, or invalidity thereof, shall be submitted to the **exclusive jurisdiction and venue of the competent courts located in Dhaka, Bangladesh**. Both parties hereby expressly consent and submit to personal jurisdiction and venue therein, waiving any defense of lack of personal jurisdiction, inconvenient forum, or improper venue.
+
+---
+
+## 10. Contact Information
 
 For legal inquiries, licensing compliance, or law enforcement coordination:
 * **Email:** [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun)
 * **WhatsApp Business Support:** [+880 1762-033445](https://wa.me/8801762033445)
-* **Website:** [https://pasa.izhaanintellect.fun/terms](https://pasa.izhaanintellect.fun/terms)
+* **Official Website:** [https://pasa.izhaanintellect.fun/terms.html](https://pasa.izhaanintellect.fun/terms.html)
+
