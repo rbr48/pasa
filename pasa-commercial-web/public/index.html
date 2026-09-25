@@ -552,6 +552,30 @@ a{color:inherit;text-decoration:none}
   color:#fff;transform:translateY(-1px);
 }
 
+/* Row 1.5: GitHub Source Code Bar - Matches Exact Width & 8px Radius */
+.hero-git-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  height:38px;padding:0 14px;background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.1);border-radius:8px;
+  cursor:pointer;text-decoration:none;transition:all .2s ease;box-sizing:border-box;
+}
+.hero-git-bar:hover{
+  background:rgba(255,255,255,.08);border-color:rgba(41,224,255,.45);
+  box-shadow:0 0 16px rgba(41,224,255,.12);transform:translateY(-1px);
+}
+.git-bar-left{display:flex;align-items:center;gap:8px;min-width:0;color:var(--txt-2)}
+.git-bar-title{
+  font-family:var(--mono);font-size:11px;color:var(--txt-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.git-bar-title strong{color:#fff;font-weight:700}
+.git-bar-title .c-mono{color:var(--cyan);margin-left:4px}
+.git-bar-arrow{
+  font-family:var(--mono);font-size:11px;font-weight:700;color:var(--cyan);
+  display:inline-flex;align-items:center;gap:4px;flex-shrink:0;transition:all .18s;
+}
+.hero-git-bar:hover .git-bar-arrow{transform:translateX(2px)}
+
 /* Row 2: Security Audit Bar - Matches Exact Width & 8px Radius */
 .hero-audit-bar{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -590,11 +614,12 @@ a{color:inherit;text-decoration:none}
 .trust-points span{display:inline-flex;align-items:center;gap:4px}
 .trust-points .c-green{color:#22c55e;font-style:normal;font-weight:800}
 .trust-points .c-dot{color:var(--txt-4)}
+.trust-actions{display:flex;align-items:center;gap:6px}
 .trust-qr-btn{
   display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;
   background:rgba(255,255,255,.06);border:1px solid var(--line-2);color:var(--txt-2);
   font-family:var(--mono);font-size:10px;font-weight:700;cursor:pointer;
-  transition:all .18s;white-space:nowrap;flex-shrink:0;
+  transition:all .18s;white-space:nowrap;flex-shrink:0;text-decoration:none;
 }
 .trust-qr-btn:hover{
   background:rgba(255,255,255,.12);color:#fff;border-color:rgba(41,224,255,.4);
@@ -602,10 +627,12 @@ a{color:inherit;text-decoration:none}
 
 @media(max-width:560px){
   .hero-dual-grid{grid-template-columns:1fr}
+  .hero-git-bar{height:auto;padding:10px 12px}
+  .git-bar-title{white-space:normal}
   .hero-audit-bar{height:auto;padding:10px 12px}
   .audit-bar-title{white-space:normal}
   .hero-trust-bar{flex-direction:column;align-items:flex-start;gap:8px}
-  .trust-qr-btn{align-self:flex-end}
+  .trust-actions{align-self:flex-end}
 }
 
 /* ── Independent Security Audit Modal ── */
@@ -2012,7 +2039,7 @@ table.matrix tbody tr:last-child td{border-bottom:none}
             <a href="/releases/pasa-latest.apk" class="hero-btn primary" download>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
               <span data-i18n="hero_cta_apk">Download APK</span>
-              <span class="btn-tag">v3.5.9</span>
+              <span class="btn-tag">v3.6.0</span>
             </a>
 
             <a href="/releases/PASA-Device-Owner-Setup-Kit.zip" class="hero-btn secondary" download>
@@ -2020,6 +2047,17 @@ table.matrix tbody tr:last-child td{border-bottom:none}
               <span data-i18n="hero_cta_setup">Windows Setup Kit</span>
             </a>
           </div>
+
+          <!-- Row 1.5: GitHub Source Code Bar (Public Repository) -->
+          <a href="https://github.com/rbr48/pasa" target="_blank" rel="noopener" class="hero-git-bar" title="Inspect PASA Sentinel source code on GitHub (rbr48/pasa)">
+            <div class="git-bar-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span class="git-bar-title"><strong data-i18n="hero_git_label">Public GitHub Repository:</strong> <span class="c-mono">github.com/rbr48/pasa</span></span>
+            </div>
+            <span class="git-bar-arrow">
+              <span data-i18n="hero_git_view">Source Code</span> ↗
+            </span>
+          </a>
 
           <!-- Row 2: Independent Security Audit Bar (Matches Exact 8px Radius & Width) -->
           <div class="hero-audit-bar" onclick="toggleAuditModal()" role="button" tabindex="0" title="Click to view independent audit findings">
@@ -2043,10 +2081,16 @@ table.matrix tbody tr:last-child td{border-bottom:none}
               <span class="c-dot">•</span>
               <span><i class="c-green">✓</i> <span data-i18n="hero_chip_knox">Knox Supervisor</span></span>
             </div>
-            <button type="button" class="trust-qr-btn" onclick="toggleQrModal()" title="Scan QR Code to install directly on phone">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="7" y1="7" x2="7.01" y2="7"/><line x1="17" y1="7" x2="17.01" y2="7"/><line x1="7" y1="17" x2="7.01" y2="17"/><line x1="17" y1="17" x2="17.01" y2="17"/></svg>
-              <span data-i18n="hero_scan_qr">Scan QR</span>
-            </button>
+            <div class="trust-actions">
+              <a href="https://github.com/rbr48/pasa" target="_blank" rel="noopener" class="trust-qr-btn" title="View Source on GitHub">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                <span>GitHub</span>
+              </a>
+              <button type="button" class="trust-qr-btn" onclick="toggleQrModal()" title="Scan QR Code to install directly on phone">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="7" y1="7" x2="7.01" y2="7"/><line x1="17" y1="7" x2="17.01" y2="7"/><line x1="7" y1="17" x2="7.01" y2="17"/><line x1="17" y1="17" x2="17.01" y2="17"/></svg>
+                <span data-i18n="hero_scan_qr">Scan QR</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -2768,7 +2812,8 @@ table.matrix tbody tr:last-child td{border-bottom:none}
         <a href="/manual.html" style="color:var(--cyan);font-weight:600">📖 Field Manual (EN/BN)</a>
         <a href="/AUDIT_TRAIL.md" style="color:var(--txt-2)">📋 System Audit Trail</a>
         <a href="https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4" target="_blank" rel="noopener" style="color:var(--green);font-weight:600">🛡️ VirusTotal Clean (70+ AV) ↗</a>
-        <a href="/audit/PASA-Security-Audit-SARIF-v3.5.9.zip" style="color:var(--cyan);font-weight:600">📦 Security Audit (SARIF) ↗</a>
+        <a href="https://github.com/rbr48/pasa" target="_blank" rel="noopener" style="color:var(--cyan);font-weight:600">⚡ GitHub Repository ↗</a>
+        <a href="/audit/PASA-Security-Audit-SARIF-v3.5.9.zip" style="color:var(--txt-3)">📦 Security Audit (SARIF) ↗</a>
       </div>
       <div class="foot-col">
         <h5>Tactical Intel</h5>
@@ -2855,12 +2900,14 @@ const translations = {
     hero_audit_pill:"Security Audit Passed: 70+ AV Clean (VirusTotal) • CodeQL & MobSF Verified",
     hero_audit_details:"70+ AV Clean (VirusTotal) • CodeQL SAST & MobSF SARIF Audited • 0 Warnings",
     hero_audit_btn:"View Full Audit",
+    hero_git_label:"Public GitHub Repository:",
+    hero_git_view:"Source Code",
     hero_chip_trial:"7-Day Free Trial",
     hero_chip_zero:"Zero Storage",
     hero_chip_knox:"Knox Supervisor",
     hero_chip_sms:"Air-Gapped SMS C2",
     hero_scan_qr:"Scan QR",
-    audit_modal_title:"🛡️ INDEPENDENT SECURITY AUDIT // PASA v3.5.9",
+    audit_modal_title:"🛡️ INDEPENDENT SECURITY AUDIT // PASA v3.6.0",
     audit_modal_lede:"PASA Sentinel undergoes rigorous multi-engine security audits, cryptographic verification, and static application security testing (SAST) prior to every production release.",
     audit_btn_download:"Download SARIF Bundle (.zip • 265 KB)",
     audit_btn_vt:"Live VirusTotal Scan ↗",
@@ -2954,12 +3001,14 @@ const translations = {
     hero_audit_pill:"সিকিউরিটি অডিট পাস: ৭০+ এন্টিভাইরাস ক্লিন (VirusTotal) • CodeQL ও MobSF ভেরিফাইড",
     hero_audit_details:"৭০+ এন্টিভাইরাস ক্লিন (VirusTotal) • CodeQL SAST ও MobSF SARIF ভেরিফাইড • ০ ওয়ার্নিং",
     hero_audit_btn:"অডিট রিপোর্ট দেখুন",
+    hero_git_label:"পাবলিক গিটহাব রিপোজিটরি:",
+    hero_git_view:"সোর্স কোড",
     hero_chip_trial:"৭ দিনের ফ্রি ট্রায়াল",
     hero_chip_zero:"জিরো স্টোরেজ",
     hero_chip_knox:"নক্স সুপারভাইজার",
     hero_chip_sms:"অফলাইন এসএমএস সি২",
     hero_scan_qr:"কিউআর স্ক্যান",
-    audit_modal_title:"🛡️ স্বাধীন সিকিউরিটি অডিট // পাসা ৩.৫.৯",
+    audit_modal_title:"🛡️ স্বাধীন সিকিউরিটি অডিট // পাসা ৩.৬.০",
     audit_modal_lede:"পাসা সেন্টিনেলের প্রতিটি রিলিজ ৭০টির বেশি নেতৃস্থানীয় অ্যান্টিভাইরাস ইঞ্জিন, গিটহাব কোডকিউএল এবং মোবএসএফ-এর মাধ্যমে কঠোরভাবে পরীক্ষিত ও প্রত্যয়িত।",
     audit_btn_download:"সার্বিক SARIF অডিট বান্ডেল (.zip • ২৬৫ KB)",
     audit_btn_vt:"লাইভ VirusTotal স্ক্যান ↗",
@@ -4000,9 +4049,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
       </div>
       <div class="qr-instructions">
         <h5>Scan with Android Camera</h5>
-        <p>Point your phone's camera at this QR code to download and install <b>pasa-latest.apk (v3.5.9)</b> directly without connecting to PC.</p>
+        <p>Point your phone's camera at this QR code to download and install <b>pasa-latest.apk (v3.6.0)</b> directly without connecting to PC.</p>
         <div class="qr-meta">
-          <span>SHA-256: <code>1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4</code></span>
+          <span>SHA-256: <code>f18f67823ef659fba787b35872e7f14d08ea7e99d71cb412c9161c0b85fb6424</code></span>
           <span>Direct URL: <a href="https://pasa.izhaanintellect.fun/releases/pasa-latest.apk" target="_blank">pasa.izhaanintellect.fun/releases/pasa-latest.apk</a></span>
         </div>
       </div>
@@ -4016,7 +4065,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="audit-modal-header">
       <div class="audit-modal-title">
         <span class="audit-pulse-beacon"></span>
-        <span data-i18n="audit_modal_title">🛡️ INDEPENDENT SECURITY AUDIT // PASA v3.5.9</span>
+        <span data-i18n="audit_modal_title">🛡️ INDEPENDENT SECURITY AUDIT // PASA v3.6.0</span>
       </div>
       <button type="button" class="audit-modal-close" onclick="toggleAuditModal()" aria-label="Close">✕</button>
     </div>
@@ -4057,8 +4106,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <span class="hash-tag">CRYPTOGRAPHIC INTEGRITY (SHA-256)</span>
           <button type="button" class="hash-copy-btn" onclick="copyAuditHash(this)">COPY HASH</button>
         </div>
-        <div class="audit-hash-target">Target Binary: <code>pasa-v3.5.9-55.apk</code> (18.3 MB • Signed Scheme v2)</div>
-        <code class="audit-hash-val" id="auditHashVal">1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4</code>
+        <div class="audit-hash-target">Target Binary: <code>pasa-v3.6.0-56.apk</code> (18.2 MB • Signed Scheme v2)</div>
+        <code class="audit-hash-val" id="auditHashVal">f18f67823ef659fba787b35872e7f14d08ea7e99d71cb412c9161c0b85fb6424</code>
       </div>
 
       <!-- Actions -->

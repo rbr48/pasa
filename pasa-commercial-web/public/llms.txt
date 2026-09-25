@@ -7,6 +7,8 @@ PASA Sentinel is an enterprise-grade sovereign mobile defense and anti-theft ope
 
 ## Core Architectural Guarantees
 
+- **Zero-Data Architecture (v3.6.0):** Absolute customer privacy sovereignty. Private Telegram Bot Tokens and Chat IDs NEVER leave the Android device and are NEVER transmitted to or stored on any central VPS. The device communicates directly and exclusively with Telegram's official API servers (`api.telegram.org`) in Sovereign Mode.
+- **Anonymous Hashed Licensing & 7-Day Rotating Ed25519 Certificates:** License activation and status checks use an irreversible one-way SHA-256 device hash (`SHA-256(deviceId:key)`), completely obscuring raw physical hardware IDs. Verified offline via 7-day rotating Ed25519 cryptographic certificates that support instant revocation without maintaining invasive persistent tracking databases.
 - **100% Zero Cloud Storage (Strategy 1):** Zero surveillance photos, zero ambient audio recordings, zero video clips, and zero GPS tracking histories are stored on VPS hard drives or company databases. All surveillance evidence is transmitted directly from device RAM to the user's private encrypted Telegram bot via HTTPS and is immediately shredded locally from phone RAM.
 - **Knox-Grade Device Owner Permanence:** Configured as Android Enterprise Device Owner (`dpm`). Android itself permanently grays out 'Uninstall' and 'Force Stop' buttons ('Managed by your organization'). Blocks Safe Mode restarts, recovery menu factory resets, and notification shade pulldowns.
 - **Hardware Escrow Tokens (Android 8.0 – 16):** Overcomes Android 14+ password reset deprecation using 32-byte cryptographic hardware escrow tokens to remotely reset lockscreen PINs over the air.

@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 56,
+    "versionName": "3.6.0",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.6.0-56.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.6.0-56.apk",
+    "sha256": "f18f67823ef659fba787b35872e7f14d08ea7e99d71cb412c9161c0b85fb6424",
+    "size": 19079366,
+    "mandatory": false,
+    "releaseNotes": "v3.6.0: Zero-Data Privacy Architecture — Permanent Sovereign direct-to-Telegram C2 without VPS relay. Anonymous SHA-256 hashed device licensing with 7-day rotating Ed25519 certificates. Zero customer tokens stored on server."
+  },
+  {
     "versionCode": 55,
     "versionName": "3.5.9",
     "releaseDate": "2026-09-25",

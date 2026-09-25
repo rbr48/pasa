@@ -123,8 +123,11 @@ tr:last-child td{border-bottom:none}
     PASA Sentinel was engineered as a sovereign alternative to commercial tracking applications that monetize user location histories and personal data. We collect <strong>zero advertising telemetry</strong>, store <strong>zero surveillance photos or GPS tracks on VPS disk</strong>, and operate <strong>completely decoupled from Google Play Services</strong>.
   </div>
 
-  <h2>1. Absolute Zero-Storage Architecture</h2>
+  <h2>1. Absolute Zero-Storage & Zero-Data Architecture (v3.6.0+)</h2>
   <ul>
+    <li><strong>Zero Bot Token & Credential Transmission:</strong> Starting with v3.6.0, your private Telegram Bot Token and Chat ID never leave your Android device. The device communicates directly and exclusively with Telegram's official API servers (<code style="color:var(--cyan)">api.telegram.org</code>) in Sovereign Mode. No VPS intermediary poller is ever used.</li>
+    <li><strong>Anonymous Hashed Device Licensing:</strong> All license activation and verification calls send an irreversible one-way SHA-256 hash (<code style="color:var(--cyan)">SHA-256(deviceId:key)</code>). Your hardware serial, IMEI, or raw Device ID are never transmitted to or recorded by the licensing control plane.</li>
+    <li><strong>7-Day Ephemeral Ed25519 Certificates:</strong> Devices verify license tiers 100% offline via Ed25519 digital signatures. Offline certificates automatically rotate every 7 days, allowing immediate remote key revocation while completely eliminating the need for persistent centralized device tracking databases.</li>
     <li><strong>Zero Google Play Dependencies:</strong> PASA Sentinel does not include Google Play Services, Firebase Analytics, AdMob, or Firebase Cloud Messaging SDKs.</li>
     <li><strong>Zero Third-Party SDK Trackers:</strong> No marketing libraries, crash analytics services, or user-tracking SDKs are compiled into the application binary.</li>
     <li><strong>Zero Centralized Location Tracking:</strong> Our control servers never store, log, or record your GPS tracks. GNSS satellite coordinates exist only in volatile chip RAM during dispatch and are streamed directly to your private Telegram bot before memory shredding.</li>

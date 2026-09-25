@@ -5,7 +5,7 @@
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.5.9%20(Build%2055)-blue.svg)](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
+[![Version](https://img.shields.io/badge/Release-v3.6.0%20(Build%2056)-blue.svg)](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
 [![License](https://img.shields.io/badge/License-BSL%201.1-orange.svg)](LICENSE.md)
 [![VirusTotal](https://img.shields.io/badge/VirusTotal-70%2B%20AV%20Clean-brightgreen.svg)](https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4)
 [![CodeQL](https://img.shields.io/badge/CodeQL-Passed-brightgreen.svg)](https://github.com/rbr48/pasa/security/code-scanning)
@@ -379,15 +379,15 @@ The signed APK will be output to:
 
 Download the official signed release binary directly from GitHub or our high-speed CDN:
 
-* **Direct Release Binary:** [📦 pasa-v3.5.9-55.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.5.9-55.apk)
+* **Direct Release Binary:** [📦 pasa-v3.6.0-56.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.6.0-56.apk)
 * **Direct Rolling Latest:** [📦 pasa-latest.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk)
 * **High-Speed CDN Mirror:** [https://pasa.izhaanintellect.fun/releases/pasa-latest.apk](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
 * **Windows Setup Kit:** [📦 PASA-Device-Owner-Setup-Kit.zip](https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip)
-* **Official Version:** `v3.5.9` (Build Code `55`)
-* **File Size:** `19,079,349 bytes` (18.19 MB)
+* **Official Version:** `v3.6.0` (Build Code `56`)
+* **File Size:** `19,079,366 bytes` (18.20 MB)
 * **APK SHA-256 Checksum:**
   ```text
-  1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4
+  f18f67823ef659fba787b35872e7f14d08ea7e99d71cb412c9161c0b85fb6424
   ```
 * **Setup Kit SHA-256 Checksum:**
   ```text
