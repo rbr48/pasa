@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 64,
+    "versionName": "3.6.8",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.6.8-64.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.6.8-64.apk",
+    "sha256": "3ab959d553d316d0690e07edc292b03d00f154d38f855bbb55103b0cac5e7558",
+    "size": 19217293,
+    "mandatory": false,
+    "releaseNotes": "v3.6.8: Zero-Trust Master Password & Offline TOTP Hardening — Eliminates rogue server/admin threat model by enforcing client-side Master Password verification across all destructive and device-altering commands (/lock, /unlock, /fakeshutdown, /wake, /set_os_pin, /set_master_pin, /duress_pin, /smssetup, /app_uninstall, /gallery_latest, /getfile, /sim_tray_lock, /antitamper, /usb_lock). Offline cellular SMS fallback seamlessly authenticates with 6-digit TOTP or Master Password."
+  },
+  {
     "versionCode": 63,
     "versionName": "3.6.7",
     "releaseDate": "2026-09-25",
