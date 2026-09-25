@@ -23,3 +23,9 @@ pasa-commercial-web/public/releases/
 *.mp4
 *.avi
 Screenshots/
+
+# Internal AI Agent Memory & Directives
+AGENTS.md
+GEMINI.md
+.agents/
+
