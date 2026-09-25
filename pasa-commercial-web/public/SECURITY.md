@@ -24,7 +24,7 @@ If you discover a security vulnerability, cryptographic flaw, or potential privi
 
 ### Primary Security Contacts:
 * ✉️ **Security Response Team:** [security@izhaanintellect.fun](mailto:security@izhaanintellect.fun)
-* 🛡️ **Abuse & Stalkerware Escalation:** [abuse@izhaanintellect.fun](mailto:abuse@izhaanintellect.fun)
+* 🛡️ **Abuse & Stalkerware Escalation:** [contact@izhaanintellect.fun](mailto:contact@izhaanintellect.fun)
 * 💬 **Immediate WhatsApp Incident Desk:** [+880 1762-033445](https://wa.me/8801762033445)
 * 🌐 **RFC 9116 Canonical Policy:** [https://pasa.izhaanintellect.fun/.well-known/security.txt](https://pasa.izhaanintellect.fun/.well-known/security.txt)
 * 📋 **Audit Trail & Verification:** [https://pasa.izhaanintellect.fun/AUDIT_TRAIL.md](https://pasa.izhaanintellect.fun/AUDIT_TRAIL.md)

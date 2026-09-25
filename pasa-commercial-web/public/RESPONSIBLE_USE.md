@@ -75,5 +75,5 @@ Anyone creating a fork of this repository:
 ## 6. Reporting Abuse & Suspected Misuse
 
 If you discover an unauthorized, modified, or weaponized deployment of PASA Sentinel used for non-consensual surveillance:
-* **Immediate Security Contact:** [abuse@izhaanintellect.fun](mailto:abuse@izhaanintellect.fun) / [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun)
+* **Immediate Security Contact:** [contact@izhaanintellect.fun](mailto:contact@izhaanintellect.fun) / [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun)
 * **WhatsApp Incident Desk:** [+880 1762-033445](https://wa.me/8801762033445)
