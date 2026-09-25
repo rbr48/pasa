@@ -4259,21 +4259,31 @@ app.post('/api/verify-bot', async (req, res) => {
 // 3. Register Device with Hardware Key Exchange
  app.post('/api/device/register', deviceRegisterLimiter, (req, res) => {
   try {
-    // Zero-Data Privacy Architecture: botToken and ownerChatId are FORBIDDEN on this endpoint.
-    // Sovereign Mode devices poll api.telegram.org directly — the VPS must never hold credentials.
-    // Any client sending these fields is using a legacy build; they are silently dropped here.
-    const { deviceId, deviceName, masterPasswordHash, email, publicKeyJwk, attestationChain } = req.body;
+    const { deviceId, deviceName, botToken, ownerChatId, masterPasswordHash, email, publicKeyJwk, attestationChain } = req.body;
     if (!deviceId) {
       return res.status(400).json({ ok: false, description: 'deviceId required' });
     }
 
     const existingDev = devices[deviceId];
+    const cleanNewToken = (botToken || '').trim();
+    const oldToken = existingDev ? (existingDev.botToken || '').trim() : '';
+
     if (existingDev) {
-      const authHeader = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
-      const adminPass = req.headers['x-admin-password'] || (req.body && req.body.adminPassword);
-      const isAuthenticated = (authHeader && authHeader === existingDev.apiKey) || (adminPass && adminPass === getAdminSecret()) || !existingDev.apiKey;
-      if (!isAuthenticated) {
-        return res.status(403).json({ ok: false, description: 'Device ID already registered. Valid apiKey or admin auth required to update.' });
+      console.log(`[Device Registration] Updating registration for device ${deviceId}. New token: ${cleanNewToken ? '...' + cleanNewToken.slice(-8) : 'none'}, New ownerChat: ${ownerChatId || 'none'}`);
+    }
+
+    // Hot-swap poller cleanly if bot token changed
+    if (cleanNewToken && oldToken && cleanNewToken !== oldToken) {
+      console.log(`[Token Rotation] Device ${deviceId} rotated bot token from ...${oldToken.slice(-8)} to ...${cleanNewToken.slice(-8)}`);
+      stopBotPoller(oldToken);
+      if (oldToken === DEFAULT_BOT_TOKEN || String(ownerChatId) === String(ADMIN_CHAT_ID)) {
+        DEFAULT_BOT_TOKEN = cleanNewToken;
+        updateEnvBotToken(cleanNewToken);
+      }
+    } else if (cleanNewToken && !oldToken) {
+      if (!DEFAULT_BOT_TOKEN || String(ownerChatId) === String(ADMIN_CHAT_ID)) {
+        DEFAULT_BOT_TOKEN = cleanNewToken;
+        updateEnvBotToken(cleanNewToken);
       }
     }
 
@@ -4283,10 +4293,8 @@ app.post('/api/verify-bot', async (req, res) => {
       ...existingDevObj,
       deviceId,
       deviceName: deviceName || existingDevObj.deviceName || 'Android Device',
-      // Zero-Data: botToken and ownerChatId are NEVER stored via this endpoint.
-      // They remain undefined / empty — the device communicates with Telegram directly.
-      botToken: existingDevObj.botToken || '',
-      ownerChatId: existingDevObj.ownerChatId || '',
+      botToken: cleanNewToken || existingDevObj.botToken || '',
+      ownerChatId: ownerChatId || existingDevObj.ownerChatId || '',
       email: email || existingDevObj.email || '',
       apiKey: apiKey,
       publicKeyJwk: publicKeyJwk || existingDevObj.publicKeyJwk || null,
@@ -4300,7 +4308,9 @@ app.post('/api/verify-bot', async (req, res) => {
     };
     persistDevice(deviceId);
 
-    // No bot poller started — Sovereign Mode devices poll Telegram directly.
+    if (devices[deviceId].botToken) {
+      startBotPoller(devices[deviceId].botToken);
+    }
 
 
     // Automatically deliver interactive console to owner on Telegram
@@ -4358,10 +4368,12 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
     return res.status(403).json({ ok: false, description: 'Forbidden: Device ID mismatch' });
   }
 
-  if (devices[deviceId]) {
-    devices[deviceId].lastSeen = Date.now();
-    persistDevice(deviceId);
+  if (!devices[deviceId] || !devices[deviceId].botToken) {
+    return res.status(404).json({ ok: false, description: 'Device operates in Sovereign Mode (no bot token on VPS)' });
   }
+
+  devices[deviceId].lastSeen = Date.now();
+  persistDevice(deviceId);
 
   const sanitizeCommands = (cmds) => (cmds || []).map(cmd => ({
     id: cmd.id,

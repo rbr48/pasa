@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 67,
+    "versionName": "3.7.2",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.7.2-67.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.2-67.apk",
+    "sha256": "8e07bd0e06740f7d36734bdb15760d2f5b578c994e64392f87230f9251702307",
+    "size": 19217006,
+    "mandatory": false,
+    "releaseNotes": "v3.7.2: 100% Pure Sovereign Direct-to-Telegram Architecture — completely removed hidden VPS server URL configuration, card layout, and backend dependencies. Zero customer PII or bot tokens transmitted to any external server. Polling is direct from phone to official Telegram API."
+  },
+  {
     "versionCode": 66,
     "versionName": "3.7.1",
     "releaseDate": "2026-09-25",

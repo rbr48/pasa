@@ -35,14 +35,13 @@ class SetupViewModel @Inject constructor(
     val pendingUploadsFlow = pendingUploadDao.getAllFlow()
 
     fun isSetupComplete(): Boolean = preferencesManager.isSetupComplete
-    fun getSavedServerUrl(): String = preferencesManager.serverUrl
     fun getSavedDeviceId(): String = preferencesManager.deviceId
     fun isDeviceAdmin(): Boolean = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isAdminActive(context)
     fun isDeviceOwner(): Boolean = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)
     fun isBatteryWhitelisted(): Boolean = com.izhaanintellect.pasa.util.BatteryOptimizationHelper.isIgnoringBatteryOptimizations(context)
     fun getManufacturer(): String = com.izhaanintellect.pasa.util.BatteryOptimizationHelper.getManufacturer()
     fun getSecurityLevel(): String = preferencesManager.deviceKeySecurityLevel
-    fun getBackendMode(): String = if (preferencesManager.useBackendServer) "VPS Gateway Relay" else "100% Sovereign (Direct Telegram)"
+    fun getBackendMode(): String = "100% Sovereign (Direct Telegram)"
 
     fun flushUploadQueue() {
         com.izhaanintellect.pasa.worker.EvidenceUploadWorker.schedulePendingBatch(context)
@@ -56,29 +55,6 @@ class SetupViewModel @Inject constructor(
 
     fun unlockSetup() {
         preferencesManager.isSetupComplete = false
-    }
-
-    fun saveServerUrl(url: String) {
-        preferencesManager.serverUrl = url
-    }
-
-    /**
-     * Tests connectivity to the VPS Backend Control Plane.
-     */
-    suspend fun testServerConnection(url: String): Result<String> {
-        return withContext(Dispatchers.IO) {
-            try {
-                preferencesManager.serverUrl = url
-                val health = pasaBackendApi.getHealth()
-                if (health.status == "ok") {
-                    Result.success("VPS Server Online (v${health.version ?: "1.0"})")
-                } else {
-                    Result.failure(Exception("Server returned status: ${health.status}"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
     }
 
     /**
@@ -113,8 +89,7 @@ class SetupViewModel @Inject constructor(
         chatId: String,
         masterPassword: String,
         email: String,
-        stealthMode: Boolean,
-        serverUrl: String
+        stealthMode: Boolean
     ): Boolean {
         val cleanToken = cleanBotToken(botToken)
         if (cleanToken.isBlank() || chatId.isBlank() || masterPassword.length < 8) {
@@ -128,8 +103,8 @@ class SetupViewModel @Inject constructor(
         preferencesManager.ownerChatId = chatId.trim()
         preferencesManager.backupEmail = email.trim()
         preferencesManager.isStealthMode = stealthMode
-        preferencesManager.serverUrl = serverUrl.trim()
-        preferencesManager.useBackendServer = serverUrl.isNotBlank()
+        preferencesManager.serverUrl = ""
+        preferencesManager.useBackendServer = false
         preferencesManager.isSetupComplete = true
 
         try {
@@ -150,39 +125,15 @@ class SetupViewModel @Inject constructor(
 
     suspend fun registerDeviceWithBackend(context: android.content.Context? = null): Boolean {
         return withContext(Dispatchers.IO) {
-            if (!preferencesManager.useBackendServer || preferencesManager.serverUrl.isBlank()) {
-                Log.i(TAG, "🛡️ Pure Sovereign Mode: VPS registration skipped.")
-                return@withContext true
-            }
-            try {
-                val deviceName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (Android ${android.os.Build.VERSION.RELEASE})"
-                val req = com.izhaanintellect.pasa.network.RegisterDeviceRequest(
-                    deviceId = preferencesManager.deviceId,
-                    deviceName = deviceName,
-                    botToken = preferencesManager.botToken,
-                    ownerChatId = preferencesManager.ownerChatId
-                )
-                val resp = pasaBackendApi.registerDevice(req)
-                if (resp.ok) {
-                    if (!resp.apiKey.isNullOrBlank()) {
-                        preferencesManager.apiKey = resp.apiKey
-                    }
-                    if (!resp.signingKeyId.isNullOrBlank() && !resp.commandSigningPublicJwk.isNullOrBlank()) {
-                        preferencesManager.addTrustedCommandKey(resp.signingKeyId, resp.commandSigningPublicJwk)
-                    }
-                }
-                resp.ok
-            } catch (e: Exception) {
-                Log.w(TAG, "VPS device registration deferred: ${e.message}")
-                true
-            }
+            Log.i(TAG, "🛡️ Pure Sovereign Mode: VPS registration skipped.")
+            true
         }
     }
 
     suspend fun sendSetupConfirmation(): Boolean {
         return withContext(Dispatchers.IO) {
             try {
-                val modeStr = if (preferencesManager.useBackendServer) "VPS Cloud Gateway" else "100% Sovereign (Direct Telegram)"
+                val modeStr = "100% Sovereign (Direct Telegram)"
                 val response = telegramApi.sendMessage(
                     token = preferencesManager.botToken,
                     request = SendMessageRequest(
@@ -230,23 +181,5 @@ class SetupViewModel @Inject constructor(
             clean = clean.dropLast(1)
         }
         return clean.trim()
-    }
-
-    suspend fun initPairing(serverUrl: String, deviceId: String, deviceName: String): com.izhaanintellect.pasa.network.PairInitResponse {
-        return withContext(Dispatchers.IO) {
-            preferencesManager.serverUrl = serverUrl
-            pasaBackendApi.initPairing(
-                com.izhaanintellect.pasa.network.PairInitRequest(
-                    deviceId = deviceId,
-                    deviceName = deviceName
-                )
-            )
-        }
-    }
-
-    suspend fun pollPairingStatus(code: String): com.izhaanintellect.pasa.network.PairStatusResponse {
-        return withContext(Dispatchers.IO) {
-            pasaBackendApi.pollPairingStatus(code)
-        }
     }
 }

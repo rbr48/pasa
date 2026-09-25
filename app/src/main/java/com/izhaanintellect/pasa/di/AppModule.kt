@@ -165,7 +165,7 @@ object AppModule {
         okHttpClient: OkHttpClient,
         preferencesManager: PreferencesManager
     ): com.izhaanintellect.pasa.network.PasaBackendApi {
-        val baseUrl = if (preferencesManager.serverUrl.isNotBlank()) preferencesManager.serverUrl else PASA_LICENSE_SERVER
+        val baseUrl = PASA_LICENSE_SERVER
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient)

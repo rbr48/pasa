@@ -122,7 +122,7 @@ class OtaUpdateManager @Inject constructor(
             val fullUrl = if (downloadUrl.startsWith("http://", ignoreCase = true) || downloadUrl.startsWith("https://", ignoreCase = true)) {
                 downloadUrl
             } else {
-                val base = preferencesManager.serverUrl.trimEnd('/')
+                val base = if (preferencesManager.serverUrl.isNotBlank()) preferencesManager.serverUrl.trimEnd('/') else "https://pasa.izhaanintellect.fun"
                 val path = downloadUrl.trimStart('/')
                 "$base/$path"
             }

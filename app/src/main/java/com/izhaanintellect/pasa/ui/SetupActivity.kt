@@ -117,7 +117,6 @@ class SetupActivity : AppCompatActivity() {
         setupClickListeners()
         setupDashboardObservers()
 
-        binding.etServerUrl.setText(viewModel.getSavedServerUrl())
         if (preferencesManager.botToken.isNotBlank()) {
             binding.etBotToken.setText(preferencesManager.botToken)
         } else {
@@ -151,50 +150,6 @@ class SetupActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        // Developer easter egg: 5 taps on logo reveals/hides custom VPS Control Plane setup
-        var logoTapCount = 0
-        var lastLogoTapTime = 0L
-        binding.ivLogo.setOnClickListener {
-            val now = System.currentTimeMillis()
-            if (now - lastLogoTapTime > 2000) {
-                logoTapCount = 1
-            } else {
-                logoTapCount++
-            }
-            lastLogoTapTime = now
-            if (logoTapCount >= 5) {
-                logoTapCount = 0
-                val isVisible = binding.cardVpsSetup.visibility == android.view.View.VISIBLE
-                binding.cardVpsSetup.visibility = if (isVisible) android.view.View.GONE else android.view.View.VISIBLE
-                val msg = if (!isVisible) "⚙️ Advanced VPS Gateway settings revealed" else "🔒 VPS settings hidden (using default cloud gateway)"
-                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Test VPS Backend Connection
-        binding.btnTestServer.setOnClickListener {
-            val serverUrl = binding.etServerUrl.text.toString().trim()
-            if (serverUrl.isBlank()) {
-                binding.tilServerUrl.error = "Server URL cannot be empty"
-                return@setOnClickListener
-            }
-            binding.tilServerUrl.error = null
-            binding.btnTestServer.isEnabled = false
-            binding.btnTestServer.text = "Checking..."
-
-            lifecycleScope.launch {
-                val result = viewModel.testServerConnection(serverUrl)
-                binding.btnTestServer.isEnabled = true
-                binding.btnTestServer.text = "Verify VPS Connection"
-
-                result.onSuccess { msg ->
-                    Toast.makeText(this@SetupActivity, "✅ $msg", Toast.LENGTH_LONG).show()
-                }.onFailure { err ->
-                    Toast.makeText(this@SetupActivity, "❌ VPS Error: ${err.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-
         // Test Bot Token Connection
         binding.btnTestConnection.setOnClickListener {
             val token = binding.etBotToken.text.toString().trim()
@@ -339,14 +294,11 @@ class SetupActivity : AppCompatActivity() {
             return
         }
 
-        val serverUrl = binding.etServerUrl.text.toString().trim()
         val botToken = binding.etBotToken.text.toString().trim()
         val chatId = binding.etChatId.text.toString().trim()
         val password = binding.etMasterPassword.text.toString()
         val email = binding.etBackupEmail.text.toString().trim()
         val stealthMode = binding.switchStealth.isChecked
-
-        binding.tilServerUrl.error = null
 
         if (botToken.isEmpty()) {
             binding.tilBotToken.error = getString(R.string.error_empty_token)
@@ -372,7 +324,7 @@ class SetupActivity : AppCompatActivity() {
         }
         binding.tilBackupEmail.error = null
 
-        val saved = viewModel.validateAndSave(botToken, chatId, password, email, stealthMode, serverUrl)
+        val saved = viewModel.validateAndSave(botToken, chatId, password, email, stealthMode)
         if (!saved) {
             Toast.makeText(this, "Configuration validation failed", Toast.LENGTH_SHORT).show()
             return
@@ -400,10 +352,9 @@ class SetupActivity : AppCompatActivity() {
                 )
             }
 
-            val modeToast = if (preferencesManager.useBackendServer) "Linked to VPS Gateway" else "Direct Telegram Sovereign Mode"
             Toast.makeText(
                 this@SetupActivity,
-                "🛡️ PASA Guardian Active ($modeToast)",
+                "🛡️ PASA Guardian Active (Direct Telegram Sovereign Mode)",
                 Toast.LENGTH_LONG
             ).show()
 
@@ -440,7 +391,6 @@ class SetupActivity : AppCompatActivity() {
         if (preferencesManager.backupEmail.isNotBlank()) {
             binding.etBackupEmail.setText(preferencesManager.backupEmail)
         }
-        binding.etServerUrl.setText(viewModel.getSavedServerUrl())
         updateUI()
     }
 
@@ -526,7 +476,7 @@ class SetupActivity : AppCompatActivity() {
     private fun updateDashboardUI() {
         val deviceId = viewModel.getSavedDeviceId()
         binding.tvDashDeviceId.text = "Device ID: $deviceId"
-        binding.tvDashBackend.text = "Gateway: ${viewModel.getBackendMode()} (${viewModel.getSavedServerUrl()})"
+        binding.tvDashBackend.text = "Gateway: ${viewModel.getBackendMode()}"
         binding.tvDashFgs.text = "Service: Persistent FGS (DataSync/Location) | WakeLock: Active"
 
         val isAdmin = viewModel.isDeviceAdmin()

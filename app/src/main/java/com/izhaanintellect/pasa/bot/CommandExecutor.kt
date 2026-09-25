@@ -484,7 +484,7 @@ class CommandExecutor @Inject constructor(
         documentFile: File? = null,
         location: Pair<Double, Double>? = null
     ): Boolean {
-        val shouldUseBackend = preferencesManager.useBackendServer || preferencesManager.serverUrl.isNotBlank()
+        val shouldUseBackend = false
         if (!shouldUseBackend) return false
         return try {
             val deviceIdBody = preferencesManager.deviceId.toRequestBody("text/plain".toMediaTypeOrNull())

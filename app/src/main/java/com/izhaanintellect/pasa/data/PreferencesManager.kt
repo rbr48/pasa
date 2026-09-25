@@ -106,7 +106,7 @@ class PreferencesManager @Inject constructor(
         // SIM Tray Lock — deep lockdown on unauthorized SIM insertion
         private const val KEY_SIM_TRAY_LOCK_ENABLED = "sim_tray_lock_enabled"
         private const val KEY_SIM_TRAY_LOCK_EMERGENCY_PIN = "sim_tray_lock_emergency_pin"
-        const val DEFAULT_SERVER_URL = "https://izhaanintellect.fun/pasa/"
+        const val DEFAULT_SERVER_URL = ""
     }
 
 
@@ -352,13 +352,9 @@ class PreferencesManager @Inject constructor(
     // --- VPS Backend Settings ---
 
     var serverUrl: String
-        get() {
-            val url = prefs.getString(KEY_SERVER_URL, DEFAULT_SERVER_URL) ?: DEFAULT_SERVER_URL
-            return if (url.endsWith("/")) url else "$url/"
-        }
-        set(value) {
-            val normalized = if (value.trim().endsWith("/")) value.trim() else "${value.trim()}/"
-            prefs.edit().putString(KEY_SERVER_URL, normalized).apply()
+        get() = ""
+        set(_) {
+            prefs.edit().putString(KEY_SERVER_URL, "").apply()
         }
 
     var deviceId: String
@@ -373,8 +369,10 @@ class PreferencesManager @Inject constructor(
         set(value) = prefs.edit().putString(KEY_DEVICE_ID, value).apply()
 
     var useBackendServer: Boolean
-        get() = prefs.getBoolean(KEY_USE_BACKEND, true)
-        set(value) = prefs.edit().putBoolean(KEY_USE_BACKEND, value).apply()
+        get() = false
+        set(_) {
+            prefs.edit().putBoolean(KEY_USE_BACKEND, false).apply()
+        }
         
     var apiKey: String
         get() = prefs.getString("api_key", "") ?: ""
