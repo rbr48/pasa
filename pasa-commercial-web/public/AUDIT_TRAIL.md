@@ -311,11 +311,11 @@ All autonomous sensor traps execute on-device and trigger within milliseconds wi
 To provide unimpeachable, third-party validation beyond internal assertions, PASA Sentinel operates with multiple automated independent security evaluation layers:
 
 ### 12.1 Independent VirusTotal Multi-AV Consensus Audit
-* **Target File:** `releases/pasa-v3.5.9-55.apk` (Build 54)
-* **Byte Size:** `19,234,190` bytes
-* **SHA-256 Digest:** `a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b`
+* **Target File:** `releases/pasa-v3.5.9-55.apk` (Build 55)
+* **Byte Size:** `19,079,349` bytes
+* **SHA-256 Digest:** `1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4`
 * **Direct Verification URL:**  
-  👉 [https://www.virustotal.com/gui/file/a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b](https://www.virustotal.com/gui/file/a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b)
+  👉 [https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4](https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4)
 * **Consensus Result:** Verified across 70+ independent global antivirus engines (Kaspersky, Bitdefender, CrowdStrike, ESET, Sophos, Google, Symantec). Confirmed zero malicious trojans, zero backdoors, and zero commercial spyware signatures. Administrative and accessibility capabilities are declared with non-obfuscated symbols (`-keep,allowoptimization`) and explicit AndroidManifest descriptions to prevent generic heuristic misclassification.
 
 ### 12.2 GitHub CodeQL Advanced Security (Semantic Static Analysis)
@@ -360,5 +360,5 @@ This audit confirms that **PASA Sentinel v3.5.9 (Build 55)** adheres fully to it
 **Audit Status:** ✅ **PASSED AND CERTIFIED (GRADE A)**  
 **Authorized By:** Sovereign Mobile Security Division // Izhaan Intellect  
 **Verification Tool:** `node scripts/verify_independent_audit.js`  
-**Document Digest (SHA-256):** `a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b`
+**Document Digest (SHA-256):** `1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4`
 

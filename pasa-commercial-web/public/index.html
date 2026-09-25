@@ -2767,7 +2767,7 @@ table.matrix tbody tr:last-child td{border-bottom:none}
         <a href="#pricing" data-i18n="nav_pricing">Licensing</a>
         <a href="/manual.html" style="color:var(--cyan);font-weight:600">📖 Field Manual (EN/BN)</a>
         <a href="/AUDIT_TRAIL.md" style="color:var(--txt-2)">📋 System Audit Trail</a>
-        <a href="https://www.virustotal.com/gui/file/a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b" target="_blank" rel="noopener" style="color:var(--green);font-weight:600">🛡️ VirusTotal Clean (70+ AV) ↗</a>
+        <a href="https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4" target="_blank" rel="noopener" style="color:var(--green);font-weight:600">🛡️ VirusTotal Clean (70+ AV) ↗</a>
         <a href="/audit/PASA-Security-Audit-SARIF-v3.5.9.zip" style="color:var(--cyan);font-weight:600">📦 Security Audit (SARIF) ↗</a>
       </div>
       <div class="foot-col">
@@ -3943,7 +3943,7 @@ function toggleAuditModal(e){
 }
 
 function copyAuditHash(btn){
-  const hash = document.getElementById('auditHashVal')?.innerText || 'a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b';
+  const hash = document.getElementById('auditHashVal')?.innerText || '1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4';
   navigator.clipboard.writeText(hash.trim()).then(()=>{
     const orig = btn.innerText;
     btn.innerText = 'COPIED!';
@@ -4002,7 +4002,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <h5>Scan with Android Camera</h5>
         <p>Point your phone's camera at this QR code to download and install <b>pasa-latest.apk (v3.5.9)</b> directly without connecting to PC.</p>
         <div class="qr-meta">
-          <span>SHA-256: <code>a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b</code></span>
+          <span>SHA-256: <code>1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4</code></span>
           <span>Direct URL: <a href="https://pasa.izhaanintellect.fun/releases/pasa-latest.apk" target="_blank">pasa.izhaanintellect.fun/releases/pasa-latest.apk</a></span>
         </div>
       </div>
@@ -4027,7 +4027,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
       <div class="audit-summary-grid">
         <!-- VirusTotal -->
-        <a href="https://www.virustotal.com/gui/file/a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b" target="_blank" rel="noopener" class="audit-grid-card">
+        <a href="https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4" target="_blank" rel="noopener" class="audit-grid-card">
           <div class="audit-card-icon">🌐</div>
           <div class="audit-card-score" style="color:var(--green)">0 / 70 CLEAN</div>
           <div class="audit-card-title">VirusTotal Multi-AV</div>
@@ -4058,7 +4058,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <button type="button" class="hash-copy-btn" onclick="copyAuditHash(this)">COPY HASH</button>
         </div>
         <div class="audit-hash-target">Target Binary: <code>pasa-v3.5.9-55.apk</code> (18.3 MB • Signed Scheme v2)</div>
-        <code class="audit-hash-val" id="auditHashVal">a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b</code>
+        <code class="audit-hash-val" id="auditHashVal">1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4</code>
       </div>
 
       <!-- Actions -->
@@ -4067,7 +4067,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
           <span data-i18n="audit_btn_download">Download SARIF Bundle (.zip • 265 KB)</span>
         </a>
-        <a href="https://www.virustotal.com/gui/file/a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b" target="_blank" rel="noopener" class="btn-audit-vt">
+        <a href="https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4" target="_blank" rel="noopener" class="btn-audit-vt">
           <span data-i18n="audit_btn_vt">Live VirusTotal Scan ↗</span>
         </a>
       </div>

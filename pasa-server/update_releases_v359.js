@@ -35,8 +35,8 @@ const newRel = {
   releaseDate: new Date().toISOString().split('T')[0],
   fileName: "pasa-v3.5.9-55.apk",
   downloadUrl: "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.9-55.apk",
-  sha256: sha256 || 'a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b',
-  size: size || 19234190,
+  sha256: sha256 || '1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4',
+  size: size || 19079349,
   mandatory: false,
   releaseNotes: "v3.5.9: Sovereign Hardening & Independent Audit Compliance — Complete R8 bytecode log stripping (CWE-532), SetupActivity anti-snooping FLAG_SECURE and keyboard IME dictionary learning prevention, Cloudflare-resilient multi-root CA certificate pinning for sovereign C2 infrastructure, and explicit domain network security policy."
 };

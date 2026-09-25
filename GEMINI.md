@@ -480,10 +480,10 @@ This section records significant architectural decisions and code changes made i
 ### 8.12 Production Release v3.5.9 (Build 55)
 * **Release Date:** 2026-09-25
 * **Version Name:** `3.5.9` | **Version Code:** `55`
-* **Artifact:** `releases/pasa-v3.5.9-55.apk` (18.34 MB, 19,234,190 bytes)
-* **SHA-256:** `a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b`
-* **SHA-1:** `039c0ebba367763b52cf61e6df86915cb0607a6d`
-* **MD5:** `153f709f793cddf7739b4725da744829`
+* **Artifact:** `releases/pasa-v3.5.9-55.apk` (18.20 MB, 19,079,349 bytes)
+* **SHA-256:** `1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4`
+* **SHA-1:** `d9142adff49b27d83de75b2a884c593ffa9e306d`
+* **MD5:** `a1f787be684d65ba9ae88d273c804e02`
 * **Signing Key:** `pasa-release-key.jks` (v2 Scheme signed)
 * **Host Endpoints:**
   - OTA Check: `GET https://pasa.izhaanintellect.fun/api/app/latest`

@@ -1,13 +1,13 @@
 {
-  "audit_date": "2026-09-25T02:16:11.620Z",
+  "audit_date": "2026-09-25T04:26:45.040Z",
   "binary": "pasa-v3.5.9-55.apk",
   "version": "3.5.9",
   "build": 55,
-  "sha256": "a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b",
-  "sha1": "039c0ebba367763b52cf61e6df86915cb0607a6d",
-  "md5": "153f709f793cddf7739b4725da744829",
-  "size_bytes": 19234190,
-  "virustotal_report": "https://www.virustotal.com/gui/file/a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b",
+  "sha256": "1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4",
+  "sha1": "d9142adff49b27d83de75b2a884c593ffa9e306d",
+  "md5": "a1f787be684d65ba9ae88d273c804e02",
+  "size_bytes": 19079349,
+  "virustotal_report": "https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4",
   "mobsf_ci_pipeline": "https://github.com/rbr48/pasa/actions/workflows/security-audit.yml",
   "codeql_security": "https://github.com/rbr48/pasa/security/code-scanning"
 }
