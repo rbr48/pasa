@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0A0E17">
+
+    <!-- Header bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#0F1524">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/app_logo"
+                android:contentDescription="PASA Logo" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PASA SENTINEL // LEGAL EULA"
+                    android:textColor="#00E5FF"
+                    android:fontFamily="sans-serif-black"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.08" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Terms of Service &amp; EULA"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvReadingProgressBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_badge_terms"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="0%"
+                android:textColor="#38BDF8"
+                android:textSize="11sp"
+                android:fontFamily="monospace"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/pbReadingProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_marginTop="10dp"
+            android:max="100"
+            android:progress="0"
+            android:progressTint="#00E5FF"
+            android:progressBackgroundTint="#1E293B" />
+    </LinearLayout>
+
+    <!-- Scrollable Full Terms Content -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nsvTerms"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="24dp">
+
+        <TextView
+            android:id="@+id/tvFullTermsBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#CBD5E1"
+            android:textSize="13sp"
+            android:lineSpacingExtra="4dp"
+            android:fontFamily="sans-serif" />
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom Action Dock -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#0F1524"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvScrollNotice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="⚠️ Please scroll down to the bottom to enable acceptance"
+            android:textColor="#F59E0B"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginBottom="10dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/btnDeclineTerms"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Decline"
+                android:textColor="#94A3B8"
+                app:strokeColor="#334155" />
+
+            <Button
+                android:id="@+id/btnAcceptFullTerms"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="2"
+                android:layout_marginStart="8dp"
+                android:text="I Accept All Terms"
+                android:textColor="#0A0E17"
+                android:textStyle="bold"
+                android:backgroundTint="#00E5FF"
+                android:enabled="false"
+                android:alpha="0.4" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

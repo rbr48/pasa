@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1200" width="100%" height="100%">
+  <defs>
+    <!-- Background High-Tech Ambient Grid -->
+    <radialGradient id="cyberCanvas" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#142132" />
+      <stop offset="45%" stop-color="#0a1017" />
+      <stop offset="100%" stop-color="#020305" />
+    </radialGradient>
+
+    <!-- Tactical Carbon-Fiber / Cyber Mesh Pattern -->
+    <pattern id="carbonMesh" width="12" height="12" patternUnits="userSpaceOnUse">
+      <rect width="12" height="12" fill="#0b0f14" />
+      <path d="M 0,0 L 6,6 L 12,0 L 6,0 Z" fill="#131a24" opacity="0.4" />
+      <path d="M 6,6 L 12,12 L 6,12 Z" fill="#101720" opacity="0.3" />
+      <path d="M 0,6 L 6,12 L 0,12 Z" fill="#172230" opacity="0.25" />
+    </pattern>
+
+    <!-- Outer Armor Titanium Bezel -->
+    <linearGradient id="titaniumBezel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0f5fa" />
+      <stop offset="20%" stop-color="#9aaec0" />
+      <stop offset="45%" stop-color="#ffffff" />
+      <stop offset="65%" stop-color="#5a6878" />
+      <stop offset="85%" stop-color="#c8d6e5" />
+      <stop offset="100%" stop-color="#414c59" />
+    </linearGradient>
+
+    <!-- Outer Frame Dark Recessed Edge -->
+    <linearGradient id="frameRimDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#24303f" />
+      <stop offset="100%" stop-color="#0b1016" />
+    </linearGradient>
+
+    <!-- Inner Core Bevel Light (Split 3D Ridge) -->
+    <linearGradient id="ridgeLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#222e3d" />
+      <stop offset="45%" stop-color="#141c26" />
+      <stop offset="100%" stop-color="#080c10" />
+    </linearGradient>
+
+    <linearGradient id="ridgeRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#161f2a" />
+      <stop offset="50%" stop-color="#0c1218" />
+      <stop offset="100%" stop-color="#040608" />
+    </linearGradient>
+
+    <!-- Cyber Shield Cyan Edge Glow -->
+    <linearGradient id="cyanPlasma" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4facfe" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#00f2fe" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#0052d4" stop-opacity="0.6" />
+    </linearGradient>
+
+    <!-- Specular Blade Glare -->
+    <linearGradient id="bladeGlare" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35" />
+      <stop offset="28%" stop-color="#ffffff" stop-opacity="0.08" />
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Precision Titanium Bolt & Socket -->
+    <radialGradient id="boltSteel" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="40%" stop-color="#cdd8e4" />
+      <stop offset="75%" stop-color="#4d5c6d" />
+      <stop offset="100%" stop-color="#1c232c" />
+    </radialGradient>
+
+    <!-- Emblem Liquid Chrome Gradient -->
+    <linearGradient id="chromeEmblem" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="50%" stop-color="#eaf2f9" />
+      <stop offset="85%" stop-color="#a4b7ca" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+
+    <!-- Glow & Heavy Atmospheric Filters -->
+    <filter id="epicGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="megaShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="32" flood-color="#000000" flood-opacity="0.95" />
+      <feDropShadow dx="0" dy="8" flood-color="#00f2fe" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  <!-- High-Tech Backdrop -->
+  <rect width="1000" height="1200" fill="url(#cyberCanvas)" />
+
+  <g filter="url(#megaShadow)">
+    <!-- 1. Outer Heavy Armored Steel Plate -->
+    <path d="M 500,120 
+             C 565,148 735,190 840,225 
+             C 840,365 845,610 500,1035 
+             C 155,610 160,365 160,225 
+             C 265,190 435,148 500,120 Z" fill="url(#titaniumBezel)" stroke="#1a2532" stroke-width="2.5" />
+
+    <!-- 2. Dark Stepped Bezel Recess -->
+    <path d="M 500,152 
+             C 560,178 715,216 808,248 
+             C 808,375 812,598 500,990 
+             C 188,598 192,375 192,248 
+             C 285,216 440,178 500,152 Z" fill="url(#frameRimDark)" stroke="#4a5a6d" stroke-width="1.5" />
+
+    <!-- 3. Neon Cyber Accent Edge (Glow aura under shield) -->
+    <path d="M 500,172 
+             C 555,196 698,232 785,262 
+             C 785,385 790,585 500,958 
+             C 210,585 215,385 215,262 
+             C 302,232 445,196 500,172 Z" fill="none" stroke="url(#cyanPlasma)" stroke-width="4" opacity="0.85" filter="url(#epicGlow)" />
+
+    <!-- 4. Carbon-Fiber Sub-Layer -->
+    <path d="M 500,174 
+             C 555,198 695,234 782,264 
+             C 782,385 788,585 500,955 
+             C 212,585 218,385 218,264 
+             C 305,234 445,198 500,174 Z" fill="url(#carbonMesh)" />
+
+    <!-- 5. 3D Faceted Core Faces -->
+    <!-- Left Light-Catching Half -->
+    <path d="M 500,174 
+             C 445,198 305,234 218,264 
+             C 218,385 222,585 500,955 
+             L 500,174 Z" fill="url(#ridgeLeft)" opacity="0.9" />
+
+    <!-- Right Shadow Half -->
+    <path d="M 500,174 
+             C 555,198 695,234 782,264 
+             C 782,385 778,585 500,955 
+             L 500,174 Z" fill="url(#ridgeRight)" opacity="0.9" />
+
+    <!-- 6. Ultra-Crisp Diagonal Glass Glare -->
+    <path d="M 500,174 
+             C 555,198 695,234 782,264 
+             C 782,340 750,540 500,730 
+             C 320,580 225,430 218,264 
+             C 305,234 445,198 500,174 Z" fill="url(#bladeGlare)" />
+
+    <!-- 7. Center Spine Titanium Seam -->
+    <line x1="500" y1="174" x2="500" y2="955" stroke="#485c72" stroke-width="2.5" opacity="0.75" />
+
+    <!-- ================= 13 PRECISION COUNTERSUNK BOLTS ================= -->
+    <!-- Macro function: Outer Socket + Steel Hex Bolt -->
+    <!-- Top Apex -->
+    <circle cx="500" cy="138" r="11" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="500" cy="138" r="8.5" fill="url(#boltSteel)" />
+    <!-- Slopes -->
+    <circle cx="335" cy="178" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="335" cy="178" r="8" fill="url(#boltSteel)" />
+    <circle cx="665" cy="178" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="665" cy="178" r="8" fill="url(#boltSteel)" />
+    <!-- Top Corners -->
+    <circle cx="192" cy="244" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="192" cy="244" r="8" fill="url(#boltSteel)" />
+    <circle cx="808" cy="244" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="808" cy="244" r="8" fill="url(#boltSteel)" />
+    <!-- Lateral Flanges -->
+    <circle cx="178" cy="346" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="178" cy="346" r="8" fill="url(#boltSteel)" />
+    <circle cx="822" cy="346" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="822" cy="346" r="8" fill="url(#boltSteel)" />
+    <!-- Lateral Mid -->
+    <circle cx="188" cy="510" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="188" cy="510" r="8" fill="url(#boltSteel)" />
+    <circle cx="812" cy="510" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="812" cy="510" r="8" fill="url(#boltSteel)" />
+    <!-- Lower Slopes -->
+    <circle cx="236" cy="678" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="236" cy="678" r="8" fill="url(#boltSteel)" />
+    <circle cx="764" cy="678" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="764" cy="678" r="8" fill="url(#boltSteel)" />
+    <!-- Bottom Taper -->
+    <circle cx="338" cy="835" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="338" cy="835" r="8" fill="url(#boltSteel)" />
+    <circle cx="662" cy="835" r="10.5" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="662" cy="835" r="8" fill="url(#boltSteel)" />
+    <!-- Bottom Tip -->
+    <circle cx="500" cy="1008" r="11" fill="#080c10" stroke="#364352" stroke-width="1.5" />
+    <circle cx="500" cy="1008" r="8.5" fill="url(#boltSteel)" />
+
+    <!-- ================= THE HIGH-TECH EMBLEM ================= -->
+    <g transform="translate(0, 5)">
+      <!-- 1. Inner Shield Crest Rim -->
+      <path d="M 500,325 
+               L 608,368 
+               C 610,482 566,550 500,594 
+               C 434,550 390,482 392,368 Z" fill="none" stroke="url(#chromeEmblem)" stroke-width="18" stroke-linejoin="miter" stroke-miterlimit="4" />
+
+      <!-- Sub-Glow for Crest -->
+      <path d="M 500,325 
+               L 608,368 
+               C 610,482 566,550 500,594 
+               C 434,550 390,482 392,368 Z" fill="none" stroke="#00f2fe" stroke-width="3" opacity="0.5" filter="url(#epicGlow)" />
+
+      <!-- 2. Cybernetic 'P' Icon (Solid Kinetic Vector) -->
+      <!-- Left Detached Dynamic Dash -->
+      <polygon points="430,442 468,442 456,464 418,464" fill="url(#chromeEmblem)" />
+
+      <!-- Main Slanted 'P' Body with Inner Parallel Window -->
+      <path d="M 458,422 
+               L 564,422 
+               C 582,422 595,433 589,451 
+               C 583,471 565,485 546,485 
+               L 485,485 
+               L 454,560 
+               L 421,560 
+               L 456,474 
+               L 482,474 
+               L 492,445 
+               L 448,445 Z 
+               M 502,445 
+               L 491,468 
+               L 544,468 
+               C 554,468 564,461 567,452 
+               C 570,445 564,445 558,445 Z" fill="url(#chromeEmblem)" filter="url(#epicGlow)" />
+    </g>
+
+    <!-- ================= PREMIUM CYBER TYPOGRAPHY ================= -->
+    <!-- PASA Title: Ultra-Wide Bold Extended Sans -->
+    <text x="500" y="692" font-family="'Microgramma D Extended Bold', 'Eurostile Extended', 'Montserrat', 'Arial Black', sans-serif" font-size="94" font-weight="900" fill="url(#chromeEmblem)" text-anchor="middle" filter="url(#epicGlow)">
+      PASA
+    </text>
+
+    <!-- SENTINEL Subtitle: Razor Sharp Spaced Tech Style -->
+    <text x="505" y="760" font-family="'Microgramma D Extended Bold', 'Eurostile Extended', 'Montserrat', 'Arial Black', sans-serif" font-size="44" font-weight="800" fill="#d8e7f5" text-anchor="middle">
+      SENTINEL
+    </text>
+  </g>
+</svg>

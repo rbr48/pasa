@@ -15,6 +15,9 @@ import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 
+import android.graphics.Color
+import android.text.Html
+import android.text.Spanned
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -269,9 +272,29 @@ class SetupActivity : AppCompatActivity() {
             com.izhaanintellect.pasa.util.OemProtectionHelper.openOemAutostartSettings(this)
         }
 
-        // Read Terms & Conditions Link
+        // Mandatory Terms & Conditions Acceptance UX
+        binding.cbAcceptTerms.isChecked = preferencesManager.hasAcceptedTerms
+        binding.cbAcceptTerms.setOnClickListener {
+            if (!preferencesManager.hasAcceptedTerms) {
+                binding.cbAcceptTerms.isChecked = false
+                showFullTermsDialog()
+            } else {
+                preferencesManager.hasAcceptedTerms = binding.cbAcceptTerms.isChecked
+            }
+        }
+
+        binding.tvTermsAgreement.setOnClickListener {
+            showFullTermsDialog()
+        }
+
+        binding.llTermsSection.setOnClickListener {
+            if (!preferencesManager.hasAcceptedTerms) {
+                showFullTermsDialog()
+            }
+        }
+
         binding.tvReadTermsLink.setOnClickListener {
-            showTermsDialog()
+            showFullTermsDialog()
         }
 
         // Activate Button
@@ -282,8 +305,9 @@ class SetupActivity : AppCompatActivity() {
 
 
     private fun activatePasa() {
-        if (!binding.cbAcceptTerms.isChecked) {
-            Toast.makeText(this, getString(R.string.terms_required_error), Toast.LENGTH_LONG).show()
+        if (!preferencesManager.hasAcceptedTerms || !binding.cbAcceptTerms.isChecked) {
+            Toast.makeText(this, "⚠️ You must review and accept the full Terms of Service & EULA before activation.", Toast.LENGTH_LONG).show()
+            showFullTermsDialog()
             binding.cbAcceptTerms.requestFocus()
             return
         }
@@ -589,35 +613,138 @@ class SetupActivity : AppCompatActivity() {
         }
     }
 
-    private fun showTermsDialog() {
-        val termsText = """
-            🛡️ PASA SENTINEL — TERMS OF SERVICE & EULA
-            Effective Date: September 20, 2026
+    private fun showFullTermsDialog() {
+        val dialog = android.app.Dialog(this)
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
+        val dialogBinding = com.izhaanintellect.pasa.databinding.DialogFullTermsBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
 
-            1. LAWFUL OWNERSHIP & ZERO STALKERWARE
-            You represent and warrant that you are the sole lawful owner of this physical device. Deploying PASA Sentinel without the informed consent of the device user is strictly prohibited and violates international cybercrime statutes.
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT
+        )
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-            2. IRREVERSIBLE EMERGENCY ACTIONS
-            Remote Wipe (/wipe), Cryptographic Shredding (/shred), and Knox Hardware Lockdown (/lock) are intentionally destructive countermeasures. The developer disclaims all liability for data loss or hardware lockout.
+        dialogBinding.tvFullTermsBody.text = getFullTermsHtml()
 
-            3. FORENSIC TELEMETRY & PRIVACY
-            PASA Sentinel captures camera snapshots, ambient audio, and satellite GPS coordinates for theft recovery. You are solely responsible for compliance with local two-party recording laws.
+        var hasReachedBottom = preferencesManager.hasAcceptedTerms
+        if (hasReachedBottom) {
+            dialogBinding.pbReadingProgress.progress = 100
+            dialogBinding.tvReadingProgressBadge.text = "100%"
+            dialogBinding.tvReadingProgressBadge.setTextColor(Color.parseColor("#22E07A"))
+            dialogBinding.tvScrollNotice.text = "✅ Complete terms reviewed. You may accept or decline."
+            dialogBinding.tvScrollNotice.setTextColor(Color.parseColor("#22E07A"))
+            dialogBinding.btnAcceptFullTerms.isEnabled = true
+            dialogBinding.btnAcceptFullTerms.alpha = 1.0f
+        }
 
-            4. SOVEREIGN DEFENSE ARCHITECTURE
-            Your private bot via @BotFather provides 100% sovereign, zero-trust defense. Your credentials remain exclusively on your device.
+        dialogBinding.nsvTerms.setOnScrollChangeListener { v: androidx.core.widget.NestedScrollView, _, scrollY, _, _ ->
+            val child = v.getChildAt(0)
+            if (child != null) {
+                val totalScroll = child.measuredHeight - v.measuredHeight
+                if (totalScroll > 0) {
+                    val progress = ((scrollY.toFloat() / totalScroll.toFloat()) * 100).toInt().coerceIn(0, 100)
+                    dialogBinding.pbReadingProgress.progress = progress
+                    dialogBinding.tvReadingProgressBadge.text = "$progress%"
 
-            Full legal terms are published at:
-            https://pasa.izhaanintellect.fun/terms
+                    val diff = child.bottom - (v.height + scrollY)
+                    if (diff <= 64 || progress >= 98) {
+                        if (!hasReachedBottom) {
+                            hasReachedBottom = true
+                            dialogBinding.pbReadingProgress.progress = 100
+                            dialogBinding.tvReadingProgressBadge.text = "100%"
+                            dialogBinding.tvReadingProgressBadge.setTextColor(Color.parseColor("#22E07A"))
+                            dialogBinding.tvScrollNotice.text = "✅ Complete terms reviewed. You may now accept."
+                            dialogBinding.tvScrollNotice.setTextColor(Color.parseColor("#22E07A"))
+                            dialogBinding.btnAcceptFullTerms.isEnabled = true
+                            dialogBinding.btnAcceptFullTerms.alpha = 1.0f
+                            v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                        }
+                    }
+                }
+            }
+        }
+
+        dialogBinding.btnAcceptFullTerms.setOnClickListener {
+            preferencesManager.hasAcceptedTerms = true
+            binding.cbAcceptTerms.isChecked = true
+            dialog.dismiss()
+            Toast.makeText(this, "✅ Terms of Service & EULA Accepted", Toast.LENGTH_SHORT).show()
+        }
+
+        dialogBinding.btnDeclineTerms.setOnClickListener {
+            preferencesManager.hasAcceptedTerms = false
+            binding.cbAcceptTerms.isChecked = false
+            dialog.dismiss()
+            Toast.makeText(this, "❌ Terms Declined. Acceptance is required to activate PASA.", Toast.LENGTH_LONG).show()
+        }
+
+        dialog.show()
+    }
+
+    private fun getFullTermsHtml(): Spanned {
+        val html = """
+            <p><font color="#00E5FF"><b>PASA SENTINEL — END-USER LICENSE AGREEMENT &amp; TERMS OF SERVICE</b></font><br/>
+            <font color="#94A3B8"><b>Effective Date:</b> September 20, 2026 | <b>Version:</b> 3.5.9 (Build 55)<br/>
+            <b>Provider:</b> Izhaan Intellect &amp; The PASA Sentinel Security Engineering Team</font></p>
+
+            <p><font color="#F59E0B"><b>⚠️ MANDATORY LEGAL NOTICE — READ CAREFULLY BEFORE ACTIVATION:</b></font><br/>
+            <font color="#E2E8F0">By installing, launching, configuring, or activating PASA Sentinel on any hardware device, or by linking it to any Telegram Command &amp; Control (C2) channel or web gateway, you ("User", "Administrator", "Licensee", "You") unconditionally agree to be bound by all the terms, conditions, representations, and warranties set forth in this Agreement. If you do not agree to these terms, you must immediately decline and permanently remove this application.</font></p>
+
+            <p><font color="#38BDF8"><b>1. LAWFUL OWNERSHIP &amp; ZERO STALKERWARE CERTIFICATION</b></font><br/>
+            <font color="#E2E8F0"><b>1.1 Sole Ownership Warranty:</b> You expressly represent, warrant, and certify under penalty of perjury that you are the sole legal owner of this physical Android device, or a designated enterprise IT administrator acting with explicit corporate authority and written end-user consent.<br/>
+            <b>1.2 Anti-Stalkerware Prohibition:</b> PASA Sentinel is engineered, distributed, and licensed <b>exclusively as a sovereign defensive countermeasure</b> against physical theft, violent snatching, unauthorized device tampering, and extortion. Under no circumstances may PASA Sentinel be deployed covertly onto a spouse's, partner's, child's, employee's, or third party's personal device without continuous, informed written consent. Unauthorized surveillance is a serious criminal offense under international cybercrime statutes (including U.S. CFAA 18 U.S.C. § 1030, ECPA 18 U.S.C. § 2510, EU GDPR/ePrivacy, and Bangladesh Cyber Security Act).</font></p>
+
+            <p><font color="#38BDF8"><b>2. EMERGENCY COUNTERMEASURES &amp; IRREVERSIBLE DATA LOSS</b></font><br/>
+            <font color="#E2E8F0"><b>2.1 Hardware Countermeasures:</b> PASA Sentinel equips the administrator with hardware-grade countermeasures intended to protect corporate or personal confidentiality in extreme compromise scenarios:
+            <br/>• <b>Remote Factory Reset (<code>/wipe</code>, <code>/wipe_confirm</code>):</b> Triggers irreversible hardware sanitization destroying all data, cryptographic keys, and system states.
+            <br/>• <b>Cryptographic File Shredding (<code>/shred</code>):</b> Overwrites target directory trees with zero-fill entropy buffers before file deletion.
+            <br/>• <b>Hardware OS PIN Reset (<code>/set_os_pin</code>):</b> Overwrites the Android lockscreen credential via Device Owner cryptographic Escrow Tokens.
+            <br/>• <b>Knox Kiosk Lockdown (<code>/lock</code>):</b> Completely suppresses Android UI navigation, status bars, and hardware key handlers.<br/>
+            <b>2.2 Zero Liability Disclaimer:</b> YOU ACKNOWLEDGE THAT EMERGENCY ACTIONS ARE DESTRUCTIVE AND IRREVERSIBLE BY DESIGN. The developer disclaims all liability for accidental wipe execution, loss of personal data or cryptocurrency wallets, or hardware lockouts resulting from forgotten passwords.</font></p>
+
+            <p><font color="#38BDF8"><b>3. FORENSIC TELEMETRY &amp; WIRETAP LAW COMPLIANCE</b></font><br/>
+            <font color="#E2E8F0"><b>3.1 Forensic Evidence Collection:</b> When armed, in Lost Mode, or triggered by intrusion traps (snatch detection, power disconnect, SIM ejection, screen touch in Lost Mode, or failed unlock attempts), PASA Sentinel autonomously captures satellite GNSS coordinates, silent front/rear camera mugshots, ambient microphone recordings, and screen captures.<br/>
+            <b>3.2 Compliance with Recording Laws:</b> Certain jurisdictions enforce strict two-party (all-party) audio recording consent. You alone are responsible for verifying compliance with local wiretapping laws. Forensic evidence may only be used for legitimate crime reporting and device recovery.</font></p>
+
+            <p><font color="#38BDF8"><b>4. TELEGRAM COMMAND &amp; CONTROL (C2) ARCHITECTURE</b></font><br/>
+            <font color="#E2E8F0"><b>4.1 Sovereign Direct Bot vs. VPS Gateway:</b> PASA supports both sovereign private bot tokens (via @BotFather) and multi-tenant VPS control plane gateways. In private bot mode, no telemetry passes through third-party servers.<br/>
+            <b>4.2 Telegram Account Security:</b> You are solely responsible for securing your personal Telegram account with Two-Step Verification (2FA) and biometric passcodes. Anyone with access to your Telegram client can dispatch administrative commands to your device.</font></p>
+
+            <p><font color="#38BDF8"><b>5. DUAL-USE EXPORT CONTROLS &amp; TRADE SANCTIONS</b></font><br/>
+            <font color="#E2E8F0">PASA Sentinel implements kernel-level cryptography (AES-256-GCM, StrongBox Keymaster, TEE) and administrative hardware lockout mechanisms classified as dual-use technologies under international trade frameworks (including the Wassenaar Arrangement and U.S. Export Administration Regulations - EAR). You certify that you are not located in, nor a resident or national of, any embargoed jurisdiction and are not listed on any denied persons or SDN lists.</font></p>
+
+            <p><font color="#38BDF8"><b>6. DISCLAIMER OF WARRANTIES ("AS-IS")</b></font><br/>
+            <font color="#E2E8F0">PASA SENTINEL IS PROVIDED ON AN "AS-IS" AND "AS-AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. PROVIDER DOES NOT WARRANT UNINTERRUPTED AVAILABILITY, FREEDOM FROM BUGS, OR THAT TELEMETRY TRANSMISSION CAN OVERCOME PHYSICAL HARDWARE DESTRUCTION OR RF FARADAY SHIELDING.</font></p>
+
+            <p><font color="#38BDF8"><b>7. LIMITATION OF LIABILITY &amp; INDEMNIFICATION</b></font><br/>
+            <font color="#E2E8F0"><b>7.1 Liability Cap:</b> Under no circumstances shall Provider's total aggregate liability exceed the purchase price paid for your PASA Sentinel license.<br/>
+            <b>7.2 Hold Harmless:</b> You agree to defend, indemnify, and hold harmless Izhaan Intellect and its developers against any legal claims, damages, or fines arising from unlawful deployment, privacy violations, or emergency wipe data loss.</font></p>
+
+            <p><font color="#38BDF8"><b>8. SOVEREIGN ZERO-TELEMETRY &amp; ZERO-STORAGE OATH</b></font><br/>
+            <font color="#E2E8F0">Provider adheres to a strict Zero-Storage Architecture. No surveillance photos, audio wiretaps, or GPS coordinates are ever written to server disk or cloud databases. Evidence streams directly to your Telegram bot and is instantly shredded from device RAM.</font></p>
+
+            <p><font color="#38BDF8"><b>9. COMMERCIAL LICENSING &amp; 7-DAY MONEY-BACK GUARANTEE</b></font><br/>
+            <font color="#E2E8F0">Every commercial license (Pro Lifetime $25 USD / ৳3,000 BDT or Enterprise Fleet $99 USD / ৳12,000 BDT) is backed by an unconditional 7-day money-back guarantee via Binance Pay (0% fees) or bKash personal transfer.</font></p>
+
+            <p><font color="#38BDF8"><b>10. TERMINATION &amp; REVOCATION</b></font><br/>
+            <font color="#E2E8F0">Provider reserves the right to terminate license keys or revoke gateway access without notice upon detection of abusive activity, stalkerware deployment, or reverse engineering attempts.</font></p>
+
+            <p><font color="#38BDF8"><b>11. GOVERNING LAW &amp; EXCLUSIVE JURISDICTION</b></font><br/>
+            <font color="#E2E8F0">This Agreement is governed by the substantive laws of Bangladesh. Any dispute arising out of or in connection with this software shall be submitted to the exclusive jurisdiction of the competent courts in <b>Dhaka, Bangladesh</b>.</font></p>
+
+            <p><font color="#38BDF8"><b>12. OFFICIAL CONTACT &amp; DISCLOSURE</b></font><br/>
+            <font color="#E2E8F0">Support &amp; Inquiries: support@izhaanintellect.fun<br/>
+            WhatsApp Security Desk: +880 1762-033445<br/>
+            Official Legal Portal: https://pasa.izhaanintellect.fun/terms.html</font></p>
         """.trimIndent()
 
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("📜 Terms of Service & EULA")
-            .setMessage(termsText)
-            .setPositiveButton("I Agree & Certify Ownership") { _, _ ->
-                binding.cbAcceptTerms.isChecked = true
-            }
-            .setNegativeButton("Close", null)
-            .show()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
+        } else {
+            @Suppress("DEPRECATION")
+            Html.fromHtml(html)
+        }
     }
 }
 

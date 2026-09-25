@@ -333,6 +333,10 @@ class PreferencesManager @Inject constructor(
         get() = prefs.getString("api_key", "") ?: ""
         set(value) = prefs.edit().putString("api_key", value).apply()
 
+    var hasAcceptedTerms: Boolean
+        get() = prefs.getBoolean("has_accepted_terms", false)
+        set(value) = prefs.edit().putBoolean("has_accepted_terms", value).apply()
+
     // --- Cryptographic Security Settings (ASTRA Hardened Layer) ---
 
     var replayHighWaterMark: Long
