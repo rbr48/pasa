@@ -1954,7 +1954,7 @@ table.matrix tbody tr:last-child td{border-bottom:none}
             <a href="/releases/pasa-latest.apk" class="hero-btn primary" download>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
               <span data-i18n="hero_cta_apk">Download APK</span>
-              <span class="btn-tag">v3.5.8</span>
+              <span class="btn-tag">v3.5.9</span>
             </a>
 
             <a href="/releases/PASA-Device-Owner-Setup-Kit.zip" class="hero-btn secondary" download>
@@ -2684,8 +2684,8 @@ table.matrix tbody tr:last-child td{border-bottom:none}
         <a href="#pricing" data-i18n="nav_pricing">Licensing</a>
         <a href="/manual.html" style="color:var(--cyan);font-weight:600">📖 Field Manual (EN/BN)</a>
         <a href="/AUDIT_TRAIL.md" style="color:var(--txt-2)">📋 System Audit Trail</a>
-        <a href="https://www.virustotal.com/gui/file/592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5" target="_blank" rel="noopener" style="color:var(--green);font-weight:600">🛡️ VirusTotal Clean (70+ AV) ↗</a>
-        <a href="/audit/PASA-Security-Audit-SARIF-v3.5.8.zip" style="color:var(--cyan);font-weight:600">📦 Security Audit (SARIF) ↗</a>
+        <a href="https://www.virustotal.com/gui/file/a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b" target="_blank" rel="noopener" style="color:var(--green);font-weight:600">🛡️ VirusTotal Clean (70+ AV) ↗</a>
+        <a href="/audit/PASA-Security-Audit-SARIF-v3.5.9.zip" style="color:var(--cyan);font-weight:600">📦 Security Audit (SARIF) ↗</a>
       </div>
       <div class="foot-col">
         <h5>Tactical Intel</h5>
@@ -2769,7 +2769,7 @@ const translations = {
     hero_chip_knox:"Knox Supervisor",
     hero_chip_sms:"Air-Gapped SMS C2",
     hero_scan_qr:"Scan QR",
-    audit_modal_title:"🛡️ INDEPENDENT SECURITY AUDIT // PASA v3.5.8",
+    audit_modal_title:"🛡️ INDEPENDENT SECURITY AUDIT // PASA v3.5.9",
     audit_modal_lede:"PASA Sentinel undergoes rigorous multi-engine security audits, cryptographic verification, and static application security testing (SAST) prior to every production release.",
     audit_btn_download:"Download SARIF Bundle (.zip • 265 KB)",
     audit_btn_vt:"Live VirusTotal Scan ↗",
@@ -3799,7 +3799,7 @@ function toggleAuditModal(e){
 }
 
 function copyAuditHash(btn){
-  const hash = document.getElementById('auditHashVal')?.innerText || '592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5';
+  const hash = document.getElementById('auditHashVal')?.innerText || 'a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b';
   navigator.clipboard.writeText(hash.trim()).then(()=>{
     const orig = btn.innerText;
     btn.innerText = 'COPIED!';
@@ -3856,9 +3856,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
       </div>
       <div class="qr-instructions">
         <h5>Scan with Android Camera</h5>
-        <p>Point your phone's camera at this QR code to download and install <b>pasa-latest.apk (v3.5.8)</b> directly without connecting to PC.</p>
+        <p>Point your phone's camera at this QR code to download and install <b>pasa-latest.apk (v3.5.9)</b> directly without connecting to PC.</p>
         <div class="qr-meta">
-          <span>SHA-256: <code>592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5</code></span>
+          <span>SHA-256: <code>a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b</code></span>
           <span>Direct URL: <a href="https://pasa.izhaanintellect.fun/releases/pasa-latest.apk" target="_blank">pasa.izhaanintellect.fun/releases/pasa-latest.apk</a></span>
         </div>
       </div>
@@ -3872,7 +3872,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="audit-modal-header">
       <div class="audit-modal-title">
         <span class="audit-pulse-beacon"></span>
-        <span data-i18n="audit_modal_title">🛡️ INDEPENDENT SECURITY AUDIT // PASA v3.5.8</span>
+        <span data-i18n="audit_modal_title">🛡️ INDEPENDENT SECURITY AUDIT // PASA v3.5.9</span>
       </div>
       <button type="button" class="audit-modal-close" onclick="toggleAuditModal()" aria-label="Close">✕</button>
     </div>
@@ -3883,7 +3883,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
       <div class="audit-summary-grid">
         <!-- VirusTotal -->
-        <a href="https://www.virustotal.com/gui/file/592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5" target="_blank" rel="noopener" class="audit-grid-card">
+        <a href="https://www.virustotal.com/gui/file/a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b" target="_blank" rel="noopener" class="audit-grid-card">
           <div class="audit-card-icon">🌐</div>
           <div class="audit-card-score" style="color:var(--green)">0 / 70 CLEAN</div>
           <div class="audit-card-title">VirusTotal Multi-AV</div>
@@ -3913,17 +3913,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <span class="hash-tag">CRYPTOGRAPHIC INTEGRITY (SHA-256)</span>
           <button type="button" class="hash-copy-btn" onclick="copyAuditHash(this)">COPY HASH</button>
         </div>
-        <div class="audit-hash-target">Target Binary: <code>pasa-v3.5.8-54.apk</code> (18.4 MB • Signed Scheme v2)</div>
-        <code class="audit-hash-val" id="auditHashVal">592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5</code>
+        <div class="audit-hash-target">Target Binary: <code>pasa-v3.5.9-55.apk</code> (18.3 MB • Signed Scheme v2)</div>
+        <code class="audit-hash-val" id="auditHashVal">a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b</code>
       </div>
 
       <!-- Actions -->
       <div class="audit-modal-actions">
-        <a href="/audit/PASA-Security-Audit-SARIF-v3.5.8.zip" class="btn-audit-download" download>
+        <a href="/audit/PASA-Security-Audit-SARIF-v3.5.9.zip" class="btn-audit-download" download>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
           <span data-i18n="audit_btn_download">Download SARIF Bundle (.zip • 265 KB)</span>
         </a>
-        <a href="https://www.virustotal.com/gui/file/592f4f4507c12b3c88053cf536110652431706204ba8bb971088ae3ad9b5cec5" target="_blank" rel="noopener" class="btn-audit-vt">
+        <a href="https://www.virustotal.com/gui/file/a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b" target="_blank" rel="noopener" class="btn-audit-vt">
           <span data-i18n="audit_btn_vt">Live VirusTotal Scan ↗</span>
         </a>
       </div>

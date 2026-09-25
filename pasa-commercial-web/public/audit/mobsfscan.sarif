@@ -144,34 +144,6 @@
               }
             },
             {
-              "id": "android_safetynet",
-              "help": {
-                "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity. This check helps to ensure that the servers are interacting with the genuine app running on a genuine Android device.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1"
-              },
-              "name": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity (CWE-353)",
-              "properties": {
-                "tags": [
-                  "security",
-                  "external/cwe/cwe-353",
-                  "owasp-mobile/m8",
-                  "masvs/resilience-1"
-                ],
-                "precision": "medium",
-                "security-severity": "2.0",
-                "problem.severity": "note"
-              },
-              "defaultConfiguration": {
-                "level": "note"
-              },
-              "fullDescription": {
-                "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity. This check helps to ensure that the servers are interacting with the genuine app running on a genuine Android device."
-              },
-              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
-              "shortDescription": {
-                "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity (CWE-353)"
-              }
-            },
-            {
               "id": "android_root_detection",
               "help": {
                 "text": "This app does not have root detection capabilities. Running a sensitive application on a rooted device questions the device integrity and affects users data.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1"
@@ -197,6 +169,34 @@
               "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
               "shortDescription": {
                 "text": "This app does not have root detection capabilities (CWE-919)"
+              }
+            },
+            {
+              "id": "android_certificate_transparency",
+              "help": {
+                "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4"
+              },
+              "name": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority (CWE-295)",
+              "properties": {
+                "tags": [
+                  "security",
+                  "external/cwe/cwe-295",
+                  "owasp-mobile/m3",
+                  "masvs/network-4"
+                ],
+                "precision": "medium",
+                "security-severity": "2.0",
+                "problem.severity": "note"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "fullDescription": {
+                "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority."
+              },
+              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
+              "shortDescription": {
+                "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority (CWE-295)"
               }
             },
             {
@@ -228,17 +228,17 @@
               }
             },
             {
-              "id": "android_prevent_screenshot",
+              "id": "android_safetynet",
               "help": {
-                "text": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#finding-sensitive-information-in-auto-generated-screenshots-mstg-storage-9"
+                "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity. This check helps to ensure that the servers are interacting with the genuine app running on a genuine Android device.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1"
               },
-              "name": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc (CWE-200)",
+              "name": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity (CWE-353)",
               "properties": {
                 "tags": [
                   "security",
-                  "external/cwe/cwe-200",
-                  "owasp-mobile/m2",
-                  "masvs/storage-9"
+                  "external/cwe/cwe-353",
+                  "owasp-mobile/m8",
+                  "masvs/resilience-1"
                 ],
                 "precision": "medium",
                 "security-severity": "2.0",
@@ -248,39 +248,11 @@
                 "level": "note"
               },
               "fullDescription": {
-                "text": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc."
+                "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity. This check helps to ensure that the servers are interacting with the genuine app running on a genuine Android device."
               },
-              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#finding-sensitive-information-in-auto-generated-screenshots-mstg-storage-9",
+              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
               "shortDescription": {
-                "text": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc (CWE-200)"
-              }
-            },
-            {
-              "id": "android_certificate_transparency",
-              "help": {
-                "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4"
-              },
-              "name": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority (CWE-295)",
-              "properties": {
-                "tags": [
-                  "security",
-                  "external/cwe/cwe-295",
-                  "owasp-mobile/m3",
-                  "masvs/network-4"
-                ],
-                "precision": "medium",
-                "security-severity": "2.0",
-                "problem.severity": "note"
-              },
-              "defaultConfiguration": {
-                "level": "note"
-              },
-              "fullDescription": {
-                "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority."
-              },
-              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
-              "shortDescription": {
-                "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority (CWE-295)"
+                "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity (CWE-353)"
               }
             },
             {
@@ -320,7 +292,7 @@
       "invocations": [
         {
           "executionSuccessful": true,
-          "endTimeUtc": "2026-09-24T18:15:54Z"
+          "endTimeUtc": "2026-09-25T01:51:20Z"
         }
       ],
       "results": [
@@ -26824,39 +26796,6 @@
         },
         {
           "message": {
-            "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity. This check helps to ensure that the servers are interacting with the genuine app running on a genuine Android device."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "Missing Best Practice"
-                  },
-                  "endColumn": 1,
-                  "endLine": 1,
-                  "startColumn": 1,
-                  "startLine": 1
-                },
-                "artifactLocation": {
-                  "uri": "."
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M8: Code Tampering",
-            "masvs": "MSTG-RESILIENCE-1",
-            "cwe": "CWE-353: Missing Support for Integrity Check",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_safetynet",
-          "ruleIndex": 5
-        },
-        {
-          "message": {
             "text": "This app does not have root detection capabilities. Running a sensitive application on a rooted device questions the device integrity and affects users data."
           },
           "level": "note",
@@ -26886,6 +26825,39 @@
             "security-severity": "2.0"
           },
           "ruleId": "android_root_detection",
+          "ruleIndex": 5
+        },
+        {
+          "message": {
+            "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "Missing Best Practice"
+                  },
+                  "endColumn": 1,
+                  "endLine": 1,
+                  "startColumn": 1,
+                  "startLine": 1
+                },
+                "artifactLocation": {
+                  "uri": "."
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M3: Insecure Communication",
+            "masvs": "MSTG-NETWORK-4",
+            "cwe": "CWE-295: Improper Certificate Validation",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_certificate_transparency",
           "ruleIndex": 6
         },
         {
@@ -26923,7 +26895,7 @@
         },
         {
           "message": {
-            "text": "This app does not have capabilities to prevent against Screenshots from Recent Task History/ Now On Tap etc."
+            "text": "This app does not uses SafetyNet Attestation API that provides cryptographically-signed attestation, assessing the device's integrity. This check helps to ensure that the servers are interacting with the genuine app running on a genuine Android device."
           },
           "level": "note",
           "locations": [
@@ -26945,47 +26917,14 @@
             }
           ],
           "properties": {
-            "owasp-mobile": "M2: Insecure Data Storage",
-            "masvs": "MSTG-STORAGE-9",
-            "cwe": "CWE-200: Information Exposure",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#finding-sensitive-information-in-auto-generated-screenshots-mstg-storage-9",
+            "owasp-mobile": "M8: Code Tampering",
+            "masvs": "MSTG-RESILIENCE-1",
+            "cwe": "CWE-353: Missing Support for Integrity Check",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
             "security-severity": "2.0"
           },
-          "ruleId": "android_prevent_screenshot",
+          "ruleId": "android_safetynet",
           "ruleIndex": 8
-        },
-        {
-          "message": {
-            "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "Missing Best Practice"
-                  },
-                  "endColumn": 1,
-                  "endLine": 1,
-                  "startColumn": 1,
-                  "startLine": 1
-                },
-                "artifactLocation": {
-                  "uri": "."
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M3: Insecure Communication",
-            "masvs": "MSTG-NETWORK-4",
-            "cwe": "CWE-295: Improper Certificate Validation",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_certificate_transparency",
-          "ruleIndex": 9
         },
         {
           "message": {
@@ -27018,7 +26957,7 @@
             "security-severity": "2.0"
           },
           "ruleId": "android_ssl_pinning",
-          "ruleIndex": 10
+          "ruleIndex": 9
         }
       ]
     }

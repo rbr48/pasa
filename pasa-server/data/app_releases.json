@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 55,
+    "versionName": "3.5.9",
+    "releaseDate": "2026-09-25",
+    "fileName": "pasa-v3.5.9-55.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.5.9-55.apk",
+    "sha256": "a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b",
+    "size": 19234190,
+    "mandatory": false,
+    "releaseNotes": "v3.5.9: Sovereign Hardening & Independent Audit Compliance — Complete R8 bytecode log stripping (CWE-532), SetupActivity anti-snooping FLAG_SECURE and keyboard IME dictionary learning prevention, Cloudflare-resilient multi-root CA certificate pinning for sovereign C2 infrastructure, and explicit domain network security policy."
+  },
+  {
     "versionCode": 54,
     "versionName": "3.5.8",
     "releaseDate": "2026-09-24",

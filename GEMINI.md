@@ -79,7 +79,7 @@ e:/Projects/PrivateApp/
 │       ├── favicon.png                  # PASA logo
 │       ├── assets/img/                  # Logo, bKash icon, and enterprise provisioning QR SVGs
 │       ├── releases/                    # Hosted production binaries
-│       │   ├── pasa-latest.apk          # Current production APK (v3.5.8-54)
+│       │   ├── pasa-latest.apk          # Current production APK (v3.5.9-55)
 │       │   └── PASA-Device-Owner-Setup-Kit.zip # Windows guided setup wizard
 │       ├── privacy.html                 # Privacy policy
 │       └── terms.html                   # Terms of service
@@ -88,7 +88,7 @@ e:/Projects/PrivateApp/
 │   ├── setup.ps1                        # 6-step guided PowerShell wizard (ADB download → DPM provisioning)
 │   └── README.md                        # Full docs: T&Cs, why accounts must be removed, troubleshooting
 ├── releases/                            # Git-tracked release binaries & distribution packages
-│   ├── pasa-v3.5.8-54.apk               # Current signed production APK
+│   ├── pasa-v3.5.9-55.apk               # Current signed production APK
 │   ├── pasa-latest.apk                  # Symlink → current APK
 │   ├── PASA-Device-Owner-Setup-Kit.zip  # Current Windows setup kit (12 KB, no APK bundled)
 │   └── PASA-Setup-Kit-v3.5.4.zip        # Legacy versioned kit
@@ -476,4 +476,22 @@ This section records significant architectural decisions and code changes made i
   - **Dual-SIM Remote Calling (`/call`):** Remotely places phone calls with explicit SIM slot binding via `TelecomManager.placeCall()` and `EXTRA_PHONE_ACCOUNT_HANDLE`. Supports `/call <number> [sim1|sim2] [speaker|earpiece]` and `/call status` to view active call-capable accounts.
   - **Unified Extraction Pagination & Document Exports:** Implemented across `/contacts`, `/sms_log`, `/call_log`, `/history`, and `/list_files`. Each command supports paging (`<command> <page>`), instant `.txt` file export (`<command> export`), and keyword search (`<command> search <query>`).
   - **Network Continuity Guarantee:** When `/sim_tray_lock` engages, PASA is explicitly exempted from package suspension, preserving full cellular data, Wi-Fi, and SMS command channels. Quick settings lockout prevents disabling Wi-Fi/mobile data.
+
+### 8.12 Production Release v3.5.9 (Build 55)
+* **Release Date:** 2026-09-25
+* **Version Name:** `3.5.9` | **Version Code:** `55`
+* **Artifact:** `releases/pasa-v3.5.9-55.apk` (18.34 MB, 19,234,190 bytes)
+* **SHA-256:** `a217075d4a7196b68bffd958222f11fb49054a3a64be904c489099a9132eb68b`
+* **SHA-1:** `039c0ebba367763b52cf61e6df86915cb0607a6d`
+* **MD5:** `153f709f793cddf7739b4725da744829`
+* **Signing Key:** `pasa-release-key.jks` (v2 Scheme signed)
+* **Host Endpoints:**
+  - OTA Check: `GET https://pasa.izhaanintellect.fun/api/app/latest`
+  - Direct Download: `https://pasa.izhaanintellect.fun/releases/pasa-v3.5.9-55.apk`
+  - Latest Symlink: `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`
+* **Release Highlights:**
+  - **Complete R8 Bytecode Log Stripping (CWE-532 Compliance):** Configured `-assumenosideeffects` across all `android.util.Log` and `PrintStream` calls in `proguard-rules.pro`, completely eliminating plaintext log exposure from release DEX bytecode while preserving uncaught exception crash reporting.
+  - **SetupActivity Defense Hardening:** Added `WindowManager.LayoutParams.FLAG_SECURE` preventing OS recents screenshots, casts, and video recording during credential provisioning. Enforced `EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING` across master password, bot token, and chat ID fields to block third-party/Gboard dictionary caching.
+  - **Cloudflare-Resilient Multi-Root CA Certificate Pinning:** Configured OkHttp `CertificatePinner` for `pasa.izhaanintellect.fun` and `*.izhaanintellect.fun` with 6 trusted root and leaf pins (ISRG Root X1, GTS Root R1/R4, GlobalSign ECC Root R4, GlobalSign Root CA, and current Leaf SPKI). Prevents rogue CA interception while ensuring Cloudflare edge rotations will never brick sovereign client connectivity.
+  - **Explicit Domain Network Security Policy:** Enforced `<domain-config cleartextTrafficPermitted="false">` in `network_security_config.xml` restricting C2 communication to system CAs and zero cleartext traffic.
 
