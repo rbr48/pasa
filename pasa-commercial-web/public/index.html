@@ -2039,7 +2039,6 @@ table.matrix tbody tr:last-child td{border-bottom:none}
             <a href="/releases/pasa-latest.apk" class="hero-btn primary" download>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>
               <span data-i18n="hero_cta_apk">Download APK</span>
-              <span class="btn-tag">v3.6.7</span>
             </a>
 
             <a href="/releases/PASA-Device-Owner-Setup-Kit.zip" class="hero-btn secondary" download>
@@ -2907,7 +2906,7 @@ const translations = {
     hero_chip_knox:"Knox Supervisor",
     hero_chip_sms:"Air-Gapped SMS C2",
     hero_scan_qr:"Scan QR",
-    audit_modal_title:"🛡️ INDEPENDENT SECURITY AUDIT // PASA v3.6.7",
+    audit_modal_title:"🛡️ INDEPENDENT SECURITY AUDIT // PASA Sentinel",
     audit_modal_lede:"PASA Sentinel undergoes rigorous multi-engine security audits, cryptographic verification, and static application security testing (SAST) prior to every production release.",
     audit_btn_download:"Download SARIF Bundle (.zip • 265 KB)",
     audit_btn_vt:"Live VirusTotal Scan ↗",
@@ -3008,7 +3007,7 @@ const translations = {
     hero_chip_knox:"নক্স সুপারভাইজার",
     hero_chip_sms:"অফলাইন এসএমএস সি২",
     hero_scan_qr:"কিউআর স্ক্যান",
-    audit_modal_title:"🛡️ স্বাধীন সিকিউরিটি অডিট // পাসা ৩.৬.০",
+    audit_modal_title:"🛡️ স্বাধীন সিকিউরিটি অডিট // পাসা সেন্টিনেল",
     audit_modal_lede:"পাসা সেন্টিনেলের প্রতিটি রিলিজ ৭০টির বেশি নেতৃস্থানীয় অ্যান্টিভাইরাস ইঞ্জিন, গিটহাব কোডকিউএল এবং মোবএসএফ-এর মাধ্যমে কঠোরভাবে পরীক্ষিত ও প্রত্যয়িত।",
     audit_btn_download:"সার্বিক SARIF অডিট বান্ডেল (.zip • ২৬৫ KB)",
     audit_btn_vt:"লাইভ VirusTotal স্ক্যান ↗",
@@ -4049,9 +4048,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
       </div>
       <div class="qr-instructions">
         <h5>Scan with Android Camera</h5>
-        <p>Point your phone's camera at this QR code to download and install <b>pasa-latest.apk (v3.6.7)</b> directly without connecting to PC.</p>
+        <p>Point your phone's camera at this QR code to download and install <b>pasa-latest.apk</b> directly without connecting to PC.</p>
         <div class="qr-meta">
-          <span>SHA-256: <code>b10ab5be4e4a47a361c4f08bc8f6d46e328a810ab97d3aa01711187acc828dcf</code></span>
+          <span>SHA-256: <code>3ab959d553d316d0690e07edc292b03d00f154d38f855bbb55103b0cac5e7558</code></span>
           <span>Direct URL: <a href="https://pasa.izhaanintellect.fun/releases/pasa-latest.apk" target="_blank">pasa.izhaanintellect.fun/releases/pasa-latest.apk</a></span>
         </div>
       </div>
@@ -4065,7 +4064,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="audit-modal-header">
       <div class="audit-modal-title">
         <span class="audit-pulse-beacon"></span>
-        <span data-i18n="audit_modal_title">🛡️ INDEPENDENT SECURITY AUDIT // PASA v3.6.7</span>
+        <span data-i18n="audit_modal_title">🛡️ INDEPENDENT SECURITY AUDIT // PASA Sentinel</span>
       </div>
       <button type="button" class="audit-modal-close" onclick="toggleAuditModal()" aria-label="Close">✕</button>
     </div>
@@ -4106,8 +4105,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <span class="hash-tag">CRYPTOGRAPHIC INTEGRITY (SHA-256)</span>
           <button type="button" class="hash-copy-btn" onclick="copyAuditHash(this)">COPY HASH</button>
         </div>
-        <div class="audit-hash-target">Target Binary: <code>pasa-v3.6.7-63.apk</code> (18.3 MB • Signed Scheme v2)</div>
-        <code class="audit-hash-val" id="auditHashVal">b10ab5be4e4a47a361c4f08bc8f6d46e328a810ab97d3aa01711187acc828dcf</code>
+        <div class="audit-hash-target">Target Binary: <code>pasa-latest.apk</code> (Signed Scheme v2)</div>
+        <code class="audit-hash-val" id="auditHashVal">3ab959d553d316d0690e07edc292b03d00f154d38f855bbb55103b0cac5e7558</code>
       </div>
 
       <!-- Actions -->
