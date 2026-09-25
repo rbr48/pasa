@@ -129,16 +129,22 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
     };
   }
 
-  function getDeviceLicenseStatus(deviceHash) {
+  function getDeviceLicenseStatus(deviceHashOrId) {
     const now = Date.now();
     let foundLic = null;
 
-    // Scan all licenses for this deviceHash
+    // 1. Scan all licenses for this deviceHash or deviceId
     for (const key of Object.keys(licenses)) {
       const lic = licenses[key];
-      if (lic && Array.isArray(lic.activatedDeviceHashes) && lic.activatedDeviceHashes.includes(deviceHash)) {
-        foundLic = lic;
-        break;
+      if (lic) {
+        if (Array.isArray(lic.activatedDeviceHashes) && lic.activatedDeviceHashes.includes(deviceHashOrId)) {
+          foundLic = lic;
+          break;
+        }
+        if (Array.isArray(lic.activatedDevices) && lic.activatedDevices.includes(deviceHashOrId)) {
+          foundLic = lic;
+          break;
+        }
       }
     }
 
@@ -159,7 +165,7 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
       }
       // Active — issue fresh 7-day certificate
       const certExpiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000);
-      const cert = signDeviceCertificate(deviceHash, foundLic.tier, certExpiresAt, foundLic.key);
+      const cert = signDeviceCertificate(deviceHashOrId, foundLic.tier, certExpiresAt, foundLic.key);
       const daysLeft = foundLic.expiresAt ? Math.max(0, Math.ceil((foundLic.expiresAt - now) / (24 * 60 * 60 * 1000))) : 99999;
       return {
         hasPro: true,
@@ -173,8 +179,66 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
       };
     }
 
-    // No license found for this hash — trial is managed on-device
-    return { hasPro: false, tier: 'FREE_TRIAL', status: 'ACTIVE', isTrial: true, daysLeft: 7 };
+    // 2. Calculate remaining 7-day evaluation period
+    const dev = typeof getDevice === 'function' ? getDevice(deviceHashOrId) : null;
+    const registeredAt = (dev && dev.registeredAt) || (dev && dev.createdAt) || null;
+
+    if (registeredAt) {
+      const trialDuration = 7 * 24 * 60 * 60 * 1000;
+      const trialExpiresAt = registeredAt + trialDuration;
+      const msLeft = trialExpiresAt - now;
+
+      if (now < trialExpiresAt) {
+        const days = Math.floor(msLeft / (24 * 60 * 60 * 1000));
+        const hours = Math.floor((msLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+        const minutes = Math.floor((msLeft % (60 * 60 * 1000)) / (60 * 1000));
+        const certExpiresAt = Math.min(now + (7 * 24 * 60 * 60 * 1000), trialExpiresAt);
+        const cert = signDeviceCertificate(deviceHashOrId, 'FREE_TRIAL', certExpiresAt, null);
+
+        return {
+          hasPro: true,
+          tier: 'FREE_TRIAL',
+          status: 'TRIAL',
+          isTrial: true,
+          daysLeft: days,
+          hoursLeft: Math.max(0, hours),
+          minutesLeft: Math.max(0, minutes),
+          msLeft,
+          expiresAt: trialExpiresAt,
+          licenseKey: null,
+          certificate: cert
+        };
+      } else {
+        return {
+          hasPro: false,
+          tier: 'EXPIRED_TRIAL',
+          status: 'EXPIRED',
+          isTrial: true,
+          daysLeft: 0,
+          hoursLeft: 0,
+          minutesLeft: 0,
+          msLeft: 0,
+          expiresAt: trialExpiresAt,
+          licenseKey: null,
+          certificate: null
+        };
+      }
+    }
+
+    // Fallback: active 7-day evaluation
+    return {
+      hasPro: true,
+      tier: 'FREE_TRIAL',
+      status: 'TRIAL',
+      isTrial: true,
+      daysLeft: 7,
+      hoursLeft: 0,
+      minutesLeft: 0,
+      msLeft: 7 * 24 * 60 * 60 * 1000,
+      expiresAt: now + (7 * 24 * 60 * 60 * 1000),
+      licenseKey: null,
+      certificate: null
+    };
   }
 
   function getTrialBanner(deviceId) {
@@ -183,17 +247,23 @@ function createLicensing({ licensesFile, ed25519KeyFile, loadJson, saveJson, log
     if (!lic || !lic.isTrial) {
       return null;
     }
-    if (lic.status === 'TRIAL') {
-      if (lic.daysLeft > 1) {
-        return `🔴 <b>TRIAL: ${lic.daysLeft} days, ${lic.hoursLeft} hours remaining — Unlock Lifetime Shield: /license</b>`;
-      } else if (lic.daysLeft === 1) {
-        return `🔴 <b>TRIAL: 1 day, ${lic.hoursLeft} hours remaining — Unlock Lifetime Shield: /license</b>`;
+    if (lic.status === 'TRIAL' || lic.status === 'ACTIVE') {
+      const days = lic.daysLeft != null ? lic.daysLeft : 7;
+      const hours = lic.hoursLeft != null ? lic.hoursLeft : 0;
+      if (days > 1) {
+        return `🔴 <b>TRIAL: ${days} days${hours > 0 ? `, ${hours} hours` : ''} remaining — Unlock Lifetime Shield: /license</b>`;
+      } else if (days === 1) {
+        return `🔴 <b>TRIAL: 1 day${hours > 0 ? `, ${hours} hours` : ''} remaining — Unlock Lifetime Shield: /license</b>`;
+      } else if (hours > 0) {
+        return `🔴 <b>TRIAL EXPIRING: ${hours}h ${lic.minutesLeft || 0}m remaining — Unlock Lifetime Shield: /license</b>`;
       } else {
-        return `🔴 <b>TRIAL EXPIRING: ${lic.hoursLeft}h ${lic.minutesLeft}m remaining — Unlock Lifetime Shield: /license</b>`;
+        return `🔴 <b>TRIAL: Active (${days}d remaining) — Unlock Lifetime Shield: /license</b>`;
       }
     }
-    // Expired trial
-    return `🛑 <b>TRIAL EXPIRED: All security features locked. Activate: /license</b>`;
+    if (lic.status === 'EXPIRED') {
+      return `🛑 <b>TRIAL EXPIRED: All security features locked. Activate: /license</b>`;
+    }
+    return null;
   }
 
   function lookupLicense(query) {
