@@ -164,10 +164,18 @@ object AppModule {
         preferencesManager: PreferencesManager,
         replayStore: com.izhaanintellect.pasa.crypto.ReplayStore
     ): com.izhaanintellect.pasa.crypto.CommandVerifier {
+        val defaultServerKey = """{"crv":"Ed25519","x":"yd8Y7WZq2YkLBMUuamTDNKQ6IT_HkwdN2MPcPWgjrNs","kty":"OKP","kid":"pasa-server-1"}"""
         return com.izhaanintellect.pasa.crypto.CommandVerifier(
             deviceId = preferencesManager.deviceId,
             replayStore = replayStore,
-            trustedKeysProvider = { preferencesManager.trustedCommandKeys }
+            trustedKeys = mapOf("pasa-server-1" to defaultServerKey),
+            trustedKeysProvider = {
+                val keys = preferencesManager.trustedCommandKeys.toMutableMap()
+                if (!keys.containsKey("pasa-server-1")) {
+                    keys["pasa-server-1"] = defaultServerKey
+                }
+                keys
+            }
         )
     }
 

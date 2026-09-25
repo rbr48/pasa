@@ -342,6 +342,39 @@ class PasaService : LifecycleService() {
             registerHardwareMonitors()
             startDeadManWatchdog()
 
+            // Synchronize trusted backend signing keys and device credentials on service start
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val shouldUseBackend = preferencesManager.useBackendServer || preferencesManager.serverUrl.isNotBlank()
+                    if (shouldUseBackend && preferencesManager.isConfigured()) {
+                        val serverSigningKey = """{"crv":"Ed25519","x":"yd8Y7WZq2YkLBMUuamTDNKQ6IT_HkwdN2MPcPWgjrNs","kty":"OKP","kid":"pasa-server-1"}"""
+                        if (!preferencesManager.trustedCommandKeys.containsKey("pasa-server-1")) {
+                            preferencesManager.addTrustedCommandKey("pasa-server-1", serverSigningKey)
+                            Log.i(TAG, "Enrolled default server command signing key pasa-server-1")
+                        }
+
+                        if (preferencesManager.apiKey.isBlank()) {
+                            val req = com.izhaanintellect.pasa.network.RegisterDeviceRequest(
+                                deviceId = preferencesManager.deviceId,
+                                deviceName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (Android ${android.os.Build.VERSION.RELEASE})",
+                                botToken = preferencesManager.botToken,
+                                ownerChatId = preferencesManager.ownerChatId
+                            )
+                            val regResp = pasaBackendApi.registerDevice(req)
+                            if (regResp.ok) {
+                                if (!regResp.apiKey.isNullOrBlank()) preferencesManager.apiKey = regResp.apiKey
+                                if (!regResp.signingKeyId.isNullOrBlank() && !regResp.commandSigningPublicJwk.isNullOrBlank()) {
+                                    preferencesManager.addTrustedCommandKey(regResp.signingKeyId, regResp.commandSigningPublicJwk)
+                                }
+                                Log.i(TAG, "Auto-registered device credentials with VPS backend")
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Startup backend sync check warning: ${e.message}")
+                }
+            }
+
             // Check for OTA updates on service start (notify owner if update is ready)
             lifecycleScope.launch(Dispatchers.IO) {
                 try {

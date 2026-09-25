@@ -4327,6 +4327,16 @@ app.get('/api/device/poll', verifyDeviceProofOrBearer, (req, res) => {
     envelope: (typeof cmd.envelope === 'string' && cmd.envelope.trim().length > 0) ? cmd.envelope.trim() : null
   }));
 
+  // Auto-prune expired commands (>10m envelope validity) to prevent queue congestion
+  const now = Date.now();
+  if (commands[deviceId]) {
+    const fresh = commands[deviceId].filter(c => (now - (c.createdAt || 0)) < 600000);
+    if (fresh.length !== commands[deviceId].length) {
+      commands[deviceId] = fresh;
+      saveJson(COMMANDS_FILE, commands);
+    }
+  }
+
   const rawCmds = commands[deviceId] || [];
   const deviceCommands = sanitizeCommands(rawCmds);
   if (deviceCommands.length > 0 || timeoutSec === 0) {

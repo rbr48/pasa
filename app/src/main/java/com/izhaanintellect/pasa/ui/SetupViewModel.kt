@@ -171,6 +171,14 @@ class SetupViewModel @Inject constructor(
                     ownerChatId = preferencesManager.ownerChatId
                 )
                 val resp = pasaBackendApi.registerDevice(req)
+                if (resp.ok) {
+                    if (!resp.apiKey.isNullOrBlank()) {
+                        preferencesManager.apiKey = resp.apiKey
+                    }
+                    if (!resp.signingKeyId.isNullOrBlank() && !resp.commandSigningPublicJwk.isNullOrBlank()) {
+                        preferencesManager.addTrustedCommandKey(resp.signingKeyId, resp.commandSigningPublicJwk)
+                    }
+                }
                 resp.ok
             } catch (e: Exception) {
                 Log.w(TAG, "VPS device registration deferred: ${e.message}")
