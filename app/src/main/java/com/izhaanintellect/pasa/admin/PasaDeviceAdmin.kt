@@ -771,7 +771,7 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             } catch (_: Exception) { 0L }
         }
 
-        fun retrieveSecurityLogsList(context: Context): Pair<Boolean, List<String>> {
+        fun retrieveSecurityLogsList(context: Context, full: Boolean = false): Pair<Boolean, List<String>> {
             val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
             val component = getComponentName(context)
             if (!dpm.isDeviceOwnerApp(context.packageName)) {
@@ -785,7 +785,9 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                 if (events.isNullOrEmpty()) {
                     Pair(true, emptyList())
                 } else {
-                    val formatted = events.takeLast(30).map { event ->
+                    val targetEvents = if (full) events.takeLast(5000) else events.takeLast(30)
+                    val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", java.util.Locale.US)
+                    val formatted = targetEvents.map { event ->
                         val tagStr = when (event.tag) {
                             SecurityLog.TAG_ADB_SHELL_INTERACTIVE -> "ADB_SHELL_INTERACTIVE"
                             SecurityLog.TAG_ADB_SHELL_CMD -> "ADB_SHELL_CMD"
@@ -802,8 +804,14 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                             SecurityLog.TAG_KEYGUARD_SECURED -> "KEYGUARD_SECURED"
                             else -> "TAG_${event.tag}"
                         }
-                        val time = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US).format(java.util.Date(event.timeNanos / 1_000_000L))
-                        "[$time] $tagStr: ${event.data ?: "N/A"}"
+                        val time = sdf.format(java.util.Date(event.timeNanos / 1_000_000L))
+                        val dataStr = when (val d = event.data) {
+                            is Array<*> -> d.joinToString(", ")
+                            is ByteArray -> d.joinToString("") { "%02x".format(it) }
+                            null -> "N/A"
+                            else -> d.toString()
+                        }
+                        "[$time] $tagStr: $dataStr"
                     }
                     Pair(true, formatted)
                 }
