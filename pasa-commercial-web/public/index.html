@@ -351,22 +351,22 @@ a{color:inherit;text-decoration:none}
 
 /* ═══════════════ SHARED MODULE STYLES ═══════════════ */
 .module{
-  padding:70px 44px;
+  padding:92px 48px;
   border-bottom:1px solid var(--line);
   position:relative;
 }
-@media(max-width:900px){.module{padding:54px 20px}}
+@media(max-width:900px){.module{padding:64px 20px}}
 
 .module-head{
   display:grid;grid-template-columns:auto 1fr auto;
-  gap:22px;align-items:center;
-  padding-bottom:20px;margin-bottom:38px;
+  gap:26px;align-items:center;
+  padding-bottom:24px;margin-bottom:44px;
   border-bottom:1px dashed var(--line-2);
 }
 @media(max-width:640px){.module-head{grid-template-columns:1fr;gap:8px}}
 .module-tag{
-  font-family:var(--mono);font-size:9.5px;font-weight:800;
-  letter-spacing:.22em;color:var(--red-2);text-transform:uppercase;
+  font-family:var(--mono);font-size:10px;font-weight:650;
+  letter-spacing:.16em;color:var(--red-2);text-transform:uppercase;
   display:inline-flex;align-items:center;gap:8px;
 }
 .module-tag::before{
@@ -381,8 +381,8 @@ a{color:inherit;text-decoration:none}
   margin-top:9px;
 }
 .module-lede{
-  font-size:14px;color:var(--txt-2);max-width:600px;
-  line-height:1.62;margin-top:9px;
+  font-size:15px;color:var(--txt-3);max-width:660px;
+  line-height:1.7;margin-top:10px;font-weight:400;
 }
 .module-code{
   font-family:var(--mono);font-size:10px;font-weight:700;
@@ -506,8 +506,8 @@ a{color:inherit;text-decoration:none}
   color:transparent;
 }
 .hp-sub{
-  font-size:15px;color:var(--txt-2);line-height:1.65;
-  max-width:550px;margin-bottom:20px;
+  font-size:15px;color:var(--txt-2);line-height:1.7;
+  max-width:580px;margin-bottom:22px;font-weight:400;
 }
 .hp-sub .hl-cyan{color:#38bdf8;font-weight:600}
 .hp-sub .hl-red{color:#fb7185;font-weight:600}
@@ -1453,7 +1453,53 @@ a{color:inherit;text-decoration:none}
   padding:3px;border-radius:4px;transition:.18s;display:flex;
 }
 .cmd-copy:hover{color:var(--cyan);background:rgba(41,224,255,.1)}
-.cmd-text{font-size:12px;color:var(--txt-2);line-height:1.48}
+.cmd-text{font-size:12.5px;color:var(--txt-3);line-height:1.6;font-weight:400}
+
+/* ── Hero Perspective Switcher (Simple vs Tactical) ── */
+.hero-perspective-tabs{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(10,16,28,.88);border:1px solid var(--line-2);
+  border-radius:100px;padding:3px;margin-bottom:18px;
+}
+.persp-tab{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+  border-radius:100px;border:none;background:none;
+  color:var(--txt-3);font-family:var(--mono);font-size:11px;font-weight:600;
+  cursor:pointer;transition:all .18s;
+}
+.persp-tab:hover{color:var(--txt)}
+.persp-tab.active{background:rgba(41,224,255,.15);color:var(--cyan);border:1px solid rgba(41,224,255,.3);font-weight:700}
+
+/* Executive simple view cards */
+.exec-card-grid{
+  display:none;flex-direction:column;gap:12px;width:100%;max-width:380px;
+  margin:0 auto;animation:fadeIn .25s ease-in-out;
+}
+.exec-card{
+  background:rgba(10,14,24,.92);border:1px solid var(--line-2);border-radius:12px;
+  padding:15px 18px;display:flex;gap:14px;align-items:flex-start;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:0 8px 24px -6px rgba(0,0,0,.6);transition:all .2s;
+}
+.exec-card:hover{border-color:rgba(41,224,255,.35);transform:translateX(3px);background:rgba(13,20,34,.96)}
+.exec-card-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.exec-card-title{font-family:var(--display);font-size:13.5px;font-weight:700;color:#fff;margin-bottom:4px;line-height:1.25}
+.exec-card-desc{font-size:12px;color:var(--txt-3);line-height:1.6}
+
+/* Command expand wrap & button */
+.cmd-expand-wrap{grid-column:1/-1;text-align:center;padding:18px 0 8px}
+.btn-expand-cmds{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(41,224,255,.06);border:1px solid rgba(41,224,255,.28);
+  color:var(--cyan);padding:11px 26px;border-radius:100px;
+  font-family:var(--mono);font-size:12px;font-weight:650;cursor:pointer;
+  transition:all .2s ease;box-shadow:0 4px 14px -2px rgba(41,224,255,.12);
+}
+.btn-expand-cmds:hover{
+  background:rgba(41,224,255,.16);border-color:var(--cyan);
+  box-shadow:0 0 20px rgba(41,224,255,.28);transform:translateY(-1px);color:#fff;
+}
+
 
 /* ═══════════════ COMPARISON MATRIX ═══════════════ */
 .matrix-wrap{
@@ -1937,7 +1983,7 @@ table.matrix tbody tr:last-child td{border-bottom:none}
       <div class="hp-copy">
         <div class="hero-unified-badge">
           <span class="badge-status-dot"></span>
-          <span data-i18n="hero_badge">SOVEREIGN MOBILE DEFENSE // ANDROID 8.0 – 16</span>
+          <span data-i18n="hero_badge">Sovereign Mobile Defense • Android 8.0 – 16</span>
           <span class="badge-sep">•</span>
           <span class="badge-live">C2 SECURE</span>
         </div>
@@ -1947,6 +1993,18 @@ table.matrix tbody tr:last-child td{border-bottom:none}
         <p class="hp-sub" data-i18n="hero_sub">
           When standard trackers go blind in 10 seconds, PASA Sentinel enforces <span class="hl-cyan">Knox-grade hardware lockdown</span>, captures <span class="hl-red">perpetrator forensics</span> headlessly, and protects your <span class="hl-green">sovereign personal data</span> with zero cloud storage.
         </p>
+
+        <!-- Perspective Switcher: Simple Plain English vs Tactical SOC Console -->
+        <div class="hero-perspective-tabs">
+          <button type="button" class="persp-tab active" id="tabTactical" onclick="setHeroPerspective('tactical')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span data-i18n="persp_tactical">Tactical SOC Console</span>
+          </button>
+          <button type="button" class="persp-tab" id="tabSimple" onclick="setHeroPerspective('simple')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span data-i18n="persp_simple">Plain English Overview</span>
+          </button>
+        </div>
 
         <div class="hero-unified-console">
           <!-- Row 1: Dual Action Grid (50/50 Balanced) -->
@@ -2014,6 +2072,31 @@ table.matrix tbody tr:last-child td{border-bottom:none}
           <div class="k">USB Data Pin</div>
           <div class="v green" id="hudStatUsb">KILL [0V]</div>
           <div class="bar"><i></i></div>
+        </div>
+
+        <!-- Executive plain English cards (shown when 'simple' is selected) -->
+        <div class="exec-card-grid" id="execCardGrid">
+          <div class="exec-card">
+            <div class="exec-card-icon">👑</div>
+            <div>
+              <div class="exec-card-title" data-i18n="exec_c1_title">Immune to Thief Tampering</div>
+              <div class="exec-card-desc" data-i18n="exec_c1_desc">A thief cannot uninstall PASA, turn off the phone, pull down Quick Settings, or toggle Airplane Mode. Knox Device Owner supervisor locks it permanently.</div>
+            </div>
+          </div>
+          <div class="exec-card">
+            <div class="exec-card-icon">📸</div>
+            <div>
+              <div class="exec-card-title" data-i18n="exec_c2_title">Silent Evidence Straight to Telegram</div>
+              <div class="exec-card-desc" data-i18n="exec_c2_desc">The moment your phone is snatched or an incorrect PIN is entered, PASA snaps front-camera mugshots and live GPS, delivering them straight to your private Telegram.</div>
+            </div>
+          </div>
+          <div class="exec-card">
+            <div class="exec-card-icon">📡</div>
+            <div>
+              <div class="exec-card-title" data-i18n="exec_c3_title">Works Without Internet or SIM</div>
+              <div class="exec-card-desc" data-i18n="exec_c3_desc">No Wi-Fi? No mobile data? SIM card removed? PASA automatically engages Knox Kiosk Lock and responds to air-gapped cellular SMS commands.</div>
+            </div>
+          </div>
         </div>
 
         <div class="phone-wrap" id="phoneStage">
@@ -2752,7 +2835,15 @@ const translations = {
     nav_sim:"Forensic Lab",nav_dossier:"Evidence Wall",nav_setup_kit:"Setup Kit",nav_features:"Capabilities",
     nav_commands:"86 Commands",nav_comparison:"Comparison",nav_faq:"Master FAQ",nav_pricing:"Licensing",
     nav_download:"Download Tactical APK",nav_download_pill:"Get APK",
-    hero_badge:"SOVEREIGN MOBILE DEFENSE // ANDROID 8.0 – 16",
+    hero_badge:"Sovereign Mobile Defense • Android 8.0 – 16",
+    persp_tactical:"Tactical SOC Console",
+    persp_simple:"Plain English Overview",
+    exec_c1_title:"Immune to Thief Tampering",
+    exec_c1_desc:"A thief cannot uninstall PASA, turn off the phone, pull down Quick Settings, or toggle Airplane Mode. Knox Device Owner supervisor locks it permanently.",
+    exec_c2_title:"Silent Evidence Straight to Telegram",
+    exec_c2_desc:"The moment your phone is snatched or an incorrect PIN is entered, PASA snaps front-camera mugshots and live GPS, delivering them straight to your private Telegram with zero cloud storage.",
+    exec_c3_title:"Works Without Internet or SIM",
+    exec_c3_desc:"No Wi-Fi? No mobile data? SIM card removed? PASA automatically engages Knox Kiosk Lock and responds to air-gapped cellular SMS commands.",
     hero_title:"YOUR PHONE WILL NEVER SURRENDER.",
     hero_sub:"When standard trackers go blind in 10 seconds, PASA Sentinel enforces Knox-grade hardware lockdown, captures perpetrator forensics headlessly, and protects your sovereign personal data.",
     hero_cta_apk:"Download APK",hero_cta_setup:"Windows Setup Kit",
@@ -2843,7 +2934,15 @@ const translations = {
     nav_sim:"ফরেনসিক ল্যাব",nav_dossier:"প্রমাণ ডসিয়ার",nav_setup_kit:"সেটআপ কিট",nav_features:"ফিচারসমূহ",
     nav_commands:"৮৬টি কমান্ড",nav_comparison:"তুলনা",nav_faq:"প্রশ্নোত্তর",nav_pricing:"লাইসেন্সিং",
     nav_download:"ট্যাকটিক্যাল এপিকে ডাউনলোড",nav_download_pill:"এপিকে নিন",
-    hero_badge:"সার্বভৌম মোবাইল ডিফেন্স // অ্যান্ড্রয়েড ৮.০ – ১৬",
+    hero_badge:"সার্বভৌম মোবাইল ডিফেন্স • অ্যান্ড্রয়েড ৮.০ – ১৬",
+    persp_tactical:"ট্যাকটিক্যাল কনসোল",
+    persp_simple:"সহজ বিবরণী",
+    exec_c1_title:"চোর কোনোভাবেই বন্ধ বা আনইনস্টল করতে পারবে না",
+    exec_c1_desc:"চোর ফোন বন্ধ করতে পারবে না, অ্যাপ ডিলিট করতে পারবে না এবং কুইক সেটিংস থেকে অ্যারোপ্লেন মোড চালু করতে পারবে না। নক্‌স ডিভাইস ওনার এটিকে স্থায়ীভাবে সুরক্ষিত রাখে।",
+    exec_c2_title:"সরাসরি আপনার টেলিগ্রামে গোপন ছবি ও লোকেশন",
+    exec_c2_desc:"ফোন টান মেরে নেওয়া হলে বা ভুল পিন দিলে স্বয়ংক্রিয়ভাবে চোরের ছবি ও গুগল ম্যাপস জিপিএস লোকেশন সরাসরি আপনার টেলিগ্রামে চলে আসে—কোনো ক্লাউড স্টোরেজ ছাড়াই।",
+    exec_c3_title:"ইন্টারনেট বা সিম কার্ড ছাড়াই সক্রিয়",
+    exec_c3_desc:"ডাটা অফ থাকলে বা সিম খুলে ফেললেও ফোন লকডাউনে চলে যায় এবং অফলাইন গোপন এসএমএস কোডের মাধ্যমে ডিভাইসকে রিমোটলি নিয়ন্ত্রণ করা যায়।",
     hero_title:"আপনার ফোন আর কখনোই আত্মসমর্পণ করবে না।",
     hero_sub:"চুরি হওয়ার ১০ সেকেন্ডের মধ্যে যখন সাধারণ ট্র্যাকার অন্ধ হয়ে যায়—পাসা সেন্টিনেল নক্স-গ্রেড হার্ডওয়্যার লকডাউন চাপিয়ে অপরাধীর আসল পরিচয় শিকার করে এবং আপনার ব্যক্তিগত ডেটা রক্ষা করে।",
     hero_cta_apk:"এপিকে ডাউনলোড",hero_cta_setup:"উইন্ডোজ সেটআপ কিট",
@@ -2860,7 +2959,7 @@ const translations = {
     hero_chip_knox:"নক্স সুপারভাইজার",
     hero_chip_sms:"অফলাইন এসএমএস সি২",
     hero_scan_qr:"কিউআর স্ক্যান",
-    audit_modal_title:"🛡️ স্বাধীন সিকিউরিটি অডিট // পাসা ৩.৫.৮",
+    audit_modal_title:"🛡️ স্বাধীন সিকিউরিটি অডিট // পাসা ৩.৫.৯",
     audit_modal_lede:"পাসা সেন্টিনেলের প্রতিটি রিলিজ ৭০টির বেশি নেতৃস্থানীয় অ্যান্টিভাইরাস ইঞ্জিন, গিটহাব কোডকিউএল এবং মোবএসএফ-এর মাধ্যমে কঠোরভাবে পরীক্ষিত ও প্রত্যয়িত।",
     audit_btn_download:"সার্বিক SARIF অডিট বান্ডেল (.zip • ২৬৫ KB)",
     audit_btn_vt:"লাইভ VirusTotal স্ক্যান ↗",
@@ -2936,7 +3035,7 @@ const translations = {
 let currentLang = 'en';
 let currentFaqCategory = 'top';
 let currentFeatureHub = 'knox';
-let currentCommandCategory = 'all';
+let currentCommandCategory = 'essential';
 let isSoundEnabled = false;
 let isSimulating = false;
 
@@ -3606,13 +3705,15 @@ function renderCommandPills(){
   if(!el) return;
   const isBn = currentLang==='bn';
   const cats = [
-    {id:'all',en:'All (86)',bn:'সব (৮৬)'},
-    {id:'knox',en:'Device Owner',bn:'ডিভাইস ওনার'},
-    {id:'forensics',en:'Forensics',bn:'ফরেনসিক'},
-    {id:'location',en:'Location',bn:'লোকেশন'},
-    {id:'lockdown',en:'Lockdown',bn:'লকডাউন'},
-    {id:'traps',en:'Traps',bn:'ট্র্যাপ'},
-    {id:'core',en:'Core',bn:'কোর'}
+    {id:'essential',en:'★ Essential (10)',bn:'★ প্রধান কমান্ড (১০)'},
+    {id:'knox',en:'👑 Device Owner (20)',bn:'👑 ডিভাইস ওনার (২০)'},
+    {id:'forensics',en:'📸 Forensics (13)',bn:'📸 ফরেনসিক (১৩)'},
+    {id:'location',en:'📍 Location & RF (8)',bn:'📍 লোকেশন (৮)'},
+    {id:'lockdown',en:'🚨 Lockdown (12)',bn:'🚨 লকডাউন (১২)'},
+    {id:'traps',en:'🛡️ Traps (10)',bn:'🛡️ ট্র্যাপ (১০)'},
+    {id:'telephony',en:'📞 Call & SMS (6)',bn:'📞 কল ও এসএমএস (৬)'},
+    {id:'system',en:'📇 System & Core (17)',bn:'📇 সিস্টেম (১৭)'},
+    {id:'all',en:'All (86)',bn:'সকল ৮৬টি কমান্ড'}
   ];
   el.innerHTML = cats.map(cat=>{
     const a = currentCommandCategory===cat.id ? 'active' : '';
@@ -3626,6 +3727,9 @@ function setCommandCategory(id){
   renderCommandPills(); renderCommands();
 }
 function filterCommands(){ renderCommands(); }
+
+const essentialCommandNames = ['/locate', '/snap', '/video', '/lock', '/fakeshutdown', '/sim_lock', '/sim_tray_lock', '/siren', '/wipe', '/usb_lock'];
+
 function renderCommands(){
   const el = document.getElementById('commandsContainer');
   if(!el) return;
@@ -3633,6 +3737,8 @@ function renderCommands(){
   const q = (document.getElementById('commandSearch')?.value || '').toLowerCase().trim();
 
   let list = rawCommands;
+  let isEssentialMode = false;
+
   if(q.length){
     list = rawCommands.filter(c=>{
       const a = (c.cmd||'').toLowerCase();
@@ -3640,15 +3746,20 @@ function renderCommands(){
       const d = (c.descBn||'').toLowerCase();
       return a.includes(q)||b.includes(q)||d.includes(q);
     });
+  } else if(currentCommandCategory === 'essential'){
+    list = rawCommands.filter(c => essentialCommandNames.includes(c.cmd));
+    isEssentialMode = true;
+  } else if(currentCommandCategory === 'system'){
+    list = rawCommands.filter(c => c.cat === 'system' || c.cat === 'core');
   } else if(currentCommandCategory !== 'all'){
-    list = rawCommands.filter(c=>c.cat===currentCommandCategory);
+    list = rawCommands.filter(c => c.cat === currentCommandCategory);
   }
 
   if(!list.length){
     el.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:26px;color:var(--txt-4);font-size:12.5px;font-family:var(--mono)">${isBn?'কোনো কমান্ড পাওয়া যায়নি।':'// NO MATCHING COMMANDS'}</div>`;
     return;
   }
-  el.innerHTML = list.map(c=>{
+  let cardsHtml = list.map(c=>{
     const desc = isBn ? c.descBn : c.descEn;
     const sms = c.sms ? '<span class="cmd-sms">SMS</span>' : '';
     return `
@@ -3662,6 +3773,39 @@ function renderCommands(){
         <div class="cmd-text">${desc}</div>
       </div>`;
   }).join('');
+
+  if(isEssentialMode){
+    cardsHtml += `
+      <div class="cmd-expand-wrap">
+        <button type="button" class="btn-expand-cmds" onclick="setCommandCategory('all')">
+          <span>${isBn ? '🔍 সকল ৮৬টি কমান্ড ব্রাউজ করুন (▼)' : '🔍 Browse All 86 Telegram & SMS Commands (▼)'}</span>
+        </button>
+      </div>`;
+  }
+
+  el.innerHTML = cardsHtml;
+}
+
+function setHeroPerspective(mode){
+  const tabTac = document.getElementById('tabTactical');
+  const tabSim = document.getElementById('tabSimple');
+  const phoneStage = document.getElementById('phoneStage');
+  const execGrid = document.getElementById('execCardGrid');
+  const hudTraps = document.querySelectorAll('.hp-feed .tele');
+
+  if(mode === 'simple'){
+    tabSim?.classList.add('active');
+    tabTac?.classList.remove('active');
+    if(phoneStage) phoneStage.style.display = 'none';
+    hudTraps.forEach(t => t.style.display = 'none');
+    if(execGrid) execGrid.style.display = 'flex';
+  } else {
+    tabTac?.classList.add('active');
+    tabSim?.classList.remove('active');
+    if(phoneStage) phoneStage.style.display = 'flex';
+    hudTraps.forEach(t => t.style.display = 'block');
+    if(execGrid) execGrid.style.display = 'none';
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
