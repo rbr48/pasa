@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PASA Sentinel — Customer License & Device Provisioning Portal</title>
+<meta name="description" content="Manage your PASA Sentinel license, generate zero-touch Android Enterprise provisioning QR codes, and access recovery binaries.">
+<meta name="theme-color" content="#090d16">
+<link rel="icon" type="image/png" href="/assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-canvas: #090d16;
+    --bg-surface: #0f172a;
+    --bg-subtle: #1e293b;
+    --border: #334155;
+    --border-cyan: #00f0ff;
+    --border-crimson: #ff003c;
+    --cyan: #00f0ff;
+    --cyan-subtle: rgba(0, 240, 255, 0.1);
+    --crimson: #ff003c;
+    --emerald: #00ff88;
+    --emerald-subtle: rgba(0, 255, 136, 0.1);
+    --amber: #ffb703;
+    --text: #f8fafc;
+    --text-dim: #94a3b8;
+    --text-faint: #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-canvas);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    padding-bottom: 60px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+  header {
+    border-bottom: 1px solid var(--border);
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.15rem;
+    letter-spacing: -0.5px;
+  }
+  .brand img { width: 34px; height: 34px; }
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-left: 20px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+  .hero {
+    padding: 50px 0 30px;
+    text-align: center;
+  }
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--cyan);
+    background: var(--cyan-subtle);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+  h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; }
+  .lead { color: var(--text-dim); max-width: 600px; margin: 0 auto 30px; font-size: 1rem; }
+
+  .portal-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  .search-box {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .search-input {
+    flex: 1;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    padding: 14px 18px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--cyan); }
+  .btn-search {
+    background: var(--cyan);
+    color: #000;
+    border: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-search:hover { opacity: 0.9; }
+
+  .status-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .status-active { background: var(--emerald-subtle); color: var(--emerald); border: 1px solid var(--emerald); }
+  .status-expired { background: rgba(255, 0, 60, 0.1); color: var(--crimson); border: 1px solid var(--crimson); }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .meta-item { background: var(--bg-canvas); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--border); }
+  .meta-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-faint); font-weight: 700; margin-bottom: 4px; }
+  .meta-val { font-size: 1.05rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #fff; word-break: break-all; }
+
+  .qr-section {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  @media (max-width: 768px) {
+    .qr-section { grid-template-columns: 1fr; text-align: center; }
+    .search-box { flex-direction: column; }
+  }
+  .qr-box {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+  }
+  .qr-box img { width: 280px; height: 280px; display: block; }
+  .step-list { list-style: none; margin-top: 14px; }
+  .step-list li {
+    position: relative;
+    padding-left: 36px;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+  }
+  .step-num {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 26px;
+    height: 26px;
+    background: var(--cyan-subtle);
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    border-radius: 50%;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .downloads-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .btn-dl {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-dl:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .copy-code {
+    background: #000;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--cyan);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .btn-copy-mini {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .alert-box {
+    background: rgba(255, 183, 3, 0.1);
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-top: 16px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="PASA Sentinel Logo">
+      <span>PASA SENTINEL</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#pricing">Pricing</a>
+      <a href="/manual.html">Field Manual</a>
+      <a href="/privacy.html">Privacy Guarantee</a>
+      <a href="https://t.me/pasa_sentinel_bot" target="_blank" style="color:var(--cyan);">Support Bot</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <span class="tag">Zero-Knowledge Licensing Hub</span>
+    <h1>Customer Device Provisioning Portal</h1>
+    <p class="lead">Look up your sovereign license key, generate zero-touch Android Enterprise QR enrollment codes, or download the latest authenticated client packages.</p>
+  </div>
+
+  <!-- Search Card -->
+  <div class="portal-card">
+    <label class="meta-label" style="font-size:0.85rem;">Enter Your License Key or Purchase Email</label>
+    <div class="search-box">
+      <input type="text" id="queryInput" class="search-input" placeholder="e.g. PASA-PRO-XXXX-XXXX-XXXX or your email" spellcheck="false" autocomplete="off">
+      <button class="btn-search" onclick="lookupLicense()">Search License</button>
+    </div>
+    <div id="searchMsg" style="margin-top:10px; font-size:0.9rem; display:none;"></div>
+  </div>
+
+  <!-- Results Card (Hidden by default) -->
+  <div id="resultCard" class="portal-card" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+      <div>
+        <div style="font-size:0.8rem; color:var(--text-faint); font-weight:700; text-transform:uppercase;">License Verified</div>
+        <h2 id="licKeyDisplay" style="font-family:'JetBrains Mono', monospace; font-size:1.5rem; margin-top:2px;">PASA-PRO-XXXX</h2>
+      </div>
+      <div>
+        <span id="licStatusBadge" class="status-badge status-active">ACTIVE</span>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="meta-label">Protection Tier</div>
+        <div class="meta-val" id="licTierDisplay">PRO_ANNUAL</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Licensed Devices</div>
+        <div class="meta-val" id="licDevicesDisplay">1 Device</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Days Remaining</div>
+        <div class="meta-val" id="licDaysDisplay" style="color:var(--emerald);">365 Days</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Registered Identifier</div>
+        <div class="meta-val" id="licEmailDisplay" style="font-size:0.9rem;">customer@pasa.sec</div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+      <button id="btnEmailKey" onclick="resendEmail()" style="background:#090d16;border:1px solid var(--cyan);color:var(--cyan);font-weight:700;font-size:0.85rem;padding:8px 16px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s;">
+        ✉️ Email License Key To My Inbox
+      </button>
+    </div>
+
+    <!-- Zero-Touch QR Provisioning Section -->
+    <div class="qr-section">
+      <div>
+        <div class="qr-box">
+          <img id="qrImg" src="/assets/img/qr-enterprise-provisioning.svg" alt="Android Enterprise QR Code">
+        </div>
+        <div style="text-align:center; margin-top:10px;">
+          <a id="qrDirectLink" href="#" target="_blank" style="font-size:0.8rem; color:var(--cyan); text-decoration:none;">Open Fullscreen QR ↗</a>
+        </div>
+      </div>
+      <div>
+        <span class="tag" style="background:rgba(0, 255, 136, 0.1); color:var(--emerald); border-color:var(--emerald);">Zero-Touch Enrollment</span>
+        <h3 style="font-size:1.25rem; font-weight:800; margin: 8px 0 10px;">Scan directly with your phone's camera</h3>
+        <p style="color:var(--text-dim); font-size:0.9rem;">No computer, USB cable, or terminal commands needed. Android Enterprise installs PASA and sets Device Owner automatically during phone setup.</p>
+        
+        <ul class="step-list">
+          <li>
+            <span class="step-num">1</span>
+            <strong>Power on phone:</strong> Start with a brand new or factory-reset Android device on the initial "Welcome" screen.
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <strong>Activate Camera:</strong> Tap anywhere in the blank space on the "Welcome" screen <strong>6 times</strong> consecutively.
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <strong>Scan QR Code:</strong> Scan the QR code on this monitor. Connect to Wi-Fi. The phone will autonomously install PASA and promote it to Knox Device Owner.
+          </li>
+        </ul>
+
+        <div class="alert-box">
+          💡 <strong>Sovereign Privacy Guarantee:</strong> Your bot token and chat ID are never stored on our server. Phone polls Telegram directly in Sovereign Mode.
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Setup & Fallback Binaries -->
+    <div style="margin-top:30px; padding-top:24px; border-top:1px solid var(--border);">
+      <h4 style="font-size:1rem; font-weight:700; margin-bottom:8px;">Manual Setup &amp; Desktop Provisioning Kit</h4>
+      <p style="color:var(--text-dim); font-size:0.85rem;">If your device already has active Google accounts and you do not want to factory reset, use the Windows Setup Kit via USB:</p>
+      
+      <div class="downloads-bar">
+        <a href="/releases/pasa-latest.apk" class="btn-dl">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download pasa-latest.apk
+        </a>
+        <a href="/releases/PASA-Device-Owner-Setup-Kit.zip" class="btn-dl">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          Windows Setup Kit (ZIP)
+        </a>
+      </div>
+
+      <div style="margin-top:16px;">
+        <span style="font-size:0.75rem; color:var(--text-faint); font-weight:700;">ADB PROVISIONING COMMAND:</span>
+        <div class="copy-code">
+          <span id="adbCmd">adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin</span>
+          <button class="btn-copy-mini" onclick="copyAdb()">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function lookupLicense() {
+  const query = document.getElementById('queryInput').value.trim();
+  const msgEl = document.getElementById('searchMsg');
+  const resultCard = document.getElementById('resultCard');
+
+  if (!query) {
+    msgEl.style.display = 'block';
+    msgEl.style.color = 'var(--crimson)';
+    msgEl.textContent = 'Please enter a valid license key or registered email.';
+    return;
+  }
+
+  msgEl.style.display = 'block';
+  msgEl.style.color = 'var(--cyan)';
+  msgEl.textContent = 'Querying sovereign licensing engine...';
+
+  try {
+    const res = await fetch('/api/license/lookup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query })
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok || !data.license) {
+      msgEl.style.color = 'var(--crimson)';
+      msgEl.textContent = data.description || 'No license found matching this key or email.';
+      resultCard.style.display = 'none';
+      return;
+    }
+
+    const lic = data.license;
+    msgEl.style.display = 'none';
+    resultCard.style.display = 'block';
+
+    document.getElementById('licKeyDisplay').textContent = lic.key;
+    document.getElementById('licTierDisplay').textContent = lic.tier;
+    document.getElementById('licDevicesDisplay').textContent = `${lic.maxDevices || 1} Device${lic.maxDevices > 1 ? 's' : ''}`;
+    document.getElementById('licEmailDisplay').textContent = lic.email || 'Anonymous Sovereign';
+
+    const daysLeft = lic.daysLeft !== undefined ? lic.daysLeft : 365;
+    document.getElementById('licDaysDisplay').textContent = daysLeft > 9000 ? 'Lifetime (Permanent)' : `${daysLeft} Days Remaining`;
+
+    const badge = document.getElementById('licStatusBadge');
+    badge.textContent = lic.status;
+    if (lic.status === 'ACTIVE') {
+      badge.className = 'status-badge status-active';
+    } else {
+      badge.className = 'status-badge status-expired';
+    }
+
+    // Dynamic QR URL
+    const qrEndpoint = `/api/license/provisioning-qr?key=${encodeURIComponent(lic.key)}`;
+    document.getElementById('qrImg').src = qrEndpoint;
+    document.getElementById('qrDirectLink').href = qrEndpoint;
+
+  } catch (err) {
+    msgEl.style.color = 'var(--crimson)';
+    msgEl.textContent = 'Network error verifying license. Please try again.';
+  }
+}
+
+function copyAdb() {
+  const cmd = document.getElementById('adbCmd').textContent;
+  navigator.clipboard.writeText(cmd).then(() => {
+    alert('Copied ADB command to clipboard!');
+  });
+}
+
+async function resendEmail() {
+  const licKey = document.getElementById('licKeyDisplay').textContent.trim();
+  const btn = document.getElementById('btnEmailKey');
+  btn.disabled = true;
+  btn.textContent = 'Sending email...';
+  try {
+    const res = await fetch(`/api/license/resend-email?key=${encodeURIComponent(licKey)}`);
+    const data = await res.json();
+    if (data.ok) {
+      btn.textContent = '✅ Email Dispatched to Inbox!';
+      btn.style.borderColor = 'var(--emerald)';
+      btn.style.color = 'var(--emerald)';
+    } else {
+      btn.textContent = '❌ ' + (data.description || 'Failed to dispatch email');
+    }
+  } catch (_) {
+    btn.textContent = '❌ Network error';
+  } finally {
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = '✉️ Email License Key To My Inbox';
+      btn.style.borderColor = 'var(--cyan)';
+      btn.style.color = 'var(--cyan)';
+    }, 4000);
+  }
+}
+
+// Auto-lookup if ?key= is in URL query parameters
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get('key') || params.get('email');
+  if (key) {
+    document.getElementById('queryInput').value = key;
+    lookupLicense();
+  }
+});
+</script>
+
+</body>
+</html>
