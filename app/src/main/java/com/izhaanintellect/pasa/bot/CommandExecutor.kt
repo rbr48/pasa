@@ -105,7 +105,15 @@ class CommandExecutor @Inject constructor(
     private val storageAccessCommand: com.izhaanintellect.pasa.commands.StorageAccessCommand,
     private val deadManSwitchCommand: com.izhaanintellect.pasa.commands.DeadManSwitchCommand,
     private val thermalTrapCommand: com.izhaanintellect.pasa.commands.ThermalTrapCommand,
-    private val autostartCommand: com.izhaanintellect.pasa.commands.AutostartCommand
+    private val autostartCommand: com.izhaanintellect.pasa.commands.AutostartCommand,
+    private val a11yShieldCommand: com.izhaanintellect.pasa.commands.A11yShieldCommand,
+    private val usbAutolockCommand: com.izhaanintellect.pasa.commands.UsbAutolockCommand,
+    private val anti2gCommand: com.izhaanintellect.pasa.commands.Anti2gCommand,
+    private val clipperGuardCommand: com.izhaanintellect.pasa.commands.ClipperGuardCommand,
+    private val appInstallLockCommand: com.izhaanintellect.pasa.commands.AppInstallLockCommand,
+    private val canaryGuardCommand: com.izhaanintellect.pasa.commands.CanaryGuardCommand,
+    private val otpGuardCommand: com.izhaanintellect.pasa.commands.OtpGuardCommand,
+    private val telegramMenuManager: TelegramMenuManager
 ) {
     companion object {
         private const val TAG = "PASA_Executor"
@@ -125,7 +133,7 @@ class CommandExecutor @Inject constructor(
                 listOf(
                     KeyboardButton("👑 Device Owner"),
                     KeyboardButton("🛡️ Traps"),
-                    KeyboardButton("❓ Help")
+                    KeyboardButton("🎛️ Hub Menu")
                 )
             ),
             resizeKeyboard = true,
@@ -167,22 +175,77 @@ class CommandExecutor @Inject constructor(
             return licenseRejection
         }
 
-        // 3. Command Lookup
+        val cmdClean = parsed.command.lowercase().trim()
+
+        // 3. Interactive Hub Console & Submenu Navigation
+        if (cmdClean.startsWith("menu:") || cmdClean.startsWith("wizard:") || cmdClean in setOf("/menu", "/start", "/dashboard", "/console")) {
+            val menuKey = if (cmdClean in setOf("/menu", "/start", "/dashboard", "/console")) "menu:main" else cmdClean
+            val menuResponse = telegramMenuManager.resolveMenu(menuKey)
+
+            if (parsed.messageId != null && (cmdClean.startsWith("menu:") || cmdClean.startsWith("wizard:"))) {
+                try {
+                    val editReq = EditMessageTextRequest(
+                        chatId = parsed.chatId,
+                        messageId = parsed.messageId,
+                        text = menuResponse.text,
+                        replyMarkup = menuResponse.keyboard
+                    )
+                    val editResp = telegramApi.editMessageText(preferencesManager.botToken, editReq)
+                    if (editResp.ok) {
+                        return menuResponse.text
+                    }
+                } catch (e: Exception) {
+                    Log.d(TAG, "editMessageText note: ${e.message}, falling back to sendMessage")
+                }
+            }
+
+            sendText(parsed.chatId, menuResponse.text, menuResponse.keyboard)
+            if (cmdClean in setOf("/start", "/menu", "/dashboard", "/console")) {
+                sendText(parsed.chatId, "🎛️ <b>Touch Controls Active:</b> Tap any Hub above or use the quick buttons below.", defaultMenuKeyboard)
+            }
+            return menuResponse.text
+        }
+
+        // 4. Zero-Argument Parameter Wizards (Guides Non-Tech Users & Prevents Accidental Failures)
+        if (parsed.args.isEmpty()) {
+            val wizardKey = when (cmdClean) {
+                "/lock_app" -> "wizard:lock_app"
+                "/unlock_app" -> "wizard:unlock_app"
+                "/call" -> "wizard:call"
+                "/sendsms" -> "wizard:sendsms"
+                "/getfile" -> "wizard:getfile"
+                "/wifi_connect" -> "wizard:wifi_connect"
+                "/autolock" -> "wizard:autolock"
+                "/lockscreen_info" -> "wizard:lockscreen_info"
+                "/set_os_pin", "/lock_pin" -> "wizard:set_os_pin"
+                "/lost_mode", "/lostmode" -> "wizard:lost_mode"
+                "/deadman" -> "wizard:deadman"
+                "/thermal" -> "wizard:thermal"
+                "/wipe" -> "menu:wipe"
+                else -> null
+            }
+            if (wizardKey != null) {
+                val wizardResponse = telegramMenuManager.resolveMenu(wizardKey)
+                sendText(parsed.chatId, wizardResponse.text, wizardResponse.keyboard)
+                return wizardResponse.text
+            }
+        }
+
+        // 5. Command Lookup
         val handler = resolveHandler(parsed.command)
         if (handler == null) {
-            val response = "❓ Unknown command: <code>${parsed.command}</code>\nSend <code>/help</code> for available commands."
+            val response = "❓ Unknown command: <code>${parsed.command}</code>\nSend <code>/menu</code> for interactive console or <code>/help</code> for all commands."
             sendText(parsed.chatId, response, defaultMenuKeyboard)
             logExecution(parsed, "FAILED", response)
             return response
         }
 
-        // 4. Execution
+        // 6. Execution
         return try {
             val result = handler.execute(parsed.args, parsed.chatId)
 
-            val cmdClean = parsed.command.lowercase().trim()
             val replyMarkup: Any? = when (cmdClean) {
-                "/start", "/menu", "/help", "/dashboard" -> defaultMenuKeyboard
+                "/help" -> defaultMenuKeyboard
                 "/status" -> InlineKeyboardMarkup(
                     inlineKeyboard = listOf(
                         listOf(
@@ -609,8 +672,8 @@ class CommandExecutor @Inject constructor(
 
     private fun resolveHandler(cmd: String): Command? {
         return when (cmd) {
-            "/lock", "/lock_message", "/lock_pin" -> lockCommand
-            "/set_os_pin", "/set_pin", "/reset_pin" -> setOsPinCommand
+            "/lock", "/lock_message", "/lost_mode", "/lostmode" -> lockCommand
+            "/set_os_pin", "/set_pin", "/reset_pin", "/lock_pin" -> setOsPinCommand
             "/set_master_pin", "/set_password", "/master_pin", "/master_password" -> setMasterPinCommand
             "/unlock" -> unlockCommand
             "/device_owner", "/owner", "/kiosk" -> deviceOwnerCommand
@@ -771,6 +834,13 @@ class CommandExecutor @Inject constructor(
                 override val usage = "/sms_help"
                 override suspend fun execute(args: List<String>, chatId: Long) = helpCommand.executeSmsHelp()
             }
+            "/a11y_shield", "/accessibility_shield", "/a11y" -> a11yShieldCommand
+            "/usb_autolock", "/usbautolock" -> usbAutolockCommand
+            "/anti_2g", "/anti2g", "/nostingray" -> anti2gCommand
+            "/clipper_guard", "/clipper", "/crypto_guard" -> clipperGuardCommand
+            "/app_install_lock", "/install_lock", "/sideload_lock" -> appInstallLockCommand
+            "/canary_guard", "/canary", "/ransomware_guard" -> canaryGuardCommand
+            "/otp_guard", "/otpguard", "/2fa_guard" -> otpGuardCommand
             "/help", "/start", "/menu", "/dashboard" -> helpCommand
             else -> null
         }

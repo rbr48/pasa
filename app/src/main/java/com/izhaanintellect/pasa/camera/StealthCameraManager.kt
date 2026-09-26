@@ -16,7 +16,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.suspendCancellableCoroutine
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -106,8 +109,12 @@ class StealthCameraManager @Inject constructor(
                                     object : ImageCapture.OnImageSavedCallback {
                                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                                             mainHandler.removeCallbacks(timeoutRunnable)
-                                            com.izhaanintellect.pasa.util.PrivacyHygieneHelper.stripExifMetadata(photoFile)
-                                            Log.i(TAG, "Photo captured successfully (EXIF stripped): ${photoFile.absolutePath}")
+                                            try {
+                                                optimizeAndStripPhoto(photoFile)
+                                            } catch (e: Exception) {
+                                                Log.w(TAG, "Photo optimization warning: ${e.message}")
+                                            }
+                                            Log.i(TAG, "Photo captured successfully: ${photoFile.absolutePath} (${photoFile.length() / 1024} KB)")
                                             cleanup(lifecycleOwner, cameraProvider)
                                             if (continuation.isActive) continuation.resume(photoFile)
                                         }
@@ -139,6 +146,44 @@ class StealthCameraManager @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Camera capture error", e)
             null
+        }
+    }
+
+    private fun optimizeAndStripPhoto(file: File) {
+        if (!file.exists() || file.length() == 0L) return
+        try {
+            com.izhaanintellect.pasa.util.PrivacyHygieneHelper.stripExifMetadata(file)
+
+            // If file is larger than 600KB, downscale/compress for rapid Telegram delivery (<1s upload)
+            if (file.length() > 600 * 1024) {
+                val boundsOptions = BitmapFactory.Options().apply {
+                    inJustDecodeBounds = true
+                }
+                BitmapFactory.decodeFile(file.absolutePath, boundsOptions)
+                val origW = boundsOptions.outWidth
+                val origH = boundsOptions.outHeight
+
+                var sampleSize = 1
+                while ((origW / sampleSize) > 1920 || (origH / sampleSize) > 1920) {
+                    sampleSize *= 2
+                }
+
+                val decodeOptions = BitmapFactory.Options().apply {
+                    inSampleSize = sampleSize
+                    inPreferredConfig = Bitmap.Config.RGB_565
+                }
+                val bitmap = BitmapFactory.decodeFile(file.absolutePath, decodeOptions)
+                if (bitmap != null) {
+                    val fos = FileOutputStream(file)
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos)
+                    fos.flush()
+                    fos.close()
+                    bitmap.recycle()
+                    Log.i(TAG, "Photo optimized: ${origW}x${origH} -> sample $sampleSize, size: ${file.length() / 1024} KB")
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not compress photo: ${e.message}")
         }
     }
 

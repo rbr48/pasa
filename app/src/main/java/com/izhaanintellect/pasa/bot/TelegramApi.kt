@@ -105,6 +105,20 @@ interface TelegramApi {
         @Path(value = "token", encoded = true) token: String,
         @Body request: AnswerCallbackQueryRequest
     ): TelegramResponse<Boolean>
+
+    /** Edits an existing message in-place for fast, smooth menu navigation. */
+    @POST("/bot{token}/editMessageText")
+    suspend fun editMessageText(
+        @Path(value = "token", encoded = true) token: String,
+        @Body request: EditMessageTextRequest
+    ): TelegramResponse<Message>
+
+    /** Deletes a message from Telegram. */
+    @POST("/bot{token}/deleteMessage")
+    suspend fun deleteMessage(
+        @Path(value = "token", encoded = true) token: String,
+        @Body request: DeleteMessageRequest
+    ): TelegramResponse<Boolean>
 }
 
 // --- Data Models ---
@@ -225,3 +239,20 @@ data class InlineKeyboardButton(
     @SerializedName("callback_data") val callbackData: String? = null,
     @SerializedName("url") val url: String? = null
 )
+
+/** Request body for editMessageText */
+data class EditMessageTextRequest(
+    @SerializedName("chat_id") val chatId: Long,
+    @SerializedName("message_id") val messageId: Long,
+    @SerializedName("text") val text: String,
+    @SerializedName("parse_mode") val parseMode: String = "HTML",
+    @SerializedName("disable_web_page_preview") val disableWebPagePreview: Boolean = false,
+    @SerializedName("reply_markup") val replyMarkup: Any? = null
+)
+
+/** Request body for deleteMessage */
+data class DeleteMessageRequest(
+    @SerializedName("chat_id") val chatId: Long,
+    @SerializedName("message_id") val messageId: Long
+)
+

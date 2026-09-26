@@ -907,6 +907,98 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                 Pair(false, "❌ Wi-Fi connection error: ${e.message}")
             }
         }
+
+        // ── Cyber Defense Suite Device Owner Helpers ──────────────────────────────
+
+        fun setPermittedAccessibilityServices(context: Context, packageList: List<String>?): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                return Pair(false, "❌ Accessibility Trojan Shield requires Android Device Owner permissions.")
+            }
+            return try {
+                val success = dpm.setPermittedAccessibilityServices(component, packageList)
+                if (success) {
+                    if (packageList == null) {
+                        Pair(true, "🛡️ <b>Accessibility Trojan Shield: UNLOCKED</b>\nAll accessibility services are now permitted.")
+                    } else if (packageList.isEmpty()) {
+                        Pair(true, "🛡️ <b>Accessibility Trojan Shield: MAXIMUM LOCKDOWN</b>\nAll 3rd-party accessibility services blocked system-wide.")
+                    } else {
+                        Pair(true, "🛡️ <b>Accessibility Trojan Shield: ARMED</b>\nOnly ${packageList.size} whitelisted packages permitted:\n" +
+                                packageList.joinToString("\n") { "• <code>$it</code>" })
+                    }
+                } else {
+                    Pair(false, "❌ OS returned false when setting permitted accessibility services.")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to setPermittedAccessibilityServices: ${e.message}", e)
+                Pair(false, "❌ Error setting permitted accessibility services: ${e.message}")
+            }
+        }
+
+        fun getPermittedAccessibilityServices(context: Context): List<String>? {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) return null
+            return try {
+                dpm.getPermittedAccessibilityServices(component)
+            } catch (_: Exception) { null }
+        }
+
+        fun setAppInstallRestrictions(context: Context, mode: String): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                return Pair(false, "❌ App Installation Lockdown requires Android Device Owner permissions.")
+            }
+            return try {
+                when (mode.lowercase().trim()) {
+                    "unknown_only", "sideload" -> {
+                        dpm.addUserRestriction(component, UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)
+                        dpm.clearUserRestriction(component, UserManager.DISALLOW_INSTALL_APPS)
+                        Pair(true, "📦 <b>App Installation Lockdown: UNKNOWN SOURCES BLOCKED</b>\n" +
+                                "🚫 Sideloading APKs via Chrome, WhatsApp, Files, or downloaders is DISABLED.\n" +
+                                "✅ Official store (Google Play) installs remain permitted.")
+                    }
+                    "block_all", "all", "lock" -> {
+                        dpm.addUserRestriction(component, UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)
+                        dpm.addUserRestriction(component, UserManager.DISALLOW_INSTALL_APPS)
+                        Pair(true, "📦 <b>App Installation Lockdown: COMPLETE FREEZE</b>\n" +
+                                "🚫 ALL app installations, sideloading, ADB package installs, and store updates are completely BLOCKED.")
+                    }
+                    "allow", "off", "unlock" -> {
+                        dpm.clearUserRestriction(component, UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES)
+                        dpm.clearUserRestriction(component, UserManager.DISALLOW_INSTALL_APPS)
+                        Pair(true, "📦 <b>App Installation Lockdown: UNRESTRICTED</b>\n" +
+                                "✅ App installations and sideloading restored to standard user policy.")
+                    }
+                    else -> Pair(false, "❌ Invalid mode: <code>$mode</code>. Use: <code>unknown_only</code>, <code>block_all</code>, or <code>allow</code>.")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to setAppInstallRestrictions: ${e.message}", e)
+                Pair(false, "❌ Error setting app install restrictions: ${e.message}")
+            }
+        }
+
+        fun suspendAllThirdPartyApps(context: Context, suspend: Boolean): List<String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) return emptyList()
+
+            return try {
+                val pm = context.packageManager
+                val allPackages = pm.getInstalledApplications(android.content.pm.PackageManager.GET_META_DATA)
+                    .map { it.packageName }
+                    .filter { it != context.packageName }
+                    .toTypedArray()
+
+                val failedToSuspend = dpm.setPackagesSuspended(component, allPackages, suspend)
+                allPackages.toList().minus(failedToSuspend.toSet())
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to suspend/unsuspend packages: ${e.message}", e)
+                emptyList()
+            }
+        }
     }
 
     @EntryPoint

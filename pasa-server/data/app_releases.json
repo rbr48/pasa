@@ -1,5 +1,38 @@
 [
   {
+    "versionCode": 73,
+    "versionName": "3.7.8",
+    "releaseDate": "2026-09-26",
+    "fileName": "pasa-v3.7.8-73.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.8-73.apk",
+    "sha256": "76cd262348d2c4e433bc87a2ed2357d7b5a14acde3e4c174e8bef4ea935fd93e",
+    "size": 19266128,
+    "mandatory": false,
+    "releaseNotes": "v3.7.8: Auto Power-Menu Fake Shutdown Interception Trap — Intercepts physical power button long-press while device is locked via accessibility window inspection, immediately aborting system shutdown dialogs and engaging covert Fake Shutdown with mugshot and sat GPS capture. Includes complete /fakeshutdown auto [on|always|off|status] and /fakeshutdown test commands."
+  },
+  {
+    "versionCode": 69,
+    "versionName": "3.7.4",
+    "releaseDate": "2026-09-26",
+    "fileName": "pasa-v3.7.4-69.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.4-69.apk",
+    "sha256": "c49404cf3ffb5eb61dc4f94ad5f2fdadf951a5a8bdf86cd63d8234934afe543f",
+    "size": 19266140,
+    "mandatory": false,
+    "releaseNotes": "v3.7.4: Advanced Mobile Cyber Defense Suite — 7 new hardware & OS defense modules: (1) Accessibility Trojan Shield (/a11y_shield), (2) Locked-State USB Killswitch (/usb_autolock), (3) Anti-2G / IMSI-Catcher Shield (/anti_2g), (4) Crypto Clipper Trap (/clipper_guard), (5) Sideload & Install Lockdown (/app_install_lock), (6) Ransomware Canary Guard (/canary_guard), (7) 2FA / OTP Interception Guard (/otp_guard) + Interactive Cyber Defense Hub."
+  },
+  {
+    "versionCode": 68,
+    "versionName": "3.7.3",
+    "releaseDate": "2026-09-26",
+    "fileName": "pasa-v3.7.3-68.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.3-68.apk",
+    "sha256": "6bae5f4934df0e879a455d72b4d3b81190b75b4319ba59bf4e544b0f7344c8ea",
+    "size": 19233026,
+    "mandatory": false,
+    "releaseNotes": "v3.7.3: Native 6-Hub Sovereign Command Console & Enhanced Lock Architecture — Instant screen sleep/lock with zero password friction, dedicated Lost Mode Kiosk with Master Password guard, Escrow OS PIN reset, and native 6-Hub Telegram interactive command console operating 100% in Sovereign Mode."
+  },
+  {
     "versionCode": 67,
     "versionName": "3.7.2",
     "releaseDate": "2026-09-25",

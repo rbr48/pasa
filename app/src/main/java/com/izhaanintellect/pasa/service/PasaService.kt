@@ -54,6 +54,10 @@ class PasaService : LifecycleService() {
     @Inject lateinit var otaUpdateManager: OtaUpdateManager
     @Inject lateinit var trapManager: com.izhaanintellect.pasa.detection.TrapManager
     @Inject lateinit var geofenceManager: com.izhaanintellect.pasa.detection.GeofenceManager
+    @Inject lateinit var usbAutolockManager: com.izhaanintellect.pasa.security.UsbAutolockManager
+    @Inject lateinit var clipperGuardManager: com.izhaanintellect.pasa.security.ClipperGuardManager
+    @Inject lateinit var ransomwareCanaryManager: com.izhaanintellect.pasa.security.RansomwareCanaryManager
+    @Inject lateinit var otpInterceptionGuardManager: com.izhaanintellect.pasa.security.OtpInterceptionGuardManager
 
     companion object {
         private const val TAG = "PASA_Service"
@@ -326,6 +330,10 @@ class PasaService : LifecycleService() {
                 geofenceManager.startMonitoring()
                 registerHardwareMonitors()
                 startDeadManWatchdog()
+                usbAutolockManager.startMonitoring()
+                clipperGuardManager.startMonitoring()
+                ransomwareCanaryManager.startMonitoring()
+                otpInterceptionGuardManager.startMonitoring()
             }
             pollingJob?.cancel()
             pollingJob = null
@@ -341,6 +349,10 @@ class PasaService : LifecycleService() {
             geofenceManager.startMonitoring()
             registerHardwareMonitors()
             startDeadManWatchdog()
+            usbAutolockManager.startMonitoring()
+            clipperGuardManager.startMonitoring()
+            ransomwareCanaryManager.startMonitoring()
+            otpInterceptionGuardManager.startMonitoring()
 
             // Synchronize trusted backend signing keys and device credentials on service start
             lifecycleScope.launch(Dispatchers.IO) {
@@ -424,6 +436,10 @@ class PasaService : LifecycleService() {
         motionDetector.stopMonitoring()
         trapManager.stopMonitoring()
         geofenceManager.stopMonitoring()
+        usbAutolockManager.stopMonitoring()
+        clipperGuardManager.stopMonitoring()
+        ransomwareCanaryManager.disarmCanaryTrap()
+        otpInterceptionGuardManager.stopMonitoring()
         locationTracker.stopTracking()
         releaseWakeLock()
         scheduleRestart()
@@ -542,35 +558,39 @@ class PasaService : LifecycleService() {
                         val response = telegramApi.getUpdates(
                             token = token,
                             offset = if (offset > 0) offset else null,
-                            timeout = 25
+                            timeout = 20
                         )
 
-                        if (response.ok && !response.result.isNullOrEmpty()) {
-                            commandReceivedInCycle = true
-                            for (update in response.result) {
-                                try {
-                                    val parsed = commandParser.parse(update)
-                                    if (parsed != null) {
-                                        commandExecutor.execute(parsed)
+                        if (response.ok) {
+                            polledSuccessfully = true
+                            consecutiveErrors = 0
+                            currentBackoff = INITIAL_BACKOFF_MS
+
+                            if (!response.result.isNullOrEmpty()) {
+                                commandReceivedInCycle = true
+                                acquireWakeLock(60_000L) // Keep CPU awake while processing commands and uploading media
+                                for (update in response.result) {
+                                    try {
+                                        val parsed = commandParser.parse(update)
+                                        if (parsed != null) {
+                                            commandExecutor.execute(parsed)
+                                        }
+                                    } catch (e: Exception) {
+                                        Log.e(TAG, "Error executing update #${update.updateId}", e)
                                     }
-                                } catch (e: Exception) {
-                                    Log.e(TAG, "Error executing update #${update.updateId}", e)
+                                    preferencesManager.updateOffset = update.updateId + 1
                                 }
-                                preferencesManager.updateOffset = update.updateId + 1
                             }
                         }
                     }
 
-                    consecutiveErrors = 0
-                    currentBackoff = INITIAL_BACKOFF_MS
-
                     if (commandReceivedInCycle) {
                         lastCommandReceivedAt = System.currentTimeMillis()
                         preferencesManager.lastOwnerHeartbeatTime = System.currentTimeMillis()
-                        delay(500L) // Immediate follow-up for next queued command
+                        delay(200L) // Immediate follow-up for next queued command
                     } else if (polledSuccessfully) {
-                        // Long-poll already waited on server; re-poll quickly to maintain active connection
-                        delay(1500L)
+                        // Long-poll completed normally with no messages; immediately re-poll
+                        delay(300L)
                     } else {
                         delay(currentBackoff)
                     }

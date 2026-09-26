@@ -50,22 +50,51 @@ class LockCommand @Inject constructor(
             )
         }
 
-        // Zero-Trust verification: If Master Password is set, require authentication
-        val remainingArgs = if (authManager.hasMasterPassword()) {
-            val candidate = args.firstOrNull()?.trim()
+        val firstArg = args.firstOrNull()?.trim()?.lowercase()
+
+        // 1. Instant Screen Lock: If no args or explicit "instant" / "now" / "sleep"
+        // This immediately turns off the screen and activates standard OS keyguard.
+        // It requires NO Master Password because it does not lock the legitimate user out or alter credentials.
+        if (args.isEmpty() || firstArg == "instant" || firstArg == "now" || firstArg == "sleep") {
+            return try {
+                dpm.lockNow()
+                Log.i(TAG, "🔒 Instant screen lock executed via dpm.lockNow()")
+                CommandResult(
+                    success = true,
+                    message = "🔒 <b>Device Locked (Instant Sleep)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                            "Screen turned off and OS keyguard locked immediately.\n\n" +
+                            "<i>Unlocked normally via your existing fingerprint, face, or phone PIN.</i>\n\n" +
+                            "💡 <b>Need Maximum Anti-Theft Kiosk Lock?</b>\n" +
+                            "To disable biometrics, engage full-screen tamper guard, and lock kiosk mode, send:\n" +
+                            "<code>/lock lost &lt;master_password&gt; [message]</code>"
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Instant lock failed: ${e.message}", e)
+                CommandResult(success = false, message = "❌ Instant lock failed: ${e.message}")
+            }
+        }
+
+        // 2. Lost Mode Kiosk Lockdown
+        val isLostModeExplicit = firstArg == "lost" || firstArg == "kiosk"
+        val remainingArgs = if (isLostModeExplicit) args.drop(1) else args
+
+        // Zero-Trust verification: If Master Password is set, require authentication for Lost Mode
+        val finalMessageArgs = if (authManager.hasMasterPassword()) {
+            val candidate = remainingArgs.firstOrNull()?.trim()
             if (candidate.isNullOrBlank()) {
                 return CommandResult(
                     success = false,
                     message = """
-                        🔑 <b>Device Lockout (Zero-Trust Guard)</b>
+                        🔑 <b>Activate Lost Mode Kiosk Guard</b>
                         ━━━━━━━━━━━━━━━━━━━━
-                        Because Lost Mode puts the device into a strict Kiosk lockdown without local keypad unlock, activating it requires your Master Password.
+                        Lost Mode engages strict Kiosk lockdown, disables local biometrics, and shows a persistent recovery banner.
 
-                        This guarantees that a compromised server or unauthorized party can never lock you out of your device.
+                        To prevent unauthorized lockouts, activating Lost Mode requires your Master Password.
 
-                        <b>Syntax:</b> <code>/lock &lt;master_password&gt; [optional message]</code>
-                        <b>Instant Sleep:</b> <code>/lock &lt;master_password&gt; instant</code>
-                        <b>Example:</b> <code>/lock MySecretPass123 Device is reported lost</code>
+                        <b>Syntax:</b> <code>/lock lost &lt;master_password&gt; [optional message]</code>
+                        <b>Example:</b> <code>/lock lost MySecretPass123 Device reported stolen! Call 01700000000</code>
+
+                        💡 <i>To simply turn off and lock the screen immediately without password, send <code>/lock instant</code></i>
                     """.trimIndent()
                 )
             }
@@ -77,34 +106,28 @@ class LockCommand @Inject constructor(
             if (!isTotpValid && !isPassValid) {
                 return CommandResult(
                     success = false,
-                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password or TOTP. Device lock rejected."
+                    message = "⛔ <b>Authentication Failed or Invalid Command!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                            "Incorrect Master Password or TOTP.\n\n" +
+                            "• To lock screen immediately (no password needed): <code>/lock instant</code>\n" +
+                            "• To activate full Kiosk Lost Mode: <code>/lock lost &lt;master_password&gt; [message]</code>\n" +
+                            "• To reset lockscreen PIN: <code>/set_os_pin &lt;master_password&gt; &lt;new_pin&gt;</code>"
                 )
             }
-            args.drop(1)
+            remainingArgs.drop(1)
         } else {
-            args
+            remainingArgs
         }
 
         return try {
             val isDeviceOwner = PasaDeviceAdmin.isDeviceOwner(context)
 
-            // Allow explicit instant sleep via "/lock <password> instant" or "/lock instant"
-            if (remainingArgs.isNotEmpty() && (remainingArgs[0].equals("instant", ignoreCase = true) || remainingArgs[0].equals("now", ignoreCase = true))) {
-                dpm.lockNow()
-                Log.i(TAG, "🔒 Instant hardware lock executed")
-                return CommandResult(
-                    success = true,
-                    message = "🔒 Device screen turned off and locked immediately."
-                )
-            }
-
             // Get message (optional)
-            val messageText = if (remainingArgs.isEmpty()) {
+            val messageText = if (finalMessageArgs.isEmpty()) {
                 "🔒 Device has been reported lost or stolen.\n\nTo unlock:\n" +
                 "📱 Send /unlock from Telegram\n" +
                 "📞 Send SMS: PASA <pin> /unlock"
             } else {
-                remainingArgs.joinToString(" ").trim().ifBlank {
+                finalMessageArgs.joinToString(" ").trim().ifBlank {
                     "🔒 Device has been reported lost or stolen.\n\nTo unlock:\n" +
                     "📱 Send /unlock from Telegram\n" +
                     "📞 Send SMS: PASA <pin> /unlock"

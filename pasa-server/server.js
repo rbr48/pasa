@@ -3967,21 +3967,8 @@ function initPollers() {
     console.log(`[PASA Control Plane] Starting poller for default/admin C2 bot...`);
     startBotPoller(DEFAULT_BOT_TOKEN);
   }
-  const seenTokens = new Set();
-  if (DEFAULT_BOT_TOKEN) seenTokens.add(DEFAULT_BOT_TOKEN);
-  if (PASA_CENTRAL_BOT_TOKEN) seenTokens.add(PASA_CENTRAL_BOT_TOKEN);
-
-  const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-  for (const device of Object.values(devices)) {
-    if (device.botToken && !seenTokens.has(device.botToken)) {
-      if ((device.lastSeen || 0) > sevenDaysAgo || String(device.ownerChatId) === String(ADMIN_CHAT_ID)) {
-        seenTokens.add(device.botToken);
-        startBotPoller(device.botToken);
-      }
-    }
-  }
-  if (PASA_CENTRAL_BOT_TOKEN) {
-    console.log(`[PASA Control Plane] Starting poller for central support bot...`);
+  if (PASA_CENTRAL_BOT_TOKEN && PASA_CENTRAL_BOT_TOKEN !== DEFAULT_BOT_TOKEN) {
+    console.log(`[PASA Control Plane] Starting poller for customer support bot (@pasa_sentinel_bot)...`);
     startBotPoller(PASA_CENTRAL_BOT_TOKEN);
   }
 }
@@ -4272,19 +4259,16 @@ app.post('/api/verify-bot', async (req, res) => {
       console.log(`[Device Registration] Updating registration for device ${deviceId}. New token: ${cleanNewToken ? '...' + cleanNewToken.slice(-8) : 'none'}, New ownerChat: ${ownerChatId || 'none'}`);
     }
 
-    // Hot-swap poller cleanly if bot token changed
-    if (cleanNewToken && oldToken && cleanNewToken !== oldToken) {
-      console.log(`[Token Rotation] Device ${deviceId} rotated bot token from ...${oldToken.slice(-8)} to ...${cleanNewToken.slice(-8)}`);
+    const isAdmin = String(ownerChatId) === String(ADMIN_CHAT_ID);
+    const cleanBotToken = isAdmin ? cleanNewToken : '';
+    const cleanOwnerChat = isAdmin ? String(ownerChatId || '') : '';
+
+    // Hot-swap poller cleanly if bot token changed for admin
+    if (isAdmin && cleanBotToken && oldToken && cleanBotToken !== oldToken) {
+      console.log(`[Token Rotation] Admin device ${deviceId} rotated bot token`);
       stopBotPoller(oldToken);
-      if (oldToken === DEFAULT_BOT_TOKEN || String(ownerChatId) === String(ADMIN_CHAT_ID)) {
-        DEFAULT_BOT_TOKEN = cleanNewToken;
-        updateEnvBotToken(cleanNewToken);
-      }
-    } else if (cleanNewToken && !oldToken) {
-      if (!DEFAULT_BOT_TOKEN || String(ownerChatId) === String(ADMIN_CHAT_ID)) {
-        DEFAULT_BOT_TOKEN = cleanNewToken;
-        updateEnvBotToken(cleanNewToken);
-      }
+      DEFAULT_BOT_TOKEN = cleanBotToken;
+      updateEnvBotToken(cleanBotToken);
     }
 
     const apiKey = crypto.randomBytes(32).toString('hex');
@@ -4293,8 +4277,8 @@ app.post('/api/verify-bot', async (req, res) => {
       ...existingDevObj,
       deviceId,
       deviceName: deviceName || existingDevObj.deviceName || 'Android Device',
-      botToken: cleanNewToken || existingDevObj.botToken || '',
-      ownerChatId: ownerChatId || existingDevObj.ownerChatId || '',
+      botToken: cleanBotToken,
+      ownerChatId: cleanOwnerChat,
       email: email || existingDevObj.email || '',
       apiKey: apiKey,
       publicKeyJwk: publicKeyJwk || existingDevObj.publicKeyJwk || null,
@@ -4308,7 +4292,7 @@ app.post('/api/verify-bot', async (req, res) => {
     };
     persistDevice(deviceId);
 
-    if (devices[deviceId].botToken) {
+    if (isAdmin && devices[deviceId].botToken) {
       startBotPoller(devices[deviceId].botToken);
     }
 

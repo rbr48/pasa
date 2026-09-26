@@ -25,8 +25,8 @@ class FakeShutdownCommand @Inject constructor(
 ) : Command {
 
     override val name = "/fakeshutdown"
-    override val description = "Simulate power off with black screen and touch forensics (Requires Master Password)"
-    override val usage = "/fakeshutdown <master_password> | /wake <master_password>"
+    override val description = "Simulate power off with black screen, touch forensics & auto Power Menu interception"
+    override val usage = "/fakeshutdown <master_password> | /wake <master_password> | /fakeshutdown auto [on|locked|always|off|status]"
 
     companion object {
         private const val TAG = "PASA_FakeShutdownCmd"
@@ -42,6 +42,51 @@ class FakeShutdownCommand @Inject constructor(
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
+        val firstArg = args.firstOrNull()?.lowercase() ?: ""
+
+        // Subcommand: auto power-menu configuration
+        if (firstArg == "auto") {
+            val subArg = args.getOrNull(1)?.lowercase() ?: "status"
+            return handleAutoConfig(subArg)
+        }
+
+        // Subcommand: status
+        if (firstArg == "status") {
+            return getStatusReport()
+        }
+
+        // Subcommand: test / demo mode
+        if (firstArg == "test" || firstArg == "demo") {
+            preferencesManager.isFakeShutdownActive = true
+            try {
+                val fakeIntent = FakeShutdownActivity.createIntent(context).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                }
+                SecurityActivityLauncher.launch(
+                    context = context,
+                    intent = fakeIntent,
+                    notificationId = NOTIFICATION_ID,
+                    notificationTitle = "🛡️ PASA Stealth Shield Test",
+                    notificationText = "Simulating power-off deception (Test Mode)",
+                    wakeScreen = true,
+                    ongoing = true
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed launching test fake shutdown: ${e.message}", e)
+            }
+            return CommandResult(
+                success = true,
+                message = """
+                    🎭 <b>Fake Shutdown Test Canvas Launched!</b>
+                    ━━━━━━━━━━━━━━━━━━━━
+                    The authentic OEM power-down blackout is now active on your screen.
+                    
+                    • Tap the screen to test forensic mugshot & GPS beacon
+                    • Send <code>/wake &lt;password&gt;</code> to restore normal display
+                """.trimIndent()
+            )
+        }
+
         val isWake = args.any { it.lowercase() in setOf("wake", "stop", "off") }
         val candidate = args.firstOrNull { it.lowercase() !in setOf("wake", "stop", "off") }?.trim()
 
@@ -49,21 +94,32 @@ class FakeShutdownCommand @Inject constructor(
             return wakeDevice(candidate)
         }
 
-        // Fake Shutdown activation
+        // Fake Shutdown manual activation
         if (authManager.hasMasterPassword()) {
             if (candidate.isNullOrBlank()) {
+                val autoStatus = if (preferencesManager.isFakeShutdownAutoPowerMenu) {
+                    if (preferencesManager.isFakeShutdownAutoLockedOnly) "🟢 Active (When Locked)" else "🟢 Active (Always)"
+                } else "🔴 Disabled"
+
                 return CommandResult(
                     success = false,
                     message = """
-                        🔑 <b>Fake Shutdown Deception (Zero-Trust Guard)</b>
+                        🎭 <b>Fake Shutdown Deception (Stealth Shield)</b>
                         ━━━━━━━━━━━━━━━━━━━━
-                        Because Fake Shutdown places the device into an authentic OEM power-down blackout and suppresses hardware buttons, activating it strictly requires your Master Password.
+                        Simulates an authentic OEM power-down blackout, locks hardware buttons, and captures silent photos & GPS whenever the screen is touched.
 
-                        This guarantees that a compromised server or unauthorized entity can never black out your device.
+                        ⚡ <b>Auto Power Menu Trap:</b> $autoStatus
+                        <i>When someone holds the Power button (1-2s) to shut down while locked, Fake Shutdown triggers automatically!</i>
 
-                        <b>Syntax:</b> <code>/fakeshutdown &lt;master_password&gt;</code>
-                        <b>Wake Device:</b> <code>/wake &lt;master_password&gt;</code>
-                        <b>Example:</b> <code>/fakeshutdown MySecretPass123</code>
+                        <b>Manual Activation:</b>
+                        • <code>/fakeshutdown &lt;master_password&gt;</code> — Immediate blackout
+                        • <code>/wake &lt;master_password&gt;</code> — Restore normal screen
+
+                        <b>Auto-Trap Configuration:</b>
+                        • <code>/fakeshutdown auto on</code> — Intercept when screen is locked (Recommended)
+                        • <code>/fakeshutdown auto always</code> — Intercept always (locked or unlocked)
+                        • <code>/fakeshutdown auto off</code> — Disable automatic interception
+                        • <code>/fakeshutdown status</code> — View current shield settings
                     """.trimIndent()
                 )
             }
@@ -76,6 +132,86 @@ class FakeShutdownCommand @Inject constructor(
         }
 
         return startFakeShutdown()
+    }
+
+    private fun handleAutoConfig(mode: String): CommandResult {
+        return when (mode) {
+            "on", "locked", "enable", "enabled" -> {
+                preferencesManager.isFakeShutdownAutoPowerMenu = true
+                preferencesManager.isFakeShutdownAutoLockedOnly = true
+                CommandResult(
+                    success = true,
+                    message = """
+                        ✅ <b>Auto Fake Shutdown: Armed (Locked Only)</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        • <b>Trigger:</b> Long-pressing the Power button (1-2s) while the screen is locked
+                        • <b>Action:</b> System power dialog dismissed instantly; Fake Shutdown engaged
+                        • <b>Forensics:</b> Perpetrator mugshot + Sat GPS sent to Telegram
+                        • <b>Normal Use:</b> When device is unlocked, normal power menu operates freely
+                    """.trimIndent()
+                )
+            }
+            "always" -> {
+                preferencesManager.isFakeShutdownAutoPowerMenu = true
+                preferencesManager.isFakeShutdownAutoLockedOnly = false
+                CommandResult(
+                    success = true,
+                    message = """
+                        ⚠️ <b>Auto Fake Shutdown: Armed (Always)</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        • <b>Trigger:</b> Long-pressing the Power button at any time (locked or unlocked)
+                        • <b>Action:</b> All power-down attempts instantly diverted to Fake Shutdown
+                        • <b>Forensics:</b> Mugshot + GPS alert sent to Telegram
+                        • <b>Note:</b> You must use <code>/wake &lt;password&gt;</code> to exit blackout mode
+                    """.trimIndent()
+                )
+            }
+            "off", "disable", "disabled" -> {
+                preferencesManager.isFakeShutdownAutoPowerMenu = false
+                CommandResult(
+                    success = true,
+                    message = """
+                        ⏸️ <b>Auto Fake Shutdown: Disabled</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        Power button long-press will now show the standard system power menu.
+                        <i>Fake Shutdown can still be manually triggered via Telegram:</i>
+                        <code>/fakeshutdown &lt;master_password&gt;</code>
+                    """.trimIndent()
+                )
+            }
+            else -> getStatusReport()
+        }
+    }
+
+    private fun getStatusReport(): CommandResult {
+        val autoEnabled = preferencesManager.isFakeShutdownAutoPowerMenu
+        val lockedOnly = preferencesManager.isFakeShutdownAutoLockedOnly
+        val isActive = preferencesManager.isFakeShutdownActive
+
+        val currentMode = when {
+            !autoEnabled -> "🔴 Disabled"
+            lockedOnly -> "🟢 Armed (When Locked Only — Recommended)"
+            else -> "🟡 Armed (Always Active)"
+        }
+
+        return CommandResult(
+            success = true,
+            message = """
+                🎭 <b>Fake Shutdown Deception Status</b>
+                ━━━━━━━━━━━━━━━━━━━━
+                • <b>Active State:</b> ${if (isActive) "🌑 Blackout Engaged" else "☀️ Normal Display"}
+                • <b>Auto Power Menu Trap:</b> $currentMode
+                • <b>Reboot Persistence:</b> 🟢 Active (Resumes blackout on boot)
+                • <b>Touch Mugshots:</b> 🟢 Active (Snaps front camera on tap)
+                • <b>Audio Mute:</b> 🟢 Active (Ringer & media silenced)
+
+                <b>Commands:</b>
+                • <code>/fakeshutdown auto on</code> — Intercept Power button when locked
+                • <code>/fakeshutdown auto always</code> — Intercept Power button always
+                • <code>/fakeshutdown auto off</code> — Disable auto-interception
+                • <code>/wake &lt;password&gt;</code> — Exit blackout mode
+            """.trimIndent()
+        )
     }
 
     fun wakeDevice(candidate: String? = null): CommandResult {

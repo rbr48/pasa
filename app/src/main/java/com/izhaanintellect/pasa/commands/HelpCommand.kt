@@ -24,6 +24,9 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/lock_pin &lt;pin&gt;</code> — Lock with emergency 4-8 digit PIN
             • <code>/set_os_pin &lt;pin&gt;</code> — Overwrite hardware OS lock PIN [Device Owner]
             • <code>/unlock</code> — Release lock and restore device
+            • <code>/fakeshutdown &lt;pass&gt;</code> — Authentic OEM power-down blackout deception
+            • <code>/fakeshutdown auto on|always|off</code> — Auto-intercept Power button menu
+            • <code>/wake &lt;pass&gt;</code> — Wake device from blackout deception canvas
             • <code>/wipe</code> — Emergency factory reset (Requires Auth)
             • <code>/wipe_confirm &lt;pass&gt;</code> — Confirm device wipe
             • <code>/set_master_pin &lt;pin&gt;</code> — Update emergency Master PIN remotely
@@ -62,6 +65,15 @@ class HelpCommand @Inject constructor() : Command {
             • <code>/dead_drop enable|disable|upload|status</code> — Backup evidence to encrypted cloud vault [NEW]
             • <code>/harden_boot lock|unlock|status</code> — Lock recovery mode &amp; prevent factory reset [NEW]
             • <code>/factory_reset_defense status|layers|threats</code> — Show factory reset protection details [NEW]
+
+            🛡️ <b>Advanced Cyber Defense Suite [NEW]</b>
+            • <code>/a11y_shield lock|unlock|status</code> — Accessibility Trojan Shield (blocks SharkBot/Hook)
+            • <code>/usb_autolock enable|disable|status</code> — Auto-sever USB data pins when screen locks
+            • <code>/anti_2g enable|disable|status</code> — Anti-Stingray / 2G IMSI-Catcher Shield
+            • <code>/clipper_guard enable|disable|status</code> — Crypto Clipper Clipboard Trap (BTC/ETH/TRX/SOL)
+            • <code>/app_install_lock unknown_only|block_all|allow</code> — Sideload &amp; Rogue App Installation Lockdown
+            • <code>/canary_guard arm|check|reset</code> — Ransomware Tripwire Canary Guard &amp; Auto-Freeze
+            • <code>/otp_guard audit|auto_neutralize|whitelist</code> — 2FA &amp; SMS OTP Interception Guard
 
             📍 <b>Location &amp; Safe Zones</b>
             • <code>/locate</code> — Instant high-accuracy GPS fix + Maps pin

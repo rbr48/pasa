@@ -106,6 +106,21 @@ class PreferencesManager @Inject constructor(
         // SIM Tray Lock — deep lockdown on unauthorized SIM insertion
         private const val KEY_SIM_TRAY_LOCK_ENABLED = "sim_tray_lock_enabled"
         private const val KEY_SIM_TRAY_LOCK_EMERGENCY_PIN = "sim_tray_lock_emergency_pin"
+
+        // Cyber Defense Suite
+        private const val KEY_A11Y_SHIELD_ENABLED = "a11y_shield_enabled"
+        private const val KEY_A11Y_SHIELD_WHITELIST = "a11y_shield_whitelist"
+        private const val KEY_USB_AUTOLOCK_ENABLED = "usb_autolock_enabled"
+        private const val KEY_ANTI_2G_ENABLED = "anti_2g_enabled"
+        private const val KEY_CLIPPER_GUARD_ENABLED = "clipper_guard_enabled"
+        private const val KEY_APP_INSTALL_LOCK_MODE = "app_install_lock_mode"
+        private const val KEY_CANARY_GUARD_ARMED = "canary_guard_armed"
+        private const val KEY_OTP_GUARD_ENABLED = "otp_guard_enabled"
+        private const val KEY_OTP_GUARD_AUTO_NEUTRALIZE = "otp_guard_auto_neutralize"
+        private const val KEY_OTP_GUARD_WHITELIST = "otp_guard_whitelist"
+        private const val KEY_FAKE_SHUTDOWN_AUTO_POWER_MENU = "fake_shutdown_auto_power_menu"
+        private const val KEY_FAKE_SHUTDOWN_AUTO_LOCKED_ONLY = "fake_shutdown_auto_locked_only"
+
         const val DEFAULT_SERVER_URL = ""
     }
 
@@ -306,6 +321,14 @@ class PreferencesManager @Inject constructor(
     var isFakeShutdownActive: Boolean
         get() = prefs.getBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, false)
         set(value) = prefs.edit().putBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, value).apply()
+
+    var isFakeShutdownAutoPowerMenu: Boolean
+        get() = prefs.getBoolean(KEY_FAKE_SHUTDOWN_AUTO_POWER_MENU, true)
+        set(value) = prefs.edit().putBoolean(KEY_FAKE_SHUTDOWN_AUTO_POWER_MENU, value).apply()
+
+    var isFakeShutdownAutoLockedOnly: Boolean
+        get() = prefs.getBoolean(KEY_FAKE_SHUTDOWN_AUTO_LOCKED_ONLY, true)
+        set(value) = prefs.edit().putBoolean(KEY_FAKE_SHUTDOWN_AUTO_LOCKED_ONLY, value).apply()
 
     var duressPin: String?
         get() = prefs.getString(KEY_DURESS_PIN, null)
@@ -629,6 +652,48 @@ class PreferencesManager @Inject constructor(
     var lockScreenInfo: String
         get() = prefs.getString(KEY_LOCKSCREEN_INFO, "") ?: ""
         set(value) = prefs.edit().putString(KEY_LOCKSCREEN_INFO, value).apply()
+
+    // ── Cyber Defense Suite Properties ──────────────────────────────────────────
+
+    var isA11yShieldEnabled: Boolean
+        get() = prefs.getBoolean(KEY_A11Y_SHIELD_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_A11Y_SHIELD_ENABLED, value).apply()
+
+    var a11yShieldWhitelist: Set<String>
+        get() = prefs.getStringSet(KEY_A11Y_SHIELD_WHITELIST, emptySet()) ?: emptySet()
+        set(value) = prefs.edit().putStringSet(KEY_A11Y_SHIELD_WHITELIST, value).apply()
+
+    var isUsbAutolockEnabled: Boolean
+        get() = prefs.getBoolean(KEY_USB_AUTOLOCK_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_USB_AUTOLOCK_ENABLED, value).apply()
+
+    var isAnti2gEnabled: Boolean
+        get() = prefs.getBoolean(KEY_ANTI_2G_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_ANTI_2G_ENABLED, value).apply()
+
+    var isClipperGuardEnabled: Boolean
+        get() = prefs.getBoolean(KEY_CLIPPER_GUARD_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_CLIPPER_GUARD_ENABLED, value).apply()
+
+    var appInstallLockMode: String
+        get() = prefs.getString(KEY_APP_INSTALL_LOCK_MODE, "none") ?: "none"
+        set(value) = prefs.edit().putString(KEY_APP_INSTALL_LOCK_MODE, value).apply()
+
+    var isCanaryGuardArmed: Boolean
+        get() = prefs.getBoolean(KEY_CANARY_GUARD_ARMED, false)
+        set(value) = prefs.edit().putBoolean(KEY_CANARY_GUARD_ARMED, value).apply()
+
+    var isOtpGuardEnabled: Boolean
+        get() = prefs.getBoolean(KEY_OTP_GUARD_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_OTP_GUARD_ENABLED, value).apply()
+
+    var isOtpGuardAutoNeutralize: Boolean
+        get() = prefs.getBoolean(KEY_OTP_GUARD_AUTO_NEUTRALIZE, false)
+        set(value) = prefs.edit().putBoolean(KEY_OTP_GUARD_AUTO_NEUTRALIZE, value).apply()
+
+    var otpGuardWhitelist: Set<String>
+        get() = prefs.getStringSet(KEY_OTP_GUARD_WHITELIST, emptySet()) ?: emptySet()
+        set(value) = prefs.edit().putStringSet(KEY_OTP_GUARD_WHITELIST, value).apply()
 
     /** Returns true if the minimum configuration required to run is present. */
     fun isConfigured(): Boolean {
