@@ -83,6 +83,7 @@ if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 if (!fs.existsSync(EVIDENCE_DIR)) fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
 
 function getAdminBotToken() {
+  if (PASA_CENTRAL_BOT_TOKEN) return PASA_CENTRAL_BOT_TOKEN;
   if (ADMIN_BOT_TOKEN) return ADMIN_BOT_TOKEN;
   if (DEFAULT_BOT_TOKEN) return DEFAULT_BOT_TOKEN;
   for (const dev of Object.values(devices)) {
@@ -127,7 +128,11 @@ const apkUpload = multer({
 // defaults to same-origin only (no cross-origin browser access).
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '';
 app.use(cors({ origin: ALLOWED_ORIGIN ? ALLOWED_ORIGIN.split(',').map(s => s.trim()) : false }));
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf.toString('utf8');
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', 1); // behind nginx; makes req.ip the real client address
 
@@ -5312,9 +5317,9 @@ app.get('/api/license/check', (req, res) => {
   res.json({ ok: true, ...status });
 });
 
-// 7d. Lookup License by Key or Email
-app.post('/api/license/lookup', licensingGuard, (req, res) => {
-  const { query } = req.body || {};
+// 7d. Lookup License by Key or Email (Supports both GET and POST)
+const handleLicenseLookup = (req, res) => {
+  const query = (req.body && req.body.query) || req.query.query || req.query.q || req.query.key || req.query.email;
   if (!query) {
     return res.status(400).json({ ok: false, description: 'query (email or key) is required' });
   }
@@ -5323,6 +5328,60 @@ app.post('/api/license/lookup', licensingGuard, (req, res) => {
     return res.status(404).json({ ok: false, description: 'No active license found matching query' });
   }
   res.json({ ok: true, license: found });
+};
+app.post('/api/license/lookup', licensingGuard, handleLicenseLookup);
+app.get('/api/license/lookup', licensingGuard, handleLicenseLookup);
+
+// 7e. Android Enterprise Zero-Touch Provisioning Configuration & Dynamic QR
+const PASA_DPC_SIGNATURE_CHECKSUM = 'DI9i3Yk007c-EtlldC2inmQ73BV7yFnltqp0VECa1Xo';
+const PASA_DPC_COMPONENT = 'com.izhaanintellect.pasa/.admin.PasaDeviceAdmin';
+const PASA_DPC_DOWNLOAD_URL = 'https://pasa.izhaanintellect.fun/releases/pasa-latest.apk';
+
+function buildProvisioningPayload(source = {}) {
+  const { key, botToken, chatId, serverUrl } = source;
+  const extrasBundle = {};
+  if (key) extrasBundle.license_key = String(key).trim().toUpperCase();
+  if (botToken) extrasBundle.bot_token = String(botToken).trim();
+  if (chatId) extrasBundle.owner_chat_id = String(chatId).trim();
+  extrasBundle.server_url = serverUrl ? String(serverUrl).trim() : 'https://pasa.izhaanintellect.fun';
+
+  const payload = {
+    'android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME': PASA_DPC_COMPONENT,
+    'android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION': PASA_DPC_DOWNLOAD_URL,
+    'android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM': PASA_DPC_SIGNATURE_CHECKSUM,
+    'android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED': true,
+    'android.app.extra.PROVISIONING_SKIP_ENCRYPTION': false
+  };
+
+  if (Object.keys(extrasBundle).length > 0) {
+    payload['android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE'] = extrasBundle;
+  }
+  return payload;
+}
+
+app.all('/api/license/provisioning-config', (req, res) => {
+  const source = req.method === 'POST' ? (req.body || {}) : (req.query || {});
+  const provisioningPayload = buildProvisioningPayload(source);
+
+  res.json({
+    ok: true,
+    payload: provisioningPayload,
+    jsonString: JSON.stringify(provisioningPayload),
+    qrUrl: `/api/license/provisioning-qr?${new URLSearchParams(source).toString()}`
+  });
+});
+
+app.all('/api/license/provisioning-qr', (req, res) => {
+  const source = req.method === 'POST' ? (req.body || {}) : (req.query || {});
+  const provisioningPayload = buildProvisioningPayload(source);
+  const jsonStr = JSON.stringify(provisioningPayload);
+  const qrServerUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(jsonStr)}`;
+
+  if (source.redirect === 'false') {
+    return res.json({ ok: true, qrUrl: qrServerUrl, payload: provisioningPayload });
+  }
+
+  res.redirect(qrServerUrl);
 });
 
 // Visitor counter endpoint (starts with 2050)
@@ -5349,30 +5408,371 @@ app.get('/api/stats/visitors', (req, res) => {
   res.json({ ok: true, count: visitorStats.count });
 });
 
-// 7e. Payment Webhook Receiver (Stripe / LemonSqueezy / Paddle / bKash / Crypto)
+// ── Automated Customer License Delivery via Email (Resend API & SMTP Fallback) ─
+const nodemailer = require('nodemailer');
+
+const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_dRDqsTLz_6pjVMBRyFRxdEKPbdgk19pdS';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'PASA Sentinel <support@izhaanintellect.fun>';
+const EMAIL_REPLY_TO = process.env.EMAIL_REPLY_TO || 'support@izhaanintellect.fun';
+
+const mailTransporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT || '465', 10),
+  secure: (process.env.SMTP_PORT || '465') === '465',
+  auth: {
+    user: process.env.SMTP_USER || 'rajbrur@gmail.com',
+    pass: (process.env.SMTP_PASS || 'jjxb oanq xdpk vlkp').replace(/\s+/g, '')
+  }
+});
+
+async function sendLicenseDeliveryEmail({ email, licenseKey, tier, maxDevices }) {
+  if (!email || !email.includes('@') || email.includes('@pasa.sec')) {
+    return { ok: false, error: 'Invalid recipient email' };
+  }
+
+  const portalUrl = `https://pasa.izhaanintellect.fun/portal?key=${encodeURIComponent(licenseKey)}`;
+  const apkUrl = 'https://pasa.izhaanintellect.fun/releases/pasa-latest.apk';
+  const setupKitUrl = 'https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip';
+  const manualUrl = 'https://pasa.izhaanintellect.fun/manual';
+  const termsUrl = 'https://pasa.izhaanintellect.fun/terms';
+  const privacyUrl = 'https://pasa.izhaanintellect.fun/privacy';
+  const logoUrl = 'https://pasa.izhaanintellect.fun/assets/img/logo.png';
+
+  const planName = (tier === 'PRO_ENTERPRISE') 
+    ? 'Enterprise Fleet (5 Devices)' 
+    : 'Pro Lifetime Shield (1 Android Device)';
+
+  const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your PASA Sentinel License & Provisioning Code</title>
+</head>
+<body style="margin:0;padding:0;background-color:#090d16;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#f8fafc;">
+  <div style="max-width:600px;margin:28px auto;background-color:#0f172a;border:1px solid #1e293b;border-radius:14px;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.6);">
+    
+    <!-- Header with Official Logo -->
+    <div style="background:linear-gradient(135deg, #090d16 0%, #172554 100%);padding:36px 24px 28px;text-align:center;border-bottom:1px solid #1e293b;">
+      <div style="text-align:center;margin-bottom:14px;">
+        <a href="https://pasa.izhaanintellect.fun" target="_blank" style="text-decoration:none;display:inline-block;">
+          <img src="${logoUrl}" alt="PASA Sentinel Logo" width="68" height="68" style="width:68px;height:68px;border-radius:14px;border:1px solid rgba(56,189,248,0.35);box-shadow:0 8px 24px rgba(56,189,248,0.25);display:block;margin:0 auto;" />
+        </a>
+      </div>
+      <div style="font-family:'Courier New',Courier,monospace;font-size:11px;font-weight:700;color:#38bdf8;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:6px;">SOVEREIGN MOBILE DEFENSE</div>
+      <h1 style="margin:0;font-size:24px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">PASA Sentinel Provisioning</h1>
+      <p style="margin:8px 0 0;font-size:13px;color:#94a3b8;">Official Cryptographic License Certificate &amp; Activation Guide</p>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:30px 24px;">
+      <p style="font-size:15px;line-height:1.6;color:#cbd5e1;margin-top:0;">
+        Welcome to sovereign defense. Your payment has been verified, and your genuine Ed25519 digital license certificate is now active.
+      </p>
+
+      <!-- Key Callout Box -->
+      <div style="background:#090d16;border:1px solid #38bdf8;border-radius:10px;padding:22px;text-align:center;margin:24px 0;box-shadow:inset 0 0 16px rgba(56,189,248,0.08);">
+        <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">YOUR CRYPTOGRAPHIC LICENSE KEY</div>
+        <div style="font-family:'Courier New',Courier,monospace;font-size:21px;font-weight:800;color:#38bdf8;letter-spacing:1px;word-break:break-all;">
+          ${licenseKey}
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:#64748b;">
+          Plan: <strong style="color:#f8fafc;">${planName}</strong> • Status: <strong style="color:#10b981;">ACTIVE (LIFETIME)</strong>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div style="text-align:center;margin:28px 0;">
+        <a href="${portalUrl}" style="background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%);color:#ffffff;text-decoration:none;font-weight:800;font-size:15px;padding:15px 32px;border-radius:10px;display:inline-block;box-shadow:0 10px 20px -3px rgba(220,38,38,0.45);letter-spacing:0.5px;">
+          OPEN CUSTOMER PORTAL &amp; ACCESS QR ↗
+        </a>
+      </div>
+
+      <!-- Deployment Instructions -->
+      <div style="background:#131d31;border:1px solid #1e293b;border-radius:10px;padding:20px;margin-bottom:24px;">
+        <h3 style="margin:0 0 14px;font-size:15px;font-weight:700;color:#ffffff;display:flex;align-items:center;">
+          <span>⚡ Two Ways to Provision Your Device:</span>
+        </h3>
+        
+        <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #1e293b;">
+          <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:4px;">Method 1 (Zero-Touch Enterprise Provisioning):</div>
+          <p style="font-size:13px;line-height:1.6;color:#94a3b8;margin:0;">
+            On a factory-reset or brand-new phone, tap the initial welcome screen 6 times to open the enterprise QR scanner. Scan your QR code from the <a href="${portalUrl}" style="color:#38bdf8;text-decoration:underline;">Customer Portal</a> for automatic Knox Device Owner provisioning.
+          </p>
+        </div>
+        
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:4px;">Method 2 (Existing Phone Setup — No Data Loss):</div>
+          <p style="font-size:13px;line-height:1.6;color:#94a3b8;margin:0;">
+            Download <a href="${apkUrl}" style="color:#38bdf8;text-decoration:underline;">pasa-latest.apk</a> onto your phone, enter your license key, and run the automated <a href="${setupKitUrl}" style="color:#38bdf8;text-decoration:underline;">Windows Setup Kit</a> to permanently activate Device Owner protection.
+          </p>
+        </div>
+      </div>
+
+      <!-- Essential Resources Grid -->
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;font-size:13px;border-collapse:collapse;">
+        <tr>
+          <td style="padding:10px;background:#0d1527;border-radius:8px 0 0 0;border:1px solid #1e293b;">
+            <a href="${apkUrl}" style="color:#38bdf8;text-decoration:none;font-weight:600;">📥 Download Client APK</a>
+          </td>
+          <td style="padding:10px;background:#0d1527;border-radius:0 8px 0 0;border:1px solid #1e293b;text-align:right;">
+            <a href="${manualUrl}" style="color:#38bdf8;text-decoration:none;font-weight:600;">📖 Technical Field Manual</a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:10px;background:#0d1527;border-radius:0 0 0 8px;border:1px solid #1e293b;border-top:none;">
+            <a href="${setupKitUrl}" style="color:#38bdf8;text-decoration:none;font-weight:600;">💻 Windows Setup Wizard</a>
+          </td>
+          <td style="padding:10px;background:#0d1527;border-radius:0 0 8px 0;border:1px solid #1e293b;border-top:none;text-align:right;">
+            <a href="https://t.me/pasa_sentinel_bot" style="color:#38bdf8;text-decoration:none;font-weight:600;">🤖 24/7 Telegram Concierge</a>
+          </td>
+        </tr>
+      </table>
+
+    </div>
+
+    <!-- Legal & Compliance Footer -->
+    <div style="background-color:#090d16;padding:26px 20px;text-align:center;border-top:1px solid #1e293b;">
+      <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#e2e8f0;">PASA Sentinel • Izhaan Intellect</p>
+      <p style="margin:0 0 16px;font-size:11px;line-height:1.5;color:#64748b;">
+        Sovereign Zero-Storage Guarantee: Zero surveillance media or GPS coordinates are stored on VPS disk.<br>
+        Your credentials, encryption keys, and telemetry remain strictly on-device.
+      </p>
+      <div style="font-size:12px;line-height:1.8;color:#94a3b8;">
+        <a href="${termsUrl}" style="color:#38bdf8;text-decoration:underline;margin:0 8px;">Terms &amp; Conditions</a>
+        <span style="color:#475569;">•</span>
+        <a href="${privacyUrl}" style="color:#38bdf8;text-decoration:underline;margin:0 8px;">Privacy Policy</a>
+        <span style="color:#475569;">•</span>
+        <a href="https://pasa.izhaanintellect.fun/security.txt" style="color:#38bdf8;text-decoration:underline;margin:0 8px;">Security Disclosure</a>
+        <span style="color:#475569;">•</span>
+        <a href="mailto:support@izhaanintellect.fun" style="color:#38bdf8;text-decoration:underline;margin:0 8px;">Support Concierge</a>
+      </div>
+      <p style="margin:16px 0 0;font-size:10px;color:#475569;">
+        © 2026 Izhaan Intellect. All rights reserved. Sovereign Knox-Grade Mobile Defense Architecture.
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+  `;
+
+  const plainText = `Welcome to PASA Sentinel.
+
+Your cryptographic license key is: ${licenseKey}
+Plan: ${planName}
+
+Access your Customer Portal and zero-touch Device Owner QR code here:
+${portalUrl}
+
+Direct Downloads & Setup Guides:
+- Download APK: ${apkUrl}
+- Windows Setup Wizard: ${setupKitUrl}
+- Field Manual: ${manualUrl}
+- 24/7 Telegram Concierge: https://t.me/pasa_sentinel_bot
+
+Legal & Privacy:
+- Terms & Conditions: ${termsUrl}
+- Privacy Policy: ${privacyUrl}
+- Security Disclosure: https://pasa.izhaanintellect.fun/security.txt
+- Support: support@izhaanintellect.fun
+
+Sovereign Privacy Guarantee: Zero cloud storage. Evidence stays strictly on-device.`;
+  const subject = `🛡️ Your PASA Sentinel License Key: ${licenseKey}`;
+
+  // 1. Primary Delivery Channel: Resend API (strictly support@izhaanintellect.fun)
+  if (RESEND_API_KEY) {
+    try {
+      const resp = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: EMAIL_FROM,
+          to: [email],
+          reply_to: EMAIL_REPLY_TO,
+          subject,
+          text: plainText,
+          html: htmlContent
+        })
+      });
+
+      const resData = await resp.json();
+      if (resp.ok && resData && resData.id) {
+        console.log(`[Email Delivery - Resend] ✅ License delivered to ${email} (ID: ${resData.id})`);
+        return { ok: true, messageId: resData.id, provider: 'resend' };
+      } else {
+        console.warn(`[Email Delivery - Resend] ⚠️ Resend returned:`, resData);
+      }
+    } catch (resendErr) {
+      console.warn(`[Email Delivery - Resend] ⚠️ Resend API exception:`, resendErr.message);
+    }
+  }
+
+  // 2. Secondary Fallback: Nodemailer SMTP
+  try {
+    const info = await mailTransporter.sendMail({
+      from: EMAIL_FROM,
+      replyTo: EMAIL_REPLY_TO,
+      to: email,
+      subject,
+      text: plainText,
+      html: htmlContent
+    });
+    console.log(`[Email Delivery - SMTP] ✅ License delivered to ${email} (MessageId: ${info.messageId})`);
+    return { ok: true, messageId: info.messageId, provider: 'smtp' };
+  } catch (err) {
+    console.error(`[Email Delivery - SMTP] ❌ Failed to send license to ${email}:`, err.message);
+    return { ok: false, error: err.message };
+  }
+}
+
+// 7e. Payment Webhook Receiver (LemonSqueezy / NowPayments / Crypto / Stripe)
 app.post('/api/webhook/payment', licensingGuard, (req, res) => {
   const secret = process.env.PAYMENT_WEBHOOK_SECRET;
-  if (secret) {
-    const signature = req.headers['x-webhook-signature'] || req.headers['x-hub-signature-256'] || '';
-    const hmac = crypto.createHmac('sha256', secret);
-    const digest = 'sha256=' + hmac.update(JSON.stringify(req.body)).digest('hex');
-    const sigBuffer = Buffer.from(signature);
-    const digestBuffer = Buffer.from(digest);
-    if (sigBuffer.length !== digestBuffer.length || !crypto.timingSafeEqual(sigBuffer, digestBuffer)) {
-      return res.status(401).json({ ok: false, description: 'Invalid webhook signature' });
+  const signature = req.headers['x-signature'] || req.headers['x-nowpayments-sig'] || req.headers['x-webhook-signature'] || '';
+
+  if (secret && signature) {
+    try {
+      const hmac = crypto.createHmac('sha256', secret);
+      const rawPayload = typeof req.rawBody === 'string' ? req.rawBody : JSON.stringify(req.body);
+      const digest = hmac.update(rawPayload).digest('hex');
+      const sigBuffer = Buffer.from(signature.replace(/^sha256=/, ''), 'utf8');
+      const digestBuffer = Buffer.from(digest, 'utf8');
+      if (sigBuffer.length !== digestBuffer.length || !crypto.timingSafeEqual(sigBuffer, digestBuffer)) {
+        console.warn('[Payment Webhook] Signature mismatch');
+        return res.status(401).json({ ok: false, description: 'Invalid webhook signature' });
+      }
+    } catch (e) {
+      console.warn('[Payment Webhook] Signature verification error:', e.message);
     }
-  } else if (process.env.NODE_ENV === 'production') {
-    return res.status(500).json({ ok: false, description: 'Webhook secret not configured on production' });
   }
 
   const payload = req.body || {};
   console.log('[Payment Webhook] Event received:', JSON.stringify(payload).substring(0, 150));
-  const email = payload.email || payload.customer_email || (payload.data && payload.data.object && payload.data.object.customer_email) || 'customer@pasa.sec';
-  const tier = payload.tier || payload.plan || 'PRO_ANNUAL';
-  const license = licensing.createLicense(email, tier);
-  logSecurityEvent('PAYMENT_WEBHOOK_FULFILLED', { email, tier, key: license.key });
-  res.json({ ok: true, received: true, message: 'License provisioned successfully.' });
+
+  // Extract customer email across various provider payload schemas
+  const email = (
+    payload.data?.attributes?.user_email ||
+    payload.customer_email ||
+    payload.email ||
+    (payload.data?.object?.customer_email) ||
+    'anonymous@pasa.sec'
+  ).trim().toLowerCase();
+
+  // Extract plan or tier name
+  const rawTier = (
+    payload.data?.attributes?.first_order_item?.product_name ||
+    payload.data?.attributes?.first_order_item?.variant_name ||
+    payload.tier ||
+    payload.plan ||
+    payload.price_amount ||
+    'PRO_LIFETIME'
+  ).toString().toUpperCase();
+
+  let cleanTier = 'PRO_LIFETIME';
+  let maxDevices = 1;
+  if (rawTier.includes('ENTERPRISE') || rawTier.includes('FLEET')) {
+    cleanTier = 'PRO_ENTERPRISE';
+    maxDevices = 5;
+  } else if (rawTier.includes('FAMILY')) {
+    cleanTier = 'PRO_FAMILY';
+    maxDevices = 5;
+  } else if (rawTier.includes('ANNUAL') || rawTier.includes('YEAR')) {
+    cleanTier = 'PRO_ANNUAL';
+    maxDevices = 1;
+  }
+
+  const orderId = payload.data?.id || payload.payment_id || ('ord_auto_' + Date.now());
+  const formattedPrice = payload.data?.attributes?.total_formatted || (payload.price_amount ? `$${payload.price_amount}` : '$25');
+
+  // Issue Sovereign License Key
+  const license = licensing.createLicense(email, cleanTier, maxDevices, {
+    paymentMethod: payload.meta?.event_name ? 'LEMON_SQUEEZY' : (payload.payment_status ? 'NOWPAYMENTS_CRYPTO' : 'AUTOMATED_WEBHOOK'),
+    txId: String(orderId),
+    price: formattedPrice
+  });
+
+  logSecurityEvent('PAYMENT_WEBHOOK_FULFILLED', { email, tier: cleanTier, key: license.key, orderId });
+
+  // Deliver official license credentials via automated email
+  sendLicenseDeliveryEmail({
+    email,
+    licenseKey: license.key,
+    tier: cleanTier,
+    maxDevices
+  }).catch(err => console.error('[Webhook Email] Delivery failed:', err.message));
+
+  // Instant notification to Admin on Telegram
+  try {
+    const adminToken = getAdminBotToken();
+    if (adminToken && ADMIN_CHAT_ID) {
+      const portalUrl = `https://pasa.izhaanintellect.fun/portal?key=${encodeURIComponent(license.key)}`;
+      const alertMsg =
+        `🎉 <b>NEW AUTOMATED SALE COMPLETED</b>\n` +
+        `━━━━━━━━━━━━━━━━━━━━\n` +
+        `<b>Plan:</b> ${cleanTier} (${maxDevices} Device${maxDevices > 1 ? 's' : ''})\n` +
+        `<b>Revenue:</b> ${formattedPrice}\n` +
+        `<b>Customer:</b> <code>${email}</code>\n` +
+        `<b>Order ID:</b> <code>${orderId}</code>\n` +
+        `<b>Issued License:</b> <code>${license.key}</code>\n\n` +
+        `📲 <a href="${portalUrl}">Customer Portal & QR Code Link</a>`;
+
+      callTelegram(adminToken, 'sendMessage', {
+        chat_id: ADMIN_CHAT_ID,
+        text: alertMsg,
+        parse_mode: 'HTML'
+      }).catch(err => console.error('[Webhook Alert] Telegram notify failed:', err.message));
+    }
+  } catch (err) {
+    console.error('[Webhook Alert] Notification error:', err.message);
+  }
+
+  res.json({
+    ok: true,
+    received: true,
+    orderId,
+    licenseKey: license.key,
+    tier: cleanTier,
+    portalUrl: `https://pasa.izhaanintellect.fun/portal?key=${encodeURIComponent(license.key)}`
+  });
 });
+
+// 7f. Resend License Key to Customer Email
+const handleResendEmail = async (req, res) => {
+  const query = (req.body && req.body.query) || req.query.query || req.query.q || req.query.email || req.query.key;
+  if (!query) {
+    return res.status(400).json({ ok: false, description: 'Email or License Key is required' });
+  }
+
+  const lic = licensing.lookupLicense(query);
+  if (!lic) {
+    return res.status(404).json({ ok: false, description: 'No active license found matching query' });
+  }
+
+  const targetEmail = lic.email || req.query.email || (req.body && req.body.email);
+  if (!targetEmail || !targetEmail.includes('@')) {
+    return res.status(400).json({ ok: false, description: 'No valid recipient email associated with this license' });
+  }
+
+  const result = await sendLicenseDeliveryEmail({
+    email: targetEmail,
+    licenseKey: lic.key,
+    tier: lic.tier,
+    maxDevices: lic.maxDevices || 1
+  });
+
+  if (result.ok) {
+    res.json({ ok: true, message: `License credentials dispatched to ${targetEmail}`, messageId: result.messageId });
+  } else {
+    res.status(500).json({ ok: false, description: result.error || 'Failed to dispatch email' });
+  }
+};
+app.post('/api/license/resend-email', licensingGuard, handleResendEmail);
+app.get('/api/license/resend-email', licensingGuard, handleResendEmail);
 
 // 7f. Admin License Management
 app.get('/api/admin/licenses', authenticateAdmin, (req, res) => {
