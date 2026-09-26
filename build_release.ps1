@@ -44,6 +44,13 @@ $ApkName         = "pasa-v${VersionName}-${VersionCode}.apk"
 $ApkSrc          = Join-Path $ProjectRoot "app\build\outputs\apk\release\app-release.apk"
 $ApkDest         = Join-Path $ReleasesDir $ApkName
 $ApkLatest       = Join-Path $ReleasesDir "pasa-latest.apk"
+$LocalJdk        = "C:\Program Files\Microsoft\jdk-17.0.20.8-hotspot"
+
+# Ensure local build uses JDK 17 without polluting repository gradle.properties
+if (Test-Path $LocalJdk) {
+    $env:JAVA_HOME = $LocalJdk
+    $env:PATH = "$LocalJdk\bin;" + $env:PATH
+}
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -167,11 +174,17 @@ $buildStart   = Get-Date
 $buildLogErr  = Join-Path $env:TEMP "pasa_build_stderr.log"
 $buildLogOut  = Join-Path $env:TEMP "pasa_build_stdout.log"
 
+$gradleArgs = @("assembleRelease", "--no-daemon")
+$localJdk = "C:\Program Files\Microsoft\jdk-17.0.20.8-hotspot"
+if (Test-Path $localJdk) {
+    $gradleArgs += "-Dorg.gradle.java.home=$localJdk"
+}
+
 Push-Location $ProjectRoot
 # Run Gradle with stdout and stderr to separate temp files so JVM warnings on
 # stderr never trigger PowerShell's ErrorActionPreference = Stop mechanism.
 $proc = Start-Process -FilePath ".\gradlew.bat" `
-    -ArgumentList "assembleRelease", "--no-daemon" `
+    -ArgumentList $gradleArgs `
     -RedirectStandardOutput $buildLogOut `
     -RedirectStandardError  $buildLogErr `
     -NoNewWindow -Wait -PassThru
