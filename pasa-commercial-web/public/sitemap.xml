@@ -6,7 +6,7 @@
   <!-- Primary Operations Console Landing Page -->
   <url>
     <loc>https://pasa.izhaanintellect.fun/</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-09-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pasa.izhaanintellect.fun/" />
@@ -62,7 +62,15 @@
   <!-- Interactive Field Manual (Bilingual EN/BN) -->
   <url>
     <loc>https://pasa.izhaanintellect.fun/manual.html</loc>
-    <lastmod>2026-09-24</lastmod>
+    <lastmod>2026-09-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Customer Self-Service & Zero-Touch Provisioning Portal -->
+  <url>
+    <loc>https://pasa.izhaanintellect.fun/portal</loc>
+    <lastmod>2026-09-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>

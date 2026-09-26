@@ -3,8 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PASA Sentinel — Official User Manual &amp; Operational Field Guide</title>
-<meta name="description" content="Comprehensive technical user manual and operational field guide for PASA Sentinel (Private Android Security Agent) v3.5.8 in English and Bengali.">
+<meta name="description" content="Comprehensive technical user manual and operational field guide for PASA Sentinel (Private Android Security Agent) v3.7.8 (Build 73) in English and Bengali.">
+<link rel="canonical" href="https://pasa.izhaanintellect.fun/manual.html">
+<meta property="og:title" content="PASA Sentinel — Official User Manual &amp; Operational Field Guide">
+<meta property="og:description" content="Comprehensive technical user manual and operational field guide for PASA Sentinel v3.7.8 (Build 73) in English and Bengali.">
+<meta property="og:url" content="https://pasa.izhaanintellect.fun/manual.html">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://pasa.izhaanintellect.fun/assets/img/logo.png">
 <meta name="theme-color" content="#05070d">
 <link rel="icon" type="image/png" href="/assets/img/logo.png">
 <link rel="apple-touch-icon" href="/assets/img/logo.png">
@@ -255,7 +260,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
     <img src="/assets/img/logo.png" alt="PASA">
     <div class="brand-title">
       PASA SENTINEL
-      <span id="headerSub">FIELD MANUAL // v3.5.8</span>
+      <span id="headerSub">FIELD MANUAL // v3.7.8 (Build 73)</span>
     </div>
   </a>
 
@@ -305,13 +310,13 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
         <h1 id="pasa-sentinel-private-android-security-agent" class="doc-h1">🛡️ PASA Sentinel (Private Android Security Agent)</h1>
 <h2 id="sovereign-mobile-defense-covert-anti-theft-system" class="doc-h2"><span class="h-anchor">#</span>Sovereign Mobile Defense &amp; Covert Anti-Theft System</h2>
 <h3 id="comprehensive-user-manual-operational-field-guide-english-edition" class="doc-h3">Comprehensive User Manual &amp; Operational Field Guide (English Edition)</h3>
-<p class="doc-p"><strong>Production Version:</strong> v3.5.6 (Build 52) | <strong>OS Target:</strong> Android 8.0 – 16 (API 26 – 36) | <strong>Document Revision:</strong> 2026.1</p>
+<p class="doc-p"><strong>Production Version:</strong> v3.7.8 (Build 73) | <strong>OS Target:</strong> Android 8.0 – 16 (API 26 – 36) | <strong>Document Revision:</strong> 2026.2</p>
 <hr class="divider">
 <h2 id="table-of-contents" class="doc-h2"><span class="h-anchor">#</span>Table of Contents</h2>
 <ol class="doc-list-num">
-<li><a href="#1-system-overview--zero-storage-philosophy" class="doc-link" target="_blank" rel="noopener">System Overview &amp; Zero-Storage Philosophy</a></li>
-<li><a href="#2-operating-system-compatibility--permissions-matrix" class="doc-link" target="_blank" rel="noopener">Operating System Compatibility &amp; Permissions Matrix</a></li>
-<li><a href="#3-step-by-step-installation--device-owner-provisioning" class="doc-link" target="_blank" rel="noopener">Step-by-Step Installation &amp; Device Owner Provisioning</a></li>
+<li><a href="#1-system-overview-zero-storage-philosophy" class="doc-link" target="_blank" rel="noopener">System Overview &amp; Zero-Storage Philosophy</a></li>
+<li><a href="#2-operating-system-compatibility-permissions-matrix" class="doc-link" target="_blank" rel="noopener">Operating System Compatibility &amp; Permissions Matrix</a></li>
+<li><a href="#3-step-by-step-installation-device-owner-provisioning" class="doc-link" target="_blank" rel="noopener">Step-by-Step Installation &amp; Device Owner Provisioning</a></li>
 </ol>
 <ul class="doc-list">
 <li><a href="#method-a-guided-windows-setup-kit-recommended" class="doc-link" target="_blank" rel="noopener">Method A: Guided Windows Setup Kit (Recommended)</a></li>
@@ -319,17 +324,17 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
 <li><a href="#troubleshooting-device-owner-provisioning" class="doc-link" target="_blank" rel="noopener">Troubleshooting Device Owner Provisioning</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#4-initial-setup-credential-arming--hardware-escrow" class="doc-link" target="_blank" rel="noopener">Initial Setup, Credential Arming &amp; Hardware Escrow</a></li>
+<li><a href="#4-initial-setup-credential-arming-hardware-escrow" class="doc-link" target="_blank" rel="noopener">Initial Setup, Credential Arming &amp; Hardware Escrow</a></li>
 </ol>
 <ul class="doc-list">
-<li><a href="#telegram-bot-creation--pairing" class="doc-link" target="_blank" rel="noopener">Telegram Bot Creation &amp; Pairing</a></li>
-<li><a href="#master-password--cryptographic-identity" class="doc-link" target="_blank" rel="noopener">Master Password &amp; Cryptographic Identity</a></li>
-<li><a href="#arming-hardware-escrow-token-android-80--16-pin-reset" class="doc-link" target="_blank" rel="noopener">Arming Hardware Escrow Token (Android 8.0 – 16 PIN Reset)</a></li>
+<li><a href="#telegram-bot-creation-pairing" class="doc-link" target="_blank" rel="noopener">Telegram Bot Creation &amp; Pairing</a></li>
+<li><a href="#master-password-cryptographic-identity" class="doc-link" target="_blank" rel="noopener">Master Password &amp; Cryptographic Identity</a></li>
+<li><a href="#arming-hardware-escrow-token-android-80-16-pin-reset" class="doc-link" target="_blank" rel="noopener">Arming Hardware Escrow Token (Android 8.0 – 16 PIN Reset)</a></li>
 <li><a href="#air-gapped-totp-sms-fallback-enrollment" class="doc-link" target="_blank" rel="noopener">Air-Gapped TOTP SMS Fallback Enrollment</a></li>
 <li><a href="#commercial-license-activation-ed25519-offline-verification" class="doc-link" target="_blank" rel="noopener">Commercial License Activation (Ed25519 Offline Verification)</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#5-telegram-bot-c2-operations--interactive-console" class="doc-link" target="_blank" rel="noopener">Telegram Bot C2 Operations &amp; Interactive Console</a></li>
+<li><a href="#5-telegram-bot-c2-operations-interactive-console" class="doc-link" target="_blank" rel="noopener">Telegram Bot C2 Operations &amp; Interactive Console</a></li>
 </ol>
 <ul class="doc-list">
 <li><a href="#the-4x3-persistent-quick-access-keyboard" class="doc-link" target="_blank" rel="noopener">The 4x3 Persistent Quick-Access Keyboard</a></li>
@@ -340,34 +345,34 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
 <li><a href="#6-complete-command-reference-matrix-all-86-commands" class="doc-link" target="_blank" rel="noopener">Complete Command Reference Matrix (All 86 Commands)</a></li>
 </ol>
 <ul class="doc-list">
-<li><a href="#category-1-core--diagnostics" class="doc-link" target="_blank" rel="noopener">Category 1: Core &amp; Diagnostics (8 Commands)</a></li>
+<li><a href="#category-1-core-diagnostics" class="doc-link" target="_blank" rel="noopener">Category 1: Core &amp; Diagnostics (8 Commands)</a></li>
 <li><a href="#category-2-enterprise-knox-device-owner-suite" class="doc-link" target="_blank" rel="noopener">Category 2: Enterprise Knox Device Owner Suite (19 Commands)</a></li>
-<li><a href="#category-3-location--cellular-rf-telemetry" class="doc-link" target="_blank" rel="noopener">Category 3: Location &amp; Cellular RF Telemetry (7 Commands)</a></li>
-<li><a href="#category-4-covert-forensics--surveillance" class="doc-link" target="_blank" rel="noopener">Category 4: Covert Forensics &amp; Surveillance (13 Commands)</a></li>
-<li><a href="#category-5-lockdown-alert--deception" class="doc-link" target="_blank" rel="noopener">Category 5: Lockdown, Alert &amp; Deception (12 Commands)</a></li>
-<li><a href="#category-6-autonomous-traps--defense" class="doc-link" target="_blank" rel="noopener">Category 6: Autonomous Traps &amp; Defense (11 Commands)</a></li>
-<li><a href="#category-7-extraction--telephony" class="doc-link" target="_blank" rel="noopener">Category 7: Extraction &amp; Telephony (7 Commands)</a></li>
-<li><a href="#category-8-system-maintenance--updates" class="doc-link" target="_blank" rel="noopener">Category 8: System, Maintenance &amp; Updates (9 Commands)</a></li>
+<li><a href="#category-3-location-cellular-rf-telemetry" class="doc-link" target="_blank" rel="noopener">Category 3: Location &amp; Cellular RF Telemetry (7 Commands)</a></li>
+<li><a href="#category-4-covert-forensics-surveillance" class="doc-link" target="_blank" rel="noopener">Category 4: Covert Forensics &amp; Surveillance (13 Commands)</a></li>
+<li><a href="#category-5-lockdown-alert-deception" class="doc-link" target="_blank" rel="noopener">Category 5: Lockdown, Alert &amp; Deception (12 Commands)</a></li>
+<li><a href="#category-6-autonomous-traps-defense" class="doc-link" target="_blank" rel="noopener">Category 6: Autonomous Traps &amp; Defense (11 Commands)</a></li>
+<li><a href="#category-7-extraction-telephony" class="doc-link" target="_blank" rel="noopener">Category 7: Extraction &amp; Telephony (7 Commands)</a></li>
+<li><a href="#category-8-system-maintenance-updates" class="doc-link" target="_blank" rel="noopener">Category 8: System, Maintenance &amp; Updates (9 Commands)</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#7-autonomous-sensor-traps--edge-defenses" class="doc-link" target="_blank" rel="noopener">Autonomous Sensor Traps &amp; Edge Defenses</a></li>
+<li><a href="#7-autonomous-sensor-traps-edge-defenses" class="doc-link" target="_blank" rel="noopener">Autonomous Sensor Traps &amp; Edge Defenses</a></li>
 </ol>
 <ul class="doc-list">
 <li><a href="#snatch-and-run-trap-trap-snatch" class="doc-link" target="_blank" rel="noopener">Snatch-and-Run Trap (<code class="inline-code">/trap snatch</code>)</a></li>
-<li><a href="#charger-disconnect--usb-insertion-trap-trap-charger" class="doc-link" target="_blank" rel="noopener">Charger Disconnect &amp; USB Insertion Trap (<code class="inline-code">/trap charger</code>)</a></li>
-<li><a href="#pocket--bag-extraction-trap-trap-pocket" class="doc-link" target="_blank" rel="noopener">Pocket &amp; Bag Extraction Trap (<code class="inline-code">/trap pocket</code>)</a></li>
-<li><a href="#sim-ejection--foreign-sim-auto-sms-trap-sim_lock" class="doc-link" target="_blank" rel="noopener">SIM Ejection &amp; Foreign SIM Auto-SMS Trap (<code class="inline-code">/sim_lock</code>)</a></li>
-<li><a href="#pattern-guard--failed-lockscreen-trap-pattern_guard" class="doc-link" target="_blank" rel="noopener">Pattern Guard / Failed Lockscreen Trap (<code class="inline-code">/pattern_guard</code>)</a></li>
+<li><a href="#charger-disconnect-usb-insertion-trap-trap-charger" class="doc-link" target="_blank" rel="noopener">Charger Disconnect &amp; USB Insertion Trap (<code class="inline-code">/trap charger</code>)</a></li>
+<li><a href="#pocket-bag-extraction-trap-trap-pocket" class="doc-link" target="_blank" rel="noopener">Pocket &amp; Bag Extraction Trap (<code class="inline-code">/trap pocket</code>)</a></li>
+<li><a href="#sim-ejection-foreign-sim-auto-sms-trap-sim_lock" class="doc-link" target="_blank" rel="noopener">SIM Ejection &amp; Foreign SIM Auto-SMS Trap (<code class="inline-code">/sim_lock</code>)</a></li>
+<li><a href="#pattern-guard-failed-lockscreen-trap-pattern_guard" class="doc-link" target="_blank" rel="noopener">Pattern Guard / Failed Lockscreen Trap (<code class="inline-code">/pattern_guard</code>)</a></li>
 <li><a href="#thermal-anomaly-heat-gun-trap-thermal" class="doc-link" target="_blank" rel="noopener">Thermal Anomaly Heat-Gun Trap (<code class="inline-code">/thermal</code>)</a></li>
-<li><a href="#dead-mans-switch--faraday-isolation-auto-destruct-deadman" class="doc-link" target="_blank" rel="noopener">Dead Man's Switch / Faraday Isolation Auto-Destruct (<code class="inline-code">/deadman</code>)</a></li>
+<li><a href="#dead-mans-switch-faraday-isolation-auto-destruct-deadman" class="doc-link" target="_blank" rel="noopener">Dead Man's Switch / Faraday Isolation Auto-Destruct (<code class="inline-code">/deadman</code>)</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#8-high-security-deception--anti-coercion-features" class="doc-link" target="_blank" rel="noopener">High-Security Deception &amp; Anti-Coercion Features</a></li>
+<li><a href="#8-high-security-deception-anti-coercion-features" class="doc-link" target="_blank" rel="noopener">High-Security Deception &amp; Anti-Coercion Features</a></li>
 </ol>
 <ul class="doc-list">
-<li><a href="#duress-pin--sterile-sandbox-decoy-os-duress_pin" class="doc-link" target="_blank" rel="noopener">Duress PIN &amp; Sterile Sandbox Decoy OS (<code class="inline-code">/duress_pin</code>)</a></li>
-<li><a href="#fake-shutdown--tactile-touch-sensor-canvas-fakeshutdown-wake" class="doc-link" target="_blank" rel="noopener">Fake Shutdown &amp; Tactile Touch Sensor Canvas (<code class="inline-code">/fakeshutdown</code>, <code class="inline-code">/wake</code>)</a></li>
-<li><a href="#stealth-mode--app-drawer-concealment-stealth-hide-show" class="doc-link" target="_blank" rel="noopener">Stealth Mode &amp; App Drawer Concealment (<code class="inline-code">/stealth</code>, <code class="inline-code">/hide</code>, <code class="inline-code">/show</code>)</a></li>
+<li><a href="#duress-pin-sterile-sandbox-decoy-os-duress_pin" class="doc-link" target="_blank" rel="noopener">Duress PIN &amp; Sterile Sandbox Decoy OS (<code class="inline-code">/duress_pin</code>)</a></li>
+<li><a href="#fake-shutdown-tactile-touch-sensor-canvas-fakeshutdown-wake" class="doc-link" target="_blank" rel="noopener">Fake Shutdown &amp; Tactile Touch Sensor Canvas (<code class="inline-code">/fakeshutdown</code>, <code class="inline-code">/wake</code>)</a></li>
+<li><a href="#stealth-mode-app-drawer-concealment-stealth-hide-show" class="doc-link" target="_blank" rel="noopener">Stealth Mode &amp; App Drawer Concealment (<code class="inline-code">/stealth</code>, <code class="inline-code">/hide</code>, <code class="inline-code">/show</code>)</a></li>
 <li><a href="#shadow-app-vault-freezing-freeze-unfreeze-frozen" class="doc-link" target="_blank" rel="noopener">Shadow App Vault Freezing (<code class="inline-code">/freeze</code>, <code class="inline-code">/unfreeze</code>, <code class="inline-code">/frozen</code>)</a></li>
 <li><a href="#app-network-isolation-firewall-app_firewall" class="doc-link" target="_blank" rel="noopener">App Network Isolation Firewall (<code class="inline-code">/app_firewall</code>)</a></li>
 <li><a href="#system-wide-encrypted-dns-over-tls-dns" class="doc-link" target="_blank" rel="noopener">System-Wide Encrypted DNS-over-TLS (<code class="inline-code">/dns</code>)</a></li>
@@ -382,12 +387,12 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
 <li><a href="#ready-to-use-1-tap-monospace-sms-templates" class="doc-link" target="_blank" rel="noopener">Ready-to-Use 1-Tap Monospace SMS Templates</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#10-licensing-ota-updates-warranty--emergency-contacts" class="doc-link" target="_blank" rel="noopener">Licensing, OTA Updates, Warranty &amp; Emergency Contacts</a></li>
+<li><a href="#10-licensing-ota-updates-warranty-emergency-contacts" class="doc-link" target="_blank" rel="noopener">Licensing, OTA Updates, Warranty &amp; Emergency Contacts</a></li>
 </ol>
 <ul class="doc-list">
-<li><a href="#licensing-tiers--hard-lockout-policy" class="doc-link" target="_blank" rel="noopener">Licensing Tiers &amp; Hard Lockout Policy</a></li>
+<li><a href="#licensing-tiers-hard-lockout-policy" class="doc-link" target="_blank" rel="noopener">Licensing Tiers &amp; Hard Lockout Policy</a></li>
 <li><a href="#automated-silent-ota-updates-check_update-update_confirm" class="doc-link" target="_blank" rel="noopener">Automated Silent OTA Updates (<code class="inline-code">/check_update</code>, <code class="inline-code">/update_confirm</code>)</a></li>
-<li><a href="#payment-methods--24-hour-refund-guarantee" class="doc-link" target="_blank" rel="noopener">Payment Methods &amp; 24-Hour Refund Guarantee</a></li>
+<li><a href="#payment-methods-24-hour-refund-guarantee" class="doc-link" target="_blank" rel="noopener">Payment Methods &amp; 24-Hour Refund Guarantee</a></li>
 <li><a href="#emergency-operational-cheatsheet" class="doc-link" target="_blank" rel="noopener">Emergency Operational Cheatsheet</a></li>
 </ul>
 <hr class="divider">
@@ -969,11 +974,12 @@ PASA 123456 /help</code></pre></div>
 <li>When an update is published, send <code class="inline-code">/update_confirm</code>.</li>
 <li><strong>Silent Background Installation:</strong> On Device Owner devices, PASA Sentinel downloads the signed APK, verifies its SHA-256 hash, and commits the package install session silently in the background without user prompts. An exact alarm watchdog restarts the background service immediately after update!</li>
 </ul>
-<h3 id="payment-methods-24-hour-refund-guarantee" class="doc-h3">Payment Methods &amp; 24-Hour Refund Guarantee</h3>
+<h3 id="payment-methods-24-hour-refund-guarantee" class="doc-h3">Payment Methods &amp; 7-Day Refund Guarantee</h3>
 <ul class="doc-list">
-<li><strong>Binance Pay (Crypto):</strong> UID <code class="inline-code">756303714</code> (Nickname: <code class="inline-code">RBR48</code>). Pay in USDT and submit TxID via web checkout or bot.</li>
-<li><strong>bKash (Bangladesh Local):</strong> Personal account <code class="inline-code">01737-910040</code> or official account requested via WhatsApp.</li>
-<li><strong>24-Hour 100% Money-Back Guarantee:</strong> If you are not completely satisfied, request a refund within 24 hours of purchase via WhatsApp or Telegram for an unconditional 100% refund.</li>
+<li><strong>Instant Automated Checkout:</strong> Purchase via LemonSqueezy using credit/debit cards, Apple Pay, Google Pay, or local payment methods. License keys and zero-touch setup QR codes are issued instantly on screen and via encrypted email.</li>
+<li><strong>Self-Service Customer Portal:</strong> Manage your licenses, view activation status, and generate instant provisioning QR codes at <a href="/portal" class="doc-link">https://pasa.izhaanintellect.fun/portal</a>.</li>
+<li><strong>Cryptocurrency &amp; Local Options:</strong> Binance Pay (USDT) and bKash/Nagad available on request via WhatsApp VIP Concierge.</li>
+<li><strong>7-Day 100% Money-Back Guarantee:</strong> If you are not completely satisfied, request a refund within 7 days of purchase via our automated portal or WhatsApp for an unconditional 100% refund.</li>
 </ul>
 <h3 id="emergency-operational-cheatsheet" class="doc-h3">Emergency Operational Cheatsheet</h3>
 <ul class="doc-list">
@@ -990,7 +996,7 @@ PASA 123456 /help</code></pre></div>
         <h1 id="pasa-sentinel-private-android-security-agent" class="doc-h1">🛡️ PASA Sentinel (Private Android Security Agent)</h1>
 <h2 id="স্বার্বভৌম-মোবাইল-প্রতিরক্ষা-ও-গোপন-অ্যান্টি-থেফ্ট-সিস্টেম" class="doc-h2"><span class="h-anchor">#</span>স্বার্বভৌম মোবাইল প্রতিরক্ষা ও গোপন অ্যান্টি-থেফ্ট সিস্টেম</h2>
 <h3 id="পূর্ণাঙ্গ-ব্যবহারকারী-ম্যানুয়াল-ও-অপারেশনাল-ফিল্ড-গাইড-বাংলা-সংস্করণ" class="doc-h3">পূর্ণাঙ্গ ব্যবহারকারী ম্যানুয়াল ও অপারেশনাল ফিল্ড গাইড (বাংলা সংস্করণ)</h3>
-<p class="doc-p"><strong>প্রোডাকশন সংস্করণ:</strong> v3.5.6 (বিল্ড 52) | <strong>অপারেটিং সিস্টেম সাপোর্ট:</strong> অ্যান্ড্রয়েড 8.0 – 16 (API 26 – 36) | <strong>ডকুমেন্ট রিভিশন:</strong> 2026.1</p>
+<p class="doc-p"><strong>প্রোডাকশন সংস্করণ:</strong> v3.7.8 (বিল্ড ৭৩) | <strong>অপারেটিং সিস্টেম সাপোর্ট:</strong> অ্যান্ড্রয়েড 8.0 – 16 (API 26 – 36) | <strong>ডকুমেন্ট রিভিশন:</strong> 2026.2</p>
 <hr class="divider">
 <h2 id="সূচিপত্র-table-of-contents" class="doc-h2"><span class="h-anchor">#</span>সূচিপত্র (Table of Contents)</h2>
 <ol class="doc-list-num">
@@ -1042,9 +1048,9 @@ PASA 123456 /help</code></pre></div>
 <li><a href="#চার্জার-ডিসকানেক্ট-ও-লকড-ইউএসবি-ইনসার্শন-ট্র্যাপ-trap-charger" class="doc-link" target="_blank" rel="noopener">চার্জার ডিসকানেক্ট ও লকড ইউএসবি ইনসার্শন ট্র্যাপ (<code class="inline-code">/trap charger</code>)</a></li>
 <li><a href="#পকেট-ও-ব্যাগ-এক্সট্রাকশন-ট্র্যাপ-trap-pocket" class="doc-link" target="_blank" rel="noopener">পকেট ও ব্যাগ এক্সট্রাকশন ট্র্যাপ (<code class="inline-code">/trap pocket</code>)</a></li>
 <li><a href="#সিম-ইজেকশন-ও-চোরের-অটোমেটিক-এসএমএস-ট্র্যাপ-sim_lock" class="doc-link" target="_blank" rel="noopener">সিম ইজেকশন ও চোরের অটোমেটিক এসএমএস ট্র্যাপ (<code class="inline-code">/sim_lock</code>)</a></li>
-<li><a href="#প্যাটার্ন-গার্ড--ভুল-পাসওয়ার্ড-অ্যালার্ট-pattern_guard" class="doc-link" target="_blank" rel="noopener">প্যাটার্ন গার্ড / ভুল পাসওয়ার্ড অ্যালার্ট (<code class="inline-code">/pattern_guard</code>)</a></li>
+<li><a href="#প্যাটার্ন-গার্ড-ভুল-পাসওয়ার্ড-অ্যালার্ট-pattern_guard" class="doc-link" target="_blank" rel="noopener">প্যাটার্ন গার্ড / ভুল পাসওয়ার্ড অ্যালার্ট (<code class="inline-code">/pattern_guard</code>)</a></li>
 <li><a href="#থার্মাল-অ্যানোমালি-হিট-গান-ট্র্যাপ-thermal" class="doc-link" target="_blank" rel="noopener">থার্মাল অ্যানোমালি হিট-গান ট্র্যাপ (<code class="inline-code">/thermal</code>)</a></li>
-<li><a href="#ডেড-ম্যানস-সুইচ--ফ্যারাডে-আইসোলেশন-অটো-ডেস্ট্রাক্ট-deadman" class="doc-link" target="_blank" rel="noopener">ডেড ম্যানস সুইচ / ফ্যারাডে আইসোলেশন অটো-ডেস্ট্রাক্ট (<code class="inline-code">/deadman</code>)</a></li>
+<li><a href="#ডেড-ম্যানস-সুইচ-ফ্যারাডে-আইসোলেশন-অটো-ডেস্ট্রাক্ট-deadman" class="doc-link" target="_blank" rel="noopener">ডেড ম্যানস সুইচ / ফ্যারাডে আইসোলেশন অটো-ডেস্ট্রাক্ট (<code class="inline-code">/deadman</code>)</a></li>
 </ul>
 <ol class="doc-list-num">
 <li><a href="#৮-উন্নত-ডিসেপশন-ও-অ্যান্টি-কোয়ার্সন-সিকিউরিটি-ফিচার" class="doc-link" target="_blank" rel="noopener">উন্নত ডিসেপশন ও অ্যান্টি-কোয়ার্সন সিকিউরিটি ফিচার</a></li>
@@ -1649,11 +1655,12 @@ PASA 123456 /help</code></pre></div>
 <li>আপডেট থাকলে নিশ্চিত করতে সেন্ড করুন: <code class="inline-code">/update_confirm</code>।</li>
 <li>ডিভাইস ওনার প্রিভিলেজ থাকায় পিএএসএ কোনো সিস্টেম পপআপ ছাড়াই ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে নতুন সাইন করা APK ইনস্টল করে সার্ভিস রিস্টার্ট করে নিবে।</li>
 </ul>
-<h3 id="পেমেন্ট-মেথড-ও-২৪-ঘণ্টার-১০০-মানিব্যাক-গ্যারান্টি" class="doc-h3">পেমেন্ট মেথড ও ২৪ ঘণ্টার ১০০% মানিব্যাক গ্যারান্টি</h3>
+<h3 id="পেমেন্ট-মেথড-ও-২৪-ঘণ্টার-১০০-মানিব্যাক-গ্যারান্টি" class="doc-h3">পেমেন্ট মেথড ও ৭ দিনের ১০০% মানিব্যাক গ্যারান্টি</h3>
 <ul class="doc-list">
-<li><strong>বিকাশ (বাংলাদেশ লোকাল):</strong> অফিশিয়াল ব্যক্তিগত বিকাশ নম্বর <code class="inline-code">01737-910040</code> অথবা অফিসিয়াল হোয়াটসঅ্যাপে যোগাযোগের মাধ্যমে।</li>
-<li><strong>বাইন্যান্স পে (ক্রিপ্টো):</strong> UID <code class="inline-code">756303714</code> (ডাকনাম: <code class="inline-code">RBR48</code>)। ইউএসডিটিতে পেমেন্ট করে TxID সাবমিট করলেই ইনস্ট্যান্ট কী জেনারেট হয়।</li>
-<li><strong>২৪ ঘণ্টার নো-কোয়েশ্চেন-আসকড ১০০% রিফান্ড গ্যারান্টি:</strong> কেনার ২৪ ঘণ্টার মধ্যে যেকোনো কারণে সন্তুষ্ট না হলে হোয়াটসঅ্যাপে জানালেই কোনো প্রশ্ন ছাড়াই সম্পূর্ণ টাকা ফেরত দেওয়া হবে।</li>
+<li><strong>স্বয়ংক্রিয় ইনস্ট্যান্ট চেকআউট:</strong> লেমনস্কুইজি (LemonSqueezy) গেটওয়ে দিয়ে যেকোনো কার্ড, গুগল পে বা অ্যাপল পে-র মাধ্যমে তাৎক্ষণিক সুরক্ষিত পেমেন্ট করুন। পেমেন্ট সম্পূর্ণ হওয়ার সাথে সাথে স্ক্রিনে এবং ইমেইলে লাইসেন্স কী ও প্রভিশনিং কিউআর কোড পৌঁছে যাবে।</li>
+<li><strong>সেলফ-সার্ভিস কাস্টমার পোর্টাল:</strong> আপনার লাইসেন্স ম্যানেজ করতে এবং ওয়ান-ক্লিক কিউআর স্ক্যান করতে ভিজিট করুন <a href="/portal" class="doc-link">https://pasa.izhaanintellect.fun/portal</a>।</li>
+<li><strong>বিকাশ ও ক্রিপ্টো বিকল্প:</strong> বিকাশ বা বাইন্যান্স পে-তে পেমেন্ট করতে চাইলে সরাসরি অফিসিয়াল হোয়াটসঅ্যাপ ভিআইপি সাপোর্টে যোগাযোগ করুন।</li>
+<li><strong>৭ দিনের ১০০% নো-কোশ্চেন রিফান্ড গ্যারান্টি:</strong> কেনার ৭ দিনের মধ্যে সন্তুষ্ট না হলে অটোমেটিক গেটওয়ে রিভার্সাল বা হোয়াটসঅ্যাপের মাধ্যমে ১০০% টাকা ফেরত পেয়ে যাবেন।</li>
 </ul>
 <h3 id="জরুরি-ফিল্ড-চিটশিট-ও-অফিসিয়াল-লিংক" class="doc-h3">জরুরি ফিল্ড চিটশিট ও অফিসিয়াল লিংক</h3>
 <ul class="doc-list">
@@ -1696,7 +1703,7 @@ function switchLang(lang) {
   document.getElementById('contentBn').style.display = lang === 'bn' ? 'block' : 'none';
   document.getElementById('tocTitle').innerText = lang === 'en' ? 'Table of Contents' : 'ম্যানুয়াল সূচিপত্র';
   document.getElementById('searchInput').placeholder = lang === 'en' ? 'Filter sections...' : 'বিষয়বস্তু খুঁজুন...';
-  document.getElementById('headerSub').innerText = lang === 'en' ? 'FIELD MANUAL // v3.5.8' : 'ফিল্ড ম্যানুয়াল // v৩.৫.৮';
+  document.getElementById('headerSub').innerText = lang === 'en' ? 'FIELD MANUAL // v3.7.8 (Build 73)' : 'ফিল্ড ম্যানুয়াল // v৩.৭.৮ (বিল্ড ৭৩)';
   renderToc();
 }
 

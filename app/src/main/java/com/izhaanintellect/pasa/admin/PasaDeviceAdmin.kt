@@ -8,6 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.PersistableBundle
 import android.os.UserHandle
 import android.os.UserManager
 import android.util.Log
@@ -1062,6 +1063,108 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                     )
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to send admin enabled alert", e)
+                } finally {
+                    pendingResult.finish()
+                }
+            }
+        }
+    }
+
+    override fun onProfileProvisioningComplete(context: Context, intent: Intent) {
+        super.onProfileProvisioningComplete(context, intent)
+        Log.i(TAG, "👑 PASA Zero-Touch Android Enterprise Provisioning Complete via QR Code!")
+
+        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        val admin = getComponentName(context)
+
+        try {
+            dpm.setProfileEnabled(admin)
+        } catch (e: Exception) {
+            Log.w(TAG, "setProfileEnabled notice during provisioning: ${e.message}")
+        }
+
+        // Apply enterprise self-healing & anti-tamper immediately
+        try {
+            selfHealPermissions(context)
+            applyAntiTamperSuite(context, true)
+            enableSecurityLogging(context, true)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed applying enterprise policies during QR provisioning: ${e.message}")
+        }
+
+        val entryPoint = getEntryPoint(context)
+        val prefs = entryPoint.preferencesManager()
+
+        // Extract extras bundle from the provisioning QR payload
+        try {
+            val bundle = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(
+                    DevicePolicyManager.EXTRA_PROVISIONING_ADMIN_EXTRAS_BUNDLE,
+                    PersistableBundle::class.java
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getParcelableExtra(DevicePolicyManager.EXTRA_PROVISIONING_ADMIN_EXTRAS_BUNDLE)
+            }
+
+            bundle?.let { b ->
+                val licenseKey = b.getString("license_key")
+                val botToken = b.getString("bot_token")
+                val ownerChatId = b.getString("owner_chat_id")
+                val serverUrl = b.getString("server_url")
+
+                if (!licenseKey.isNullOrBlank()) {
+                    prefs.licenseKey = licenseKey.trim().uppercase()
+                    Log.i(TAG, "Auto-configured licenseKey from QR provisioning: ${prefs.licenseKey}")
+                }
+                if (!botToken.isNullOrBlank()) {
+                    prefs.botToken = botToken.trim()
+                }
+                if (!ownerChatId.isNullOrBlank()) {
+                    prefs.ownerChatId = ownerChatId.trim()
+                }
+                if (!serverUrl.isNullOrBlank()) {
+                    prefs.serverUrl = serverUrl.trim()
+                }
+
+                if (prefs.botToken.isNotBlank() && prefs.ownerChatId.isNotBlank()) {
+                    prefs.isSetupComplete = true
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed reading provisioning extras bundle: ${e.message}", e)
+        }
+
+        // Start PasaService persistent daemon
+        try {
+            com.izhaanintellect.pasa.service.PasaService.start(context)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed starting PasaService during provisioning: ${e.message}")
+        }
+
+        // Send Telegram alert if credentials were configured via QR code
+        if (prefs.isConfigured()) {
+            val pendingResult = goAsync()
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val api = entryPoint.telegramApi()
+                    val alertText = "👑 <b>PASA ZERO-TOUCH ENROLLMENT COMPLETE</b>\n" +
+                            "━━━━━━━━━━━━━━━━━━━━\n" +
+                            "✅ <b>Device Owner:</b> Provisioned via Android Enterprise QR Code\n" +
+                            "✅ <b>Anti-Tamper Suite:</b> Armed & Enforced\n" +
+                            "✅ <b>Self-Healing Permissions:</b> Permanently Locked\n" +
+                            "🔑 <b>License Key:</b> <code>${prefs.licenseKey.ifBlank { "Unlicensed" }}</code>\n" +
+                            "🛡️ <i>Your sovereign device is armed and operational!</i>"
+
+                    api.sendMessage(
+                        token = prefs.botToken,
+                        request = SendMessageRequest(
+                            chatId = prefs.ownerChatIdLong,
+                            text = alertText
+                        )
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed sending QR provisioning confirmation alert: ${e.message}")
                 } finally {
                     pendingResult.finish()
                 }
