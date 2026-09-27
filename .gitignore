@@ -16,9 +16,7 @@ npm-debug.log*
 .env
 .env.*
 !.env.example
-pasa-server/data/
-pasa-server/uploads/
-pasa-server/releases/
+pasa-server/
 pasa-commercial-web/public/releases/
 *.mp4
 *.avi
