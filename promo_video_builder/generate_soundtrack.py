@@ -9,7 +9,7 @@ import random
 SAMPLE_RATE = 44100
 BPM = 130
 BEAT_DUR = 60.0 / BPM
-TOTAL_DUR = 36.0  # 36 seconds punchy ad
+TOTAL_DUR = 44.0  # 44 seconds high-velocity ad (110 frames x 0.40s)
 NUM_SAMPLES = int(SAMPLE_RATE * TOTAL_DUR)
 
 print(f"Generating {TOTAL_DUR}s Cyberpunk soundtrack at {BPM} BPM...")
@@ -128,7 +128,7 @@ bass_patterns = [
 ]
 
 drop_start_beat = int(6.0 / BEAT_DUR)
-drop_end_beat = int(33.0 / BEAT_DUR)
+drop_end_beat = int(41.0 / BEAT_DUR)
 
 boom(6.0) # Massive drop hit at 6s
 
@@ -155,14 +155,14 @@ for beat in range(drop_start_beat, drop_end_beat):
         freq = bass_patterns[pat_idx]
         bass_note(bt, BEAT_DUR / 4.0, freq, intensity=0.6)
 
-    # Transition risers at 15s and 25s
-    if abs(t - 15.0) < 0.2 or abs(t - 25.0) < 0.2:
+    # Transition risers at 15s, 25s, and 35s
+    if abs(t - 15.0) < 0.2 or abs(t - 25.0) < 0.2 or abs(t - 35.0) < 0.2:
         riser(t, 2.0)
         boom(t + 2.0)
 
-# Outro Hit (33s to 36s)
-boom(33.0)
-kick(33.0, 1.1)
+# Outro Hit (41s to 44s)
+boom(41.0)
+kick(41.0, 1.1)
 
 # Normalization & Master Limiting
 print("Mastering audio...")
