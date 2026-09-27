@@ -1,5 +1,60 @@
 [
   {
+    "versionCode": 78,
+    "versionName": "3.7.13",
+    "releaseDate": "2026-09-27",
+    "fileName": "pasa-v3.7.13-78.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.13-78.apk",
+    "sha256": "b282efb02bbcd54bc9941a5964c8c7d0fdf52490f1496469c97434c60a7f144e",
+    "size": 19299007,
+    "mandatory": false,
+    "releaseNotes": "v3.7.13: Production Release — Hardened Sovereign Defense Core."
+  },
+  {
+    "versionCode": 77,
+    "versionName": "3.7.12",
+    "releaseDate": "2026-09-26",
+    "fileName": "pasa-v3.7.12-77.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.12-77.apk",
+    "sha256": "b75722de3c873314183832a4a0083a685705b3dce44eaba7634c6b71ee071dae",
+    "size": 19299011,
+    "mandatory": false,
+    "releaseNotes": "v3.7.12: Hardened direct-to-telegram command dispatcher and message sanitization."
+  },
+  {
+    "versionCode": 76,
+    "versionName": "3.7.11",
+    "releaseDate": "2026-09-26",
+    "fileName": "pasa-v3.7.11-76.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.11-76.apk",
+    "sha256": "9c7019b2357e5738370c550840dee333c72ae0ff89d64ad0b6b1f740da77546b",
+    "size": 19298995,
+    "mandatory": false,
+    "releaseNotes": "v3.7.11: Enhanced device owner policy enforcement and security event monitoring."
+  },
+  {
+    "versionCode": 75,
+    "versionName": "3.7.10",
+    "releaseDate": "2026-09-26",
+    "fileName": "pasa-v3.7.10-75.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.10-75.apk",
+    "sha256": "8ec214be4f0479a8e8a5b751448d836a029ba204e08be43cb9a225af240a082c",
+    "size": 19282612,
+    "mandatory": false,
+    "releaseNotes": "v3.7.10: Bug fixes for background accessibility service persistence."
+  },
+  {
+    "versionCode": 74,
+    "versionName": "3.7.9",
+    "releaseDate": "2026-09-26",
+    "fileName": "pasa-v3.7.9-74.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.9-74.apk",
+    "sha256": "0070ce109a672e78d1973be5e5c193574e56f123cd53f941786b4e5420534c73",
+    "size": 19266168,
+    "mandatory": false,
+    "releaseNotes": "v3.7.9: Power button menu interception and fake shutdown trap improvements."
+  },
+  {
     "versionCode": 73,
     "versionName": "3.7.8",
     "releaseDate": "2026-09-26",

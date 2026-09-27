@@ -232,6 +232,18 @@ Write-OK "releases\$ApkName"
 Write-Host "  SHA-256 : $sha256" -ForegroundColor White
 Write-Host "  Size    : $sizeMB MB" -ForegroundColor White
 
+# Update local release catalog & independent audit report
+$updateScript = Join-Path $ProjectRoot "scripts\update_release.js"
+if (Test-Path $updateScript) {
+    & node $updateScript $ApkName
+    Write-OK "Local release catalog updated ($ApkName)"
+}
+$auditScript = Join-Path $ProjectRoot "scripts\verify_independent_audit.js"
+if (Test-Path $auditScript) {
+    & node $auditScript
+    Write-OK "Independent audit report updated"
+}
+
 if ($SkipDeploy) {
     Write-Host ""
     Write-Host "  SkipDeploy set -- stopping after local build." -ForegroundColor Yellow
