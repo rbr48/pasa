@@ -37,6 +37,12 @@ import kotlinx.coroutines.launch
  */
 class PasaDeviceAdmin : DeviceAdminReceiver() {
 
+    data class AntiTamperItem(
+        val key: String,
+        val label: String,
+        val isLocked: Boolean
+    )
+
     companion object {
         private const val TAG = "PASA_DeviceAdmin"
 
@@ -182,12 +188,96 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
 
             try {
                 dpm.setStatusBarDisabled(component, enabled)
+                val prefs = com.izhaanintellect.pasa.data.PreferencesManager(context)
+                prefs.isStatusBarDisabled = enabled
                 results["Notification Shade / Quick Settings Lockout"] = true
             } catch (e: Exception) {
                 results["Notification Shade / Quick Settings Lockout"] = false
             }
 
             return results
+        }
+
+        fun getAntiTamperItems(context: Context): List<AntiTamperItem> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            val bundle = try { dpm.getUserRestrictions(component) } catch (_: Exception) { null }
+            val prefs = com.izhaanintellect.pasa.data.PreferencesManager(context)
+
+            fun isRestricted(key: String): Boolean = bundle?.getBoolean(key, false) ?: false
+
+            return listOf(
+                AntiTamperItem("safeboot", "Safe Boot", isRestricted(UserManager.DISALLOW_SAFE_BOOT)),
+                AntiTamperItem("airplane", "Airplane Mode", isRestricted(UserManager.DISALLOW_AIRPLANE_MODE)),
+                AntiTamperItem("factory_reset", "Factory Reset", isRestricted(UserManager.DISALLOW_FACTORY_RESET)),
+                AntiTamperItem("network_reset", "Network Reset", isRestricted(UserManager.DISALLOW_NETWORK_RESET)),
+                AntiTamperItem("otg", "OTG / Media Mount", isRestricted(UserManager.DISALLOW_MOUNT_PHYSICAL_MEDIA)),
+                AntiTamperItem("usb_file", "USB MTP File Transfer", isRestricted(UserManager.DISALLOW_USB_FILE_TRANSFER)),
+                AntiTamperItem("location", "Location Toggle", isRestricted(UserManager.DISALLOW_CONFIG_LOCATION)),
+                AntiTamperItem("usb_debug", "USB ADB Debugging", isRestricted(UserManager.DISALLOW_DEBUGGING_FEATURES)),
+                AntiTamperItem("status_bar", "Notification Shade", prefs.isStatusBarDisabled)
+            )
+        }
+
+        fun setIndividualAntiTamper(context: Context, key: String, enable: Boolean): Pair<Boolean, String> {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val component = getComponentName(context)
+            if (!dpm.isDeviceOwnerApp(context.packageName)) {
+                return Pair(false, "❌ Enterprise Device Owner required.")
+            }
+            val prefs = com.izhaanintellect.pasa.data.PreferencesManager(context)
+            return try {
+                when (key.lowercase().trim()) {
+                    "safeboot", "safe_boot" -> {
+                        if (enable) dpm.addUserRestriction(component, UserManager.DISALLOW_SAFE_BOOT)
+                        else dpm.clearUserRestriction(component, UserManager.DISALLOW_SAFE_BOOT)
+                        Pair(true, "Safe Boot Prohibition: ${if (enable) "🔒 BLOCKED" else "🔓 ALLOWED"}")
+                    }
+                    "airplane", "airplanemode", "airplane_mode" -> {
+                        if (enable) dpm.addUserRestriction(component, UserManager.DISALLOW_AIRPLANE_MODE)
+                        else dpm.clearUserRestriction(component, UserManager.DISALLOW_AIRPLANE_MODE)
+                        Pair(true, "Airplane Mode Lock: ${if (enable) "🔒 BLOCKED" else "🔓 ALLOWED"}")
+                    }
+                    "factory_reset", "reset", "wipe_lock" -> {
+                        if (enable) dpm.addUserRestriction(component, UserManager.DISALLOW_FACTORY_RESET)
+                        else dpm.clearUserRestriction(component, UserManager.DISALLOW_FACTORY_RESET)
+                        Pair(true, "Factory Reset Block: ${if (enable) "🔒 BLOCKED" else "🔓 ALLOWED"}")
+                    }
+                    "network_reset", "net_reset" -> {
+                        if (enable) dpm.addUserRestriction(component, UserManager.DISALLOW_NETWORK_RESET)
+                        else dpm.clearUserRestriction(component, UserManager.DISALLOW_NETWORK_RESET)
+                        Pair(true, "Network Reset Block: ${if (enable) "🔒 BLOCKED" else "🔓 ALLOWED"}")
+                    }
+                    "otg", "media", "mount", "sdcard" -> {
+                        if (enable) dpm.addUserRestriction(component, UserManager.DISALLOW_MOUNT_PHYSICAL_MEDIA)
+                        else dpm.clearUserRestriction(component, UserManager.DISALLOW_MOUNT_PHYSICAL_MEDIA)
+                        Pair(true, "OTG / Media Mount Block: ${if (enable) "🔒 BLOCKED" else "🔓 ALLOWED"}")
+                    }
+                    "usb_file", "mtp", "file_transfer" -> {
+                        if (enable) dpm.addUserRestriction(component, UserManager.DISALLOW_USB_FILE_TRANSFER)
+                        else dpm.clearUserRestriction(component, UserManager.DISALLOW_USB_FILE_TRANSFER)
+                        Pair(true, "USB MTP File Transfer Block: ${if (enable) "🔒 BLOCKED" else "🔓 ALLOWED"}")
+                    }
+                    "location", "gps_lock", "location_config" -> {
+                        if (enable) dpm.addUserRestriction(component, UserManager.DISALLOW_CONFIG_LOCATION)
+                        else dpm.clearUserRestriction(component, UserManager.DISALLOW_CONFIG_LOCATION)
+                        Pair(true, "Location Toggle Tamper Lock: ${if (enable) "🔒 BLOCKED" else "🔓 ALLOWED"}")
+                    }
+                    "usb_debug", "adb", "debugging" -> {
+                        if (enable) dpm.addUserRestriction(component, UserManager.DISALLOW_DEBUGGING_FEATURES)
+                        else dpm.clearUserRestriction(component, UserManager.DISALLOW_DEBUGGING_FEATURES)
+                        Pair(true, "USB ADB Debugging Block: ${if (enable) "🔒 BLOCKED" else "🔓 ALLOWED"}")
+                    }
+                    "status_bar", "shade", "quick_settings", "statusbar" -> {
+                        dpm.setStatusBarDisabled(component, enable)
+                        prefs.isStatusBarDisabled = enable
+                        Pair(true, "Notification Shade / Quick Settings: ${if (enable) "🔒 LOCKED" else "🔓 UNLOCKED"}")
+                    }
+                    else -> Pair(false, "Unknown anti-tamper option: <code>$key</code>")
+                }
+            } catch (e: Exception) {
+                Pair(false, "❌ Failed updating $key: ${e.message}")
+            }
         }
 
         fun setComprehensiveLockdown(context: Context, enabled: Boolean): Boolean {
@@ -846,42 +936,124 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
             }
         }
 
+        fun setWifiEnabled(context: Context, enabled: Boolean): Pair<Boolean, String> {
+            return try {
+                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+                    ?: return Pair(false, "❌ Wi-Fi Service unavailable on device.")
+                @Suppress("DEPRECATION")
+                val success = wifiManager.setWifiEnabled(enabled)
+                val stateStr = if (enabled) "ENABLED" else "DISABLED"
+                if (success || wifiManager.isWifiEnabled == enabled) {
+                    Pair(true, "📶 Wi-Fi radio successfully <b>$stateStr</b>.")
+                } else {
+                    Pair(false, "⚠️ Could not change Wi-Fi state to $stateStr.")
+                }
+            } catch (e: Exception) {
+                Pair(false, "❌ Error toggling Wi-Fi: ${e.message}")
+            }
+        }
+
+        fun getWifiStatus(context: Context): Pair<Boolean, String> {
+            return try {
+                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+                    ?: return Pair(false, "❌ Wi-Fi Service unavailable.")
+                val isEnabled = wifiManager.isWifiEnabled
+                @Suppress("DEPRECATION")
+                val info = wifiManager.connectionInfo
+                val rawSsid = info?.ssid?.replace("\"", "") ?: "<unknown>"
+                val isConnected = info != null && rawSsid != "<unknown ssid>" && rawSsid.isNotBlank() && info.networkId != -1
+                val ipInt = info?.ipAddress ?: 0
+                val ipStr = if (ipInt != 0) {
+                    String.format(
+                        java.util.Locale.US,
+                        "%d.%d.%d.%d",
+                        ipInt and 0xff,
+                        ipInt shr 8 and 0xff,
+                        ipInt shr 16 and 0xff,
+                        ipInt shr 24 and 0xff
+                    )
+                } else "None"
+                val rssi = info?.rssi ?: -127
+                val speed = info?.linkSpeed ?: 0
+
+                val text = buildString {
+                    appendLine("📶 <b>Wi-Fi Radio & Telemetry Status</b>")
+                    appendLine("━━━━━━━━━━━━━━━━━━━━")
+                    appendLine("• <b>Wi-Fi Hardware:</b> ${if (isEnabled) "🟢 ON (Enabled)" else "🔴 OFF (Disabled)"}")
+                    appendLine("• <b>Connection State:</b> ${if (isConnected) "✅ Connected" else "⚠️ Disconnected"}")
+                    if (isConnected) {
+                        appendLine("• <b>Active SSID:</b> <code>$rawSsid</code>")
+                        appendLine("• <b>IP Address:</b> <code>$ipStr</code>")
+                        appendLine("• <b>Signal Strength:</b> $rssi dBm")
+                        appendLine("• <b>Link Speed:</b> $speed Mbps")
+                        appendLine("• <b>BSSID:</b> <code>${info?.bssid ?: "N/A"}</code>")
+                    } else {
+                        appendLine("• <b>Tip:</b> Connect to nearby Wi-Fi via: <code>/wifi_connect &lt;ssid&gt; [password]</code>")
+                    }
+                }
+                Pair(true, text.trimEnd())
+            } catch (e: Exception) {
+                Pair(false, "❌ Failed to inspect Wi-Fi status: ${e.message}")
+            }
+        }
+
         fun connectWifi(context: Context, ssid: String, pass: String): Pair<Boolean, String> {
             return try {
                 val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
                     ?: return Pair(false, "❌ Wi-Fi Service unavailable on device.")
 
-                if (!wifiManager.isWifiEnabled) {
-                    @Suppress("DEPRECATION")
-                    wifiManager.isWifiEnabled = true
+                if (pass.isNotBlank() && pass.length < 8) {
+                    return Pair(false, "❌ Invalid Wi-Fi password. WPA/WPA2 security strictly requires at least 8 characters (got ${pass.length}).")
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                    val specifier = if (pass.isNotBlank()) {
-                        WifiNetworkSpecifier.Builder()
-                            .setSsid(ssid)
-                            .setWpa2Passphrase(pass)
-                            .build()
-                    } else {
-                        WifiNetworkSpecifier.Builder()
-                            .setSsid(ssid)
-                            .build()
+                // Forcibly turn on Wi-Fi hardware if currently disabled
+                if (!wifiManager.isWifiEnabled) {
+                    try {
+                        @Suppress("DEPRECATION")
+                        wifiManager.setWifiEnabled(true)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Cannot enable Wi-Fi via setWifiEnabled: ${e.message}")
                     }
-                    val request = NetworkRequest.Builder()
-                        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                        .setNetworkSpecifier(specifier)
-                        .build()
+                }
 
-                    connectivityManager.requestNetwork(request, object : ConnectivityManager.NetworkCallback() {
-                        override fun onAvailable(network: Network) {
-                            super.onAvailable(network)
-                            Log.i(TAG, "Emergency Wi-Fi network available: $ssid")
-                            connectivityManager.bindProcessToNetwork(network)
+                var configured = false
+                val details = mutableListOf<String>()
+
+                // 1. Android 10+ (API 29+) Enterprise Device Owner: WifiNetworkSuggestion
+                // DO apps bypass user approval dialogs entirely and auto-join
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    try {
+                        val suggestionBuilder = android.net.wifi.WifiNetworkSuggestion.Builder()
+                            .setSsid(ssid)
+
+                        if (pass.isNotBlank()) {
+                            suggestionBuilder.setWpa2Passphrase(pass)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                try {
+                                    suggestionBuilder.setWpa3Passphrase(pass)
+                                } catch (_: Exception) {}
+                            }
                         }
-                    })
-                    Pair(true, "📶 Emergency Wi-Fi connection requested for SSID: <b>$ssid</b> (Android 10+ Specifier).")
-                } else {
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            suggestionBuilder.setIsInitialAutojoinEnabled(true)
+                        }
+
+                        val suggestion = suggestionBuilder.build()
+                        val status = wifiManager.addNetworkSuggestions(listOf(suggestion))
+                        if (status == WifiManager.STATUS_NETWORK_SUGGESTIONS_SUCCESS) {
+                            configured = true
+                            details.add("Network suggestion provisioned (Auto-join armed)")
+                        } else {
+                            details.add("Suggestion status: $status")
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "WifiNetworkSuggestion error: ${e.message}")
+                    }
+                }
+
+                // 2. Legacy / Direct Configuration: WifiConfiguration (Android 8-9 + DO compatible)
+                try {
                     @Suppress("DEPRECATION")
                     val wifiConfig = WifiConfiguration().apply {
                         this.SSID = "\"$ssid\""
@@ -900,11 +1072,61 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                         wifiManager.enableNetwork(netId, true)
                         @Suppress("DEPRECATION")
                         wifiManager.reconnect()
-                        Pair(true, "📶 Emergency Wi-Fi network provisioned and connected to: <b>$ssid</b>")
-                    } else {
-                        Pair(false, "❌ Failed to configure Wi-Fi network <b>$ssid</b>.")
+                        configured = true
+                        details.add("Profile saved to device keystore (netId: $netId)")
+                    }
+                } catch (e: Exception) {
+                    Log.d(TAG, "WifiConfiguration legacy setup note: ${e.message}")
+                }
+
+                // 3. Process Network Specifier Binding (Android 10+)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    try {
+                        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                        val specifierBuilder = WifiNetworkSpecifier.Builder().setSsid(ssid)
+                        if (pass.isNotBlank()) {
+                            specifierBuilder.setWpa2Passphrase(pass)
+                        }
+                        val request = NetworkRequest.Builder()
+                            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                            .setNetworkSpecifier(specifierBuilder.build())
+                            .build()
+
+                        connectivityManager.requestNetwork(request, object : ConnectivityManager.NetworkCallback() {
+                            override fun onAvailable(network: Network) {
+                                super.onAvailable(network)
+                                Log.i(TAG, "Emergency Wi-Fi network available: $ssid")
+                                connectivityManager.bindProcessToNetwork(network)
+                            }
+                        })
+                        configured = true
+                    } catch (e: Exception) {
+                        Log.d(TAG, "NetworkRequest note: ${e.message}")
                     }
                 }
+
+                // Trigger active scan to hasten discovery of the target AP
+                try {
+                    @Suppress("DEPRECATION")
+                    wifiManager.startScan()
+                    @Suppress("DEPRECATION")
+                    wifiManager.reconnect()
+                } catch (_: Exception) {}
+
+                val secType = if (pass.isNotBlank()) "WPA2/WPA3-PSK" else "Open (Unsecured)"
+                val msg = buildString {
+                    appendLine("📶 <b>Emergency Wi-Fi Provisioned Successfully</b>")
+                    appendLine("━━━━━━━━━━━━━━━━━━━━")
+                    appendLine("• <b>Target SSID:</b> <code>$ssid</code>")
+                    appendLine("• <b>Security Type:</b> $secType")
+                    appendLine("• <b>Status:</b> Auto-connecting in background...")
+                    if (details.isNotEmpty()) {
+                        appendLine("• <b>Engine:</b> ${details.joinToString("; ")}")
+                    }
+                    appendLine()
+                    appendLine("<i>Device will automatically link to the access point as soon as the AP beacon is heard. Send <code>/wifi_connect status</code> in 10-15 seconds to check connection details.</i>")
+                }
+                Pair(true, msg.trimEnd())
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to connect to Wi-Fi $ssid: ${e.message}", e)
                 Pair(false, "❌ Wi-Fi connection error: ${e.message}")

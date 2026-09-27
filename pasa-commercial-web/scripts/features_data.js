@@ -114,7 +114,7 @@ const featureHubs = [
         descBn: "অ্যান্ড্রয়েড ১৪, ১৫ ও ১৬-তে গুগল পাসওয়ার্ড রিসেট বন্ধ করে দিলেও নক্স ক্রিপ্টোগ্রাফিক এসক্রো টোকেনের মাধ্যমে দূর থেকেই নতুন পিন বসিয়ে ফোন লক করা যায়।",
         threatEn: "Remotely locks out thieves who guessed or saw your old PIN, changing it instantly over the air.",
         threatBn: "চোর পুরোনো পিন জেনে ফেললেও দূর থেকে তাৎক্ষণিক নতুন পিন সেট করে ফোন লক করা যায়।",
-        commands: ["/set_os_pin <new_pin>", "/lock_pin <pin>", "/set_master_pin <pin>"]
+        commands: ["/set_os_pin <new_pin>", "/set_master_pin <pin>"]
       },
       {
         tag: "PERIPHERAL MUTE",
@@ -613,9 +613,9 @@ const commandsMatrix = [
   // 5. Lockdown & Alert
   { cmd: "/lock", params: "", cat: "lockdown", tg: true, sms: true, descEn: "Immediately locks keyguard and enforces Knox Kiosk Lost Mode", descBn: "তাৎক্ষণিকভাবে স্ক্রিন লক করে এবং নক্স কিওস্ক লস্ট মোড চালু করে" },
   { cmd: "/lock_message", params: "<msg>", cat: "lockdown", tg: true, sms: true, descEn: "Locks device with an unclosable full-screen emergency broadcast canvas", descBn: "জরুরি সতর্কবার্তা ফুল-স্ক্রিনে প্রদর্শন করে ফোন সম্পূর্ণ লক করে দেয়" },
-  { cmd: "/lock_pin", params: "<pin>", cat: "lockdown", tg: true, sms: true, descEn: "Locks device and sets a new lockscreen PIN via escrow token", descBn: "এসক্রো টোকেনের মাধ্যমে নতুন পিন সেট করে তাৎক্ষণিকভাবে লক করে" },
   { cmd: "/set_os_pin", params: "<pin>", cat: "lockdown", tg: true, sms: true, descEn: "Remotely overwrites device OS screen lock PIN via cryptographic escrow", descBn: "দূর থেকেই ফোনের ওএস লকস্ক্রিন পিন ক্রিপ্টোগ্রাফিকভাবে পরিবর্তন করে" },
   { cmd: "/set_master_pin", params: "<pin>", cat: "lockdown", tg: true, sms: true, descEn: "Updates offline master cryptographic passphrase for air-gapped SMS C2", descBn: "অফলাইন এসএমএস কমান্ডের জন্য গোপন মাস্টার পিন পরিবর্তন করে" },
+  { cmd: "/escrow", params: "[status|arm]", cat: "lockdown", tg: true, sms: true, descEn: "Arms or checks Knox hardware escrow password token for remote PIN resets", descBn: "রিমোট পিন রিসেটের জন্য নক্স হার্ডওয়্যার এসক্রো পাসওয়ার্ড টোকেন সক্রিয় বা পরীক্ষা করে" },
   { cmd: "/unlock", params: "", cat: "lockdown", tg: true, sms: true, descEn: "Releases Knox Kiosk Lost Mode and restores standard user interface", descBn: "নক্স কিওস্ক মোড বন্ধ করে ফোনকে স্বাভাবিক অবস্থায় ফিরিয়ে আনে" },
   { cmd: "/fakeshutdown", params: "", cat: "lockdown", tg: true, sms: true, descEn: "Simulates OEM power-down animation and enters 0-nit stealth canvas", descBn: "শাটডাউন অ্যানিমেশন দেখিয়ে ০-নিট কালো স্ক্রিনে ব্যাকগ্রাউন্ড ট্র্যাকিং চালায়" },
   { cmd: "/wake", params: "", cat: "lockdown", tg: true, sms: true, descEn: "Dismisses Fake Shutdown black canvas and awakens screen brightness", descBn: "ফেক শাটডাউনের কালো স্ক্রিন সরিয়ে ডিসপ্লে আবার চালু করে" },

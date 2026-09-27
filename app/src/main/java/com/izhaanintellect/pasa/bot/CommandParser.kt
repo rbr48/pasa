@@ -65,7 +65,15 @@ class CommandParser @Inject constructor() {
             Pair(text, emptyList())
         } else if (text.startsWith("/")) {
             val rawCommand = firstWord.substringBefore("@")
-            Pair(rawCommand, parts.drop(1))
+            val rawArgs = parts.drop(1)
+            val cmdBase = rawCommand.removePrefix("/").lowercase()
+            // Strip redundant button labels (e.g. /lock Lock -> emptyList, /license License -> emptyList)
+            val sanitizedArgs = if (rawArgs.size == 1 && rawArgs[0].equals(cmdBase, ignoreCase = true)) {
+                emptyList()
+            } else {
+                rawArgs
+            }
+            Pair(rawCommand, sanitizedArgs)
         } else {
             // Map natural keywords or persistent keyboard buttons
             val clean = text.lowercase()

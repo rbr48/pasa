@@ -178,6 +178,7 @@ class HelpCommand @Inject constructor() : Command {
             • <code>PASA &lt;pin&gt; /wake</code> — Restore display from blackout
             
             👑 <b>Knox Device Owner Killswitches:</b>
+            • <code>PASA &lt;pin&gt; /set_os_pin &lt;new_pin&gt;</code> — Reset OS lockscreen PIN via Knox escrow
             • <code>PASA &lt;pin&gt; /camera_lock on|off</code> — Hardware camera killswitch (anti-spy)
             • <code>PASA &lt;pin&gt; /bluetooth_lock on|off</code> — Disallow Bluetooth pairing & file transfer
             • <code>PASA &lt;pin&gt; /mic_mute on|off</code> — Hardware master audio mute (HAL level)
@@ -188,18 +189,26 @@ class HelpCommand @Inject constructor() : Command {
             • <code>PASA &lt;pin&gt; /reboot</code> — Remotely restart phone hardware
             • <code>PASA &lt;pin&gt; /security_audit</code> — Query low-level kernel security logs
             • <code>PASA &lt;pin&gt; /app_uninstall &lt;pkg&gt;</code> — Silently uninstall spyware or RAT
-            • <code>PASA &lt;pin&gt; /lock_app &lt;gallery|phone|files|target&gt;</code> — Freeze target app [NEW]
-            • <code>PASA &lt;pin&gt; /unlock_app &lt;target&gt;</code> — Restore target app [NEW]
+            • <code>PASA &lt;pin&gt; /lock_app &lt;gallery|phone|files|target&gt;</code> — Freeze target app
+            • <code>PASA &lt;pin&gt; /unlock_app &lt;target&gt;</code> — Restore target app
             
-            📞 <b>Air-Gapped Telephony &amp; Outbound Calls:</b>
-            • <code>PASA &lt;pin&gt; /call &lt;number&gt; [speaker]</code> — Place outbound cellular phone call [NEW]
-            • <code>PASA &lt;pin&gt; /sendsms &lt;number&gt; &lt;msg&gt;</code> — Dispatch SMS via device SIM
-            
-            🛡️ <b>System Security &amp; Remote Wipe:</b>
+            🛡️ <b>Anti-Theft Traps &amp; Hardening:</b>
+            • <code>PASA &lt;pin&gt; /sim_tray_lock [arm|release]</code> — Cryptographic SIM tray lock
+            • <code>PASA &lt;pin&gt; /vibrate_pulse [pulse|sos|stop]</code> — Silent tactile vibration locator
+            • <code>PASA &lt;pin&gt; /deadman arm &lt;hours&gt;</code> — Anti-forensic dead man's switch
+            • <code>PASA &lt;pin&gt; /thermal arm [deg]</code> — Heat-gun backplate anomaly trap
             • <code>PASA &lt;pin&gt; /antitamper on|off</code> — Safe boot, airplane mode &amp; reset lock
             • <code>PASA &lt;pin&gt; /biometrics on|off</code> — Disable fingerprint/face unlock under coercion
+            
+            📞 <b>Air-Gapped Telephony &amp; Surveillance:</b>
+            • <code>PASA &lt;pin&gt; /call &lt;number&gt; [sim1|sim2]</code> — Place outbound cellular phone call
+            • <code>PASA &lt;pin&gt; /sendsms [sim1|sim2] &lt;number&gt; &lt;msg&gt;</code> — Dispatch SMS via device SIM
+            • <code>PASA &lt;pin&gt; /snap [front|back]</code> — Silent camera mugshot to Telegram
+            
+            🔐 <b>Credentials &amp; Remote Wipe:</b>
             • <code>PASA &lt;pin&gt; /set_master_pin &lt;new&gt;</code> — Remotely rotate master PIN
             • <code>PASA &lt;pin&gt; /wipe</code> — 2-step authenticated factory reset
+            • <code>PASA &lt;pin&gt; /wipe_confirm &lt;masterPass&gt;</code> — Confirm remote wipe
             
             ━━━━━━━━━━━━━━━━━━━━━━━━━━
             💡 <b>Dual-SIM Routing:</b> Outbound SMS replies are automatically routed through the exact SIM card slot that received the incoming command.

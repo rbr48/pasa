@@ -32,21 +32,15 @@ class BootReceiver : BroadcastReceiver() {
         ) {
             Log.i(TAG, "Guardian wake event received ($action)")
 
-            val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
-            if (!userManager.isUserUnlocked) {
-                Log.w(TAG, "Device is locked (Direct Boot). Using device-protected storage for minimal state check.")
-                // Minimal check using Device Protected Storage
-                val deviceContext = context.createDeviceProtectedStorageContext()
-                val dpPrefs = deviceContext.getSharedPreferences("pasa_direct_boot", Context.MODE_PRIVATE)
-                val isSetup = dpPrefs.getBoolean("setup_complete_dp", false)
-                if (isSetup) {
-                    PasaService.start(context)
-                }
-                return
-            }
+            // Schedule immediate watchdog heartbeat chain
+            PasaWatchdogReceiver.scheduleHeartbeat(context, 1500L)
+
+            val userManager = context.getSystemService(Context.USER_SERVICE) as? UserManager
+            val isDirectBoot = userManager != null && !userManager.isUserUnlocked
+            Log.i(TAG, "Boot mode: isDirectBoot=$isDirectBoot, isSetupComplete=${preferencesManager.isSetupComplete}")
 
             if (preferencesManager.isSetupComplete) {
-                Log.i(TAG, "PASA configured — launching PasaService")
+                Log.i(TAG, "PASA configured — launching PasaService immediately")
                 try {
                     PasaService.start(context)
                 } catch (t: Throwable) {
@@ -59,7 +53,7 @@ class BootReceiver : BroadcastReceiver() {
                     scheduleWatchdogAlarm(context)
                 }
                 
-                // Re-apply Device Owner policies after boot
+                // Re-apply Device Owner policies after boot (works even in Direct Boot)
                 try {
                     val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
                     val component = android.content.ComponentName(context, com.izhaanintellect.pasa.admin.PasaDeviceAdmin::class.java)
@@ -93,10 +87,8 @@ class BootReceiver : BroadcastReceiver() {
                     }
                 }
                 
-                // Keep device protected storage in sync for future reboots
-                val deviceContext = context.createDeviceProtectedStorageContext()
-                deviceContext.getSharedPreferences("pasa_direct_boot", Context.MODE_PRIVATE)
-                    .edit().putBoolean("setup_complete_dp", true).apply()
+                // Keep device protected storage in sync
+                preferencesManager.syncToDeviceProtectedStorage()
             } else {
                 Log.d(TAG, "PASA setup incomplete — skipping service launch")
             }

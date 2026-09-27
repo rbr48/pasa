@@ -921,20 +921,55 @@ class TelegramMenuManager @Inject constructor(
 
     private fun buildSmsHelpSubmenu(): MenuResponse {
         val text = buildString {
-            appendLine("📲 <b>Air-Gapped Cellular SMS Fallback Cheatsheet</b>")
+            appendLine("📲 <b>PASA Air-Gapped Cellular SMS Cheatsheet</b>")
             appendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            appendLine("When the phone has NO Internet (no Wi-Fi, no mobile data), PASA listens on GSM cellular SMS radio.")
+            appendLine("When device has NO Internet (no Wi-Fi, no mobile data), PASA operates air-gapped via GSM cellular SMS radio.")
+            appendLine("<b>Format:</b> <code>PASA &lt;pin&gt; &lt;command&gt; [args]</code>")
             appendLine()
-            appendLine("🔑 <b>Syntax (1-tap copyable):</b>")
-            appendLine("<code>PASA &lt;pin&gt; /locate</code>")
-            appendLine("<code>PASA &lt;pin&gt; /status</code>")
-            appendLine("<code>PASA &lt;pin&gt; /ring 60</code>")
-            appendLine("<code>PASA &lt;pin&gt; /lock 1234</code>")
-            appendLine("<code>PASA &lt;pin&gt; /unlock</code>")
-            appendLine("<code>PASA &lt;pin&gt; /camera_lock on</code>")
-            appendLine("<code>PASA &lt;pin&gt; /usb_lock on</code>")
-            appendLine("<code>PASA &lt;pin&gt; /fakeshutdown</code>")
-            appendLine("<code>PASA &lt;pin&gt; /wake</code>")
+            appendLine("📡 <b>Location & Diagnostics:</b>")
+            appendLine("• <code>PASA &lt;pin&gt; /locate</code> — Force GPS on & return Maps pin")
+            appendLine("• <code>PASA &lt;pin&gt; /status</code> — Battery, screen, DO & trap status")
+            appendLine("• <code>PASA &lt;pin&gt; /security_audit</code> — Query OS kernel security log")
+            appendLine()
+            appendLine("🚨 <b>Lockdown, Blackout & Siren:</b>")
+            appendLine("• <code>PASA &lt;pin&gt; /lock</code> — Instant screen lock & keyguard")
+            appendLine("• <code>PASA &lt;pin&gt; /lock lost [msg]</code> — Full Knox Kiosk Lost Mode")
+            appendLine("• <code>PASA &lt;pin&gt; /unlock</code> — Release screen lock & Lost Mode")
+            appendLine("• <code>PASA &lt;pin&gt; /ring 60</code> — Max-volume emergency alarm siren")
+            appendLine("• <code>PASA &lt;pin&gt; /vibrate_pulse pulse</code> — Silent tactile vibration locator")
+            appendLine("• <code>PASA &lt;pin&gt; /fakeshutdown</code> — 0-nit stealth black canvas")
+            appendLine("• <code>PASA &lt;pin&gt; /wake</code> — Awaken screen from blackout")
+            appendLine()
+            appendLine("👑 <b>Knox Device Owner & Hardware Controls:</b>")
+            appendLine("• <code>PASA &lt;pin&gt; /set_os_pin &lt;new_pin&gt;</code> — Reset OS lockscreen PIN")
+            appendLine("• <code>PASA &lt;pin&gt; /camera_lock on|off</code> — Hardware camera killswitch")
+            appendLine("• <code>PASA &lt;pin&gt; /usb_lock on|off</code> — Disable USB data pins")
+            appendLine("• <code>PASA &lt;pin&gt; /bluetooth_lock on|off</code> — Block Bluetooth sharing")
+            appendLine("• <code>PASA &lt;pin&gt; /mic_mute on|off</code> — Hardware audio mute (HAL level)")
+            appendLine("• <code>PASA &lt;pin&gt; /wifi_connect &lt;ssid&gt; [pass]</code> — Connect Wi-Fi while locked")
+            appendLine("• <code>PASA &lt;pin&gt; /lockscreen_info &lt;text&gt;</code> — Pin contact to lockscreen")
+            appendLine("• <code>PASA &lt;pin&gt; /autolock &lt;seconds&gt;</code> — Inactivity autolock timeout")
+            appendLine("• <code>PASA &lt;pin&gt; /lock_app &lt;target&gt;</code> — Freeze sensitive app")
+            appendLine("• <code>PASA &lt;pin&gt; /unlock_app &lt;target&gt;</code> — Restore frozen app")
+            appendLine("• <code>PASA &lt;pin&gt; /app_uninstall &lt;pkg&gt;</code> — Silently remove package")
+            appendLine("• <code>PASA &lt;pin&gt; /reboot</code> — Remotely restart device hardware")
+            appendLine()
+            appendLine("🛡️ <b>Anti-Theft Traps & Hardening:</b>")
+            appendLine("• <code>PASA &lt;pin&gt; /sim_tray_lock arm|release</code> — Cryptographic SIM lock")
+            appendLine("• <code>PASA &lt;pin&gt; /antitamper on|off</code> — Safe boot & reset lockdown")
+            appendLine("• <code>PASA &lt;pin&gt; /biometrics on|off</code> — Coercion biometric killswitch")
+            appendLine("• <code>PASA &lt;pin&gt; /deadman arm 24</code> — Dead man's switch timer")
+            appendLine("• <code>PASA &lt;pin&gt; /thermal arm 48</code> — Heat-gun backplate trap")
+            appendLine()
+            appendLine("📞 <b>Air-Gapped Telephony & Surveillance:</b>")
+            appendLine("• <code>PASA &lt;pin&gt; /call &lt;phone&gt; [sim1|sim2]</code> — Outbound phone call")
+            appendLine("• <code>PASA &lt;pin&gt; /sendsms &lt;phone&gt; &lt;msg&gt;</code> — Send SMS via device SIM")
+            appendLine("• <code>PASA &lt;pin&gt; /snap front|back</code> — Capture stealth mugshot")
+            appendLine()
+            appendLine("🔐 <b>Credentials & Remote Wipe:</b>")
+            appendLine("• <code>PASA &lt;pin&gt; /set_master_pin &lt;new_pin&gt;</code> — Rotate master PIN")
+            appendLine("• <code>PASA &lt;pin&gt; /wipe</code> — 2-step authenticated wipe")
+            appendLine("• <code>PASA &lt;pin&gt; /wipe_confirm &lt;masterPass&gt;</code> — Confirm wipe")
             appendLine()
             appendLine("💡 <b>Dual-SIM:</b> Replies are sent back automatically via the receiving SIM.")
             appendLine("🔐 <b>TOTP Setup:</b> Send <code>/smssetup</code> to enroll in Google Authenticator!")
@@ -1063,4 +1098,121 @@ class TelegramMenuManager @Inject constructor(
             "Active"
         }
     }
+
+    // ── Telegram Bot API Cloud Command Menu Sync ──────────────────────────────
+
+    fun getOfficialBotCommands(): List<BotCommand> {
+        return listOf(
+            BotCommand("menu", "📱 Open interactive touchscreen control panel"),
+            BotCommand("help", "📖 Show full help manual & command guide"),
+            BotCommand("status", "📊 Live battery, storage, RAM & sensor telemetry"),
+            BotCommand("selftest", "🩺 Run 9-point security, GPS & sensor audit"),
+            BotCommand("info", "ℹ️ Hardware specs, SIM details & OS version"),
+            BotCommand("locate", "📍 Acquire instant GPS fix & Google Maps pin"),
+            BotCommand("tower", "📡 Cell tower triangulation & signal RF telemetry"),
+            BotCommand("sim", "📶 Active SIM slots, carrier name & signal RF"),
+            BotCommand("sim_lock", "🛡️ SIM swap guard & ICCID whitelist lock"),
+            BotCommand("sendsms", "✉️ Send outbound SMS directly via SIM slot"),
+            BotCommand("track", "🛰️ Start continuous live GPS tracking"),
+            BotCommand("track_stop", "🛑 Stop continuous GPS tracking"),
+            BotCommand("geofence", "🌐 Configure safe zone radius & breach alerts"),
+            BotCommand("snap", "📸 Capture stealth photo (front, rear, or both)"),
+            BotCommand("livestream", "🔴 Stream near-live camera video to Telegram"),
+            BotCommand("stopstream", "⏹️ Stop active camera live stream"),
+            BotCommand("screenshot", "📱 Silent full-screen capture via Accessibility"),
+            BotCommand("screen_burst", "🎞️ Rapid 5-10 frame montage of intruder activity"),
+            BotCommand("screenrecord", "🎥 Covert HD MP4 screen recording (5-60s)"),
+            BotCommand("video", "📹 Record stealth camera video (1-60s)"),
+            BotCommand("record", "🎙️ Record ambient microphone audio clip"),
+            BotCommand("clipboard", "📋 Read current device clipboard text"),
+            BotCommand("lock", "🔒 Lock screen with custom PIN & emergency banner"),
+            BotCommand("lock_message", "💬 Set urgent alert message on lockscreen"),
+            BotCommand("set_os_pin", "🔐 Overwrite hardware OS lockscreen PIN (Device Owner)"),
+            BotCommand("set_master_pin", "🔑 Set cryptographic master PIN for remote control"),
+            BotCommand("escrow", "🔐 Arm or check Knox hardware escrow password token"),
+            BotCommand("unlock", "🔓 Dismiss Lost Mode & unlock device screen"),
+            BotCommand("fakeshutdown", "🕶️ Fake shutdown: blackout screen & silent traps"),
+            BotCommand("wake", "☀️ Restore device from Fake Shutdown blackout"),
+            BotCommand("ring", "🚨 Trigger maximum volume emergency siren"),
+            BotCommand("ring_stop", "🔇 Silence active emergency alarm siren"),
+            BotCommand("vibrate_pulse", "📳 Locate device silently via tactile vibrations"),
+            BotCommand("pattern_guard", "👁️ Failed pattern/PIN intrusion monitor & mugshot"),
+            BotCommand("app_firewall", "🧱 Block RAT & spyware network outbound telemetry"),
+            BotCommand("battery_alert", "🔋 Monitor abnormal drain & charging disconnects"),
+            BotCommand("harden_boot", "🔒 Lock recovery mode & prevent unauthorized reset"),
+            BotCommand("tamper_detect", "🔍 Scan for root, debuggers, hooks & emulators"),
+            BotCommand("dead_drop", "☁️ Backup evidence to encrypted local/cloud vault"),
+            BotCommand("message", "📢 Display urgent fullscreen alert on device"),
+            BotCommand("duress_pin", "🆘 Set decoy coercion PIN for emergency SOS"),
+            BotCommand("trap", "🛡️ Arm sensor traps (snatch, charger, pocket)"),
+            BotCommand("shred", "🗑️ Cryptographically shred sensitive files"),
+            BotCommand("device_owner", "👑 Check Device Owner & Kiosk hardware lock"),
+            BotCommand("antitamper", "🛡️ Safe boot, airplane mode & factory reset lock"),
+            BotCommand("usb_lock", "🔌 Cut USB data signaling pins (charge only)"),
+            BotCommand("camera_lock", "📷 Hardware camera killswitch (anti-spy lockout)"),
+            BotCommand("bluetooth_lock", "📡 Hardware Bluetooth & sharing killswitch"),
+            BotCommand("mic_mute", "🔇 Hardware master audio mute (HAL level)"),
+            BotCommand("lockscreen_info", "📱 Pin contact/recovery info to OS lockscreen"),
+            BotCommand("autolock", "⏱️ Enforce screen inactivity autolock timeout"),
+            BotCommand("wifi_connect", "📶 Emergency Wi-Fi auto-provisioning while locked"),
+            BotCommand("security_audit", "📑 Inspect kernel OS security audit logs"),
+            BotCommand("notification", "🔕 Permanent notification drawer suppression"),
+            BotCommand("self_heal", "✨ Permanently lock app permissions as managed"),
+            BotCommand("freeze", "🧊 Vanish banking & private apps into shadow vault"),
+            BotCommand("unfreeze", "🔥 Restore hidden applications to launcher"),
+            BotCommand("frozen", "📦 List currently frozen shadow vault apps"),
+            BotCommand("biometrics", "🚫 Biometric coercion killswitch (forces Master PIN)"),
+            BotCommand("dns", "🛡️ Enforce system-wide Private DNS-over-TLS"),
+            BotCommand("reboot", "🔄 Remotely restart phone hardware (Device Owner)"),
+            BotCommand("stealth", "👁️ Toggle PASA app icon in launcher"),
+            BotCommand("hide", "🔇 Hide PASA app icon from phone launcher"),
+            BotCommand("show", "👁️ Restore PASA app icon to phone launcher"),
+            BotCommand("contacts", "👥 Search device address book contacts"),
+            BotCommand("call_log", "📞 View incoming and outgoing call history"),
+            BotCommand("sms_log", "💬 View recent SMS inbox messages"),
+            BotCommand("history", "📜 View recent command audit execution trail"),
+            BotCommand("network", "🌐 Current IP, Wi-Fi SSID & cell carrier info"),
+            BotCommand("apps", "📦 List installed applications"),
+            BotCommand("app_uninstall", "❌ Silently uninstall package (Device Owner)"),
+            BotCommand("smssetup", "📲 Enroll TOTP for secure offline SMS commands"),
+            BotCommand("sms_help", "📲 Air-gapped cellular SMS command manual & cheat sheet"),
+            BotCommand("license", "🔑 Check Pro license status or activate key"),
+            BotCommand("check_update", "🔄 Check for OTA app updates"),
+            BotCommand("update_confirm", "⚡ Download and install pending OTA update"),
+            BotCommand("call", "📞 Remotely place outbound cellular phone call"),
+            BotCommand("lock_app", "🧊 Freeze gallery, phone, files, or sensitive app"),
+            BotCommand("unlock_app", "☀️ Restore locked/hidden application"),
+            BotCommand("gallery_latest", "🖼️ Extract recent photos from camera roll"),
+            BotCommand("getfile", "📁 Download file from storage directly to Telegram"),
+            BotCommand("list_files", "📂 Browse files in device storage directory"),
+            BotCommand("wipe", "⚠️ Emergency remote factory reset (requires auth)"),
+            BotCommand("wipe_confirm", "💥 Confirm remote factory reset with password")
+        )
+    }
+
+    suspend fun syncBotCommands(telegramApi: TelegramApi, force: Boolean = false): Boolean {
+        val token = preferencesManager.botToken
+        if (token.isBlank()) return false
+        val lastSync = preferencesManager.lastBotCommandsSyncTimestamp
+        val now = System.currentTimeMillis()
+        if (!force && now - lastSync < 24 * 60 * 60 * 1000L) {
+            return true
+        }
+        return try {
+            val commands = getOfficialBotCommands()
+            val resp = telegramApi.setMyCommands(token, SetMyCommandsRequest(commands))
+            if (resp.ok) {
+                preferencesManager.lastBotCommandsSyncTimestamp = now
+                android.util.Log.i("PASA_Menu", "Successfully synced ${commands.size} official bot commands to Telegram cloud menu.")
+                true
+            } else {
+                android.util.Log.w("PASA_Menu", "Failed to sync bot commands: ${resp.description}")
+                false
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("PASA_Menu", "Exception syncing bot commands: ${e.message}")
+            false
+        }
+    }
 }
+

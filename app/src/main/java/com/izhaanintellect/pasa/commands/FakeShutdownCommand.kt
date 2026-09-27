@@ -34,11 +34,12 @@ class FakeShutdownCommand @Inject constructor(
     }
 
     private fun verifyCredentials(candidate: String?): Boolean {
-        if (candidate.isNullOrBlank()) return false
-        val isPass = authManager.verifyMasterPassword(candidate)
+        if (!authManager.hasMasterPassword()) return true
+        if (candidate.isNullOrBlank()) return authManager.isSessionAuthenticated()
         val totpSecret = preferencesManager.smsTotpSecret
+        val isPass = authManager.verifyMasterPassword(candidate)
         val isTotp = totpSecret.isNotBlank() && Totp.verify(totpSecret, candidate, window = 3)
-        return isPass || isTotp
+        return isPass || isTotp || authManager.isSessionAuthenticated()
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
@@ -96,7 +97,7 @@ class FakeShutdownCommand @Inject constructor(
 
         // Fake Shutdown manual activation
         if (authManager.hasMasterPassword()) {
-            if (candidate.isNullOrBlank()) {
+            if (candidate.isNullOrBlank() && !authManager.isSessionAuthenticated()) {
                 val autoStatus = if (preferencesManager.isFakeShutdownAutoPowerMenu) {
                     if (preferencesManager.isFakeShutdownAutoLockedOnly) "🟢 Active (When Locked)" else "🟢 Active (Always)"
                 } else "🔴 Disabled"

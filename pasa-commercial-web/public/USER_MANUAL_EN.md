@@ -402,7 +402,6 @@ PASA Sentinel includes conversational state machine wizards (5-minute session li
 |---|---|---|---|---|
 | `/lock` | `/lock [pin] [message]` | Locks screen into Knox Kiosk Lost Mode (`LOCK_TASK_FEATURE_NONE`), suppresses status bar, and pins recovery message. | `/lock 4819 Lost phone! Return.` | Device Admin / Device Owner |
 | `/lock_message` | `/lock_message <text>` | Updates the on-screen alert banner text displayed over active Lost Mode screen. | `/lock_message Reward: $500! Call owner.` | Device Admin |
-| `/lock_pin` | `/lock_pin <pin>` | Sets emergency 4–8 digit unlock PIN on the Lost Mode screen overlay. | `/lock_pin 9182` | Device Admin |
 | `/set_os_pin` | `/set_os_pin <new_pin>` | Remotely resets physical Android OS lockscreen PIN/password via hardware cryptographic escrow tokens without data loss. | `/set_os_pin 5892` | Device Owner + Armed Escrow Token |
 | `/set_master_pin`| `/set_master_pin <pin>` | Remotely rotates PASA Master Emergency PIN used for Kiosk bypass, SMS backdoor, and wipe authorization. | `/set_master_pin Alpha9182Pass` | None |
 | `/unlock` | `/unlock` | Releases Lost Mode Kiosk overlay, restores status bar, re-enables biometrics, and clears lockout policies. | `/unlock` | Device Admin / Device Owner |

@@ -52,10 +52,10 @@ class LockCommand @Inject constructor(
 
         val firstArg = args.firstOrNull()?.trim()?.lowercase()
 
-        // 1. Instant Screen Lock: If no args or explicit "instant" / "now" / "sleep"
+        // 1. Instant Screen Lock: If no args or explicit "instant" / "now" / "sleep" / "lock"
         // This immediately turns off the screen and activates standard OS keyguard.
         // It requires NO Master Password because it does not lock the legitimate user out or alter credentials.
-        if (args.isEmpty() || firstArg == "instant" || firstArg == "now" || firstArg == "sleep") {
+        if (args.isEmpty() || firstArg == "lock" || firstArg == "instant" || firstArg == "now" || firstArg == "sleep") {
             return try {
                 dpm.lockNow()
                 Log.i(TAG, "🔒 Instant screen lock executed via dpm.lockNow()")
@@ -81,7 +81,9 @@ class LockCommand @Inject constructor(
         // Zero-Trust verification: If Master Password is set, require authentication for Lost Mode
         val finalMessageArgs = if (authManager.hasMasterPassword()) {
             val candidate = remainingArgs.firstOrNull()?.trim()
-            if (candidate.isNullOrBlank()) {
+            val isSessionAuth = authManager.isSessionAuthenticated()
+
+            if (candidate.isNullOrBlank() && !isSessionAuth) {
                 return CommandResult(
                     success = false,
                     message = """
@@ -100,10 +102,15 @@ class LockCommand @Inject constructor(
             }
 
             val totpSecret = preferencesManager.smsTotpSecret
-            val isTotpValid = totpSecret.isNotBlank() && Totp.verify(totpSecret, candidate, window = 3)
-            val isPassValid = authManager.verifyMasterPassword(candidate)
+            val isTotpValid = !candidate.isNullOrBlank() && totpSecret.isNotBlank() && Totp.verify(totpSecret, candidate, window = 3)
+            val isPassValid = !candidate.isNullOrBlank() && authManager.verifyMasterPassword(candidate)
 
-            if (!isTotpValid && !isPassValid) {
+            if (isTotpValid || isPassValid) {
+                remainingArgs.drop(1)
+            } else if (isSessionAuth) {
+                // Already authenticated in current session, treat candidate as part of recovery message
+                remainingArgs
+            } else {
                 return CommandResult(
                     success = false,
                     message = "⛔ <b>Authentication Failed or Invalid Command!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
@@ -113,7 +120,6 @@ class LockCommand @Inject constructor(
                             "• To reset lockscreen PIN: <code>/set_os_pin &lt;master_password&gt; &lt;new_pin&gt;</code>"
                 )
             }
-            remainingArgs.drop(1)
         } else {
             remainingArgs
         }

@@ -76,6 +76,10 @@ class AuthManager @Inject constructor(
         val computedHash = hashPassword(password, salt, storedIterations)
         val matches = slowEquals(storedHash, computedHash)
 
+        if (matches) {
+            recordSessionAuthenticated()
+        }
+
         // Upgrade older/weaker hashes to the current work factor once verified.
         if (matches && storedIterations < ITERATIONS) {
             try {
@@ -86,6 +90,42 @@ class AuthManager @Inject constructor(
             }
         }
         return matches
+    }
+
+    // 15-minute sliding session authentication
+    @Volatile
+    private var lastAuthenticatedTimestamp = 0L
+    private val SESSION_LIFETIME_MS = 15 * 60 * 1000L // 15 minutes
+
+    fun recordSessionAuthenticated() {
+        lastAuthenticatedTimestamp = System.currentTimeMillis()
+        Log.d(TAG, "Owner session authenticated (15-minute sliding window)")
+    }
+
+    fun isSessionAuthenticated(): Boolean {
+        if (lastAuthenticatedTimestamp == 0L) return false
+        val elapsed = System.currentTimeMillis() - lastAuthenticatedTimestamp
+        if (elapsed < SESSION_LIFETIME_MS) {
+            // Sliding window: keep alive on active commands
+            lastAuthenticatedTimestamp = System.currentTimeMillis()
+            return true
+        }
+        lastAuthenticatedTimestamp = 0L
+        return false
+    }
+
+    fun clearSessionAuthentication() {
+        lastAuthenticatedTimestamp = 0L
+    }
+
+    /**
+     * Verifies if the request has valid credentials either via explicit password match
+     * or active 15-minute sliding session authentication.
+     */
+    fun verifySessionOrPassword(candidate: String?): Boolean {
+        if (!hasMasterPassword()) return true
+        if (!candidate.isNullOrBlank() && verifyMasterPassword(candidate)) return true
+        return isSessionAuthenticated()
     }
 
     private fun hashPassword(password: String, salt: ByteArray, iterations: Int): String {

@@ -119,6 +119,13 @@ interface TelegramApi {
         @Path(value = "token", encoded = true) token: String,
         @Body request: DeleteMessageRequest
     ): TelegramResponse<Boolean>
+
+    /** Sets the list of the bot's commands in Telegram's cloud menu. */
+    @POST("/bot{token}/setMyCommands")
+    suspend fun setMyCommands(
+        @Path(value = "token", encoded = true) token: String,
+        @Body request: SetMyCommandsRequest
+    ): TelegramResponse<Boolean>
 }
 
 // --- Data Models ---
@@ -254,5 +261,15 @@ data class EditMessageTextRequest(
 data class DeleteMessageRequest(
     @SerializedName("chat_id") val chatId: Long,
     @SerializedName("message_id") val messageId: Long
+)
+
+/** Request body for setMyCommands */
+data class BotCommand(
+    @SerializedName("command") val command: String,
+    @SerializedName("description") val description: String
+)
+
+data class SetMyCommandsRequest(
+    @SerializedName("commands") val commands: List<BotCommand>
 )
 

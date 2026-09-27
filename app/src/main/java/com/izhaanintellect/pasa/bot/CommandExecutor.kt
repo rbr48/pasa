@@ -71,6 +71,7 @@ class CommandExecutor @Inject constructor(
     private val simCommand: com.izhaanintellect.pasa.commands.SimCommand,
     private val selfTestCommand: com.izhaanintellect.pasa.commands.SelfTestCommand,
     private val setOsPinCommand: com.izhaanintellect.pasa.commands.SetOsPinCommand,
+    private val escrowCommand: com.izhaanintellect.pasa.commands.EscrowCommand,
     private val setMasterPinCommand: com.izhaanintellect.pasa.commands.SetMasterPinCommand,
     private val antiTamperCommand: com.izhaanintellect.pasa.commands.AntiTamperCommand,
     private val usbLockCommand: com.izhaanintellect.pasa.commands.UsbLockCommand,
@@ -272,9 +273,10 @@ class CommandExecutor @Inject constructor(
                 )
                 else -> null
             }
+            val finalMarkup = result.replyMarkup ?: replyMarkup
 
             // Deliver text response
-            sendText(parsed.chatId, result.message, replyMarkup)
+            sendText(parsed.chatId, result.message, finalMarkup)
 
             // Deliver photo(s) if generated (encrypted into vault & queued in WorkManager)
             val allPhotos = result.photoFiles ?: (result.photoFile?.let { listOf(it) } ?: emptyList())
@@ -674,6 +676,7 @@ class CommandExecutor @Inject constructor(
         return when (cmd) {
             "/lock", "/lock_message", "/lost_mode", "/lostmode" -> lockCommand
             "/set_os_pin", "/set_pin", "/reset_pin" -> setOsPinCommand
+            "/escrow", "/escrow_arm", "/arm_escrow" -> escrowCommand
             "/set_master_pin", "/set_password", "/master_pin", "/master_password" -> setMasterPinCommand
             "/unlock" -> unlockCommand
             "/device_owner", "/owner", "/kiosk" -> deviceOwnerCommand

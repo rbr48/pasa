@@ -69,6 +69,8 @@ class PasaApp : Application(), Configuration.Provider {
         createNotificationChannels()
 
         if (preferencesManager.isSetupComplete) {
+            preferencesManager.syncToDeviceProtectedStorage()
+            com.izhaanintellect.pasa.detection.PasaWatchdogReceiver.scheduleHeartbeat(this)
             try {
                 com.izhaanintellect.pasa.service.PasaService.start(this)
                 Log.i(TAG, "Guardian service started from Application.onCreate")

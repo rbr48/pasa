@@ -210,7 +210,6 @@ Send these commands directly to your Telegram bot (or use the interactive menu a
 | | `/clipboard` | `/clipboard` | 📋 Reads current device clipboard text |
 | **Lockdown & Emergency** | `/lock` | `/lock [pin] [msg]` | 🔒 Locks device with emergency PIN & Lost Mode banner |
 | | `/lock_message` | `/lock_message <text>` | 💬 Updates lockscreen banner message |
-| | `/lock_pin` | `/lock_pin <pin>` | 🔑 Locks phone with explicit 4–8 digit emergency PIN |
 | | `/set_os_pin` | `/set_os_pin <pin>` | 🔐 Overwrites physical Android OS lockscreen PIN (Device Owner) |
 | | `/set_master_pin` | `/set_master_pin <pin>` | 🔑 Remotely updates emergency Master PIN/Password |
 | | `/unlock` | `/unlock` | 🔓 Dismisses Lost Mode & restores normal device UI |

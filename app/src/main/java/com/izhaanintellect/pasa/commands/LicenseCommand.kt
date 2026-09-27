@@ -22,7 +22,10 @@ class LicenseCommand @Inject constructor(
     override val usage = "/license [activate <KEY> | status]"
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        if (args.isEmpty() || args[0].equals("status", ignoreCase = true)) {
+        val firstArg = args.firstOrNull()?.trim()
+        val firstLower = firstArg?.lowercase()
+
+        if (args.isEmpty() || firstLower in setOf("status", "license", "info", "check")) {
             val verifiedTier = cryptoLicenseVerifier.getVerifiedStoredTier() ?: preferencesManager.licenseTier
             val isPro = licenseManager.isProActive()
             val deviceId = preferencesManager.deviceId
@@ -52,11 +55,14 @@ class LicenseCommand @Inject constructor(
             return CommandResult(success = true, message = statusText)
         }
 
-        if (args[0].equals("activate", ignoreCase = true) || args[0].equals("bind", ignoreCase = true)) {
-            val key = if (args.size > 1) args[1].trim() else ""
-            if (key.isBlank()) {
-                return CommandResult(success = false, message = "⚠️ Please specify a valid license key:\n<code>/license activate PASA-PRO-XXXX-XXXX</code>")
-            }
+        // Direct key passed: /license PASA-PRO-XXXX-XXXX
+        val key = if (firstArg != null && firstArg.startsWith("PASA-", ignoreCase = true)) {
+            firstArg
+        } else if (firstLower in setOf("activate", "bind") && args.size > 1) {
+            args[1].trim()
+        } else ""
+
+        if (key.isNotBlank()) {
 
             val success = licenseManager.activateLicenseKey(key)
             if (success) {

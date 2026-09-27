@@ -13,7 +13,8 @@ data class CommandResult(
     val videoFile: File? = null,
     val documentFile: File? = null,
     val location: Pair<Double, Double>? = null,
-    val photoFiles: List<File>? = null
+    val photoFiles: List<File>? = null,
+    val replyMarkup: com.izhaanintellect.pasa.bot.InlineKeyboardMarkup? = null
 )
 
 /**

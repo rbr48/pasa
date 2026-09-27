@@ -305,7 +305,7 @@ class TamperDetectionCommand @Inject constructor(
                 }
 
                 CommandResult(
-                    success = critical.isEmpty(),
+                    success = true,
                     message = sb.toString()
                 )
             } catch (e: Exception) {

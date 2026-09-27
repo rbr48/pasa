@@ -40,40 +40,61 @@ class SetOsPinCommand @Inject constructor(
             )
         }
 
-        if (authManager.hasMasterPassword()) {
-            if (args.size < 2) {
-                val isTokenActive = try {
-                    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
-                    dpm.isResetPasswordTokenActive(PasaDeviceAdmin.getComponentName(context))
-                } catch (_: Exception) { false }
+        val isTokenActive = try {
+            val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
+            dpm.isResetPasswordTokenActive(PasaDeviceAdmin.getComponentName(context))
+        } catch (_: Exception) { false }
 
-                return CommandResult(
-                    success = false,
-                    message = "🔑 <b>Reset OS Lockscreen PIN (Zero-Trust Guard)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                            "To prevent unauthorized server abuse, resetting the phone's lockscreen PIN strictly requires your Master Password.\n\n" +
-                            "<b>Syntax:</b> <code>/set_os_pin &lt;master_password&gt; &lt;new_pin&gt;</code>\n" +
-                            "<b>Example:</b> <code>/set_os_pin MySecretPass123 5892</code>\n\n" +
-                            "<b>Device Owner:</b> ✅ Active\n" +
-                            "<b>Escrow Token Active:</b> ${if (isTokenActive) "✅ Ready (Hardware escrow armed)" else "⚠️ Waiting for initial unlock verification"}\n\n" +
-                            "<i>Note: The new PIN must be 4 to 16 numeric digits.</i>"
-                )
+        val newPin: String
+        if (args.isEmpty()) {
+            val syntaxHint = if (authManager.isSessionAuthenticated() || !authManager.hasMasterPassword()) {
+                "<code>/set_os_pin &lt;new_pin&gt;</code>\n<b>Example:</b> <code>/set_os_pin 5892</code>"
+            } else {
+                "<code>/set_os_pin &lt;master_password&gt; &lt;new_pin&gt;</code>\n<b>Example:</b> <code>/set_os_pin MySecretPass123 5892</code>"
             }
-
-            val masterPassword = args[0]
-            if (!authManager.verifyMasterPassword(masterPassword)) {
-                return CommandResult(
-                    success = false,
-                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. Hardware lockscreen PIN change rejected."
-                )
-            }
-        }
-
-        val newPin = (if (authManager.hasMasterPassword()) args.getOrNull(1) else args.firstOrNull())?.trim()
-        if (newPin.isNullOrBlank()) {
             return CommandResult(
                 success = false,
-                message = "❌ Missing new PIN. Usage: <code>/set_os_pin &lt;master_password&gt; &lt;new_pin&gt;</code>"
+                message = "🔑 <b>Reset OS Lockscreen PIN (Zero-Trust Guard)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                        "Overwrites forgotten or thief lockscreen PIN using Knox escrow tokens without wiping data.\n\n" +
+                        "<b>Syntax:</b> $syntaxHint\n\n" +
+                        "<b>Device Owner:</b> ✅ Active\n" +
+                        "<b>Escrow Token Active:</b> ${if (isTokenActive) "✅ Ready (Hardware escrow armed)" else "⚠️ Waiting for initial unlock verification"}\n\n" +
+                        "<i>Note: The new PIN must be 4 to 16 numeric digits.</i>"
             )
+        } else if (args.size == 1) {
+            val singleArg = args[0].trim()
+            if (authManager.hasMasterPassword() && authManager.verifyMasterPassword(singleArg)) {
+                return CommandResult(
+                    success = false,
+                    message = "✅ <b>Master Password Verified!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                            "Please specify your desired new 4–16 digit PIN:\n" +
+                            "<code>/set_os_pin $singleArg &lt;new_pin&gt;</code>"
+                )
+            } else if (authManager.isSessionAuthenticated() || !authManager.hasMasterPassword()) {
+                newPin = singleArg
+            } else {
+                return CommandResult(
+                    success = false,
+                    message = "🔑 <b>Master Password Required</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                            "Target new PIN: <code>$singleArg</code>\n\n" +
+                            "To confirm and apply this PIN, please reply:\n" +
+                            "<code>/set_os_pin &lt;master_password&gt; $singleArg</code>"
+                )
+            }
+        } else {
+            // args.size >= 2
+            val candidatePass = args[0].trim()
+            val candidatePin = args[1].trim()
+
+            if (authManager.hasMasterPassword()) {
+                if (!authManager.verifyMasterPassword(candidatePass)) {
+                    return CommandResult(
+                        success = false,
+                        message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. Hardware lockscreen PIN change rejected."
+                    )
+                }
+            }
+            newPin = candidatePin
         }
 
         if (!newPin.matches(PIN_REGEX)) {

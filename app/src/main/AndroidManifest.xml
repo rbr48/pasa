@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <!-- Location -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -178,9 +180,10 @@
                 android:resource="@xml/accessibility_config" />
         </service>
 
-        <!-- Watchdog Alarm Receiver for Android 14-16 resurrection -->
+        <!-- Watchdog Alarm Receiver for Android 14-16 resurrection & Doze prevention -->
         <receiver
             android:name=".detection.PasaWatchdogReceiver"
+            android:directBootAware="true"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.izhaanintellect.pasa.ACTION_WATCHDOG_RESTART" />

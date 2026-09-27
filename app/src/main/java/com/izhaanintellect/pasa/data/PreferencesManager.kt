@@ -65,6 +65,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_LICENSE_CERT_SIGNATURE = "license_cert_signature"
         private const val KEY_RESET_PASSWORD_TOKEN = "reset_password_token"
         private const val KEY_ANTI_TAMPER_ENABLED = "anti_tamper_enabled"
+        private const val KEY_STATUS_BAR_DISABLED = "status_bar_disabled"
         private const val KEY_USB_LOCK_ENABLED = "usb_lock_enabled"
         private const val KEY_BIOMETRICS_DISABLED = "biometrics_disabled"
         private const val KEY_FROZEN_PACKAGES = "frozen_packages"
@@ -120,6 +121,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_OTP_GUARD_WHITELIST = "otp_guard_whitelist"
         private const val KEY_FAKE_SHUTDOWN_AUTO_POWER_MENU = "fake_shutdown_auto_power_menu"
         private const val KEY_FAKE_SHUTDOWN_AUTO_LOCKED_ONLY = "fake_shutdown_auto_locked_only"
+        private const val KEY_LAST_BOT_COMMANDS_SYNC = "last_bot_commands_sync"
 
         const val DEFAULT_SERVER_URL = ""
     }
@@ -157,15 +159,41 @@ class PreferencesManager @Inject constructor(
         deContext.getSharedPreferences("pasa_de_secure_prefs", Context.MODE_PRIVATE)
     }
 
+    val isUserUnlocked: Boolean
+        get() {
+            return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                val um = context.getSystemService(Context.USER_SERVICE) as? android.os.UserManager
+                um?.isUserUnlocked ?: true
+            } else {
+                true
+            }
+        }
+
     // --- Bot Configuration ---
 
     var botToken: String
-        get() = try { prefs.getString(KEY_BOT_TOKEN, "") ?: "" } catch (_: Exception) { "" }
-        set(value) = prefs.edit().putString(KEY_BOT_TOKEN, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getString(KEY_BOT_TOKEN, "") ?: "" else ""
+            if (v.isNotBlank()) v else dePrefs.getString(KEY_BOT_TOKEN, "") ?: ""
+        } catch (_: Exception) {
+            dePrefs.getString(KEY_BOT_TOKEN, "") ?: ""
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putString(KEY_BOT_TOKEN, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putString(KEY_BOT_TOKEN, value).apply()
+        }
 
     var ownerChatId: String
-        get() = try { prefs.getString(KEY_OWNER_CHAT_ID, "") ?: "" } catch (_: Exception) { "" }
-        set(value) = prefs.edit().putString(KEY_OWNER_CHAT_ID, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getString(KEY_OWNER_CHAT_ID, "") ?: "" else ""
+            if (v.isNotBlank()) v else dePrefs.getString(KEY_OWNER_CHAT_ID, "") ?: ""
+        } catch (_: Exception) {
+            dePrefs.getString(KEY_OWNER_CHAT_ID, "") ?: ""
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putString(KEY_OWNER_CHAT_ID, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putString(KEY_OWNER_CHAT_ID, value).apply()
+        }
 
     val ownerChatIdLong: Long
         get() = ownerChatId.toLongOrNull() ?: 0L
@@ -238,8 +266,19 @@ class PreferencesManager @Inject constructor(
         set(value) = prefs.edit().putBoolean(KEY_STEALTH_MODE, value).apply()
 
     var isSetupComplete: Boolean
-        get() = prefs.getBoolean(KEY_SETUP_COMPLETE, false)
-        set(value) = prefs.edit().putBoolean(KEY_SETUP_COMPLETE, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_SETUP_COMPLETE, false) else false
+            if (v) true else (dePrefs.getBoolean(KEY_SETUP_COMPLETE, false) || dePrefs.getBoolean("setup_complete_dp", false))
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_SETUP_COMPLETE, false) || dePrefs.getBoolean("setup_complete_dp", false)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_SETUP_COMPLETE, value).apply() } catch (_: Exception) {}
+            dePrefs.edit()
+                .putBoolean(KEY_SETUP_COMPLETE, value)
+                .putBoolean("setup_complete_dp", value)
+                .apply()
+        }
 
     // --- Tracking ---
 
@@ -311,16 +350,32 @@ class PreferencesManager @Inject constructor(
         }
 
     var isLostModeActive: Boolean
-        get() = prefs.getBoolean(KEY_LOST_MODE_ACTIVE, false)
-        set(value) = prefs.edit().putBoolean(KEY_LOST_MODE_ACTIVE, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_LOST_MODE_ACTIVE, false) else false
+            if (v) true else dePrefs.getBoolean(KEY_LOST_MODE_ACTIVE, false)
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_LOST_MODE_ACTIVE, false)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_LOST_MODE_ACTIVE, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putBoolean(KEY_LOST_MODE_ACTIVE, value).apply()
+        }
 
     var lostModeMessage: String
         get() = prefs.getString(KEY_LOST_MODE_MESSAGE, "") ?: ""
         set(value) = prefs.edit().putString(KEY_LOST_MODE_MESSAGE, value).apply()
 
     var isFakeShutdownActive: Boolean
-        get() = prefs.getBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, false)
-        set(value) = prefs.edit().putBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, false) else false
+            if (v) true else dePrefs.getBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, false)
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, false)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, value).apply()
+        }
 
     var isFakeShutdownAutoPowerMenu: Boolean
         get() = prefs.getBoolean(KEY_FAKE_SHUTDOWN_AUTO_POWER_MENU, true)
@@ -369,8 +424,16 @@ class PreferencesManager @Inject constructor(
         set(value) = prefs.edit().putInt(KEY_FAILED_UNLOCK_COUNT, value).apply()
 
     var updateOffset: Long
-        get() = prefs.getLong(KEY_UPDATE_OFFSET, 0L)
-        set(value) = prefs.edit().putLong(KEY_UPDATE_OFFSET, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getLong(KEY_UPDATE_OFFSET, 0L) else 0L
+            if (v > 0) v else dePrefs.getLong(KEY_UPDATE_OFFSET, 0L)
+        } catch (_: Exception) {
+            dePrefs.getLong(KEY_UPDATE_OFFSET, 0L)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putLong(KEY_UPDATE_OFFSET, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putLong(KEY_UPDATE_OFFSET, value).apply()
+        }
 
     // --- VPS Backend Settings ---
 
@@ -472,16 +535,52 @@ class PreferencesManager @Inject constructor(
         get() = trialStartTime + 7 * 24 * 60 * 60 * 1000L
 
     var antiTamperEnabled: Boolean
-        get() = prefs.getBoolean(KEY_ANTI_TAMPER_ENABLED, true)
-        set(value) = prefs.edit().putBoolean(KEY_ANTI_TAMPER_ENABLED, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_ANTI_TAMPER_ENABLED, true) else true
+            if (v) true else dePrefs.getBoolean(KEY_ANTI_TAMPER_ENABLED, true)
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_ANTI_TAMPER_ENABLED, true)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_ANTI_TAMPER_ENABLED, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putBoolean(KEY_ANTI_TAMPER_ENABLED, value).apply()
+        }
+
+    var isStatusBarDisabled: Boolean
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_STATUS_BAR_DISABLED, false) else false
+            if (v) true else dePrefs.getBoolean(KEY_STATUS_BAR_DISABLED, false)
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_STATUS_BAR_DISABLED, false)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_STATUS_BAR_DISABLED, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putBoolean(KEY_STATUS_BAR_DISABLED, value).apply()
+        }
 
     var usbLockEnabled: Boolean
-        get() = prefs.getBoolean(KEY_USB_LOCK_ENABLED, false)
-        set(value) = prefs.edit().putBoolean(KEY_USB_LOCK_ENABLED, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_USB_LOCK_ENABLED, false) else false
+            if (v) true else dePrefs.getBoolean(KEY_USB_LOCK_ENABLED, false)
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_USB_LOCK_ENABLED, false)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_USB_LOCK_ENABLED, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putBoolean(KEY_USB_LOCK_ENABLED, value).apply()
+        }
 
     var biometricsDisabled: Boolean
-        get() = prefs.getBoolean(KEY_BIOMETRICS_DISABLED, false)
-        set(value) = prefs.edit().putBoolean(KEY_BIOMETRICS_DISABLED, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_BIOMETRICS_DISABLED, false) else false
+            if (v) true else dePrefs.getBoolean(KEY_BIOMETRICS_DISABLED, false)
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_BIOMETRICS_DISABLED, false)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_BIOMETRICS_DISABLED, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putBoolean(KEY_BIOMETRICS_DISABLED, value).apply()
+        }
 
     var frozenPackages: Set<String>
         get() = prefs.getStringSet(KEY_FROZEN_PACKAGES, emptySet()) ?: emptySet()
@@ -540,8 +639,16 @@ class PreferencesManager @Inject constructor(
         set(value) = prefs.edit().putString(KEY_PATTERN_GUARD_ACTION, value).apply()
 
     var isSimLockEnabled: Boolean
-        get() = prefs.getBoolean(KEY_SIM_LOCK_ENABLED, false)
-        set(value) = prefs.edit().putBoolean(KEY_SIM_LOCK_ENABLED, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_SIM_LOCK_ENABLED, false) else false
+            if (v) true else dePrefs.getBoolean(KEY_SIM_LOCK_ENABLED, false)
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_SIM_LOCK_ENABLED, false)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_SIM_LOCK_ENABLED, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putBoolean(KEY_SIM_LOCK_ENABLED, value).apply()
+        }
 
     var simLockAlertAction: String
         get() = prefs.getString(KEY_SIM_LOCK_ALERT_ACTION, "alert") ?: "alert"
@@ -553,20 +660,31 @@ class PreferencesManager @Inject constructor(
 
     var emergencyPhone: String
         get() = try {
-            val v = prefs.getString(KEY_EMERGENCY_PHONE, "") ?: ""
-            if (v.isNotBlank()) v else dePrefs.getString(KEY_EMERGENCY_PHONE, "") ?: ""
+            val v = if (isUserUnlocked) prefs.getString(KEY_EMERGENCY_PHONE, "") ?: "" else ""
+            if (v.isNotBlank()) v else (dePrefs.getString(KEY_EMERGENCY_PHONE, "") ?: dePrefs.getString("de_emergency_phone", "") ?: "")
         } catch (_: Exception) {
-            dePrefs.getString(KEY_EMERGENCY_PHONE, "") ?: ""
+            dePrefs.getString(KEY_EMERGENCY_PHONE, "") ?: dePrefs.getString("de_emergency_phone", "") ?: ""
         }
         set(value) {
-            prefs.edit().putString(KEY_EMERGENCY_PHONE, value).apply()
-            dePrefs.edit().putString(KEY_EMERGENCY_PHONE, value).apply()
+            try { if (isUserUnlocked) prefs.edit().putString(KEY_EMERGENCY_PHONE, value).apply() } catch (_: Exception) {}
+            dePrefs.edit()
+                .putString(KEY_EMERGENCY_PHONE, value)
+                .putString("de_emergency_phone", value)
+                .apply()
         }
 
     /** SIM Tray Lock — deep-lockdown policy on unauthorized SIM insertion */
     var isSimTrayLockEnabled: Boolean
-        get() = prefs.getBoolean(KEY_SIM_TRAY_LOCK_ENABLED, false)
-        set(value) = prefs.edit().putBoolean(KEY_SIM_TRAY_LOCK_ENABLED, value).apply()
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_SIM_TRAY_LOCK_ENABLED, false) else false
+            if (v) true else dePrefs.getBoolean(KEY_SIM_TRAY_LOCK_ENABLED, false)
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_SIM_TRAY_LOCK_ENABLED, false)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_SIM_TRAY_LOCK_ENABLED, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putBoolean(KEY_SIM_TRAY_LOCK_ENABLED, value).apply()
+        }
 
     /** Temporary emergency PIN generated on SIM tray breach, sent to owner via Telegram */
     var simTrayLockEmergencyPin: String
@@ -694,6 +812,85 @@ class PreferencesManager @Inject constructor(
     var otpGuardWhitelist: Set<String>
         get() = prefs.getStringSet(KEY_OTP_GUARD_WHITELIST, emptySet()) ?: emptySet()
         set(value) = prefs.edit().putStringSet(KEY_OTP_GUARD_WHITELIST, value).apply()
+
+    var lastBotCommandsSyncTimestamp: Long
+        get() = try { prefs.getLong(KEY_LAST_BOT_COMMANDS_SYNC, 0L) } catch (_: Exception) { 0L }
+        set(value) = prefs.edit().putLong(KEY_LAST_BOT_COMMANDS_SYNC, value).apply()
+
+    /**
+     * Synchronizes all critical configuration and credentials into Device Protected (DE) storage
+     * so PASA can operate seamlessly in Direct Boot mode before first unlock and survive reboots.
+     */
+    fun syncToDeviceProtectedStorage() {
+        if (!isUserUnlocked) return
+        try {
+            val token = try { prefs.getString(KEY_BOT_TOKEN, "") ?: "" } catch (_: Exception) { "" }
+            val chatId = try { prefs.getString(KEY_OWNER_CHAT_ID, "") ?: "" } catch (_: Exception) { "" }
+            val isSetup = try { prefs.getBoolean(KEY_SETUP_COMPLETE, false) } catch (_: Exception) { false }
+            val offset = try { prefs.getLong(KEY_UPDATE_OFFSET, 0L) } catch (_: Exception) { 0L }
+            val lost = try { prefs.getBoolean(KEY_LOST_MODE_ACTIVE, false) } catch (_: Exception) { false }
+            val fakeShut = try { prefs.getBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, false) } catch (_: Exception) { false }
+            val antiTamper = try { prefs.getBoolean(KEY_ANTI_TAMPER_ENABLED, false) } catch (_: Exception) { false }
+            val usbLock = try { prefs.getBoolean(KEY_USB_LOCK_ENABLED, false) } catch (_: Exception) { false }
+            val biometrics = try { prefs.getBoolean(KEY_BIOMETRICS_DISABLED, false) } catch (_: Exception) { false }
+            val simLock = try { prefs.getBoolean(KEY_SIM_LOCK_ENABLED, false) } catch (_: Exception) { false }
+            val simTrayLock = try { prefs.getBoolean(KEY_SIM_TRAY_LOCK_ENABLED, false) } catch (_: Exception) { false }
+            val phone = try { prefs.getString(KEY_EMERGENCY_PHONE, "") ?: "" } catch (_: Exception) { "" }
+            val passHash = try { prefs.getString(KEY_MASTER_PASSWORD_HASH, "") ?: "" } catch (_: Exception) { "" }
+            val salt = try { prefs.getString(KEY_PASSWORD_SALT, "") ?: "" } catch (_: Exception) { "" }
+            val iterations = try { prefs.getInt(KEY_PASSWORD_ITERATIONS, 100000) } catch (_: Exception) { 100000 }
+            val totp = try { prefs.getString(KEY_SMS_TOTP_SECRET, "") ?: "" } catch (_: Exception) { "" }
+
+            val edit = dePrefs.edit()
+            if (token.isNotBlank()) edit.putString(KEY_BOT_TOKEN, token)
+            if (chatId.isNotBlank()) edit.putString(KEY_OWNER_CHAT_ID, chatId)
+            if (isSetup) {
+                edit.putBoolean(KEY_SETUP_COMPLETE, true)
+                edit.putBoolean("setup_complete_dp", true)
+            }
+            if (offset > 0) edit.putLong(KEY_UPDATE_OFFSET, offset)
+            if (lost) edit.putBoolean(KEY_LOST_MODE_ACTIVE, true)
+            if (fakeShut) edit.putBoolean(KEY_FAKE_SHUTDOWN_ACTIVE, true)
+            if (antiTamper) edit.putBoolean(KEY_ANTI_TAMPER_ENABLED, true)
+            if (usbLock) edit.putBoolean(KEY_USB_LOCK_ENABLED, true)
+            if (biometrics) edit.putBoolean(KEY_BIOMETRICS_DISABLED, true)
+            if (simLock) edit.putBoolean(KEY_SIM_LOCK_ENABLED, true)
+            if (simTrayLock) edit.putBoolean(KEY_SIM_TRAY_LOCK_ENABLED, true)
+            if (phone.isNotBlank()) {
+                edit.putString(KEY_EMERGENCY_PHONE, phone)
+                edit.putString("de_emergency_phone", phone)
+            }
+            if (passHash.isNotBlank()) {
+                edit.putString(KEY_MASTER_PASSWORD_HASH, passHash)
+                edit.putString("de_master_password_hash", passHash)
+            }
+            if (salt.isNotBlank()) {
+                edit.putString(KEY_PASSWORD_SALT, salt)
+                edit.putString("de_password_salt", salt)
+            }
+            if (iterations > 0) {
+                edit.putInt(KEY_PASSWORD_ITERATIONS, iterations)
+                edit.putInt("de_password_iterations", iterations)
+            }
+            if (totp.isNotBlank()) {
+                edit.putString(KEY_SMS_TOTP_SECRET, totp)
+                edit.putString("de_totp_secret", totp)
+            }
+            edit.apply()
+
+            // Keep legacy pasa_direct_boot file in sync
+            val legacyDirectBootPrefs = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                context.createDeviceProtectedStorageContext().getSharedPreferences("pasa_direct_boot", Context.MODE_PRIVATE)
+            } else {
+                context.getSharedPreferences("pasa_direct_boot", Context.MODE_PRIVATE)
+            }
+            legacyDirectBootPrefs.edit().putBoolean("setup_complete_dp", isSetup).apply()
+
+            Log.d(TAG, "Preferences mirrored to Device Protected Storage successfully")
+        } catch (e: Exception) {
+            Log.w(TAG, "Error mirroring preferences to DE storage: ${e.message}")
+        }
+    }
 
     /** Returns true if the minimum configuration required to run is present. */
     fun isConfigured(): Boolean {

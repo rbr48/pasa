@@ -120,6 +120,8 @@ class SetupViewModel @Inject constructor(
         }
 
         authManager.setMasterPassword(masterPassword)
+        preferencesManager.syncToDeviceProtectedStorage()
+        com.izhaanintellect.pasa.detection.PasaWatchdogReceiver.scheduleHeartbeat(context)
         return true
     }
 

@@ -2,8 +2,12 @@ package com.izhaanintellect.pasa.commands
 
 import android.content.Context
 import android.util.Log
+import com.izhaanintellect.pasa.bot.InlineKeyboardButton
+import com.izhaanintellect.pasa.bot.InlineKeyboardMarkup
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.security.AuthManager
+import com.izhaanintellect.pasa.ui.EscrowActivationActivity
+import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,6 +53,22 @@ class DuressPinCommand @Inject constructor(
                 "✅ Ready"
             }
 
+            val tokenStatusText = if (isTokenActive) {
+                "✅ Armed"
+            } else {
+                "⚠️ Pending Activation (Tap button below to arm)"
+            }
+
+            val replyMarkup = if (!isTokenActive && com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)) {
+                InlineKeyboardMarkup(
+                    inlineKeyboard = listOf(
+                        listOf(
+                            InlineKeyboardButton("🔐 Arm Escrow Token", callbackData = "cmd:escrow:arm")
+                        )
+                    )
+                )
+            } else null
+
             return CommandResult(
                 success = true,
                 message = "🆘 <b>Duress Coercion PIN Status</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
@@ -56,8 +76,10 @@ class DuressPinCommand @Inject constructor(
                         "PIN Security: ${if (configured) "🔐 Encrypted (AES-256-GCM)" else "⚠️ N/A"}\n" +
                         "Attempt Lockout: $lockoutStatus\n" +
                         "Lockscreen Keypad Detection: ${if (a11yActive) "✅ Active" else "⚠️ Disabled (Enable in Accessibility)"}\n" +
-                        "Hardware Escrow Token: ${if (isTokenActive) "✅ Armed" else "❌ Not Active"}\n\n" +
-                        "<i>Usage: <code>/duress_pin &lt;4-8 digits&gt;</code> to set, <code>/duress_pin clear</code> to remove.</i>"
+                        "Hardware Escrow Token: $tokenStatusText\n\n" +
+                        (if (!isTokenActive) "💡 <i>Duress unlock works even without escrow token, but arming it enables hardware OS PIN clearing!</i>\n\n" else "") +
+                        "<i>Usage: <code>/duress_pin &lt;4-8 digits&gt;</code> to set, <code>/duress_pin clear</code> to remove.</i>",
+                replyMarkup = replyMarkup
             )
         }
 
@@ -121,6 +143,24 @@ class DuressPinCommand @Inject constructor(
 
         val tokenActiveNow = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isResetPasswordTokenActive(context)
 
+        // If not active, dispatch EscrowActivationActivity to prompt user on device screen
+        if (!tokenActiveNow && com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)) {
+            try {
+                val actIntent = EscrowActivationActivity.createIntent(context)
+                SecurityActivityLauncher.launch(
+                    context = context,
+                    intent = actIntent,
+                    notificationId = EscrowActivationActivity.NOTIFICATION_ID,
+                    notificationTitle = "🔐 Authorize Hardware Escrow Token",
+                    notificationText = "Enter your current lockscreen PIN to authorize remote Duress unlocks.",
+                    wakeScreen = true,
+                    ongoing = false
+                )
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed launching escrow activation: ${e.message}")
+            }
+        }
+
         // All validation passed - store PIN (encrypted via PreferencesManager)
         preferencesManager.duressPin = target
         duressAttemptTracker.resetAttempts()  // Reset attempt counter on successful config
@@ -129,8 +169,18 @@ class DuressPinCommand @Inject constructor(
         val tokenStatus = if (tokenActiveNow) {
             "✅ Armed"
         } else {
-            "⏳ Enrolled (will arm automatically on next lockscreen unlock)"
+            "⏳ <b>Authorization prompt sent to phone!</b> (Enter PIN on phone screen to complete)"
         }
+
+        val armKeyboard = if (!tokenActiveNow && com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)) {
+            InlineKeyboardMarkup(
+                inlineKeyboard = listOf(
+                    listOf(
+                        InlineKeyboardButton("🔐 Arm Escrow Token", callbackData = "cmd:escrow:arm")
+                    )
+                )
+            )
+        } else null
 
         val a11yNotice = if (!a11yActive) {
             "\n\n⚠️ <b>Accessibility Service Needed:</b>\n" +
@@ -151,7 +201,8 @@ class DuressPinCommand @Inject constructor(
                     "• Silently captures mugshot, sat GPS fix, SOS beacon to Telegram\n" +
                     "• Auto-hides all banking/crypto apps (Sterile Sandbox)\n" +
                     "• Engages covert background tracking\n" +
-                    a11yNotice
+                    a11yNotice,
+            replyMarkup = armKeyboard
         )
     }
 }

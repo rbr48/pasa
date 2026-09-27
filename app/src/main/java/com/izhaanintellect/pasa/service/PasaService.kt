@@ -21,6 +21,7 @@ import com.izhaanintellect.pasa.R
 import com.izhaanintellect.pasa.bot.CommandExecutor
 import com.izhaanintellect.pasa.bot.CommandParser
 import com.izhaanintellect.pasa.bot.TelegramApi
+import com.izhaanintellect.pasa.bot.TelegramMenuManager
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.detection.MotionDetector
 import com.izhaanintellect.pasa.detection.PasaWatchdogReceiver
@@ -58,6 +59,7 @@ class PasaService : LifecycleService() {
     @Inject lateinit var clipperGuardManager: com.izhaanintellect.pasa.security.ClipperGuardManager
     @Inject lateinit var ransomwareCanaryManager: com.izhaanintellect.pasa.security.RansomwareCanaryManager
     @Inject lateinit var otpInterceptionGuardManager: com.izhaanintellect.pasa.security.OtpInterceptionGuardManager
+    @Inject lateinit var telegramMenuManager: TelegramMenuManager
 
     companion object {
         private const val TAG = "PASA_Service"
@@ -242,48 +244,7 @@ class PasaService : LifecycleService() {
         demoteFromCamera()
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        serviceRef = java.lang.ref.WeakReference(this)
-        Log.i(TAG, "PasaService created")
-        acquireWakeLock(30_000L)
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val userManager = getSystemService(Context.USER_SERVICE) as? android.os.UserManager
-        if (userManager != null && !userManager.isUserUnlocked) {
-            Log.w(TAG, "Device is in Direct Boot mode (pre-first-unlock). Deferring full init.")
-            val filter = android.content.IntentFilter(Intent.ACTION_USER_UNLOCKED)
-            registerReceiver(object : android.content.BroadcastReceiver() {
-                override fun onReceive(ctx: Context, broadcastIntent: Intent) {
-                    Log.i(TAG, "User unlocked! Initializing full PASA services.")
-                    unregisterReceiver(this)
-                    start(ctx)
-                }
-            }, filter)
-            return START_STICKY
-        }
-
-        super.onStartCommand(intent, flags, startId)
-        serviceRef = java.lang.ref.WeakReference(this)
-        Log.i(TAG, "PasaService started")
-        acquireWakeLock(30_000L)
-
-        // If Device Owner is active, ensure password reset escrow token is enrolled
-        if (com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(this)) {
-            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.ensureResetPasswordToken(this, preferencesManager)
-
-            // Ensure status bar is enabled if neither Lost Mode nor Fake Shutdown is active
-            if (!preferencesManager.isLostModeActive && !preferencesManager.isFakeShutdownActive) {
-                try {
-                    val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
-                    val component = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.getComponentName(this)
-                    dpm?.setStatusBarDisabled(component, false)
-                } catch (_: Exception) {}
-            }
-        }
-
-        // Start as foreground with Android 14+ safe background foreground service types
+    private fun promoteToForeground() {
         val notification = createNotification()
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -305,12 +266,7 @@ class PasaService : LifecycleService() {
         } catch (e: Exception) {
             if (Build.VERSION.SDK_INT >= 34 && e.javaClass.simpleName == "ForegroundServiceStartNotAllowedException") {
                 Log.w(TAG, "FGS start blocked, scheduling retry via AlarmManager")
-                val retryIntent = Intent(this, PasaService::class.java)
-                val pi = PendingIntent.getService(this, 0, retryIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-                val am = getSystemService(AlarmManager::class.java)
-                am?.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    android.os.SystemClock.elapsedRealtime() + 5000, pi)
+                PasaWatchdogReceiver.scheduleHeartbeat(this, 3000L)
             } else {
                 Log.w(TAG, "startForeground initial start failed, falling back: ${e.message}")
                 try {
@@ -320,6 +276,56 @@ class PasaService : LifecycleService() {
                 }
             }
         }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        serviceRef = java.lang.ref.WeakReference(this)
+        Log.i(TAG, "PasaService created")
+        acquireWakeLock(60_000L)
+        promoteToForeground()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val userManager = getSystemService(Context.USER_SERVICE) as? android.os.UserManager
+        val isDirectBoot = userManager != null && !userManager.isUserUnlocked
+
+        if (isDirectBoot) {
+            Log.w(TAG, "Device is in Direct Boot mode (pre-first-unlock). Operating in Sovereign Direct Boot mode.")
+            val filter = android.content.IntentFilter(Intent.ACTION_USER_UNLOCKED)
+            registerReceiver(object : android.content.BroadcastReceiver() {
+                override fun onReceive(ctx: Context, broadcastIntent: Intent) {
+                    Log.i(TAG, "User unlocked! Transitioning from Direct Boot to Full Sovereign mode.")
+                    try { unregisterReceiver(this) } catch (_: Exception) {}
+                    onUserUnlocked()
+                }
+            }, filter)
+        }
+
+        super.onStartCommand(intent, flags, startId)
+        serviceRef = java.lang.ref.WeakReference(this)
+        Log.i(TAG, "PasaService started (isDirectBoot=$isDirectBoot)")
+        acquireWakeLock(60_000L)
+
+        // Schedule recurring watchdog heartbeat pulse
+        PasaWatchdogReceiver.scheduleHeartbeat(this)
+
+        // If Device Owner is active and user unlocked, ensure password reset escrow token is enrolled
+        if (!isDirectBoot && com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(this)) {
+            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.ensureResetPasswordToken(this, preferencesManager)
+
+            // Ensure status bar is enabled if neither Lost Mode nor Fake Shutdown is active
+            if (!preferencesManager.isLostModeActive && !preferencesManager.isFakeShutdownActive) {
+                try {
+                    val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+                    val component = com.izhaanintellect.pasa.admin.PasaDeviceAdmin.getComponentName(this)
+                    dpm?.setStatusBarDisabled(component, false)
+                } catch (_: Exception) {}
+            }
+        }
+
+        // Ensure foreground promotion is held
+        promoteToForeground()
 
         if (intent?.action == ACTION_RESTART_POLLING) {
             Log.i(TAG, "PasaService: ACTION_RESTART_POLLING received. Re-arming polling loop with latest credentials.")
@@ -327,7 +333,7 @@ class PasaService : LifecycleService() {
                 isRunning = true
                 motionDetector.startMonitoring()
                 trapManager.startMonitoring()
-                geofenceManager.startMonitoring()
+                if (!isDirectBoot) geofenceManager.startMonitoring()
                 registerHardwareMonitors()
                 startDeadManWatchdog()
                 usbAutolockManager.startMonitoring()
@@ -346,75 +352,51 @@ class PasaService : LifecycleService() {
             startPolling()
             motionDetector.startMonitoring()
             trapManager.startMonitoring()
-            geofenceManager.startMonitoring()
+            if (!isDirectBoot) geofenceManager.startMonitoring()
             registerHardwareMonitors()
             startDeadManWatchdog()
             usbAutolockManager.startMonitoring()
             clipperGuardManager.startMonitoring()
             ransomwareCanaryManager.startMonitoring()
             otpInterceptionGuardManager.startMonitoring()
-
-            // Synchronize trusted backend signing keys and device credentials on service start
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    val shouldUseBackend = false
-                    if (shouldUseBackend && preferencesManager.isConfigured()) {
-                        val serverSigningKey = """{"crv":"Ed25519","x":"yd8Y7WZq2YkLBMUuamTDNKQ6IT_HkwdN2MPcPWgjrNs","kty":"OKP","kid":"pasa-server-1"}"""
-                        if (!preferencesManager.trustedCommandKeys.containsKey("pasa-server-1")) {
-                            preferencesManager.addTrustedCommandKey("pasa-server-1", serverSigningKey)
-                            Log.i(TAG, "Enrolled default server command signing key pasa-server-1")
-                        }
-
-                        if (preferencesManager.apiKey.isBlank()) {
-                            // Zero-Data Privacy: botToken and ownerChatId NEVER leave the device.
-                            // Only non-sensitive identifiers (deviceId, deviceName) are transmitted.
-                            val req = com.izhaanintellect.pasa.network.RegisterDeviceRequest(
-                                deviceId = preferencesManager.deviceId,
-                                deviceName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (Android ${android.os.Build.VERSION.RELEASE})",
-                                botToken = null,
-                                ownerChatId = null
-                            )
-                            val regResp = pasaBackendApi.registerDevice(req)
-                            if (regResp.ok) {
-                                if (!regResp.apiKey.isNullOrBlank()) preferencesManager.apiKey = regResp.apiKey
-                                if (!regResp.signingKeyId.isNullOrBlank() && !regResp.commandSigningPublicJwk.isNullOrBlank()) {
-                                    preferencesManager.addTrustedCommandKey(regResp.signingKeyId, regResp.commandSigningPublicJwk)
-                                }
-                                Log.i(TAG, "Auto-registered device credentials with VPS backend")
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "Startup backend sync check warning: ${e.message}")
-                }
-            }
-
-            // Check for OTA updates on service start (notify owner if update is ready)
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    kotlinx.coroutines.delay(15000) // Wait 15s after startup
-                    val result = otaUpdateManager.checkForUpdate()
-                    if (result.updateAvailable && result.versionName != null && preferencesManager.isConfigured()) {
-                        Log.i(TAG, "OTA update found on startup: v${result.versionName}")
-                        val notice = "🔄 <b>OTA Update Available</b>\n" +
-                                "━━━━━━━━━━━━━━━━━━━━\n" +
-                                "🆕 Version <b>v${result.versionName}</b> is available.\n" +
-                                "Send <code>/update_confirm</code> to download and install."
-                        telegramApi.sendMessage(
-                            token = preferencesManager.botToken,
-                            request = com.izhaanintellect.pasa.bot.SendMessageRequest(
-                                chatId = preferencesManager.ownerChatIdLong,
-                                text = notice
-                            )
-                        )
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "Startup OTA check failed: ${e.message}")
-                }
+            if (!isDirectBoot) {
+                onUserUnlocked()
             }
         }
 
         return START_STICKY
+    }
+
+    private fun onUserUnlocked() {
+        Log.i(TAG, "Executing post-unlock background sync and escrow check")
+        preferencesManager.syncToDeviceProtectedStorage()
+        if (com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(this)) {
+            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.ensureResetPasswordToken(this, preferencesManager)
+            com.izhaanintellect.pasa.admin.PasaDeviceAdmin.selfHealPermissions(this)
+        }
+        try {
+            geofenceManager.startMonitoring()
+        } catch (e: Exception) {
+            Log.w(TAG, "Post-unlock geofence start error: ${e.message}")
+        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                delay(15000)
+                val result = otaUpdateManager.checkForUpdate()
+                if (result.updateAvailable && result.versionName != null && preferencesManager.isConfigured()) {
+                    val notice = "🔄 <b>OTA Update Available</b>\n━━━━━━━━━━━━━━━━━━━━\n🆕 Version <b>v${result.versionName}</b> is available.\nSend <code>/update_confirm</code> to download and install."
+                    telegramApi.sendMessage(
+                        token = preferencesManager.botToken,
+                        request = com.izhaanintellect.pasa.bot.SendMessageRequest(
+                            chatId = preferencesManager.ownerChatIdLong,
+                            text = notice
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Startup OTA check failed: ${e.message}")
+            }
+        }
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -446,6 +428,22 @@ class PasaService : LifecycleService() {
         super.onDestroy()
     }
 
+    fun isServiceActive(): Boolean = isRunning && (pollingJob?.isActive == true)
+
+    private var lastSuccessfulPollTimestamp = System.currentTimeMillis()
+
+    fun verifyPollingHealth() {
+        val elapsed = System.currentTimeMillis() - lastSuccessfulPollTimestamp
+        if (elapsed > 180_000L) { // 3 minutes without a successful poll
+            Log.w(TAG, "Polling loop appear stalled ($elapsed ms since last poll). Re-arming polling loop.")
+            acquireWakeLock(30_000L)
+            pollingJob?.cancel()
+            pollingJob = null
+            startPolling()
+        } else {
+            Log.d(TAG, "PasaService health OK. Last poll was ${elapsed / 1000}s ago.")
+        }
+    }
 
     private var lastCommandReceivedAt = System.currentTimeMillis()
 
@@ -455,6 +453,15 @@ class PasaService : LifecycleService() {
             var consecutiveErrors = 0
 
             Log.i(TAG, "Guardian polling loop active")
+
+            // Automatically sync official bot commands to Telegram cloud menu on startup
+            if (preferencesManager.isConfigured()) {
+                try {
+                    telegramMenuManager.syncBotCommands(telegramApi)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Initial bot commands cloud sync: ${e.message}")
+                }
+            }
 
             while (isActive && isRunning) {
                 try {
@@ -563,12 +570,13 @@ class PasaService : LifecycleService() {
 
                         if (response.ok) {
                             polledSuccessfully = true
+                            lastSuccessfulPollTimestamp = System.currentTimeMillis()
                             consecutiveErrors = 0
                             currentBackoff = INITIAL_BACKOFF_MS
 
                             if (!response.result.isNullOrEmpty()) {
                                 commandReceivedInCycle = true
-                                acquireWakeLock(60_000L) // Keep CPU awake while processing commands and uploading media
+                                acquireWakeLock(90_000L) // Keep CPU awake while processing commands and uploading media
                                 for (update in response.result) {
                                     try {
                                         val parsed = commandParser.parse(update)

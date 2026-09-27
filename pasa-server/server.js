@@ -694,7 +694,6 @@ async function registerTelegramBotCommands(token) {
     { command: "clipboard", description: "📋 Read current device clipboard text" },
     { command: "lock", description: "🔒 Lock screen with custom PIN & emergency banner" },
     { command: "lock_message", description: "💬 Set urgent alert message on lockscreen" },
-    { command: "lock_pin", description: "🔑 Lock phone with custom 4-8 digit PIN" },
     { command: "set_os_pin", description: "🔐 Overwrite hardware OS lockscreen PIN (Device Owner)" },
     { command: "set_master_pin", description: "🔑 Set cryptographic master PIN for remote control" },
     { command: "unlock", description: "🔓 Dismiss Lost Mode & unlock device screen" },
@@ -1410,9 +1409,16 @@ const SUBMENUS = {
       `• <code>PASA &lt;pin&gt; /reboot</code> — Remotely restart device hardware\n` +
       `• <code>PASA &lt;pin&gt; /security_audit</code> — Query low-level kernel security logs\n` +
       `• <code>PASA &lt;pin&gt; /app_uninstall &lt;pkg&gt;</code> — Silently remove spyware/RAT\n` +
+      `• <code>PASA &lt;pin&gt; /set_os_pin &lt;new_pin&gt;</code> — Reset OS lockscreen PIN via Knox escrow\n` +
       `• <code>PASA &lt;pin&gt; /lock_app &lt;gallery|phone|files|target&gt;</code> — Freeze target app\n` +
       `• <code>PASA &lt;pin&gt; /unlock_app &lt;target&gt;</code> — Restore target app\n` +
-      `• <code>PASA &lt;pin&gt; /call &lt;number&gt; [speaker]</code> — Place outbound cellular phone call\n` +
+      `• <code>PASA &lt;pin&gt; /sim_tray_lock [arm|release]</code> — Cryptographic SIM tray lock\n` +
+      `• <code>PASA &lt;pin&gt; /vibrate_pulse [pulse|sos|stop]</code> — Silent tactile vibration locator\n` +
+      `• <code>PASA &lt;pin&gt; /deadman arm &lt;hours&gt;</code> — Anti-forensic dead man's switch\n` +
+      `• <code>PASA &lt;pin&gt; /thermal arm [deg]</code> — Heat-gun ungluing trap\n` +
+      `• <code>PASA &lt;pin&gt; /call &lt;number&gt; [sim1|sim2]</code> — Outbound cellular phone call\n` +
+      `• <code>PASA &lt;pin&gt; /sendsms [sim1|sim2] &lt;number&gt; &lt;msg&gt;</code> — Dispatch SMS via device SIM\n` +
+      `• <code>PASA &lt;pin&gt; /snap [front|back]</code> — Silent camera mugshot to Telegram\n` +
       `• <code>PASA &lt;pin&gt; /antitamper on|off</code> — Safe boot, airplane mode & reset lock\n` +
       `• <code>PASA &lt;pin&gt; /biometrics on|off</code> — Disable biometrics (coercion defense)\n` +
       `• <code>PASA &lt;pin&gt; /set_master_pin &lt;new&gt;</code> — Remotely update master PIN\n` +
@@ -3948,7 +3954,7 @@ async function handleTelegramUpdate(token, update) {
     'wipe', 'history', 'contacts', 'call_log', 'sms_log',
     'smssetup', 'geofence', 'screenshot', 'screen_burst',
     'screenrecord', 'burst', 'screen', 'selftest', 'health', 'diagnostics',
-    'lock_message', 'lock_pin', 'set_os_pin', 'reset_pin', 'app_uninstall', 'wipe_confirm', 'track', 'track_stop',
+    'lock_message', 'set_os_pin', 'reset_pin', 'app_uninstall', 'wipe_confirm', 'track', 'track_stop',
     'ring_stop', 'shred', 'trap', 'duress_pin', 'stealth', 'hide', 'show',
     'livestream', 'stopstream', 'stream', 'reboot', 'restart',
     'list_files', 'getfile', 'gallery_latest'
