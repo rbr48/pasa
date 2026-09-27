@@ -327,12 +327,16 @@ PASA Sentinel includes conversational state machine wizards (5-minute session li
 |---|---|---|---|---|
 | `/menu` | `/menu` | Opens the 6-hub interactive command console with live telemetry badges. | `/menu` | None |
 | `/help` | `/help` | Returns the complete categorized command cheat sheet. | `/help` | None (Always exempt from lockout) |
+| `/auth` | `/auth <master_password>` | Authenticates active 15-minute rolling session window for passwordless execution. | `/auth MySecretPass123` | Master Password |
+| `/logout` | `/logout` | Immediately clears active administrative session and re-engages password verification. | `/logout` | None |
 | `/status` | `/status` | Comprehensive live telemetry: battery %, charging status, Wi-Fi/Cellular network, GPS link, storage/RAM usage, and crypto identity. | `/status` | None |
 | `/selftest` | `/selftest` | 9-point hardware and software integrity audit: Camera, Mic, GNSS, KeyStore, Knox DO, Root/Tamper, Accessibility, Storage, Network. | `/selftest` | None |
 | `/info` | `/info` | Hardware & OS details: manufacturer, model, SoC board, Android version, patch level, display resolution, IMEI/IDs, installed apps count. | `/info` | None |
 | `/reboot` | `/reboot` | Remotely reboots the Android device hardware via DevicePolicyManager. | `/reboot` | Knox Device Owner |
 | `/battery_alert` | `/battery_alert [enable\|disable\|threshold <5-50>\|status]` | Monitors battery health and alerts on abnormal background rapid drain while screen is off. | `/battery_alert threshold 15` | None |
 | `/network` | `/network` | Inspects Wi-Fi SSID, BSSID, frequency band, link speed, cellular carrier, network type (LTE/5G), internal IP, and gateway. | `/network` | None |
+| `/autostart` | `/autostart` | Displays OEM-specific background autostart & battery optimization bypass instructions. | `/autostart` | None |
+| `/dead_drop` | `/dead_drop [status\|export\|purge]` | Encrypted offline local evidence vault for zero-network forensic retention. | `/dead_drop export` | Pro License |
 
 ---
 
@@ -404,19 +408,19 @@ PASA Sentinel includes conversational state machine wizards (5-minute session li
 
 | Command | Syntax & Arguments | Description | Practical Example | Prerequisites |
 |---|---|---|---|---|
-| `/lock` | `/lock [pin] [message]` | Locks screen into Knox Kiosk Lost Mode (`LOCK_TASK_FEATURE_NONE`), suppresses status bar, and pins recovery message. | `/lock 4819 Lost phone! Return.` | Device Admin / Device Owner |
+| `/lock` | `/lock [instant\|lost <pw> [msg]]` | Instant screen lock without password, or Knox Kiosk Lost Mode (`LOCK_TASK_FEATURE_NONE`) with persistent recovery banner. | `/lock lost MyPass123 Lost phone!` | Device Admin / Device Owner |
 | `/lock_message` | `/lock_message <text>` | Updates the on-screen alert banner text displayed over active Lost Mode screen. | `/lock_message Reward: $500! Call owner.` | Device Admin |
 | `/set_os_pin` | `/set_os_pin <new_pin>` | Remotely resets physical Android OS lockscreen PIN/password via hardware cryptographic escrow tokens without data loss. | `/set_os_pin 5892` | Device Owner + Armed Escrow Token |
 | `/set_master_pin`| `/set_master_pin <pin>` | Remotely rotates PASA Master Emergency PIN used for Kiosk bypass, SMS backdoor, and wipe authorization. | `/set_master_pin Alpha9182Pass` | None |
-| `/unlock` | `/unlock` | Releases Lost Mode Kiosk overlay, restores status bar, re-enables biometrics, and clears lockout policies. | `/unlock` | Device Admin / Device Owner |
-| `/fakeshutdown` | `/fakeshutdown` | Plays authentic power-off animation, then drops brightness to 0-nit black canvas with all hardware buttons suppressed. Screen taps snap mugshots. | `/fakeshutdown` | Pro License |
-| `/wake` | `/wake` | Restores screen brightness and exits fake shutdown blackout mode. | `/wake` | None |
+| `/unlock` | `/unlock [master_password]` | Releases Lost Mode Kiosk overlay, restores status bar, re-enables biometrics, and clears lockout policies. | `/unlock MyPass123` | Device Admin / Device Owner |
+| `/fakeshutdown` | `/fakeshutdown [auto on\|always\|off\|status\|test\|<pw>]` | Simulates OEM power-down blackout or arms auto Power-Menu interception trap to defeat manual power-off. | `/fakeshutdown auto on` | Pro License |
+| `/wake` | `/wake [master_password]` | Restores screen brightness and exits fake shutdown blackout mode. | `/wake` | None |
 | `/ring` | `/ring [seconds=60]` | Sounds high-decibel emergency siren (5 to 300s) overriding silent and vibrate modes. | `/ring 30` | None |
 | `/ring_stop` | `/ring_stop` | Immediately silences active emergency alarm siren. | `/ring_stop` | None |
 | `/vibrate_pulse`| `/vibrate_pulse [pulse\|sos\|continuous\|stop]`| Tactile device locator for locating device covertly in hostile environments without triggering loud audio sirens. | `/vibrate_pulse sos` | None |
 | `/message` | `/message <text>` | Displays fullscreen high-priority alert dialog over lockscreen with 1-tap call-owner button. | `/message Police tracking active!` | Draw Over Apps permission |
-| `/escrow` | `/escrow [status\|test]` | Audits hardware cryptographic escrow token enrollment and keyguard readiness for remote PIN resets. | `/escrow status` | Knox Device Owner |
-| `/sim_tray_lock` | `/sim_tray_lock [arm\|disarm\|release\|status]` | Armed SIM tray ejection defense: rotates lockscreen PIN to random 8-digit secret and suspends all user apps upon SIM tampering. | `/sim_tray_lock arm` | Knox Device Owner, Escrow Token |
+| `/escrow` | `/escrow [status\|arm]` | Audits hardware cryptographic escrow token enrollment and keyguard readiness for remote PIN resets. | `/escrow status` | Knox Device Owner |
+| `/sim_tray_lock` | `/sim_tray_lock [enable\|status\|whitelist\|<pw> release]` | Deep cryptographic SIM tray defense: randomizes lockscreen PIN to 8-digit secret and bricks third-party apps on foreign SIM insertion. | `/sim_tray_lock enable` | Knox Device Owner, Escrow Token |
 
 ---
 
@@ -468,6 +472,9 @@ PASA Sentinel includes conversational state machine wizards (5-minute session li
 | `/update_confirm`| `/update_confirm` | Downloads and performs unattended silent background installation of latest signed OTA APK update. | `/update_confirm` | Knox Device Owner |
 | `/wipe` | `/wipe` | Initiates 2-step authenticated remote factory reset challenge with master password authorization. | `/wipe` | Device Admin / Device Owner |
 | `/wipe_confirm` | `/wipe_confirm <master_password>` | Validates master password and executes irreversible cryptographic device erasure (`dpm.wipeData(0)`). | `/wipe_confirm MyMasterPass123` | Device Owner, Master Password |
+| `/pause` | `/pause` | Puts PASA into Dormant Mode, safely suspending background traps and polling to conserve battery. | `/pause` | None |
+| `/resume` | `/resume <master_password>` | Wakes PASA from Dormant Mode and restores all active mobile defense traps and listeners. | `/resume MyPass123` | Master Password |
+| `/retire` | `/retire` | Interactive deprovisioning wizard that safely releases Knox Device Owner status and uninstalls PASA. | `/retire` | Master Password |
 
 ---
 

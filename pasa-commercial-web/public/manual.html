@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PASA Sentinel — Official User Manual &amp; Operational Field Guide</title>
-<meta name="description" content="Comprehensive technical user manual and operational field guide for PASA Sentinel (Private Android Security Agent) v3.5.8 in English and Bengali.">
+<meta name="description" content="Comprehensive technical user manual and operational field guide for PASA Sentinel (Private Android Security Agent) v3.7.15 (Build 80) in English and Bengali.">
 <meta name="theme-color" content="#05070d">
 <link rel="icon" type="image/png" href="/assets/img/logo.png">
 <link rel="apple-touch-icon" href="/assets/img/logo.png">
@@ -255,7 +255,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
     <img src="/assets/img/logo.png" alt="PASA">
     <div class="brand-title">
       PASA SENTINEL
-      <span id="headerSub">FIELD MANUAL // v3.5.8</span>
+      <span id="headerSub">FIELD MANUAL // v3.7.15</span>
     </div>
   </a>
 
@@ -305,7 +305,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
         <h1 id="pasa-sentinel-private-android-security-agent" class="doc-h1">🛡️ PASA Sentinel (Private Android Security Agent)</h1>
 <h2 id="sovereign-mobile-defense-covert-anti-theft-system" class="doc-h2"><span class="h-anchor">#</span>Sovereign Mobile Defense &amp; Covert Anti-Theft System</h2>
 <h3 id="comprehensive-user-manual-operational-field-guide-english-edition" class="doc-h3">Comprehensive User Manual &amp; Operational Field Guide (English Edition)</h3>
-<p class="doc-p"><strong>Production Version:</strong> v3.7.14 (Build 79) | <strong>OS Target:</strong> Android 8.0 – 16 (API 26 – 36) | <strong>Document Revision:</strong> 2026.2</p>
+<p class="doc-p"><strong>Production Version:</strong> v3.7.15 (Build 80) | <strong>OS Target:</strong> Android 8.0 – 16 (API 26 – 36) | <strong>Document Revision:</strong> 2026.3</p>
 <hr class="divider">
 <h2 id="table-of-contents" class="doc-h2"><span class="h-anchor">#</span>Table of Contents</h2>
 <ol class="doc-list-num">
@@ -668,12 +668,16 @@ adb shell dpm list-owners</code></pre></div>
 <thead><tr><th>Command</th><th>Syntax &amp; Arguments</th><th>Description</th><th>Practical Example</th><th>Prerequisites</th></tr></thead><tbody>
 <tr><td><code class="inline-code">/menu</code></td><td><code class="inline-code">/menu</code></td><td>Opens the 6-hub interactive command console with live telemetry badges.</td><td><code class="inline-code">/menu</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/help</code></td><td><code class="inline-code">/help</code></td><td>Returns the complete categorized command cheat sheet.</td><td><code class="inline-code">/help</code></td><td>None (Always exempt from lockout)</td></tr>
+<tr><td><code class="inline-code">/auth</code></td><td><code class="inline-code">/auth &lt;master_password&gt;</code></td><td>Authenticates an active 15-minute rolling session window for passwordless execution of protected commands.</td><td><code class="inline-code">/auth MySecretPass123</code></td><td>Master Password</td></tr>
+<tr><td><code class="inline-code">/logout</code></td><td><code class="inline-code">/logout</code></td><td>Immediately clears active administrative session and re-engages master password verification.</td><td><code class="inline-code">/logout</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/status</code></td><td><code class="inline-code">/status</code></td><td>Comprehensive live telemetry: battery %, charging status, Wi-Fi/Cellular network, GPS link, storage/RAM usage, and crypto identity.</td><td><code class="inline-code">/status</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/selftest</code></td><td><code class="inline-code">/selftest</code></td><td>9-point hardware and software integrity audit: Camera, Mic, GNSS, KeyStore, Knox DO, Root/Tamper, Accessibility, Storage, Network.</td><td><code class="inline-code">/selftest</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/info</code></td><td><code class="inline-code">/info</code></td><td>Hardware &amp; OS details: manufacturer, model, SoC board, Android version, patch level, display resolution, IMEI/IDs, installed apps count.</td><td><code class="inline-code">/info</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/reboot</code></td><td><code class="inline-code">/reboot</code></td><td>Remotely reboots the Android device hardware via DevicePolicyManager.</td><td><code class="inline-code">/reboot</code></td><td>Knox Device Owner</td></tr>
 <tr><td><code class="inline-code">/battery_alert</code></td><td>`/battery_alert [enable\</td><td>disable\</td><td>threshold &lt;5-50&gt;\</td><td>status]`</td><td>Monitors battery health and alerts on abnormal background rapid drain while screen is off.</td><td><code class="inline-code">/battery_alert threshold 15</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/network</code></td><td><code class="inline-code">/network</code></td><td>Inspects Wi-Fi SSID, BSSID, frequency band, link speed, cellular carrier, network type (LTE/5G), internal IP, and gateway.</td><td><code class="inline-code">/network</code></td><td>None</td></tr>
+<tr><td><code class="inline-code">/autostart</code></td><td><code class="inline-code">/autostart</code></td><td>Displays OEM-specific background autostart &amp; battery optimization bypass instructions.</td><td><code class="inline-code">/autostart</code></td><td>None</td></tr>
+<tr><td><code class="inline-code">/dead_drop</code></td><td>`/dead_drop [status\</td><td>export\</td><td>purge]`</td><td>Encrypted offline local evidence vault for zero-network forensic retention.</td><td><code class="inline-code">/dead_drop export</code></td><td>Pro License</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
@@ -741,19 +745,19 @@ adb shell dpm list-owners</code></pre></div>
 <h3 id="category-5-lockdown-alert-deception" class="doc-h3">Category 5: Lockdown, Alert &amp; Deception</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>Command</th><th>Syntax &amp; Arguments</th><th>Description</th><th>Practical Example</th><th>Prerequisites</th></tr></thead><tbody>
-<tr><td><code class="inline-code">/lock</code></td><td><code class="inline-code">/lock [pin] [message]</code></td><td>Locks screen into Knox Kiosk Lost Mode (<code class="inline-code">LOCK_TASK_FEATURE_NONE</code>), suppresses status bar, and pins recovery message.</td><td><code class="inline-code">/lock 4819 Lost phone! Return.</code></td><td>Device Admin / Device Owner</td></tr>
+<tr><td><code class="inline-code">/lock</code></td><td>`/lock [instant\</td><td>lost &lt;pw&gt; [msg]]`</td><td>Instant screen lock without password, or Knox Kiosk Lost Mode (<code class="inline-code">LOCK_TASK_FEATURE_NONE</code>) with persistent recovery banner.</td><td><code class="inline-code">/lock lost MyPass123 Lost phone!</code></td><td>Device Admin / Device Owner</td></tr>
 <tr><td><code class="inline-code">/lock_message</code></td><td><code class="inline-code">/lock_message &lt;text&gt;</code></td><td>Updates the on-screen alert banner text displayed over active Lost Mode screen.</td><td><code class="inline-code">/lock_message Reward: $500! Call owner.</code></td><td>Device Admin</td></tr>
 <tr><td><code class="inline-code">/set_os_pin</code></td><td><code class="inline-code">/set_os_pin &lt;new_pin&gt;</code></td><td>Remotely resets physical Android OS lockscreen PIN/password via hardware cryptographic escrow tokens without data loss.</td><td><code class="inline-code">/set_os_pin 5892</code></td><td>Device Owner + Armed Escrow Token</td></tr>
 <tr><td><code class="inline-code">/set_master_pin</code></td><td><code class="inline-code">/set_master_pin &lt;pin&gt;</code></td><td>Remotely rotates PASA Master Emergency PIN used for Kiosk bypass, SMS backdoor, and wipe authorization.</td><td><code class="inline-code">/set_master_pin Alpha9182Pass</code></td><td>None</td></tr>
-<tr><td><code class="inline-code">/unlock</code></td><td><code class="inline-code">/unlock</code></td><td>Releases Lost Mode Kiosk overlay, restores status bar, re-enables biometrics, and clears lockout policies.</td><td><code class="inline-code">/unlock</code></td><td>Device Admin / Device Owner</td></tr>
-<tr><td><code class="inline-code">/fakeshutdown</code></td><td><code class="inline-code">/fakeshutdown</code></td><td>Plays authentic power-off animation, then drops brightness to 0-nit black canvas with all hardware buttons suppressed. Screen taps snap mugshots.</td><td><code class="inline-code">/fakeshutdown</code></td><td>Pro License</td></tr>
-<tr><td><code class="inline-code">/wake</code></td><td><code class="inline-code">/wake</code></td><td>Restores screen brightness and exits fake shutdown blackout mode.</td><td><code class="inline-code">/wake</code></td><td>None</td></tr>
+<tr><td><code class="inline-code">/unlock</code></td><td><code class="inline-code">/unlock [master_password]</code></td><td>Releases Lost Mode Kiosk overlay, restores status bar, re-enables biometrics, and clears lockout policies.</td><td><code class="inline-code">/unlock MyPass123</code></td><td>Device Admin / Device Owner</td></tr>
+<tr><td><code class="inline-code">/fakeshutdown</code></td><td>`/fakeshutdown [auto on\</td><td>always\</td><td>off\</td><td>status\</td><td>test\</td><td>&lt;pw&gt;]`</td><td>Simulates OEM power-down blackout or arms auto Power-Menu interception trap to defeat manual power-off.</td><td><code class="inline-code">/fakeshutdown auto on</code></td><td>Pro License</td></tr>
+<tr><td><code class="inline-code">/wake</code></td><td><code class="inline-code">/wake [master_password]</code></td><td>Restores screen brightness and exits fake shutdown blackout mode.</td><td><code class="inline-code">/wake</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/ring</code></td><td><code class="inline-code">/ring [seconds=60]</code></td><td>Sounds high-decibel emergency siren (5 to 300s) overriding silent and vibrate modes.</td><td><code class="inline-code">/ring 30</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/ring_stop</code></td><td><code class="inline-code">/ring_stop</code></td><td>Immediately silences active emergency alarm siren.</td><td><code class="inline-code">/ring_stop</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/vibrate_pulse</code></td><td>`/vibrate_pulse [pulse\</td><td>sos\</td><td>continuous\</td><td>stop]`</td><td>Tactile device locator for locating device covertly in hostile environments without triggering loud audio sirens.</td><td><code class="inline-code">/vibrate_pulse sos</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/message</code></td><td><code class="inline-code">/message &lt;text&gt;</code></td><td>Displays fullscreen high-priority alert dialog over lockscreen with 1-tap call-owner button.</td><td><code class="inline-code">/message Police tracking active!</code></td><td>Draw Over Apps permission</td></tr>
-<tr><td><code class="inline-code">/escrow</code></td><td>`/escrow [status\</td><td>test]`</td><td>Audits hardware cryptographic escrow token enrollment and keyguard readiness for remote PIN resets.</td><td><code class="inline-code">/escrow status</code></td><td>Knox Device Owner</td></tr>
-<tr><td><code class="inline-code">/sim_tray_lock</code></td><td>`/sim_tray_lock [arm\</td><td>disarm\</td><td>release\</td><td>status]`</td><td>Armed SIM tray ejection defense: rotates lockscreen PIN to random 8-digit secret and suspends all user apps upon SIM tampering.</td><td><code class="inline-code">/sim_tray_lock arm</code></td><td>Knox Device Owner, Escrow Token</td></tr>
+<tr><td><code class="inline-code">/escrow</code></td><td>`/escrow [status\</td><td>arm]`</td><td>Audits hardware cryptographic escrow token enrollment and keyguard readiness for remote PIN resets.</td><td><code class="inline-code">/escrow status</code></td><td>Knox Device Owner</td></tr>
+<tr><td><code class="inline-code">/sim_tray_lock</code></td><td>`/sim_tray_lock [enable\</td><td>status\</td><td>whitelist\</td><td>&lt;pw&gt; release]`</td><td>Deep cryptographic SIM tray defense: randomizes lockscreen PIN to 8-digit secret and bricks third-party apps on foreign SIM insertion.</td><td><code class="inline-code">/sim_tray_lock enable</code></td><td>Knox Device Owner, Escrow Token</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
@@ -802,6 +806,9 @@ adb shell dpm list-owners</code></pre></div>
 <tr><td><code class="inline-code">/update_confirm</code></td><td><code class="inline-code">/update_confirm</code></td><td>Downloads and performs unattended silent background installation of latest signed OTA APK update.</td><td><code class="inline-code">/update_confirm</code></td><td>Knox Device Owner</td></tr>
 <tr><td><code class="inline-code">/wipe</code></td><td><code class="inline-code">/wipe</code></td><td>Initiates 2-step authenticated remote factory reset challenge with master password authorization.</td><td><code class="inline-code">/wipe</code></td><td>Device Admin / Device Owner</td></tr>
 <tr><td><code class="inline-code">/wipe_confirm</code></td><td><code class="inline-code">/wipe_confirm &lt;master_password&gt;</code></td><td>Validates master password and executes irreversible cryptographic device erasure (<code class="inline-code">dpm.wipeData(0)</code>).</td><td><code class="inline-code">/wipe_confirm MyMasterPass123</code></td><td>Device Owner, Master Password</td></tr>
+<tr><td><code class="inline-code">/pause</code></td><td><code class="inline-code">/pause</code></td><td>Puts PASA into Dormant Mode, safely suspending background traps and polling to conserve battery.</td><td><code class="inline-code">/pause</code></td><td>None</td></tr>
+<tr><td><code class="inline-code">/resume</code></td><td><code class="inline-code">/resume &lt;master_password&gt;</code></td><td>Wakes PASA from Dormant Mode and restores all active mobile defense traps and listeners.</td><td><code class="inline-code">/resume MyPass123</code></td><td>Master Password</td></tr>
+<tr><td><code class="inline-code">/retire</code></td><td><code class="inline-code">/retire</code></td><td>Interactive deprovisioning wizard that safely releases Knox Device Owner status and uninstalls PASA.</td><td><code class="inline-code">/retire</code></td><td>Master Password</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
@@ -998,7 +1005,7 @@ PASA 123456 /help</code></pre></div>
         <h1 id="pasa-sentinel-private-android-security-agent" class="doc-h1">🛡️ PASA Sentinel (Private Android Security Agent)</h1>
 <h2 id="স্বার্বভৌম-মোবাইল-প্রতিরক্ষা-ও-গোপন-অ্যান্টি-থেফ্ট-সিস্টেম" class="doc-h2"><span class="h-anchor">#</span>স্বার্বভৌম মোবাইল প্রতিরক্ষা ও গোপন অ্যান্টি-থেফ্ট সিস্টেম</h2>
 <h3 id="পূর্ণাঙ্গ-ব্যবহারকারী-ম্যানুয়াল-ও-অপারেশনাল-ফিল্ড-গাইড-বাংলা-সংস্করণ" class="doc-h3">পূর্ণাঙ্গ ব্যবহারকারী ম্যানুয়াল ও অপারেশনাল ফিল্ড গাইড (বাংলা সংস্করণ)</h3>
-<p class="doc-p"><strong>প্রোডাকশন সংস্করণ:</strong> v3.7.14 (বিল্ড ৭৯) | <strong>অপারেটিং সিস্টেম সাপোর্ট:</strong> অ্যান্ড্রয়েড 8.0 – 16 (API 26 – 36) | <strong>ডকুমেন্ট রিভিশন:</strong> 2026.2</p>
+<p class="doc-p"><strong>প্রোডাকশন সংস্করণ:</strong> v3.7.15 (বিল্ড ৮০) | <strong>অপারেটিং সিস্টেম সাপোর্ট:</strong> অ্যান্ড্রয়েড 8.0 – 16 (API 26 – 36) | <strong>ডকুমেন্ট রিভিশন:</strong> 2026.3</p>
 <hr class="divider">
 <h2 id="সূচিপত্র-table-of-contents" class="doc-h2"><span class="h-anchor">#</span>সূচিপত্র (Table of Contents)</h2>
 <ol class="doc-list-num">
@@ -1359,12 +1366,16 @@ adb shell dpm list-owners</code></pre></div>
 <thead><tr><th>কমান্ড</th><th>সিনট্যাক্স ও আর্গুমেন্ট</th><th>বিবরণ</th><th>বাস্তব উদাহরণ</th><th>প্রয়োজনীয় পূর্বশর্ত</th></tr></thead><tbody>
 <tr><td><code class="inline-code">/menu</code></td><td><code class="inline-code">/menu</code></td><td>লাইভ টেলিমেট্রি ব্যাজ সহ ৬-হাব ইন্টারঅ্যাক্টিভ কনসোল ওপেন করে।</td><td><code class="inline-code">/menu</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/help</code></td><td><code class="inline-code">/help</code></td><td>সমস্ত কমান্ডের ক্যাটাগরিভিত্তিক রেফারেন্স গাইড প্রদর্শন করে।</td><td><code class="inline-code">/help</code></td><td>নেই (সর্বদা সচল)</td></tr>
+<tr><td><code class="inline-code">/auth</code></td><td><code class="inline-code">/auth &lt;master_password&gt;</code></td><td>১৫ মিনিটের জন্য প্রশাসনিক সেশন আনলক করে যাতে বারবার পাসওয়ার্ড ছাড়াই কমান্ড চালানো যায়।</td><td><code class="inline-code">/auth MySecretPass123</code></td><td>মাস্টার পাসওয়ার্ড</td></tr>
+<tr><td><code class="inline-code">/logout</code></td><td><code class="inline-code">/logout</code></td><td>সক্রিয় প্রশাসনিক সেশন তাৎক্ষণিকভাবে বাতিল করে পাসওয়ার্ড সুরক্ষা ফিরিয়ে আনে।</td><td><code class="inline-code">/logout</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/status</code></td><td><code class="inline-code">/status</code></td><td>ব্যাটারি %, চার্জিং অবস্থা, ওয়াই-ফাই/সিম নেটওয়ার্ক, জিপিএস লিংক, র‍্যাম/স্টোরেজ রিপোর্ট।</td><td><code class="inline-code">/status</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/selftest</code></td><td><code class="inline-code">/selftest</code></td><td>৯-দফা সিস্টেম অডিট: ক্যামেরা, মাইক, জিপিএস, কী-স্টোর, ডিভাইস ওনার, রুট, অ্যাক্সেসিবিলিটি।</td><td><code class="inline-code">/selftest</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/info</code></td><td><code class="inline-code">/info</code></td><td>ব্র্যান্ড, মডেল, প্রসেসর বোর্ড, অ্যান্ড্রয়েড সংস্করণ, প্যাচ লেভেল, স্ক্রিন সাইজ, ইনস্টল্ড অ্যাপ সংখ্যা।</td><td><code class="inline-code">/info</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/reboot</code></td><td><code class="inline-code">/reboot</code></td><td>দূর থেকে অ্যান্ড্রয়েড হার্ডওয়্যার তাৎক্ষণিক রিবুট করে।</td><td><code class="inline-code">/reboot</code></td><td>নক্স ডিভাইস ওনার</td></tr>
 <tr><td><code class="inline-code">/battery_alert</code></td><td>`/battery_alert [enable\</td><td>disable\</td><td>threshold &lt;5-50&gt;\</td><td>status]`</td><td>ব্যাটারি লেভেল নির্দিষ্ট সীমার নিচে নামলে বা স্ক্রিন অফে দ্রুত চার্জ কমলে অ্যালার্ট দেয়।</td><td><code class="inline-code">/battery_alert threshold 15</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/network</code></td><td><code class="inline-code">/network</code></td><td>ওয়াই-ফাই SSID, BSSID, ফ্রিকোয়েন্সি ব্যান্ড, স্পিড, সেলুলার নেটওয়ার্ক টাইপ (4G/5G) ও আইপি চেক।</td><td><code class="inline-code">/network</code></td><td>নেই</td></tr>
+<tr><td><code class="inline-code">/autostart</code></td><td><code class="inline-code">/autostart</code></td><td>শাওমি, স্যামসাং ইত্যাদি ফোনের ব্যাকগ্রাউন্ড অ্যাপ কিলিং বন্ধ করার নির্দেশিকা প্রদর্শন করে।</td><td><code class="inline-code">/autostart</code></td><td>নেই</td></tr>
+<tr><td><code class="inline-code">/dead_drop</code></td><td>`/dead_drop [status\</td><td>export\</td><td>purge]`</td><td>ইন্টারনেটবিহীন অবস্থায় গোপন প্রমাণ জমা রাখার অন-ডিভাইস এনক্রিপ্টেড ভল্ট।</td><td><code class="inline-code">/dead_drop export</code></td><td>প্রো লাইসেন্স</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
@@ -1432,19 +1443,19 @@ adb shell dpm list-owners</code></pre></div>
 <h3 id="বিভাগ-৫-লকডাউন-অ্যালার্ট-ও-ডিসেপশন" class="doc-h3">বিভাগ ৫: লকডাউন, অ্যালার্ট ও ডিসেপশন</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>কমান্ড</th><th>সিনট্যাক্স ও আর্গুমেন্ট</th><th>বিবরণ</th><th>বাস্তব উদাহরণ</th><th>প্রয়োজনীয় পূর্বশর্ত</th></tr></thead><tbody>
-<tr><td><code class="inline-code">/lock</code></td><td><code class="inline-code">/lock [pin] [message]</code></td><td>নক্স কিয়স্ক লস্ট মোডে ফোন লক করে, নোটিফিকেশন বার বন্ধ করে এবং রিকভারি মেসেজ দেখায়।</td><td><code class="inline-code">/lock 4819 ফোন ফেরত দিন!</code></td><td>ডিভাইস অ্যাডমিন / ওনার</td></tr>
+<tr><td><code class="inline-code">/lock</code></td><td>`/lock [instant\</td><td>lost &lt;pw&gt; [msg]]`</td><td>পাসওয়ার্ড ছাড়াই তাৎক্ষণিক স্ক্রিন লক, অথবা নোটিফিকেশন ব্যানারসহ নক্স কিয়স্ক লস্ট মোড।</td><td><code class="inline-code">/lock lost MyPass123 ফোন ফেরত দিন!</code></td><td>ডিভাইস অ্যাডমিন / ওনার</td></tr>
 <tr><td><code class="inline-code">/lock_message</code></td><td><code class="inline-code">/lock_message &lt;text&gt;</code></td><td>সক্রিয় লকডাউন স্ক্রিনের ওপর প্রদর্শিত সতর্কবার্তা রিমোটলি পরিবর্তন করে।</td><td><code class="inline-code">/lock_message ৫০০ টাকা পুরস্কার দেওয়া হবে!</code></td><td>ডিভাইস অ্যাডমিন</td></tr>
 <tr><td><code class="inline-code">/set_os_pin</code></td><td><code class="inline-code">/set_os_pin &lt;new_pin&gt;</code></td><td>হার্ডওয়্যার এসক্রো টোকেন ব্যবহার করে অ্যান্ড্রয়েডের মূল লকস্ক্রিন পিন দূর থেকেই বদলে দেয়।</td><td><code class="inline-code">/set_os_pin 5892</code></td><td>ডিভাইস ওনার + আর্মেড এসক্রো</td></tr>
 <tr><td><code class="inline-code">/set_master_pin</code></td><td><code class="inline-code">/set_master_pin &lt;pin&gt;</code></td><td>পিএএসএ-এর মাস্টার ইমার্জেন্সি পিন পরিবর্তন করে (এসএমএস ব্যাকডোর ও ওয়াইপ অনুমোদনে ব্যবহৃত)।</td><td><code class="inline-code">/set_master_pin NewSecret99</code></td><td>নেই</td></tr>
-<tr><td><code class="inline-code">/unlock</code></td><td><code class="inline-code">/unlock</code></td><td>লস্ট মোড কিয়স্ক স্ক্রিন সরিয়ে নেয়, নোটিফিকেশন বার সচল করে এবং ফোন আনলক করে।</td><td><code class="inline-code">/unlock</code></td><td>ডিভাইস অ্যাডমিন / ওনার</td></tr>
-<tr><td><code class="inline-code">/fakeshutdown</code></td><td><code class="inline-code">/fakeshutdown</code></td><td>পাওয়ার অফ অ্যানিমেশন দেখিয়ে স্ক্রিন সম্পূর্ণ কালো (0-nit) করে দেয়। বোতাম কাজ করে না, টাচ করলেই চোরের ছবি তোলে।</td><td><code class="inline-code">/fakeshutdown</code></td><td>প্রো লাইসেন্স</td></tr>
-<tr><td><code class="inline-code">/wake</code></td><td><code class="inline-code">/wake</code></td><td>ফেক শাটডাউন ব্ল্যাকআউট মোড থেকে ফোনকে সাধারণ অবস্থায় ফিরিয়ে আনে।</td><td><code class="inline-code">/wake</code></td><td>নেই</td></tr>
+<tr><td><code class="inline-code">/unlock</code></td><td><code class="inline-code">/unlock [master_password]</code></td><td>লস্ট মোড কিয়স্ক স্ক্রিন সরিয়ে নেয়, নোটিফিকেশন বার সচল করে এবং ফোন আনলক করে।</td><td><code class="inline-code">/unlock MyPass123</code></td><td>ডিভাইস অ্যাডমিন / ওনার</td></tr>
+<tr><td><code class="inline-code">/fakeshutdown</code></td><td>`/fakeshutdown [auto on\</td><td>always\</td><td>off\</td><td>status\</td><td>test\</td><td>&lt;pw&gt;]`</td><td>পাওয়ার অফ ব্লাকআউট চালায় অথবা পাওয়ার বাটন চেপে বন্ধ করার চেষ্টা ঠেকাতে স্বয়ংক্রিয় ফাঁদ পাতে।</td><td><code class="inline-code">/fakeshutdown auto on</code></td><td>প্রো লাইসেন্স</td></tr>
+<tr><td><code class="inline-code">/wake</code></td><td><code class="inline-code">/wake [master_password]</code></td><td>ফেক শাটডাউন ব্ল্যাকআউট মোড থেকে ফোনকে সাধারণ অবস্থায় ফিরিয়ে আনে।</td><td><code class="inline-code">/wake</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/ring</code></td><td><code class="inline-code">/ring [seconds=60]</code></td><td>ফোন সাইলেন্ট বা ভাইব্রেট থাকলেও সর্বোচ্চ ভলিউমে তীব্র অ্যালার্ম সাইরেন বাজায়।</td><td><code class="inline-code">/ring 30</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/ring_stop</code></td><td><code class="inline-code">/ring_stop</code></td><td>চলমান জরুরি অ্যালার্ম সাইরেন অবিলম্বে থামিয়ে দেয়।</td><td><code class="inline-code">/ring_stop</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/vibrate_pulse</code></td><td>`/vibrate_pulse [pulse\</td><td>sos\</td><td>continuous\</td><td>stop]`</td><td>শব্দ না করে গোপনে ডিভাইস খুঁজে পেতে স্পেশাল ট্যাকটাইল ভাইব্রেশন প্যাটার্ন বা এসওএস বাজায়।</td><td><code class="inline-code">/vibrate_pulse sos</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/message</code></td><td><code class="inline-code">/message &lt;text&gt;</code></td><td>লকস্ক্রিনের ওপরে বড় অক্ষরে একটি পপআপ ডায়ালগ ও ১-ট্যাপ কল বাটন প্রদর্শন করে।</td><td><code class="inline-code">/message পুলিশ ট্র্যাকিং চলছে!</code></td><td>ড্র ওভার অ্যাপস পারমিশন</td></tr>
 <tr><td><code class="inline-code">/escrow</code></td><td>`/escrow [status\</td><td>arm]`</td><td>রিমোট পিন রিসেটের জন্য নক্স হার্ডওয়্যার এসক্রো পাসওয়ার্ড টোকেন সক্রিয় বা পরীক্ষা করে।</td><td><code class="inline-code">/escrow status</code></td><td>নক্স ডিভাইস ওনার</td></tr>
-<tr><td><code class="inline-code">/sim_tray_lock</code></td><td>`/sim_tray_lock [arm\</td><td>release\</td><td>status]`</td><td>অচেনা সিম ঢুকলে স্ক্রিন লক পিন পরিবর্তন করে এবং সমস্ত অ্যাপ বরখাস্ত করে ফোনকে ব্রিক বানিয়ে ফেলে।</td><td><code class="inline-code">/sim_tray_lock arm</code></td><td>নক্স ডিভাইস ওনার, এসক্রো টোকেন</td></tr>
+<tr><td><code class="inline-code">/sim_tray_lock</code></td><td>`/sim_tray_lock [enable\</td><td>status\</td><td>whitelist\</td><td>&lt;pw&gt; release]`</td><td>গোপন সিম ট্র্রে ডিফেন্স: অচেনা সিম ঢুকলে ৮ ডিজিটের গোপন পিন সেট করে এবং সমস্ত অ্যাপ বরখাস্ত করে ফোন ব্রিক বানিয়ে ফেলে।</td><td><code class="inline-code">/sim_tray_lock enable</code></td><td>নক্স ডিভাইস ওনার, এসক্রো টোকেন</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
@@ -1493,6 +1504,9 @@ adb shell dpm list-owners</code></pre></div>
 <tr><td><code class="inline-code">/update_confirm</code></td><td><code class="inline-code">/update_confirm</code></td><td>ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে সাইলেন্টলি নতুন আপডেট ডাউনলোড ও ইনস্টল সম্পন্ন করে।</td><td><code class="inline-code">/update_confirm</code></td><td>নক্স ডিভাইস ওনার</td></tr>
 <tr><td><code class="inline-code">/wipe</code></td><td><code class="inline-code">/wipe</code></td><td>ফোন সম্পূর্ণ ফ্যাক্টরি রিসেট ও ডেটা মুছে ফেলার জন্য ২-ধাপের চ্যালেঞ্জ প্রম্পট দেয়।</td><td><code class="inline-code">/wipe</code></td><td>ডিভাইস অ্যাডমিন / ওনার</td></tr>
 <tr><td><code class="inline-code">/wipe_confirm</code></td><td><code class="inline-code">/wipe_confirm &lt;master_password&gt;</code></td><td>মাস্টার পাসওয়ার্ড যাচাই করে তাৎক্ষণিকভাবে হার্ডওয়্যার এনক্রিপশন কী ধ্বংস ও ওয়াইপ সম্পন্ন করে।</td><td><code class="inline-code">/wipe_confirm MyMasterPass123</code></td><td>ডিভাইস ওনার, মাস্টার পাসওয়ার্ড</td></tr>
+<tr><td><code class="inline-code">/pause</code></td><td><code class="inline-code">/pause</code></td><td>পাসাকে সাময়িকভাবে ডরম্যান্ট (ঘুমন্ত) মোডে নিয়ে যায়, সমস্ত ব্যাকগ্রাউন্ড ট্র্যাপ ও পোলিং স্থগিত করে।</td><td><code class="inline-code">/pause</code></td><td>নেই</td></tr>
+<tr><td><code class="inline-code">/resume</code></td><td><code class="inline-code">/resume &lt;master_password&gt;</code></td><td>ডরম্যান্ট মোড থেকে পাসাকে পুনরায় পূর্ণ মোবাইল সুরক্ষায় জাগিয়ে তোলে।</td><td><code class="inline-code">/resume MyPass123</code></td><td>মাস্টার পাসওয়ার্ড</td></tr>
+<tr><td><code class="inline-code">/retire</code></td><td><code class="inline-code">/retire</code></td><td>ইন্টারেক্টিভ উইজার্ডের মাধ্যমে ডিভাইস ওনার পারমিশন বাতিল করে পাসাকে নিরাপদে আনইন্সটল করে।</td><td><code class="inline-code">/retire</code></td><td>মাস্টার পাসওয়ার্ড</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
@@ -1712,7 +1726,7 @@ function switchLang(lang) {
   document.getElementById('contentBn').style.display = lang === 'bn' ? 'block' : 'none';
   document.getElementById('tocTitle').innerText = lang === 'en' ? 'Table of Contents' : 'ম্যানুয়াল সূচিপত্র';
   document.getElementById('searchInput').placeholder = lang === 'en' ? 'Filter sections...' : 'বিষয়বস্তু খুঁজুন...';
-  document.getElementById('headerSub').innerText = lang === 'en' ? 'FIELD MANUAL // v3.5.8' : 'ফিল্ড ম্যানুয়াল // v৩.৫.৮';
+  document.getElementById('headerSub').innerText = lang === 'en' ? 'FIELD MANUAL // v3.7.15' : 'ফিল্ড ম্যানুয়াল // v৩.৭.১৫';
   renderToc();
 }
 
