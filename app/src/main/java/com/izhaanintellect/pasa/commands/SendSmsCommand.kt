@@ -217,6 +217,31 @@ class SendSmsCommand @Inject constructor(
     }
 
     private fun getDefaultSmsManager(): SmsManager {
+        // On dual-SIM devices SmsManager.getDefault() sends to no SIM — must use the
+        // system's designated default SMS subscription ID explicitly.
+        return try {
+            val defaultSubId = SubscriptionManager.getDefaultSmsSubscriptionId()
+            if (defaultSubId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                Log.d(TAG, "Using default SMS subscription ID: $defaultSubId")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    context.getSystemService(SmsManager::class.java)
+                        ?.createForSubscriptionId(defaultSubId)
+                        ?: SmsManager.getSmsManagerForSubscriptionId(defaultSubId)
+                } else {
+                    @Suppress("DEPRECATION")
+                    SmsManager.getSmsManagerForSubscriptionId(defaultSubId)
+                }
+            } else {
+                Log.w(TAG, "No default SMS subscription — falling back to SmsManager.getDefault()")
+                getFallbackSmsManager()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "getDefaultSmsManager failed (${e.message}), using fallback")
+            getFallbackSmsManager()
+        }
+    }
+
+    private fun getFallbackSmsManager(): SmsManager {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(SmsManager::class.java) ?: SmsManager.getDefault()
         } else {

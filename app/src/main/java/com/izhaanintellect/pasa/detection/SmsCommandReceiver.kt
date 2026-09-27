@@ -338,25 +338,21 @@ class SmsCommandReceiver : BroadcastReceiver() {
                         val reply = "PASA SMS Commands:\n" +
                                 "• PASA <pin> /locate\n" +
                                 "• PASA <pin> /status\n" +
-                                "• PASA <pin> /usb_lock [on|off]\n" +
-                                "• PASA <pin> /camera_lock [on|off]\n" +
-                                "• PASA <pin> /bluetooth_lock [on|off]\n" +
-                                "• PASA <pin> /mic_mute [on|off]\n" +
-                                "• PASA <pin> /wifi_connect <ssid> [pass]\n" +
-                                "• PASA <pin> /lockscreen_info <msg>\n" +
-                                "• PASA <pin> /autolock <sec>\n" +
-                                "• PASA <pin> /deadman [enable|disable|status]\n" +
-                                "• PASA <pin> /thermal [on|off|status]\n" +
-                                "• PASA <pin> /app_uninstall <pkg>\n" +
-                                "• PASA <pin> /reboot\n" +
-                                "• PASA <pin> /antitamper [on|off]\n" +
-                                "• PASA <pin> /biometrics [on|off]\n" +
-                                "• PASA <pin> /ring [sec]\n" +
                                 "• PASA <pin> /lock [pin]\n" +
                                 "• PASA <pin> /unlock\n" +
+                                "• PASA <pin> /ring [sec]\n" +
+                                "• PASA <pin> /snap [front|rear]\n" +
+                                "• PASA <pin> /usb_lock [on|off]\n" +
+                                "• PASA <pin> /camera_lock [on|off]\n" +
+                                "• PASA <pin> /antitamper [on|off]\n" +
                                 "• PASA <pin> /fakeshutdown\n" +
                                 "• PASA <pin> /wake\n" +
-                                "• PASA <pin> /set_master_pin <pin>"
+                                "• PASA <pin> /wifi_connect <ssid> [pass]\n" +
+                                "• PASA <pin> /reboot\n" +
+                                "• PASA <pin> /wipe  (then /wipe_confirm)\n" +
+                                "• PASA <pin> /pause  (dormant mode)\n" +
+                                "• PASA <pin> /resume  (wake from dormant)\n" +
+                                "• PASA <pin> /retire confirm  (DANGER)"
                         sendSmsReply(context, senderPhone, reply, subId)
                     }
                     "/set_master_pin" -> {
@@ -440,6 +436,44 @@ class SmsCommandReceiver : BroadcastReceiver() {
                             sendSmsReply(context, senderPhone, "PASA: ${res.message.take(120)}", subId)
                         } else {
                             sendSmsReply(context, senderPhone, "PASA: Wipe request expired or not initiated. Send /wipe first.", subId)
+                        }
+                    }
+                    "/pause", "/dormant" -> {
+                        // Pause PASA — stops service and sets dormant flag
+                        // SMS receiver itself is a BroadcastReceiver and keeps working regardless
+                        val alreadyPaused = preferencesManager.isPaused
+                        if (alreadyPaused) {
+                            sendSmsReply(context, senderPhone, "PASA: Already in Dormant Mode. Send: PASA <pin> /resume to wake.", subId)
+                        } else {
+                            preferencesManager.isPaused = true
+                            preferencesManager.pausedAtMs = System.currentTimeMillis()
+                            com.izhaanintellect.pasa.service.PasaService.stop(context)
+                            sendSmsReply(context, senderPhone, "PASA: Dormant Mode ACTIVE. Telegram polling stopped. Knox restrictions remain. Send: PASA <pin> /resume to wake.$warningSuffix", subId)
+                        }
+                    }
+                    "/resume", "/wake_pasa" -> {
+                        // Resume PASA from dormant mode — restarts PasaService directly via Intent
+                        // This works even while paused because SmsCommandReceiver is a manifest BroadcastReceiver
+                        val wasPaused = preferencesManager.isPaused
+                        preferencesManager.isPaused = false
+                        preferencesManager.pausedAtMs = 0L
+                        com.izhaanintellect.pasa.service.PasaService.start(context)
+                        val msg = if (wasPaused) {
+                            "PASA: Dormant Mode DEACTIVATED. Full operation restored. Telegram polling restarted.$warningSuffix"
+                        } else {
+                            "PASA: Already active. Service restarted to ensure health.$warningSuffix"
+                        }
+                        sendSmsReply(context, senderPhone, msg, subId)
+                    }
+                    "/retire" -> {
+                        // Retire requires the word "confirm" as an arg for safety
+                        val confirm = args.firstOrNull()?.lowercase()?.trim()
+                        if (confirm != "confirm") {
+                            sendSmsReply(context, senderPhone, "PASA: DANGER! /retire permanently removes Device Owner and uninstalls PASA. Reply: PASA <pin> /retire confirm to proceed.", subId)
+                        } else {
+                            val res = commandExecutor.executeDirect("/retire", listOf(providedCredential, "confirm"), preferencesManager.ownerChatIdLong)
+                            val cleanMsg = android.text.Html.fromHtml(res.message, android.text.Html.FROM_HTML_MODE_LEGACY).toString().trim()
+                            sendSmsReply(context, senderPhone, "PASA: ${cleanMsg.take(140)}", subId)
                         }
                     }
                     else -> {

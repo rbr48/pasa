@@ -215,6 +215,7 @@ class CommandExecutor @Inject constructor(
                 "/lock_app" -> "wizard:lock_app"
                 "/unlock_app" -> "wizard:unlock_app"
                 "/sendsms" -> "wizard:sendsms"
+                "/call", "/dial" -> "wizard:call"
                 "/getfile" -> "wizard:getfile"
                 "/autolock" -> "wizard:autolock"
                 "/lockscreen_info" -> "wizard:lockscreen_info"
@@ -222,7 +223,10 @@ class CommandExecutor @Inject constructor(
                 "/lost_mode", "/lostmode" -> "wizard:lost_mode"
                 "/deadman" -> "wizard:deadman"
                 "/thermal" -> "wizard:thermal"
+                "/wifi_connect" -> "wizard:wifi_connect"
                 "/wipe" -> "menu:wipe"
+                "/pause", "/dormant" -> "wizard:pause"
+                "/retire", "/deprovision" -> "wizard:retire"
                 else -> null
             }
             if (wizardKey != null) {
