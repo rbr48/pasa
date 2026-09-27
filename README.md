@@ -5,9 +5,9 @@
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.6.0%20(Build%2056)-blue.svg)](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
+[![Version](https://img.shields.io/badge/Release-v3.7.15%20(Build%2080)-blue.svg)](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
 [![License](https://img.shields.io/badge/License-BSL%201.1-orange.svg)](LICENSE.md)
-[![VirusTotal](https://img.shields.io/badge/VirusTotal-70%2B%20AV%20Clean-brightgreen.svg)](https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4)
+[![VirusTotal](https://img.shields.io/badge/VirusTotal-65%2F66%20AV%20Clean-brightgreen.svg)](https://www.virustotal.com/gui/file/e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e)
 [![CodeQL](https://img.shields.io/badge/CodeQL-Passed-brightgreen.svg)](https://github.com/rbr48/pasa/security/code-scanning)
 [![Zero Storage](https://img.shields.io/badge/Zero%20Storage-Direct--to--Telegram-brightgreen.svg)](PRIVACY.md)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Cloud%20Telemetry-brightgreen.svg)](PRIVACY.md)
@@ -23,8 +23,6 @@
 2. [Zero-Storage Architecture (Strategy 1 Sovereign Privacy)](#-zero-storage-architecture-strategy-1-sovereign-privacy)
 3. [Core Defense Capabilities](#-core-defense-capabilities)
 4. [Complete Telegram Bot Setup Guide](#-complete-telegram-bot-setup-guide)
-   - [Method 1: Private Dedicated Bot via @BotFather (Recommended)](#method-1-private-dedicated-bot-via-botfather-recommended)
-   - [Method 2: Instant Pairing via @Pas_agent_bot](#method-2-instant-pairing-via-pas_agent_bot)
 5. [Enterprise Device Owner & Persistence Setup](#-enterprise-device-owner--persistence-setup)
 6. [Executive Telegram C2 Command Glossary (86 Commands & 6-Hub Console)](#-complete-telegram-c2-command-glossary-86-commands)
 7. [Hardware Escrow Token & Physical Lockscreen Reset](#-hardware-escrow-token--physical-lockscreen-reset)
@@ -110,34 +108,17 @@ Unlike commercial spy apps that store user media on central servers, **PASA Sent
 
 ## 🤖 Complete Telegram Bot Setup Guide
 
-PASA Sentinel uses Telegram as its primary Command and Control (C2) console. You can connect using a **private dedicated bot** (maximum sovereignty) or the **official pre-configured bot**.
+PASA Sentinel uses Telegram as its sovereign Command and Control (C2) console. You connect using your own **private dedicated bot** created via @BotFather for zero-trust, end-to-end security.
 
 ---
 
-### Method 1: Private Dedicated Bot via @BotFather (Recommended)
+### Private Dedicated Bot via @BotFather (Zero-Trust Setup)
 1. In Telegram, search for **[@BotFather](https://t.me/BotFather)** and send `/newbot`.
 2. Name your bot (e.g. `MyPhoneSentinelBot`) and choose a username ending in `bot`.
 3. Copy the HTTP API token provided by BotFather.
 4. Search for **[@userinfobot](https://t.me/userinfobot)** in Telegram, click Start, and copy your numeric **User ID** (e.g. `123456789`).
 5. Open the PASA Android app, enter your Bot Token and Owner Chat ID, and tap **"Initialize Sovereign Sentinel"**.
 6. Send `/menu` to your new bot to verify immediate C2 communication!
-
----
-
-### Method 2: Instant Pairing via @Pas_agent_bot
-
-If you prefer instant automated onboarding without creating your own bot via @BotFather:
-
-> 🛡️ **Sovereign Security Advisory:**  
-> Method 1 (Private Bot via @BotFather) is **recommended for zero-trust, maximum privacy**. With Method 1, only you possess the bot token.  
-> Method 2 routes commands through the central PASA gateway with device-binding OTPs and anti-brute-force rate limits.
-
-1. In the PASA Android app setup screen, accept the **Mandatory Terms & Conditions**.
-2. Tap **"⚡ Instant Pair via @Pas_agent_bot"**.
-3. Review the Sovereign Security Advisory and tap **"Proceed with Instant Pair"**.
-4. The app generates a 3-minute ephemeral 6-digit pairing code (e.g. `839 201`).
-5. Open Telegram, start **[@Pas_agent_bot](https://t.me/Pas_agent_bot)**, and send the 6-digit code.
-6. `@Pas_agent_bot` confirms the link, and your Android device auto-configures and activates instantly!
 
 ---
 
@@ -378,21 +359,27 @@ The signed APK will be output to:
 
 Download the official signed release binary directly from GitHub or our high-speed CDN:
 
-* **Direct Release Binary:** [📦 pasa-v3.6.0-56.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.6.0-56.apk)
+* **Direct Release Binary:** [📦 pasa-v3.7.15-80.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.7.15-80.apk)
 * **Direct Rolling Latest:** [📦 pasa-latest.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk)
 * **High-Speed CDN Mirror:** [https://pasa.izhaanintellect.fun/releases/pasa-latest.apk](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
 * **Windows Setup Kit:** [📦 PASA-Device-Owner-Setup-Kit.zip](https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip)
-* **Official Version:** `v3.6.0` (Build Code `56`)
-* **File Size:** `19,079,366 bytes` (18.20 MB)
+* **Complete SARIF Audit Bundle:** [📦 PASA-Security-Audit-SARIF-v3.7.15.zip](https://pasa.izhaanintellect.fun/audit/PASA-Security-Audit-SARIF-v3.7.15.zip)
+* **Official Version:** `v3.7.15` (Build Code `80`)
+* **File Size:** `19,315,370 bytes` (18.42 MB)
 * **APK SHA-256 Checksum:**
   ```text
-  f18f67823ef659fba787b35872e7f14d08ea7e99d71cb412c9161c0b85fb6424
+  e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e
   ```
 * **Setup Kit SHA-256 Checksum:**
   ```text
   f5dfe1893638e2712556e705eb632c5800381324dbe7782b7d4c52c403542f63
   ```
-* **VirusTotal Consensus (70+ AV Clean):** [Inspect VirusTotal Audit Report](https://www.virustotal.com/gui/file/1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4)
+* **SARIF Bundle SHA-256 Checksum:**
+  ```text
+  3271918168d539e90c3b8b0c49efa987ee27d1136a60f13109553a55b4a805fb
+  ```
+* **Independent Audit Portal:** [https://pasa.izhaanintellect.fun/audit/](https://pasa.izhaanintellect.fun/audit/)
+* **VirusTotal Multi-AV Consensus:** [Inspect VirusTotal Audit Report](https://www.virustotal.com/gui/file/e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e)
 
 ### Verify on Windows PowerShell:
 ```powershell

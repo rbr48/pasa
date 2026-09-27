@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PASA Sentinel — Independent Security & SARIF Audit Portal</title>
+<meta name="description" content="Public cryptographic security audit repository for PASA Sentinel: SARIF bundles, CodeQL static analysis, MobSF mobile security reports, and VirusTotal consensus verification.">
+<link rel="canonical" href="https://pasa.izhaanintellect.fun/audit/">
+<meta property="og:title" content="PASA Sentinel — Independent Security & SARIF Audit Portal">
+<meta property="og:description" content="Download raw OASIS/ISO standard SARIF audit reports, CodeQL SAST logs, and VirusTotal multi-AV verification for PASA Sentinel.">
+<meta property="og:url" content="https://pasa.izhaanintellect.fun/audit/">
+<meta property="og:image" content="https://pasa.izhaanintellect.fun/assets/img/logo.png">
+<link rel="icon" type="image/png" href="/assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;
+  --surface:#0c111c;
+  --elevated:#111827;
+  --border:rgba(255,255,255,.08);
+  --border-2:rgba(255,255,255,.14);
+  --crimson:#ff2e55;
+  --cyan:#00d4ff;
+  --cyan-dim:rgba(0,212,255,.12);
+  --emerald:#00e676;
+  --emerald-dim:rgba(0,230,118,.1);
+  --amber:#ffb020;
+  --txt:#eef2f8;
+  --txt-2:#8a95aa;
+  --txt-3:#5b687e;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --topbar-h:64px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);font-size:15px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--cyan);text-decoration:none;transition:color .15s}
+a:hover{color:#fff;text-decoration:underline}
+
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:var(--topbar-h);z-index:100;
+  background:rgba(7,9,15,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+}
+.topbar-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--txt);font-weight:700;font-size:15px}
+.topbar-brand img{width:32px;height:32px;border-radius:8px}
+.topbar-brand span{color:var(--txt-2);font-size:13px;font-weight:500}
+.topbar-nav{display:flex;align-items:center;gap:20px}
+.topbar-nav a{color:var(--txt-2);font-size:13.5px;font-weight:500;text-decoration:none}
+.topbar-nav a:hover{color:var(--txt)}
+
+.container{max-width:960px;margin:100px auto 60px;padding:0 24px;flex:1}
+
+.hero{margin-bottom:36px;border-bottom:1px solid var(--border);padding-bottom:28px}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--emerald-dim);color:var(--emerald);border:1px solid rgba(0,230,118,.25);padding:4px 12px;border-radius:999px;font-size:12.5px;font-weight:600;margin-bottom:14px}
+.hero h1{font-size:32px;font-weight:700;letter-spacing:-.02em;margin-bottom:12px;color:#fff}
+.hero p{font-size:16px;color:var(--txt-2);max-width:760px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;transition:border-color .2s}
+.card:hover{border-color:var(--border-2)}
+.card-title{font-size:18px;font-weight:600;color:#fff;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.card-desc{color:var(--txt-2);font-size:14px;margin-bottom:16px}
+
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0;background:var(--elevated);padding:16px;border-radius:8px;border:1px solid var(--border)}
+.meta-item{font-size:13px}
+.meta-label{color:var(--txt-3);text-transform:uppercase;font-size:11px;font-weight:600;letter-spacing:.05em}
+.meta-value{font-family:var(--mono);color:var(--txt);margin-top:2px;word-break:break-all}
+
+.btn-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--cyan);color:#07090f;font-weight:600;font-size:13.5px;padding:9px 18px;border-radius:8px;text-decoration:none;transition:transform .15s,background .15s}
+.btn:hover{background:#38bdf8;text-decoration:none;transform:translateY(-1px);color:#07090f}
+.btn-secondary{background:var(--elevated);color:var(--txt);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface);border-color:var(--cyan);color:var(--cyan)}
+
+.file-list{list-style:none;margin-top:12px}
+.file-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);font-size:14px}
+.file-item:last-child{border-bottom:none}
+.file-name{display:flex;align-items:center;gap:10px;font-family:var(--mono);color:var(--txt)}
+.file-meta{display:flex;align-items:center;gap:16px;color:var(--txt-2);font-size:13px}
+
+footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-size:13px;color:var(--txt-3)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="/" class="topbar-brand">
+    <img src="/assets/img/logo.png" alt="PASA Sentinel Logo">
+    <div>PASA Sentinel <span>Audit Portal</span></div>
+  </a>
+  <nav class="topbar-nav">
+    <a href="/">Home</a>
+    <a href="/docs">Docs</a>
+    <a href="/manual">Field Manual</a>
+    <a href="/AUDIT_TRAIL.md">Audit Trail</a>
+    <a href="https://t.me/pasa_sentinel_official" target="_blank" rel="noopener">Telegram</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="hero">
+    <div class="badge">🛡️ High Assurance Cryptographic Verification</div>
+    <h1>Independent Security Audits & SARIF Artifacts</h1>
+    <p>
+      In accordance with our Sovereign Zero-Storage charter, all Static Application Security Testing (SAST) logs, 
+      automated CodeQL workflows, MobSF mobile attack-surface evaluations, and multi-engine antivirus consensus 
+      verifications are published openly for independent audit.
+    </p>
+  </div>
+
+  <!-- Primary Bundle Card -->
+  <div class="card" style="border-color: rgba(0,212,255,.3);">
+    <div class="card-title">
+      <span>📦 Complete SARIF Audit Bundle (v3.7.15 Build 80)</span>
+      <span style="font-size:12px;color:var(--emerald);font-weight:600;">PASSED // GRADE A</span>
+    </div>
+    <p class="card-desc">
+      Contains complete, machine-readable OASIS/ISO standard SARIF audit files across all subsystems, 
+      including GitHub CodeQL (Android Kotlin & Node.js backend), MobSF vulnerability scans, and SHA-256 provenance attestations.
+    </p>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="meta-label">Archive Filename</div>
+        <div class="meta-value">PASA-Security-Audit-SARIF-v3.7.15.zip</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">File Size</div>
+        <div class="meta-value">285,549 bytes (~278 KB)</div>
+      </div>
+      <div class="meta-item" style="grid-column:1/-1">
+        <div class="meta-label">SHA-256 Bundle Digest</div>
+        <div class="meta-value">3271918168d539e90c3b8b0c49efa987ee27d1136a60f13109553a55b4a805fb</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <a href="/audit/PASA-Security-Audit-SARIF-v3.7.15.zip" class="btn" download>
+        ⬇️ Download Complete SARIF Bundle (.zip)
+      </a>
+      <a href="/AUDIT_TRAIL.md" class="btn btn-secondary">
+        📋 View Full System Audit Trail (Markdown)
+      </a>
+      <a href="https://www.virustotal.com/gui/file/e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e" class="btn btn-secondary" target="_blank" rel="noopener">
+        🌐 VirusTotal Multi-AV Consensus
+      </a>
+    </div>
+  </div>
+
+  <!-- Raw Reports List -->
+  <div class="card">
+    <div class="card-title">
+      <span>📄 Individual Audit Files & Specifications</span>
+    </div>
+    <p class="card-desc">
+      Inspect individual SARIF files in Microsoft VS Code (via the official SARIF Viewer extension) 
+      or ingest directly into enterprise SIEM platforms (SonarQube, DefectDojo, Snyk).
+    </p>
+    <ul class="file-list">
+      <li class="file-item">
+        <div class="file-name">
+          <span>📱</span>
+          <a href="/audit/codeql-java-kotlin.sarif">codeql-java-kotlin.sarif</a>
+        </div>
+        <div class="file-meta">
+          <span>Android Client SAST (Kotlin/Java)</span>
+          <span>1.14 MB</span>
+          <a href="/audit/codeql-java-kotlin.sarif" download>Download</a>
+        </div>
+      </li>
+      <li class="file-item">
+        <div class="file-name">
+          <span>🌐</span>
+          <a href="/audit/codeql-javascript.sarif">codeql-javascript.sarif</a>
+        </div>
+        <div class="file-meta">
+          <span>Control Plane & Telegram C2 (JS/TS)</span>
+          <span>1.29 MB</span>
+          <a href="/audit/codeql-javascript.sarif" download>Download</a>
+        </div>
+      </li>
+      <li class="file-item">
+        <div class="file-name">
+          <span>🔍</span>
+          <a href="/audit/mobsfscan.sarif">mobsfscan.sarif</a>
+        </div>
+        <div class="file-meta">
+          <span>MobSF Mobile Attack Surface</span>
+          <span>1.13 MB</span>
+          <a href="/audit/mobsfscan.sarif" download>Download</a>
+        </div>
+      </li>
+      <li class="file-item">
+        <div class="file-name">
+          <span>📋</span>
+          <a href="/audit/independent_audit_summary.md">independent_audit_summary.md</a>
+        </div>
+        <div class="file-meta">
+          <span>Cryptographic Provenance</span>
+          <span>537 B</span>
+          <a href="/audit/independent_audit_summary.md">View</a>
+        </div>
+      </li>
+      <li class="file-item">
+        <div class="file-name">
+          <span>📖</span>
+          <a href="/audit/README.md">README.md</a>
+        </div>
+        <div class="file-meta">
+          <span>Usage Instructions & Specification</span>
+          <span>1.01 KB</span>
+          <a href="/audit/README.md">View</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Historical Archives -->
+  <div class="card">
+    <div class="card-title">
+      <span>📚 Historical Release SARIF Archives</span>
+    </div>
+    <ul class="file-list">
+      <li class="file-item">
+        <div class="file-name">
+          <a href="/audit/PASA-Security-Audit-SARIF-v3.7.13.zip">PASA-Security-Audit-SARIF-v3.7.13.zip</a>
+        </div>
+        <div class="file-meta">
+          <span>v3.7.13 (Build 78)</span>
+          <span>291 KB</span>
+          <a href="/audit/PASA-Security-Audit-SARIF-v3.7.13.zip" download>Download</a>
+        </div>
+      </li>
+      <li class="file-item">
+        <div class="file-name">
+          <a href="/audit/PASA-Security-Audit-SARIF-v3.5.9.zip">PASA-Security-Audit-SARIF-v3.5.9.zip</a>
+        </div>
+        <div class="file-meta">
+          <span>v3.5.9 (Build 55)</span>
+          <span>268 KB</span>
+          <a href="/audit/PASA-Security-Audit-SARIF-v3.5.9.zip" download>Download</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</main>
+
+<footer>
+  <p>© 2026 Izhaan Intellect // Sovereign Mobile Security Division. All rights reserved.</p>
+  <p style="margin-top:6px;font-size:12px;">Cryptographically attested via GitHub Actions CI & VirusTotal Multi-AV Consensus.</p>
+</footer>
+
+</body>
+</html>
