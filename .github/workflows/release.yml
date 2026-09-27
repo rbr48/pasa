@@ -22,12 +22,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ github.ref_name }}"
-          VERSION_NAME=$(jq -r '.[0].versionName' pasa-server/data/app_releases.json)
-          VERSION_CODE=$(jq -r '.[0].versionCode' pasa-server/data/app_releases.json)
-          APK_NAME=$(jq -r '.[0].fileName' pasa-server/data/app_releases.json)
-          APK_SHA256=$(jq -r '.[0].sha256' pasa-server/data/app_releases.json)
-          APK_SIZE=$(jq -r '.[0].size' pasa-server/data/app_releases.json)
-          RELEASE_NOTES=$(jq -r '.[0].releaseNotes' pasa-server/data/app_releases.json)
+          MANIFEST="releases/app_releases.json"
+          if [ ! -f "$MANIFEST" ]; then
+            MANIFEST="pasa-server/data/app_releases.json"
+          fi
+          
+          VERSION_NAME=$(jq -r '.[0].versionName' "$MANIFEST")
+          VERSION_CODE=$(jq -r '.[0].versionCode' "$MANIFEST")
+          APK_NAME=$(jq -r '.[0].fileName' "$MANIFEST")
+          APK_SHA256=$(jq -r '.[0].sha256' "$MANIFEST")
+          APK_SIZE=$(jq -r '.[0].size' "$MANIFEST")
+          RELEASE_NOTES=$(jq -r '.[0].releaseNotes' "$MANIFEST")
 
           if [ "$TAG" = "main" ] || [ "$TAG" = "master" ]; then
             TAG="v$VERSION_NAME"

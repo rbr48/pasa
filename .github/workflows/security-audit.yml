@@ -133,7 +133,14 @@ jobs:
     - name: Compute Cryptographic Hashes of Production APK
       id: hashes
       run: |
-        LATEST_FILE=$(jq -r '.[0].fileName // empty' pasa-server/data/app_releases.json)
+        if [ -f "releases/app_releases.json" ]; then
+          LATEST_FILE=$(jq -r '.[0].fileName // empty' releases/app_releases.json 2>/dev/null || true)
+        elif [ -f "pasa-server/data/app_releases.json" ]; then
+          LATEST_FILE=$(jq -r '.[0].fileName // empty' pasa-server/data/app_releases.json 2>/dev/null || true)
+        else
+          LATEST_FILE=""
+        fi
+
         if [ -n "$LATEST_FILE" ] && [ -f "releases/$LATEST_FILE" ]; then
           APK_FILE="releases/$LATEST_FILE"
         elif [ -f "releases/pasa-latest.apk" ]; then
@@ -169,8 +176,12 @@ jobs:
         
         if [ -z "$REMOTE_HASH" ] || [ "$REMOTE_HASH" = "null" ]; then
           echo "⚠️ Remote OTA manifest endpoint returned non-JSON or was blocked by edge WAF on runner IP."
-          echo "Verifying against canonical repository release manifest (pasa-server/data/app_releases.json)..."
-          REMOTE_HASH=$(jq -r '.[0].sha256' pasa-server/data/app_releases.json)
+          echo "Verifying against canonical repository release manifest (releases/app_releases.json)..."
+          if [ -f "releases/app_releases.json" ]; then
+            REMOTE_HASH=$(jq -r '.[0].sha256' releases/app_releases.json)
+          elif [ -f "pasa-server/data/app_releases.json" ]; then
+            REMOTE_HASH=$(jq -r '.[0].sha256' pasa-server/data/app_releases.json)
+          fi
         fi
         
         if [ "$REMOTE_HASH" != "$EXPECTED_HASH" ]; then
