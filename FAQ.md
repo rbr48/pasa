@@ -398,4 +398,4 @@ RFC 6238 অ্যালগরিদমের ওপর ভিত্তি ক�
 - **অফিসিয়াল কন্ট্রোল প্যানেল:** [https://pasa.izhaanintellect.fun](https://pasa.izhaanintellect.fun)
 - **টেলিগ্রাম সাপোর্ট বট:** `@Pas_agent_bot`
 - **গিটহাব রিপোজিটরি:** [rbr48/pasa](https://github.com/rbr48/pasa)
-- **চিফ ডেভেলপার / সিকিউরিটি আর্কিটেক্ট:** M S Rana (`shohagrana15193@gmail.com`)
+- **চিফ ডেভেলপার / সিকিউরিটি আর্কিটেক্ট:** M S Rana
