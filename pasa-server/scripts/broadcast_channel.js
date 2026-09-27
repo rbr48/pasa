@@ -27,8 +27,8 @@ if (!botToken && fs.existsSync(ENV_FILE)) {
 }
 
 if (!botToken) {
-  // Default to central support bot token if not set
-  botToken = '8731444238:AAE2jcWkXLNO8n2bc3XvDZDUAGiPTy7nPqY';
+  console.error('Error: PASA_CENTRAL_BOT_TOKEN or BOT_TOKEN must be set in environment or pasa-server/.env');
+  process.exit(1);
 }
 
 // Load latest release info

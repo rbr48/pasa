@@ -5437,7 +5437,7 @@ app.get('/api/stats/visitors', (req, res) => {
 // ── Automated Customer License Delivery via Email (Resend API & SMTP Fallback) ─
 const nodemailer = require('nodemailer');
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_dRDqsTLz_6pjVMBRyFRxdEKPbdgk19pdS';
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const EMAIL_FROM = process.env.EMAIL_FROM || 'PASA Sentinel <support@izhaanintellect.fun>';
 const EMAIL_REPLY_TO = process.env.EMAIL_REPLY_TO || 'support@izhaanintellect.fun';
 
@@ -5446,8 +5446,8 @@ const mailTransporter = nodemailer.createTransport({
   port: parseInt(process.env.SMTP_PORT || '465', 10),
   secure: (process.env.SMTP_PORT || '465') === '465',
   auth: {
-    user: process.env.SMTP_USER || 'rajbrur@gmail.com',
-    pass: (process.env.SMTP_PASS || 'jjxb oanq xdpk vlkp').replace(/\s+/g, '')
+    user: process.env.SMTP_USER || '',
+    pass: (process.env.SMTP_PASS || '').replace(/\s+/g, '')
   }
 });
 
