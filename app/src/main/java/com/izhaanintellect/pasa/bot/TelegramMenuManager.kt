@@ -324,6 +324,35 @@ class TelegramMenuManager @Inject constructor(
                     )
                 )
             )
+            "wizard:retire" -> buildWizardCard(
+                title = "🗑️ Secure PASA Retirement",
+                desc = "Permanently decommissions PASA — releases all Knox Device Owner privileges, shreds all credentials, and silently self-uninstalls. Irreversible.",
+                syntax = "/retire <master_password> confirm",
+                example = "/retire MySecretPassword confirm",
+                note = "⚠️ Requires Master Password AND the word 'confirm'. Active session auth is NOT accepted. This action cannot be undone.",
+                parentHub = "menu:main",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("👑 Device Owner Status", callbackData = "cmd:device_owner"),
+                        InlineKeyboardButton("🛡️ Anti-Tamper Status", callbackData = "cmd:antitamper:status")
+                    )
+                )
+            )
+            "wizard:pause" -> buildWizardCard(
+                title = "⏸️ PASA Dormant Mode",
+                desc = "Suspends all monitoring (polling, traps, tracking, guards) while preserving Knox Device Owner restrictions. Fully reversible via /resume.",
+                syntax = "/pause [master_password]",
+                example = "/pause\n/resume <master_password>",
+                note = "Knox restrictions (Anti-Tamper, USB lock, camera lock, DNS) remain ACTIVE while dormant. PASA will not auto-restart until /resume is sent.",
+                parentHub = "menu:main",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("⏸️ Pause PASA", callbackData = "cmd:pause"),
+                        InlineKeyboardButton("▶️ Resume PASA", callbackData = "cmd:resume"),
+                        InlineKeyboardButton("📊 Pause Status", callbackData = "cmd:pause:status")
+                    )
+                )
+            )
             else -> buildMainMenu()
         }
     }
@@ -1289,7 +1318,10 @@ class TelegramMenuManager @Inject constructor(
             BotCommand("check_update", "🔄 Check for OTA app updates"),
             BotCommand("message", "📢 Display urgent fullscreen alert on device"),
             BotCommand("dead_drop", "☁️ Backup evidence to encrypted local/cloud vault"),
-            BotCommand("wipe", "⚠️ Emergency remote factory reset (requires auth)")
+            BotCommand("wipe", "⚠️ Emergency remote factory reset (requires auth)"),
+            BotCommand("pause", "⏸️ Suspend all PASA monitoring activities (dormant mode)"),
+            BotCommand("resume", "▶️ Wake PASA from dormant mode — restore full operation"),
+            BotCommand("retire", "🗑️ Securely decommission PASA and remove Device Owner")
         )
     }
 

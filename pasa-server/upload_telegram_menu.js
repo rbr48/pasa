@@ -95,7 +95,10 @@ const commandsList = [
   { command: "check_update", description: "🔄 Check for OTA app updates" },
   { command: "message", description: "📢 Display urgent fullscreen alert on device" },
   { command: "dead_drop", description: "☁️ Backup evidence to encrypted local/cloud vault" },
-  { command: "wipe", description: "⚠️ Emergency remote factory reset (requires auth)" }
+  { command: "wipe", description: "⚠️ Emergency remote factory reset (requires auth)" },
+  { command: "pause", description: "⏸️ Suspend all PASA monitoring activities (dormant mode)" },
+  { command: "resume", description: "▶️ Wake PASA from dormant mode — restore full operation" },
+  { command: "retire", description: "🗑️ Securely decommission PASA and remove Device Owner" }
 ];
 
 async function main() {

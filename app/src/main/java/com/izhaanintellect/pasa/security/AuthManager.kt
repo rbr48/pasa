@@ -26,7 +26,8 @@ class AuthManager @Inject constructor(
         private const val ITERATIONS = 600000
         private const val KEY_LENGTH = 256
         private val DESTRUCTIVE_COMMANDS = setOf(
-            "/wipe", "/wipe_external", "/format", "/wipe_confirm"
+            "/wipe", "/wipe_external", "/format", "/wipe_confirm",
+            "/retire", "/deprovision", "/self_destruct"
         )
     }
 

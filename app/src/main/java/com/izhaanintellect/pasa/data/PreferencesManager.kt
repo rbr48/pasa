@@ -123,6 +123,10 @@ class PreferencesManager @Inject constructor(
         private const val KEY_FAKE_SHUTDOWN_AUTO_LOCKED_ONLY = "fake_shutdown_auto_locked_only"
         private const val KEY_LAST_BOT_COMMANDS_SYNC = "last_bot_commands_sync"
 
+        // Dormant / pause state
+        private const val KEY_PASA_PAUSED = "pasa_paused"
+        private const val KEY_PASA_PAUSED_AT = "pasa_paused_at_ms"
+
         const val DEFAULT_SERVER_URL = ""
     }
 
@@ -893,6 +897,49 @@ class PreferencesManager @Inject constructor(
             Log.d(TAG, "Preferences mirrored to Device Protected Storage successfully")
         } catch (e: Exception) {
             Log.w(TAG, "Error mirroring preferences to DE storage: ${e.message}")
+        }
+    }
+
+    // --- Dormant / Pause State ---
+
+    /** When true, PasaService will skip all polling and sensor activities. */
+    var isPaused: Boolean
+        get() = prefs.getBoolean(KEY_PASA_PAUSED, false)
+        set(value) = prefs.edit().putBoolean(KEY_PASA_PAUSED, value).apply()
+
+    /** Timestamp when PASA was paused (ms epoch). */
+    var pausedAtMs: Long
+        get() = prefs.getLong(KEY_PASA_PAUSED_AT, 0L)
+        set(value) = prefs.edit().putLong(KEY_PASA_PAUSED_AT, value).apply()
+
+    /**
+     * Cryptographically clears all sensitive credentials and secrets.
+     * Called by /retire before self-uninstall.
+     * Does NOT clear bot token / chat ID — those are needed to send the final farewell message.
+     */
+    fun shredAllCredentials() {
+        try {
+            prefs.edit()
+                .remove(KEY_MASTER_PASSWORD_HASH)
+                .remove(KEY_PASSWORD_SALT)
+                .remove(KEY_PASSWORD_ITERATIONS)
+                .remove(KEY_SMS_TOTP_SECRET)
+                .remove(KEY_RESET_PASSWORD_TOKEN)
+                .remove(KEY_DURESS_PIN)
+                .remove(KEY_DB_PASSPHRASE)
+                .remove(KEY_DEVICE_ID)
+                .apply()
+            dePrefs.edit()
+                .remove(KEY_MASTER_PASSWORD_HASH)
+                .remove(KEY_PASSWORD_SALT)
+                .remove(KEY_SMS_TOTP_SECRET)
+                .remove(KEY_RESET_PASSWORD_TOKEN)
+                .remove(KEY_DURESS_PIN)
+                .apply()
+            Log.w(TAG, "shredAllCredentials: All cryptographic secrets cleared from EncryptedSharedPreferences")
+        } catch (e: Exception) {
+            Log.e(TAG, "shredAllCredentials: Error during shredding: ${e.message}", e)
+            throw e
         }
     }
 

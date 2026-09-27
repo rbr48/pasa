@@ -639,6 +639,11 @@ class PasaService : LifecycleService() {
     }
 
     private fun scheduleRestart() {
+        // Do NOT auto-restart if the service was intentionally stopped via /pause (dormant mode)
+        if (preferencesManager.isPaused) {
+            Log.i(TAG, "scheduleRestart: PASA is in Dormant Mode — skipping watchdog restart.")
+            return
+        }
         try {
             val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(this, PasaWatchdogReceiver::class.java).apply {

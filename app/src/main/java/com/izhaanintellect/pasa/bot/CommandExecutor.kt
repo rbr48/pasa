@@ -114,6 +114,8 @@ class CommandExecutor @Inject constructor(
     private val appInstallLockCommand: com.izhaanintellect.pasa.commands.AppInstallLockCommand,
     private val canaryGuardCommand: com.izhaanintellect.pasa.commands.CanaryGuardCommand,
     private val otpGuardCommand: com.izhaanintellect.pasa.commands.OtpGuardCommand,
+    private val retireCommand: com.izhaanintellect.pasa.commands.RetireCommand,
+    private val pauseCommand: com.izhaanintellect.pasa.commands.PauseCommand,
     private val telegramMenuManager: TelegramMenuManager
 ) {
     companion object {
@@ -884,6 +886,14 @@ class CommandExecutor @Inject constructor(
             "/app_install_lock", "/install_lock", "/sideload_lock" -> appInstallLockCommand
             "/canary_guard", "/canary", "/ransomware_guard" -> canaryGuardCommand
             "/otp_guard", "/otpguard", "/2fa_guard" -> otpGuardCommand
+            "/retire", "/deprovision", "/self_destruct" -> retireCommand
+            "/pause", "/dormant" -> pauseCommand
+            "/resume", "/wake_pasa" -> object : Command {
+                override val name = "/resume"
+                override val description = "Wake PASA from Dormant Mode and restore full operation"
+                override val usage = "/resume <master_password>"
+                override suspend fun execute(args: List<String>, chatId: Long) = pauseCommand.executeResume(args)
+            }
             "/help", "/start", "/menu", "/dashboard" -> helpCommand
             else -> null
         }

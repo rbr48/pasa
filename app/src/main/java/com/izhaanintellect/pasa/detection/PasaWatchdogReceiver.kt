@@ -70,12 +70,17 @@ class PasaWatchdogReceiver : BroadcastReceiver() {
 
         try {
             if (preferencesManager.isSetupComplete) {
-                val service = PasaService.currentService
-                if (service == null || !service.isServiceActive()) {
-                    Log.w(TAG, "PasaService not running! Resurrecting daemon immediately.")
-                    PasaService.start(context)
+                // Do NOT resurrect service if PASA is intentionally in Dormant Mode (/pause)
+                if (preferencesManager.isPaused) {
+                    Log.i(TAG, "Watchdog: PASA is in Dormant Mode — skipping resurrection.")
                 } else {
-                    service.verifyPollingHealth()
+                    val service = PasaService.currentService
+                    if (service == null || !service.isServiceActive()) {
+                        Log.w(TAG, "PasaService not running! Resurrecting daemon immediately.")
+                        PasaService.start(context)
+                    } else {
+                        service.verifyPollingHealth()
+                    }
                 }
             }
         } catch (e: Exception) {
