@@ -2,7 +2,6 @@ package com.izhaanintellect.pasa.commands
 
 import android.content.Context
 import android.content.Intent
-import android.os.PowerManager
 import android.util.Log
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.security.AuthManager
@@ -245,18 +244,7 @@ class FakeShutdownCommand @Inject constructor(
         preferencesManager.isFakeShutdownActive = false
 
         // Forcibly wake screen display hardware via PowerManager
-        try {
-            val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
-            @Suppress("DEPRECATION")
-            val wakeLock = pm?.newWakeLock(
-                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
-                "pasa:fake_shutdown_command_wake"
-            )
-            wakeLock?.acquire(10000L)
-            Log.i(TAG, "Acquired screen bright wake lock for fake shutdown wake")
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to acquire screen wake lock: ${e.message}")
-        }
+        SecurityActivityLauncher.wakeScreen(context)
 
         try {
             val dismissIntent = Intent(FakeShutdownActivity.ACTION_DISMISS_FAKE_SHUTDOWN).apply {

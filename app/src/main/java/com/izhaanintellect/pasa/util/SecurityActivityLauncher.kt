@@ -121,4 +121,22 @@ object SecurityActivityLauncher {
             Log.w(TAG, "Failed to dismiss notification $notificationId: ${e.message}")
         }
     }
+
+    /**
+     * Forcibly turns on and brightens the display hardware for a designated duration.
+     */
+    fun wakeScreen(context: Context, durationMs: Long = 10000L) {
+        try {
+            val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            @Suppress("DEPRECATION")
+            val wakeLock = pm?.newWakeLock(
+                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                "pasa:security_display_wake"
+            )
+            wakeLock?.acquire(durationMs)
+            Log.d(TAG, "Screen hardware wake-lock acquired for ${durationMs}ms")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed acquiring screen wake lock: ${e.message}")
+        }
+    }
 }

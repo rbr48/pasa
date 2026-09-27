@@ -183,18 +183,7 @@ class UnlockCommand @Inject constructor(
             }
 
             // 3. Forcibly acquire bright wake lock to wake physical AMOLED/LCD panel
-            try {
-                val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
-                val wakeLock = pm?.newWakeLock(
-                    @Suppress("DEPRECATION")
-                    PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
-                    "pasa:unlock_hardware_wake"
-                )
-                wakeLock?.acquire(10000L)
-                Log.i(TAG, "✅ Physical display backlight woken up successfully")
-            } catch (e: Exception) {
-                Log.w(TAG, "⚠️ WakeLock acquisition warning: ${e.message}")
-            }
+            com.izhaanintellect.pasa.util.SecurityActivityLauncher.wakeScreen(context)
 
             val modesSummary = deactivatedModes.joinToString(" & ")
             return CommandResult(

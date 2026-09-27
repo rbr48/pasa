@@ -1,6 +1,5 @@
 package com.izhaanintellect.pasa.ui
 
-import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -10,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.PowerManager
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -413,32 +411,13 @@ class FakeShutdownActivity : AppCompatActivity() {
         window.attributes = layoutParams
 
         // Acquire hardware bright wake lock so physical AMOLED/LCD panel turns back on
-        try {
-            val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
-            @Suppress("DEPRECATION")
-            val wakeLock = pm?.newWakeLock(
-                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
-                "pasa:fake_shutdown_activity_wake"
-            )
-            wakeLock?.acquire(10_000L)
-            Log.i(TAG, "Acquired hardware screen bright wake lock during exitFakeShutdown")
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to acquire screen wake lock: ${e.message}")
-        }
+        SecurityActivityLauncher.wakeScreen(this)
 
         // Restore ringer mode
         try {
             val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.ringerMode = previousRingerMode
         } catch (_: Exception) {}
-
-        // Dismiss Keyguard if applicable
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try {
-                val km = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
-                km?.requestDismissKeyguard(this, null)
-            } catch (_: Exception) {}
-        }
 
         // If lost mode is NOT active, ensure AlertMessageActivity is dismissed as well
         if (!preferencesManager.isLostModeActive) {
