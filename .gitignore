@@ -24,6 +24,7 @@ pasa-commercial-web/public/releases/
 *.avi
 Screenshots/
 promo_video_builder/
+pasa-commercial-web/
 
 # Internal AI Agent Memory & Directives
 AGENTS.md
