@@ -2,6 +2,7 @@ package com.izhaanintellect.pasa.commands
 
 import android.content.Context
 import android.content.Intent
+import android.os.PowerManager
 import android.util.Log
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.security.AuthManager
@@ -92,7 +93,7 @@ class FakeShutdownCommand @Inject constructor(
         val candidate = args.firstOrNull { it.lowercase() !in setOf("wake", "stop", "off") }?.trim()
 
         if (isWake) {
-            return wakeDevice(candidate)
+            return wakeDevice(candidate, isFromTelegramOwner = authManager.isAuthorizedChat(chatId))
         }
 
         // Fake Shutdown manual activation
@@ -215,31 +216,47 @@ class FakeShutdownCommand @Inject constructor(
         )
     }
 
-    fun wakeDevice(candidate: String? = null): CommandResult {
+    fun wakeDevice(candidate: String? = null, isFromTelegramOwner: Boolean = false): CommandResult {
         if (authManager.hasMasterPassword()) {
-            if (candidate.isNullOrBlank()) {
-                return CommandResult(
-                    success = false,
-                    message = """
-                        🔑 <b>Wake Device (Zero-Trust Guard)</b>
-                        ━━━━━━━━━━━━━━━━━━━━
-                        To wake the device from Fake Shutdown blackout canvas, Master Password verification is required.
+            val isAuthorized = (isFromTelegramOwner && candidate.isNullOrBlank()) || verifyCredentials(candidate)
+            if (!isAuthorized) {
+                if (candidate.isNullOrBlank()) {
+                    return CommandResult(
+                        success = false,
+                        message = """
+                            🔑 <b>Wake Device (Zero-Trust Guard)</b>
+                            ━━━━━━━━━━━━━━━━━━━━
+                            To wake the device from Fake Shutdown blackout canvas, Master Password verification is required.
 
-                        <b>Syntax:</b> <code>/wake &lt;master_password&gt;</code>
-                        <b>Example:</b> <code>/wake MySecretPass123</code>
-                    """.trimIndent()
-                )
-            }
-            if (!verifyCredentials(candidate)) {
-                return CommandResult(
-                    success = false,
-                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password or TOTP. Wake rejected."
-                )
+                            <b>Syntax:</b> <code>/wake &lt;master_password&gt;</code>
+                            <b>Example:</b> <code>/wake MySecretPass123</code>
+                        """.trimIndent()
+                    )
+                } else {
+                    return CommandResult(
+                        success = false,
+                        message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password or TOTP. Wake rejected."
+                    )
+                }
             }
         }
 
-        Log.i(TAG, "Waking device from Fake Shutdown")
+        Log.i(TAG, "Waking device from Fake Shutdown (isFromTelegramOwner=$isFromTelegramOwner)")
         preferencesManager.isFakeShutdownActive = false
+
+        // Forcibly wake screen display hardware via PowerManager
+        try {
+            val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            @Suppress("DEPRECATION")
+            val wakeLock = pm?.newWakeLock(
+                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                "pasa:fake_shutdown_command_wake"
+            )
+            wakeLock?.acquire(10000L)
+            Log.i(TAG, "Acquired screen bright wake lock for fake shutdown wake")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to acquire screen wake lock: ${e.message}")
+        }
 
         try {
             val dismissIntent = Intent(FakeShutdownActivity.ACTION_DISMISS_FAKE_SHUTDOWN).apply {

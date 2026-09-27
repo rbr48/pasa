@@ -1,5 +1,6 @@
 package com.izhaanintellect.pasa.ui
 
+import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -9,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -61,6 +63,8 @@ class FakeShutdownActivity : AppCompatActivity() {
     private var lastTouchAlertTime: Long = 0L
     private var secretTapCount: Int = 0
     private var lastSecretTapTime: Long = 0L
+    private var volumeUpEscapeCount: Int = 0
+    private var lastVolumeUpTime: Long = 0L
 
     companion object {
         const val ACTION_DISMISS_FAKE_SHUTDOWN = "com.izhaanintellect.pasa.ACTION_DISMISS_FAKE_SHUTDOWN"
@@ -237,6 +241,23 @@ class FakeShutdownActivity : AppCompatActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP && event.action == KeyEvent.ACTION_DOWN) {
+            val now = System.currentTimeMillis()
+            if (now - lastVolumeUpTime > 3000L) {
+                volumeUpEscapeCount = 0
+            }
+            lastVolumeUpTime = now
+            volumeUpEscapeCount++
+            Log.d(TAG, "Hardware emergency escape sequence: Volume Up pressed ($volumeUpEscapeCount/4)")
+            if (volumeUpEscapeCount >= 4) {
+                Log.w(TAG, "Hardware emergency escape sequence triggered (4x Volume Up). Exiting Fake Shutdown.")
+                Toast.makeText(this, "Emergency Wake Triggered", Toast.LENGTH_SHORT).show()
+                exitFakeShutdown()
+                return true
+            }
+            return true
+        }
+
         when (event.keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP,
             KeyEvent.KEYCODE_VOLUME_DOWN,
@@ -380,6 +401,7 @@ class FakeShutdownActivity : AppCompatActivity() {
     }
 
     private fun exitFakeShutdown() {
+        Log.i(TAG, "exitFakeShutdown called - restoring device state")
         preferencesManager.isFakeShutdownActive = false
 
         // Cancel high-priority alert notification
@@ -390,15 +412,62 @@ class FakeShutdownActivity : AppCompatActivity() {
         layoutParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
         window.attributes = layoutParams
 
+        // Acquire hardware bright wake lock so physical AMOLED/LCD panel turns back on
+        try {
+            val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
+            @Suppress("DEPRECATION")
+            val wakeLock = pm?.newWakeLock(
+                PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                "pasa:fake_shutdown_activity_wake"
+            )
+            wakeLock?.acquire(10_000L)
+            Log.i(TAG, "Acquired hardware screen bright wake lock during exitFakeShutdown")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to acquire screen wake lock: ${e.message}")
+        }
+
         // Restore ringer mode
         try {
             val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.ringerMode = previousRingerMode
         } catch (_: Exception) {}
 
+        // Dismiss Keyguard if applicable
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                val km = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+                km?.requestDismissKeyguard(this, null)
+            } catch (_: Exception) {}
+        }
+
+        // If lost mode is NOT active, ensure AlertMessageActivity is dismissed as well
+        if (!preferencesManager.isLostModeActive) {
+            try {
+                val dismissLostModeIntent = Intent(AlertMessageActivity.ACTION_DISMISS_LOST_MODE).apply {
+                    setPackage(packageName)
+                }
+                sendBroadcast(dismissLostModeIntent)
+            } catch (_: Exception) {}
+        }
+
+        // Exit Lock Task mode
         try {
             stopLockTask()
-        } catch (_: Exception) {}
+            Log.i(TAG, "Stopped Lock Task mode during exitFakeShutdown")
+        } catch (e: Exception) {
+            Log.w(TAG, "Error stopping lock task: ${e.message}")
+        }
+
+        // Direct user back to Home launcher if lost mode is not active
+        if (!preferencesManager.isLostModeActive) {
+            try {
+                val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_HOME)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                startActivity(homeIntent)
+            } catch (_: Exception) {}
+        }
 
         finish()
     }
