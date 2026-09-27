@@ -96,7 +96,9 @@ const newRel = {
   sha256: sha256 || '1612a3f0e00b9a7596d8e2162c34cf78812786ff2e24b30adc97f9881178aac4',
   size: size || 19079349,
   mandatory: false,
-  releaseNotes: `v${versionName}: Production Release — Hardened Sovereign Defense Core.`
+  releaseNotes: versionCode === 79
+    ? `v${versionName}: Fixed SIM tray/lock fake shutdown & wake display deadlock. Unified /unlock with automatic fake shutdown dismissal, hardware AMOLED wake lock & 4x Volume Up emergency escape.`
+    : `v${versionName}: Production Release — Hardened Sovereign Defense Core.`
 };
 
 filteredList.unshift(newRel);

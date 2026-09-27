@@ -44,10 +44,16 @@ $ApkName         = "pasa-v${VersionName}-${VersionCode}.apk"
 $ApkSrc          = Join-Path $ProjectRoot "app\build\outputs\apk\release\app-release.apk"
 $ApkDest         = Join-Path $ReleasesDir $ApkName
 $ApkLatest       = Join-Path $ReleasesDir "pasa-latest.apk"
-$LocalJdk        = "C:\Program Files\Microsoft\jdk-17.0.20.8-hotspot"
+$LocalJdk        = if (Test-Path "C:\Program Files\Microsoft\jdk-17.0.18.8-hotspot") {
+    "C:\Program Files\Microsoft\jdk-17.0.18.8-hotspot"
+} elseif (Test-Path "C:\Program Files\Microsoft\jdk-17.0.20.8-hotspot") {
+    "C:\Program Files\Microsoft\jdk-17.0.20.8-hotspot"
+} else {
+    $env:JAVA_HOME
+}
 
 # Ensure local build uses JDK 17 without polluting repository gradle.properties
-if (Test-Path $LocalJdk) {
+if ($LocalJdk -and (Test-Path $LocalJdk)) {
     $env:JAVA_HOME = $LocalJdk
     $env:PATH = "$LocalJdk\bin;" + $env:PATH
 }
@@ -175,9 +181,8 @@ $buildLogErr  = Join-Path $env:TEMP "pasa_build_stderr.log"
 $buildLogOut  = Join-Path $env:TEMP "pasa_build_stdout.log"
 
 $gradleArgs = @("assembleRelease", "--no-daemon")
-$localJdk = "C:\Program Files\Microsoft\jdk-17.0.20.8-hotspot"
-if (Test-Path $localJdk) {
-    $gradleArgs += "-Dorg.gradle.java.home=`"$localJdk`""
+if ($LocalJdk -and (Test-Path $LocalJdk)) {
+    $gradleArgs += "-Dorg.gradle.java.home=`"$LocalJdk`""
 }
 
 Push-Location $ProjectRoot

@@ -1,4 +1,4 @@
-plugins {
+﻿plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
@@ -23,8 +23,8 @@ android {
         applicationId = "com.izhaanintellect.pasa"
         minSdk = 26
         targetSdk = 36
-        versionCode = 78
-        versionName = "3.7.13"
+        versionCode = 79
+        versionName = "3.7.14"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

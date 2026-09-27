@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 79,
+    "versionName": "3.7.14",
+    "releaseDate": "2026-09-27",
+    "fileName": "pasa-v3.7.14-79.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.14-79.apk",
+    "sha256": "6befd7d9c655a3b281d0ea2862c8319a1ac5431b61f2e1da34534a69a374059b",
+    "size": 19315378,
+    "mandatory": false,
+    "releaseNotes": "v3.7.14: Fixed SIM tray/lock fake shutdown & wake display deadlock. Unified /unlock with automatic fake shutdown dismissal, hardware AMOLED wake lock & 4x Volume Up emergency escape."
+  },
+  {
     "versionCode": 78,
     "versionName": "3.7.13",
     "releaseDate": "2026-09-27",
