@@ -1,8 +1,17 @@
 package com.izhaanintellect.pasa.commands
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Color
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+import com.google.zxing.qrcode.QRCodeWriter
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.security.AuthManager
 import com.izhaanintellect.pasa.security.Totp
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,6 +28,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class SmsSetupCommand @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val preferencesManager: PreferencesManager,
     private val authManager: AuthManager
 ) : Command {
@@ -64,13 +74,15 @@ class SmsSetupCommand @Inject constructor(
 
         val account = preferencesManager.ownerChatId.ifBlank { "owner" }
         val uri = Totp.otpauthUri(secret, account = account, issuer = "PASA")
-        val qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
-                java.net.URLEncoder.encode(uri, "UTF-8")
         val chunkedSecret = secret.chunked(4).joinToString(" ")
+
+        // Generate high-resolution QR code 100% locally on-device (Zero-Knowledge, Zero Third-Party Leaks)
+        val qrFile = renderQrCodeLocally(uri)
 
         val header = if (generated) "🔐 <b>SMS TOTP Enrolled</b>" else "🔐 <b>SMS TOTP Active</b>"
         return CommandResult(
             success = true,
+            photoFile = qrFile,
             message = """
                 $header
                 ━━━━━━━━━━━━━━━━━━━━
@@ -81,7 +93,7 @@ class SmsSetupCommand @Inject constructor(
                 <i>Formatted:</i> <code>$chunkedSecret</code>
 
                 📷 <b>Authenticator QR Code:</b>
-                <a href="$qrUrl">👉 Tap here to open / scan QR Code</a>
+                <i>Generated 100% offline on-device and attached below. Scan with Google Authenticator, Aegis, or Bitwarden.</i>
 
                 ━━━━━━━━━━━━━━━━━━━━
                 📲 <b>How to Send an SMS Command:</b>
@@ -98,4 +110,33 @@ class SmsSetupCommand @Inject constructor(
             """.trimIndent()
         )
     }
+
+    private fun renderQrCodeLocally(content: String, size: Int = 512): File? {
+        return try {
+            val writer = QRCodeWriter()
+            val hints = mapOf(
+                EncodeHintType.MARGIN to 1,
+                EncodeHintType.CHARACTER_SET to "UTF-8"
+            )
+            val bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, size, size, hints)
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    bitmap.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.WHITE)
+                }
+            }
+            val qrFile = File(context.cacheDir, "totp_qr_${System.currentTimeMillis()}.png")
+            FileOutputStream(qrFile).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+            bitmap.recycle()
+            qrFile
+        } catch (e: Exception) {
+            android.util.Log.e("SmsSetupCommand", "Failed to render offline QR code: ${e.message}", e)
+            null
+        }
+    }
 }
+

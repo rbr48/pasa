@@ -1,4 +1,4 @@
-﻿plugins {
+plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
@@ -138,6 +138,9 @@ dependencies {
     // Cryptographic Command Signing (ASTRA Security Layer)
     implementation("com.nimbusds:nimbus-jose-jwt:10.10")
     implementation("com.google.crypto.tink:tink-android:1.23.0")
+
+    // Offline Local QR Code Generation (Zero-Knowledge, No External API)
+    implementation("com.google.zxing:core:3.5.3")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

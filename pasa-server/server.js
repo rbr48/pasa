@@ -308,12 +308,26 @@ let securityLogs = loadJson(LOGS_FILE, []);
 if (!Array.isArray(securityLogs)) securityLogs = [];
 
 function logSecurityEvent(type, details = {}) {
+  // Sovereign Privacy Guard: Strip any coordinates or sensitive credentials before disk persistence
+  const sanitizedDetails = { ...details };
+  delete sanitizedDetails.latitude;
+  delete sanitizedDetails.longitude;
+  delete sanitizedDetails.lat;
+  delete sanitizedDetails.lon;
+  delete sanitizedDetails.location;
+  delete sanitizedDetails.coords;
+  delete sanitizedDetails.botToken;
+  delete sanitizedDetails.token;
+  delete sanitizedDetails.secret;
+  delete sanitizedDetails.masterPasswordHash;
+  delete sanitizedDetails.password;
+
   const event = {
     id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     timestamp: Date.now(),
     iso: new Date().toISOString(),
     type,
-    ...details
+    ...sanitizedDetails
   };
   securityLogs.unshift(event);
   if (securityLogs.length > 200) {
@@ -324,12 +338,11 @@ function logSecurityEvent(type, details = {}) {
   // Persist to SQLite audit_logs table
   AuditRepo.log(
     type,
-    details.deviceId || '',
-    details.chatId || '',
-    details,
-    details.ip || ''
+    sanitizedDetails.deviceId || '',
+    sanitizedDetails.chatId || '',
+    sanitizedDetails,
+    sanitizedDetails.ip || ''
   );
-
 
   return event;
 }
@@ -4815,8 +4828,7 @@ app.post('/api/device/alert', upload.fields([
       deviceId,
       alertType: alertType || 'INTRUSION_DETECTED',
       message: (message || '').substring(0, 150),
-      latitude: latitude || null,
-      longitude: longitude || null
+      hasLocation: !!(latitude && longitude)
     });
 
     const alertHeader = `🚨 <b>SECURITY ALERT: ${alertType || 'INTRUSION DETECTED'}</b>\n━━━━━━━━━━━━━━━━━━━━\n`;
