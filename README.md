@@ -279,21 +279,26 @@ PASA GPS: https://maps.google.com/?q=23.7771,90.3994 (Acc: 4m, Bat: 78%)
 
 ## 💳 Commercial Licensing & Payment Methods
 
-PASA operates on a sovereign, one-time payment model — **no recurrent monthly subscriptions**.
+PASA operates on a sovereign, one-time payment model — **no recurrent monthly subscriptions**. Own your mobile defense forever.
 
 ### Supported Payment Channels:
-1. **Binance Pay (Crypto USDT / BUSD):**
+1. **Lemon Squeezy (Cards, Apple Pay, Google Pay) — Instant Digital Delivery:**
+   * **Instant Checkout:** [Buy Pro Lifetime on Lemon Squeezy](https://pasa-sentinel.lemonsqueezy.com/checkout/buy/dee32362-b68f-4372-805a-c8ff4e310962)
+   * Automated instant license key issuance, Zero-Touch QR code generation, and receipt.
+2. **Binance Pay (Crypto USDT / BUSD):**
    * **Binance Pay ID / UID:** `756303714`
    * **Verified Payee Nickname:** `RBR48`
-2. **bKash Personal (Bangladesh BDT):**
-   * **Send Money:** Available on checkout at [https://pasa.izhaanintellect.fun/#pricing](https://pasa.izhaanintellect.fun/#pricing)
+3. **bKash Personal (Bangladesh BDT):**
+   * **Local Checkout & Manual Concierge:** Available at [https://pasa.izhaanintellect.fun/#pricing](https://pasa.izhaanintellect.fun/#pricing)
+
+> 🔑 **Customer License Portal:** Already purchased? Access your license keys, active devices, and Zero-Touch provisioning QR codes at [**https://pasa.izhaanintellect.fun/portal**](https://pasa.izhaanintellect.fun/portal).
 
 ### License Tiers
 | Tier | Price | Devices | Features |
 |---|---|---|---|
 | **Community Trial** | Free (7 Days) | 1 Device | Core Telegram C2, Camera & Siren triggers, Full Pro Evaluation |
-| **Pro Lifetime** | **৳3,000 BDT / $25 USD** ($25 USDT) | 3 Devices | Full Airgap SMS, Fake Shutdown, Duress SOS, Anti-Snatch, Lifetime OTA Updates |
-| **Fleet / Enterprise**| **৳12,000 BDT / $99 USD** ($99 USDT) | 10 Devices | Dedicated fleet deployment engineering, ADB automation scripts |
+| **Pro Lifetime** | **$25 USD / ৳3,000 BDT** | 1 Device | All 98+ C2 Commands Unlocked, Knox Device Owner & USB Data Pin Killswitch, Air-Gapped Cellular SMS Fallback (RFC 6238), Zero-Touch QR Provisioning, Lifetime Silent Background OTA Updates, 100-Year Ed25519 License |
+| **Enterprise Fleet** | **$99 USD / ৳12,000 BDT** | 5 Devices | Everything in Pro for 5 Devices, Dedicated Isolated Server Relay Node, Priority Setup & Bulk Provisioning Profiles, VIP WhatsApp Concierge (+880 1762 033445) |
 
 ### Offline Ed25519 Cryptographic Verification:
 * Licenses are cryptographically signed with military-grade **Ed25519** elliptic curves.
