@@ -22,14 +22,14 @@
    - [The 4x3 Persistent Quick-Access Keyboard](#the-4x3-persistent-quick-access-keyboard)
    - [The 6-Hub Interactive Command Console (`/menu`)](#the-6-hub-interactive-command-console-menu)
    - [Interactive Conversational Wizards](#interactive-conversational-wizards)
-6. [Complete Command Reference Matrix (All 86 Commands)](#6-complete-command-reference-matrix-all-86-commands)
+6. [Complete Command Reference Matrix (All 94 Commands)](#6-complete-command-reference-matrix-all-94-commands)
    - [Category 1: Core & Diagnostics (8 Commands)](#category-1-core--diagnostics)
-   - [Category 2: Enterprise Knox Device Owner Suite (19 Commands)](#category-2-enterprise-knox-device-owner-suite)
-   - [Category 3: Location & Cellular RF Telemetry (7 Commands)](#category-3-location--cellular-rf-telemetry)
+   - [Category 2: Enterprise Knox Device Owner Suite (22 Commands)](#category-2-enterprise-knox-device-owner-suite)
+   - [Category 3: Location & Cellular RF Telemetry (8 Commands)](#category-3-location--cellular-rf-telemetry)
    - [Category 4: Covert Forensics & Surveillance (13 Commands)](#category-4-covert-forensics--surveillance)
-   - [Category 5: Lockdown, Alert & Deception (12 Commands)](#category-5-lockdown-alert--deception)
-   - [Category 6: Autonomous Traps & Defense (11 Commands)](#category-6-autonomous-traps--defense)
-   - [Category 7: Extraction & Telephony (7 Commands)](#category-7-extraction--telephony)
+   - [Category 5: Lockdown, Alert & Deception (13 Commands)](#category-5-lockdown-alert--deception)
+   - [Category 6: Traps & Mobile Cyber Defense Suite (15 Commands)](#category-6-traps--mobile-cyber-defense-suite)
+   - [Category 7: Extraction & Telephony (6 Commands)](#category-7-extraction--telephony)
    - [Category 8: System, Maintenance & Updates (9 Commands)](#category-8-system-maintenance--updates)
 7. [Autonomous Sensor Traps & Edge Defenses](#7-autonomous-sensor-traps--edge-defenses)
    - [Snatch-and-Run Trap (`/trap snatch`)](#snatch-and-run-trap-trap-snatch)
@@ -236,7 +236,7 @@ To enable emergency control when the device has no mobile data or Wi-Fi:
    `PASA <6-digit-TOTP-code> <command>` (e.g. `PASA 481029 /locate`).
 
 ### Commercial License Activation (Ed25519 Offline Verification)
-Every installation starts with a **7-Day Full-Featured Free Trial** granting access to all 86 commands.
+Every installation starts with a **7-Day Full-Featured Free Trial** granting access to all 94 commands.
 1. Check status anytime: Send `/license` in Telegram.
 2. To purchase a lifetime key, visit `https://pasa.izhaanintellect.fun/#pricing`.
 3. Activate: Send in Telegram:  
@@ -319,7 +319,7 @@ PASA Sentinel includes conversational state machine wizards (5-minute session li
 
 ---
 
-## 6. Complete Command Reference Matrix (All 86 Commands)
+## 6. Complete Command Reference Matrix (All 94 Commands)
 
 ### Category 1: Core & Diagnostics
 
@@ -359,14 +359,18 @@ PASA Sentinel includes conversational state machine wizards (5-minute session li
 | `/unlock_app` | `/unlock_app <gallery\|phone\|files\|pkg>` | Unfreezes and restores applications hidden via `/lock_app`. | `/unlock_app gallery` | Knox Device Owner |
 | `/biometrics` | `/biometrics [on\|off\|status]` | Deactivates fingerprint and 3D face recognition on lockscreen to counter physical biometric coercion at checkpoints/robberies. | `/biometrics off` | Knox Device Owner |
 | `/dns` | `/dns [quad9\|cloudflare\|adguard\|off\|<host>]` | Enforces tamper-proof DNS-over-TLS (DoT) system-wide, defeating ISP query logging and rogue Wi-Fi redirects. | `/dns quad9` | Knox Device Owner, Android 10+ |
+| `/app_firewall` | `/app_firewall [enable\|disable\|block <pkg>\|blacklist\|whitelist]` | App network isolation firewall. Isolates unauthorized apps, RATs, or spyware from sending telemetry. | `/app_firewall block com.anydesk.anydeskandroid` | Knox Device Owner |
+| `/usb_autolock` | `/usb_autolock [status\|enable\|disable\|delay <sec>]` | Locked-state USB killswitch: physically cuts data pins whenever screen is locked, neutralizing forensic cables (Cellebrite/GrayKey). | `/usb_autolock enable` | Knox Device Owner, Android 12+ |
+| `/anti_2g` | `/anti_2g [status\|enable\|disable\|enforce_5g on\|off]` | Anti-2G / IMSI-Catcher Shield: disables insecure legacy 2G cellular connections, blocking stingray eavesdropping and fake base stations. | `/anti_2g enable` | Knox Device Owner, Android 12+ |
 
 ---
 
-### Category 3: Location & Cellular RF Telemetry
+### Category 3: Location & Cellular RF Telemetry (8 Commands)
 
 | Command | Syntax & Arguments | Description | Practical Example | Prerequisites |
 |---|---|---|---|---|
 | `/locate` | `/locate` | Forcibly turns on GNSS hardware receiver (Device Owner) and returns high-precision coordinates with Google Maps link. | `/locate` | Location permission |
+| `/gps` | `/gps [on\|off\|force\|status]` | Direct remote hardware GPS chip power and GNSS satellite fix controller. | `/gps force` | Location permission, Device Owner |
 | `/tower` | `/tower` | Scans cellular radios for LTE, 5G NR, and GSM base station identities (MCC, MNC, LAC/TAC, CID, dBm) for indoor triangulation. | `/tower` | Telephony permission |
 | `/sim` | `/sim [slot]` | Dumps active SIM slots, carrier names, subscription IDs, signal strength levels, network types (2G/3G/4G/5G), and ICCID. | `/sim` | Read Phone State |
 | `/sim_lock` | `/sim_lock [enable\|disable\|whitelist\|phone\|status]` | Armed SIM tray ejection guard. Locks device into Kiosk mode on SIM removal. Sends silent outbound SMS on foreign SIM insertion to expose thief's caller ID. | `/sim_lock phone +1234567890` | Device Owner, Send SMS |
@@ -411,28 +415,34 @@ PASA Sentinel includes conversational state machine wizards (5-minute session li
 | `/ring_stop` | `/ring_stop` | Immediately silences active emergency alarm siren. | `/ring_stop` | None |
 | `/vibrate_pulse`| `/vibrate_pulse [pulse\|sos\|continuous\|stop]`| Tactile device locator for locating device covertly in hostile environments without triggering loud audio sirens. | `/vibrate_pulse sos` | None |
 | `/message` | `/message <text>` | Displays fullscreen high-priority alert dialog over lockscreen with 1-tap call-owner button. | `/message Police tracking active!` | Draw Over Apps permission |
+| `/escrow` | `/escrow [status\|test]` | Audits hardware cryptographic escrow token enrollment and keyguard readiness for remote PIN resets. | `/escrow status` | Knox Device Owner |
+| `/sim_tray_lock` | `/sim_tray_lock [arm\|disarm\|release\|status]` | Armed SIM tray ejection defense: rotates lockscreen PIN to random 8-digit secret and suspends all user apps upon SIM tampering. | `/sim_tray_lock arm` | Knox Device Owner, Escrow Token |
 
 ---
 
-### Category 6: Autonomous Traps & Defense
+### Category 6: Traps & Mobile Cyber Defense Suite (15 Commands)
 
 | Command | Syntax & Arguments | Description | Practical Example | Prerequisites |
 |---|---|---|---|---|
 | `/duress_pin` | `/duress_pin <pin\|clear\|status>` | Sets 4–8 digit decoy coercion PIN. Unlocks to sterile home screen, hides banking/crypto into shadow vault, snaps mugshot, and sends SOS. | `/duress_pin 2580` | Pro License, Accessibility |
+| `/a11y_shield` | `/a11y_shield [status\|enable\|disable\|scan\|strict on\|off]` | Real-time Accessibility Trojan Shield. Blocks unauthorized a11y hijacking and banking overlay malware. | `/a11y_shield enable` | Knox Device Owner / Accessibility |
+| `/clipper_guard` | `/clipper_guard [status\|enable\|disable\|action alert\|poison\|sanitize]` | Crypto Clipper Trap: intercepts malicious clipboard replacements of cryptocurrency addresses (BTC, ETH, SOL, TON). | `/clipper_guard enable` | None |
+| `/canary_guard` | `/canary_guard [status\|arm\|disarm\|action wipe\|lock\|alert]` | Ransomware Canary Tripwire Guard: plants covert decoy files and instantly reacts if modified or encrypted. | `/canary_guard arm` | Storage permission |
+| `/app_install_lock` | `/app_install_lock [status\|enable\|disable\|allowed <pkgs>]` | Sideload & App Install Lockdown: blocks unauthorized APK package installations and sideloading. | `/app_install_lock enable` | Knox Device Owner |
+| `/otp_guard` | `/otp_guard [status\|enable\|disable\|suppress on\|off\|vault on\|off]` | 2FA / OTP Interception Guard: protects 2FA SMS tokens from notification snooping, keyloggers, and spyware. | `/otp_guard enable` | SMS permission |
 | `/pattern_guard`| `/pattern_guard [enable\|disable\|threshold <1-10>\|status]`| Monitors failed unlock attempts on OS keyguard. Once threshold (default 3) is exceeded, captures intruder photo and GPS fix. | `/pattern_guard threshold 3` | Device Admin |
 | `/trap` | `/trap [on\|off\|status\|snatch\|charger\|pocket]` | Master controller for autonomous sensor traps: Snatch (>26 m/s²), Charger disconnect, Pocket extraction (5s grace). | `/trap snatch on` | Pro License |
 | `/thermal` | `/thermal [on\|off\|threshold <40-65>\|status]` | Anti-EDL heat-gun anomaly trap. Detects battery heating (>48°C) from technician ungluing back glass. Severs USB data pins and snaps photo. | `/thermal threshold 48` | Knox Device Owner |
 | `/deadman` | `/deadman [enable\|disable\|hours <1-72>\|heartbeat\|status]`| Anti-EDL auto-destruct timer. If phone is isolated in Faraday box/offline without heartbeat for configured hours, triggers irreversible wipe. | `/deadman hours 12` | Knox Device Owner |
 | `/shred` | `/shred <password> <target>` | Irreversible multi-pass cryptographic file shredder. Overwrites files with 2-pass PRNG noise and zero-fill. Targets: `downloads`, `documents`, `camera`, `cache`. | `/shred MyPass123 downloads` | Pro License, Master Password |
 | `/stealth` | `/stealth [hide\|show\|toggle\|status]` | Completely conceals or restores PASA application icon from Android home screen and app drawer. Background protection stays 100% active. | `/stealth hide` | None |
-| `/hide` | `/hide` | Quick alias for `/stealth hide`. | `/hide` | None |
-| `/show` | `/show` | Quick alias for `/stealth show`. | `/show` | None |
 | `/tamper_detect`| `/tamper_detect [scan\|status]` | Scans for root binaries (`su`), Magisk, active debuggers, Xposed/Frida hooks, and APK signature tampering. | `/tamper_detect scan` | None |
 | `/harden_boot` | `/harden_boot [lock\|unlock\|status]` | Enforces restrictions blocking OEM bootloader unlocking and USB debugging, neutralizing Fastboot attacks. | `/harden_boot lock` | Knox Device Owner |
+| `/factory_reset_defense` | `/factory_reset_defense [on\|off\|status]` | Deep Knox hardware policy preventing master reset, recovery wipe, and fastboot flashing. | `/factory_reset_defense on` | Knox Device Owner |
 
 ---
 
-### Category 7: Extraction & Telephony
+### Category 7: Extraction & Telephony (6 Commands)
 
 | Command | Syntax & Arguments | Description | Practical Example | Prerequisites |
 |---|---|---|---|---|
@@ -442,7 +452,6 @@ PASA Sentinel includes conversational state machine wizards (5-minute session li
 | `/sms_log` | `/sms_log [count=15]` | Extracts recent incoming and outgoing SMS text messages and 2FA authentication codes from device inbox. | `/sms_log 10` | Read SMS |
 | `/sendsms` | `/sendsms [sim1\|sim2] <number> <message>` | Transmits an outbound SMS message directly via cellular radio (reveals unknown SIM phone number via caller ID). | `/sendsms +1234567890 Test SMS` | Send SMS permission |
 | `/history` | `/history [count=20]` | Returns cryptographic audit trail of recent C2 command executions from local encrypted database. | `/history 30` | None |
-| `/app_firewall` | `/app_firewall [enable\|disable\|block <pkg>\|blacklist\|whitelist]`| App network isolation firewall. Isolates unauthorized apps or RATs (TeamViewer, AnyDesk) from sending telemetry. | `/app_firewall block com.anydesk.anydeskandroid` | None |
 
 ---
 
@@ -617,7 +626,7 @@ PASA Sentinel operates on an offline sovereign ownership model with zero recurri
 |---|---|---|---|
 | **Validity** | 7 Days | 100 Years (Lifetime) | 100 Years (Lifetime) |
 | **Device Allowance** | 1 Device | 1 Device (up to 3 supported) | 5 Devices (up to 10 supported) |
-| **All 86 C2 Commands** | ✅ Full Access | ✅ Full Access | ✅ Full Access |
+| **All 94 C2 Commands** | ✅ Full Access | ✅ Full Access | ✅ Full Access |
 | **Knox Device Owner Suite** | ✅ Full Access | ✅ Full Access | ✅ Full Access |
 | **Hardware Escrow Token PIN Reset** | ✅ Full Access | ✅ Full Access | ✅ Full Access |
 | **Offline Ed25519 Certificate** | ❌ None | ✅ Permanent Offline Cryptography | ✅ Permanent Offline Cryptography |
@@ -632,10 +641,10 @@ PASA Sentinel operates on an offline sovereign ownership model with zero recurri
 * When an update is published, send `/update_confirm`.
 * **Silent Background Installation:** On Device Owner devices, PASA Sentinel downloads the signed APK, verifies its SHA-256 hash, and commits the package install session silently in the background without user prompts. An exact alarm watchdog restarts the background service immediately after update!
 
-### Payment Methods & 24-Hour Refund Guarantee
+### Payment Methods & 7-Day Money-Back Guarantee
 * **Binance Pay (Crypto):** UID `756303714` (Nickname: `RBR48`). Pay in USDT and submit TxID via web checkout or bot.
 * **bKash (Bangladesh Local):** Personal account `01737-910040` or official account requested via WhatsApp.
-* **24-Hour 100% Money-Back Guarantee:** If you are not completely satisfied, request a refund within 24 hours of purchase via WhatsApp or Telegram for an unconditional 100% refund.
+* **7-Day 100% Money-Back Guarantee:** If you are not completely satisfied, request a refund within 7 days of purchase via WhatsApp or Telegram for an unconditional 100% refund.
 
 ### Emergency Operational Cheatsheet
 * **Official Website:** `https://pasa.izhaanintellect.fun`

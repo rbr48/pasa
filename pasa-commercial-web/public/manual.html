@@ -3,13 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Comprehensive technical user manual and operational field guide for PASA Sentinel (Private Android Security Agent) v3.7.15 (Build 80) in English and Bengali.">
-<link rel="canonical" href="https://pasa.izhaanintellect.fun/manual.html">
-<meta property="og:title" content="PASA Sentinel — Official User Manual &amp; Operational Field Guide">
-<meta property="og:description" content="Comprehensive technical user manual and operational field guide for PASA Sentinel v3.7.15 (Build 80) in English and Bengali.">
-<meta property="og:url" content="https://pasa.izhaanintellect.fun/manual.html">
-<meta property="og:type" content="article">
-<meta property="og:image" content="https://pasa.izhaanintellect.fun/assets/img/logo.png">
+<title>PASA Sentinel — Official User Manual &amp; Operational Field Guide</title>
+<meta name="description" content="Comprehensive technical user manual and operational field guide for PASA Sentinel (Private Android Security Agent) v3.5.8 in English and Bengali.">
 <meta name="theme-color" content="#05070d">
 <link rel="icon" type="image/png" href="/assets/img/logo.png">
 <link rel="apple-touch-icon" href="/assets/img/logo.png">
@@ -39,10 +34,10 @@
   --txt-2:#96a1b8;
   --txt-3:#5a657d;
 
-  --font:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
-  --display:'Chakra Petch','Inter',-apple-system,BlinkMacSystemFont,"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
-  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",monospace;
-  --font-bn:'Tiro Bangla','Hind Siliguri','Inter',serif,"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji";
+  --font:'Inter',-apple-system,sans-serif;
+  --display:'Chakra Petch','Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --font-bn:'Tiro Bangla','Inter',serif;
 
   --sidebar-w:300px;
 }
@@ -260,7 +255,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
     <img src="/assets/img/logo.png" alt="PASA">
     <div class="brand-title">
       PASA SENTINEL
-      <span id="headerSub">FIELD MANUAL // v3.7.15 (Build 80)</span>
+      <span id="headerSub">FIELD MANUAL // v3.5.8</span>
     </div>
   </a>
 
@@ -310,13 +305,13 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
         <h1 id="pasa-sentinel-private-android-security-agent" class="doc-h1">🛡️ PASA Sentinel (Private Android Security Agent)</h1>
 <h2 id="sovereign-mobile-defense-covert-anti-theft-system" class="doc-h2"><span class="h-anchor">#</span>Sovereign Mobile Defense &amp; Covert Anti-Theft System</h2>
 <h3 id="comprehensive-user-manual-operational-field-guide-english-edition" class="doc-h3">Comprehensive User Manual &amp; Operational Field Guide (English Edition)</h3>
-<p class="doc-p"><strong>Production Version:</strong> v3.7.15 (Build 80) | <strong>OS Target:</strong> Android 8.0 – 16 (API 26 – 36) | <strong>Document Revision:</strong> 2026.2</p>
+<p class="doc-p"><strong>Production Version:</strong> v3.7.14 (Build 79) | <strong>OS Target:</strong> Android 8.0 – 16 (API 26 – 36) | <strong>Document Revision:</strong> 2026.2</p>
 <hr class="divider">
 <h2 id="table-of-contents" class="doc-h2"><span class="h-anchor">#</span>Table of Contents</h2>
 <ol class="doc-list-num">
-<li><a href="#1-system-overview-zero-storage-philosophy" class="doc-link" target="_blank" rel="noopener">System Overview &amp; Zero-Storage Philosophy</a></li>
-<li><a href="#2-operating-system-compatibility-permissions-matrix" class="doc-link" target="_blank" rel="noopener">Operating System Compatibility &amp; Permissions Matrix</a></li>
-<li><a href="#3-step-by-step-installation-device-owner-provisioning" class="doc-link" target="_blank" rel="noopener">Step-by-Step Installation &amp; Device Owner Provisioning</a></li>
+<li><a href="#1-system-overview--zero-storage-philosophy" class="doc-link" target="_blank" rel="noopener">System Overview &amp; Zero-Storage Philosophy</a></li>
+<li><a href="#2-operating-system-compatibility--permissions-matrix" class="doc-link" target="_blank" rel="noopener">Operating System Compatibility &amp; Permissions Matrix</a></li>
+<li><a href="#3-step-by-step-installation--device-owner-provisioning" class="doc-link" target="_blank" rel="noopener">Step-by-Step Installation &amp; Device Owner Provisioning</a></li>
 </ol>
 <ul class="doc-list">
 <li><a href="#method-a-guided-windows-setup-kit-recommended" class="doc-link" target="_blank" rel="noopener">Method A: Guided Windows Setup Kit (Recommended)</a></li>
@@ -324,17 +319,17 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
 <li><a href="#troubleshooting-device-owner-provisioning" class="doc-link" target="_blank" rel="noopener">Troubleshooting Device Owner Provisioning</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#4-initial-setup-credential-arming-hardware-escrow" class="doc-link" target="_blank" rel="noopener">Initial Setup, Credential Arming &amp; Hardware Escrow</a></li>
+<li><a href="#4-initial-setup-credential-arming--hardware-escrow" class="doc-link" target="_blank" rel="noopener">Initial Setup, Credential Arming &amp; Hardware Escrow</a></li>
 </ol>
 <ul class="doc-list">
-<li><a href="#telegram-bot-creation-pairing" class="doc-link" target="_blank" rel="noopener">Telegram Bot Creation &amp; Pairing</a></li>
-<li><a href="#master-password-cryptographic-identity" class="doc-link" target="_blank" rel="noopener">Master Password &amp; Cryptographic Identity</a></li>
-<li><a href="#arming-hardware-escrow-token-android-80-16-pin-reset" class="doc-link" target="_blank" rel="noopener">Arming Hardware Escrow Token (Android 8.0 – 16 PIN Reset)</a></li>
+<li><a href="#telegram-bot-creation--pairing" class="doc-link" target="_blank" rel="noopener">Telegram Bot Creation &amp; Pairing</a></li>
+<li><a href="#master-password--cryptographic-identity" class="doc-link" target="_blank" rel="noopener">Master Password &amp; Cryptographic Identity</a></li>
+<li><a href="#arming-hardware-escrow-token-android-80--16-pin-reset" class="doc-link" target="_blank" rel="noopener">Arming Hardware Escrow Token (Android 8.0 – 16 PIN Reset)</a></li>
 <li><a href="#air-gapped-totp-sms-fallback-enrollment" class="doc-link" target="_blank" rel="noopener">Air-Gapped TOTP SMS Fallback Enrollment</a></li>
 <li><a href="#commercial-license-activation-ed25519-offline-verification" class="doc-link" target="_blank" rel="noopener">Commercial License Activation (Ed25519 Offline Verification)</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#5-telegram-bot-c2-operations-interactive-console" class="doc-link" target="_blank" rel="noopener">Telegram Bot C2 Operations &amp; Interactive Console</a></li>
+<li><a href="#5-telegram-bot-c2-operations--interactive-console" class="doc-link" target="_blank" rel="noopener">Telegram Bot C2 Operations &amp; Interactive Console</a></li>
 </ol>
 <ul class="doc-list">
 <li><a href="#the-4x3-persistent-quick-access-keyboard" class="doc-link" target="_blank" rel="noopener">The 4x3 Persistent Quick-Access Keyboard</a></li>
@@ -342,37 +337,37 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
 <li><a href="#interactive-conversational-wizards" class="doc-link" target="_blank" rel="noopener">Interactive Conversational Wizards</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#6-complete-command-reference-matrix-all-86-commands" class="doc-link" target="_blank" rel="noopener">Complete Command Reference Matrix (All 86 Commands)</a></li>
+<li><a href="#6-complete-command-reference-matrix-all-94-commands" class="doc-link" target="_blank" rel="noopener">Complete Command Reference Matrix (All 94 Commands)</a></li>
 </ol>
 <ul class="doc-list">
-<li><a href="#category-1-core-diagnostics" class="doc-link" target="_blank" rel="noopener">Category 1: Core &amp; Diagnostics (8 Commands)</a></li>
-<li><a href="#category-2-enterprise-knox-device-owner-suite" class="doc-link" target="_blank" rel="noopener">Category 2: Enterprise Knox Device Owner Suite (19 Commands)</a></li>
-<li><a href="#category-3-location-cellular-rf-telemetry" class="doc-link" target="_blank" rel="noopener">Category 3: Location &amp; Cellular RF Telemetry (7 Commands)</a></li>
-<li><a href="#category-4-covert-forensics-surveillance" class="doc-link" target="_blank" rel="noopener">Category 4: Covert Forensics &amp; Surveillance (13 Commands)</a></li>
-<li><a href="#category-5-lockdown-alert-deception" class="doc-link" target="_blank" rel="noopener">Category 5: Lockdown, Alert &amp; Deception (12 Commands)</a></li>
-<li><a href="#category-6-autonomous-traps-defense" class="doc-link" target="_blank" rel="noopener">Category 6: Autonomous Traps &amp; Defense (11 Commands)</a></li>
-<li><a href="#category-7-extraction-telephony" class="doc-link" target="_blank" rel="noopener">Category 7: Extraction &amp; Telephony (7 Commands)</a></li>
-<li><a href="#category-8-system-maintenance-updates" class="doc-link" target="_blank" rel="noopener">Category 8: System, Maintenance &amp; Updates (9 Commands)</a></li>
+<li><a href="#category-1-core--diagnostics" class="doc-link" target="_blank" rel="noopener">Category 1: Core &amp; Diagnostics (8 Commands)</a></li>
+<li><a href="#category-2-enterprise-knox-device-owner-suite" class="doc-link" target="_blank" rel="noopener">Category 2: Enterprise Knox Device Owner Suite (22 Commands)</a></li>
+<li><a href="#category-3-location--cellular-rf-telemetry" class="doc-link" target="_blank" rel="noopener">Category 3: Location &amp; Cellular RF Telemetry (8 Commands)</a></li>
+<li><a href="#category-4-covert-forensics--surveillance" class="doc-link" target="_blank" rel="noopener">Category 4: Covert Forensics &amp; Surveillance (13 Commands)</a></li>
+<li><a href="#category-5-lockdown-alert--deception" class="doc-link" target="_blank" rel="noopener">Category 5: Lockdown, Alert &amp; Deception (13 Commands)</a></li>
+<li><a href="#category-6-traps--mobile-cyber-defense-suite" class="doc-link" target="_blank" rel="noopener">Category 6: Traps &amp; Mobile Cyber Defense Suite (15 Commands)</a></li>
+<li><a href="#category-7-extraction--telephony" class="doc-link" target="_blank" rel="noopener">Category 7: Extraction &amp; Telephony (6 Commands)</a></li>
+<li><a href="#category-8-system-maintenance--updates" class="doc-link" target="_blank" rel="noopener">Category 8: System, Maintenance &amp; Updates (9 Commands)</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#7-autonomous-sensor-traps-edge-defenses" class="doc-link" target="_blank" rel="noopener">Autonomous Sensor Traps &amp; Edge Defenses</a></li>
+<li><a href="#7-autonomous-sensor-traps--edge-defenses" class="doc-link" target="_blank" rel="noopener">Autonomous Sensor Traps &amp; Edge Defenses</a></li>
 </ol>
 <ul class="doc-list">
 <li><a href="#snatch-and-run-trap-trap-snatch" class="doc-link" target="_blank" rel="noopener">Snatch-and-Run Trap (<code class="inline-code">/trap snatch</code>)</a></li>
-<li><a href="#charger-disconnect-usb-insertion-trap-trap-charger" class="doc-link" target="_blank" rel="noopener">Charger Disconnect &amp; USB Insertion Trap (<code class="inline-code">/trap charger</code>)</a></li>
-<li><a href="#pocket-bag-extraction-trap-trap-pocket" class="doc-link" target="_blank" rel="noopener">Pocket &amp; Bag Extraction Trap (<code class="inline-code">/trap pocket</code>)</a></li>
-<li><a href="#sim-ejection-foreign-sim-auto-sms-trap-sim_lock" class="doc-link" target="_blank" rel="noopener">SIM Ejection &amp; Foreign SIM Auto-SMS Trap (<code class="inline-code">/sim_lock</code>)</a></li>
-<li><a href="#pattern-guard-failed-lockscreen-trap-pattern_guard" class="doc-link" target="_blank" rel="noopener">Pattern Guard / Failed Lockscreen Trap (<code class="inline-code">/pattern_guard</code>)</a></li>
+<li><a href="#charger-disconnect--usb-insertion-trap-trap-charger" class="doc-link" target="_blank" rel="noopener">Charger Disconnect &amp; USB Insertion Trap (<code class="inline-code">/trap charger</code>)</a></li>
+<li><a href="#pocket--bag-extraction-trap-trap-pocket" class="doc-link" target="_blank" rel="noopener">Pocket &amp; Bag Extraction Trap (<code class="inline-code">/trap pocket</code>)</a></li>
+<li><a href="#sim-ejection--foreign-sim-auto-sms-trap-sim_lock" class="doc-link" target="_blank" rel="noopener">SIM Ejection &amp; Foreign SIM Auto-SMS Trap (<code class="inline-code">/sim_lock</code>)</a></li>
+<li><a href="#pattern-guard--failed-lockscreen-trap-pattern_guard" class="doc-link" target="_blank" rel="noopener">Pattern Guard / Failed Lockscreen Trap (<code class="inline-code">/pattern_guard</code>)</a></li>
 <li><a href="#thermal-anomaly-heat-gun-trap-thermal" class="doc-link" target="_blank" rel="noopener">Thermal Anomaly Heat-Gun Trap (<code class="inline-code">/thermal</code>)</a></li>
-<li><a href="#dead-mans-switch-faraday-isolation-auto-destruct-deadman" class="doc-link" target="_blank" rel="noopener">Dead Man's Switch / Faraday Isolation Auto-Destruct (<code class="inline-code">/deadman</code>)</a></li>
+<li><a href="#dead-mans-switch--faraday-isolation-auto-destruct-deadman" class="doc-link" target="_blank" rel="noopener">Dead Man's Switch / Faraday Isolation Auto-Destruct (<code class="inline-code">/deadman</code>)</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#8-high-security-deception-anti-coercion-features" class="doc-link" target="_blank" rel="noopener">High-Security Deception &amp; Anti-Coercion Features</a></li>
+<li><a href="#8-high-security-deception--anti-coercion-features" class="doc-link" target="_blank" rel="noopener">High-Security Deception &amp; Anti-Coercion Features</a></li>
 </ol>
 <ul class="doc-list">
-<li><a href="#duress-pin-sterile-sandbox-decoy-os-duress_pin" class="doc-link" target="_blank" rel="noopener">Duress PIN &amp; Sterile Sandbox Decoy OS (<code class="inline-code">/duress_pin</code>)</a></li>
-<li><a href="#fake-shutdown-tactile-touch-sensor-canvas-fakeshutdown-wake" class="doc-link" target="_blank" rel="noopener">Fake Shutdown &amp; Tactile Touch Sensor Canvas (<code class="inline-code">/fakeshutdown</code>, <code class="inline-code">/wake</code>)</a></li>
-<li><a href="#stealth-mode-app-drawer-concealment-stealth-hide-show" class="doc-link" target="_blank" rel="noopener">Stealth Mode &amp; App Drawer Concealment (<code class="inline-code">/stealth</code>, <code class="inline-code">/hide</code>, <code class="inline-code">/show</code>)</a></li>
+<li><a href="#duress-pin--sterile-sandbox-decoy-os-duress_pin" class="doc-link" target="_blank" rel="noopener">Duress PIN &amp; Sterile Sandbox Decoy OS (<code class="inline-code">/duress_pin</code>)</a></li>
+<li><a href="#fake-shutdown--tactile-touch-sensor-canvas-fakeshutdown-wake" class="doc-link" target="_blank" rel="noopener">Fake Shutdown &amp; Tactile Touch Sensor Canvas (<code class="inline-code">/fakeshutdown</code>, <code class="inline-code">/wake</code>)</a></li>
+<li><a href="#stealth-mode--app-drawer-concealment-stealth-hide-show" class="doc-link" target="_blank" rel="noopener">Stealth Mode &amp; App Drawer Concealment (<code class="inline-code">/stealth</code>, <code class="inline-code">/hide</code>, <code class="inline-code">/show</code>)</a></li>
 <li><a href="#shadow-app-vault-freezing-freeze-unfreeze-frozen" class="doc-link" target="_blank" rel="noopener">Shadow App Vault Freezing (<code class="inline-code">/freeze</code>, <code class="inline-code">/unfreeze</code>, <code class="inline-code">/frozen</code>)</a></li>
 <li><a href="#app-network-isolation-firewall-app_firewall" class="doc-link" target="_blank" rel="noopener">App Network Isolation Firewall (<code class="inline-code">/app_firewall</code>)</a></li>
 <li><a href="#system-wide-encrypted-dns-over-tls-dns" class="doc-link" target="_blank" rel="noopener">System-Wide Encrypted DNS-over-TLS (<code class="inline-code">/dns</code>)</a></li>
@@ -387,12 +382,12 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:#fff}
 <li><a href="#ready-to-use-1-tap-monospace-sms-templates" class="doc-link" target="_blank" rel="noopener">Ready-to-Use 1-Tap Monospace SMS Templates</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#10-licensing-ota-updates-warranty-emergency-contacts" class="doc-link" target="_blank" rel="noopener">Licensing, OTA Updates, Warranty &amp; Emergency Contacts</a></li>
+<li><a href="#10-licensing-ota-updates-warranty--emergency-contacts" class="doc-link" target="_blank" rel="noopener">Licensing, OTA Updates, Warranty &amp; Emergency Contacts</a></li>
 </ol>
 <ul class="doc-list">
-<li><a href="#licensing-tiers-hard-lockout-policy" class="doc-link" target="_blank" rel="noopener">Licensing Tiers &amp; Hard Lockout Policy</a></li>
+<li><a href="#licensing-tiers--hard-lockout-policy" class="doc-link" target="_blank" rel="noopener">Licensing Tiers &amp; Hard Lockout Policy</a></li>
 <li><a href="#automated-silent-ota-updates-check_update-update_confirm" class="doc-link" target="_blank" rel="noopener">Automated Silent OTA Updates (<code class="inline-code">/check_update</code>, <code class="inline-code">/update_confirm</code>)</a></li>
-<li><a href="#payment-methods-24-hour-refund-guarantee" class="doc-link" target="_blank" rel="noopener">Payment Methods &amp; 24-Hour Refund Guarantee</a></li>
+<li><a href="#payment-methods--24-hour-refund-guarantee" class="doc-link" target="_blank" rel="noopener">Payment Methods &amp; 24-Hour Refund Guarantee</a></li>
 <li><a href="#emergency-operational-cheatsheet" class="doc-link" target="_blank" rel="noopener">Emergency Operational Cheatsheet</a></li>
 </ul>
 <hr class="divider">
@@ -517,7 +512,7 @@ adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
 # Active admin set to component {com.izhaanintellect.pasa/com.izhaanintellect.pasa.admin.PasaDeviceAdmin}
 
 # 5. Verify Device Owner registration
-adb shell dpm list-owners</code></pre></div>
+adb shell dpm list-owners</code></pre></div>
 <hr class="divider">
 <h3 id="troubleshooting-device-owner-provisioning" class="doc-h3">Troubleshooting Device Owner Provisioning</h3>
 <ul class="doc-list">
@@ -555,7 +550,7 @@ adb shell dpm list-owners</code></pre></div>
 │  [X] I accept Sovereign Terms of Service               │
 │                                                        │
 │             [ ACTIVATE SYSTEM DEFENSE ]                │
-└────────────────────────────────────────────────────────┘</code></pre></div>
+└────────────────────────────────────────────────────────┘</code></pre></div>
 <h3 id="telegram-bot-creation-pairing" class="doc-h3">Telegram Bot Creation &amp; Pairing</h3>
 <ol class="doc-list-num">
 <li>Open Telegram and search for <code class="inline-code">@BotFather</code>.</li>
@@ -592,7 +587,7 @@ adb shell dpm list-owners</code></pre></div>
 </ol>
 <p class="doc-p"><code class="inline-code">PASA &lt;6-digit-TOTP-code&gt; &lt;command&gt;</code> (e.g. <code class="inline-code">PASA 481029 /locate</code>).</p>
 <h3 id="commercial-license-activation-ed25519-offline-verification" class="doc-h3">Commercial License Activation (Ed25519 Offline Verification)</h3>
-<p class="doc-p">Every installation starts with a <strong>7-Day Full-Featured Free Trial</strong> granting access to all 86 commands.</p>
+<p class="doc-p">Every installation starts with a <strong>7-Day Full-Featured Free Trial</strong> granting access to all 94 commands.</p>
 <ol class="doc-list-num">
 <li>Check status anytime: Send <code class="inline-code">/license</code> in Telegram.</li>
 <li>To purchase a lifetime key, visit <code class="inline-code">https://pasa.izhaanintellect.fun/#pricing</code>.</li>
@@ -614,7 +609,7 @@ adb shell dpm list-owners</code></pre></div>
 │       🔒 Lock       │     🎛️ Hub Menu     │   👑 Device Owner   │
 ├─────────────────────┼─────────────────────┼─────────────────────┤
 │     💬 Message      │      🛡️ Traps       │      🔑 License     │
-└─────────────────────┴─────────────────────┴─────────────────────┘</code></pre></div>
+└─────────────────────┴─────────────────────┴─────────────────────┘</code></pre></div>
 <ul class="doc-list">
 <li><strong>Status:</strong> Instant live telemetry readout (battery, GPS coordinates, network, storage, uptime).</li>
 <li><strong>Locate:</strong> Forcibly powers on GNSS receiver and sends Google Maps link.</li>
@@ -639,7 +634,7 @@ adb shell dpm list-owners</code></pre></div>
 ╚═════════════════════════════════════════════════════════════╝
  📍 [1. Location &amp; Cellular RF]     📸 [2. Covert Forensics]
  🚨 [3. Lockdown &amp; Siren]          👑 [4. Enterprise Device Owner]
- 🛡️ [5. Autonomous Traps]          📇 [6. Extraction &amp; Logs]</code></pre></div>
+ 🛡️ [5. Autonomous Traps]          📇 [6. Extraction &amp; Logs]</code></pre></div>
 <ol class="doc-list-num">
 <li><strong>📍 Location &amp; Cellular RF (<code class="inline-code">menu:location_hub</code>):</strong> Instant GPS fix, Cell tower triangulation (<code class="inline-code">/tower</code>), live route tracking (<code class="inline-code">/track</code>), radial geofencing (<code class="inline-code">/geofence</code>), SIM radio telemetry (<code class="inline-code">/sim</code>), and SIM Swap Guard (<code class="inline-code">/sim_lock</code>).</li>
 <li><strong>📸 Covert Forensics &amp; Surveillance (<code class="inline-code">menu:forensics_hub</code>):</strong> Headless front/rear/dual photos (<code class="inline-code">/snap</code>), silent screenshots (<code class="inline-code">/screenshot</code>), storyboard frame burst (<code class="inline-code">/screen_burst</code>), video capture (<code class="inline-code">/video</code>), ambient audio wiretap (<code class="inline-code">/record</code>), progressive video livestreaming (<code class="inline-code">/livestream</code>), clipboard extraction, and camera roll recovery.</li>
@@ -667,7 +662,7 @@ adb shell dpm list-owners</code></pre></div>
 <li><strong>Pro License Activation (<code class="inline-code">wizard:license:activate</code>):</strong> Prompts for your purchased license key (<code class="inline-code">PASA-PRO-XXXX-XXXX</code>).</li>
 </ul>
 <hr class="divider">
-<h2 id="6-complete-command-reference-matrix-all-86-commands" class="doc-h2"><span class="h-anchor">#</span>6. Complete Command Reference Matrix (All 86 Commands)</h2>
+<h2 id="6-complete-command-reference-matrix-all-94-commands" class="doc-h2"><span class="h-anchor">#</span>6. Complete Command Reference Matrix (All 94 Commands)</h2>
 <h3 id="category-1-core-diagnostics" class="doc-h3">Category 1: Core &amp; Diagnostics</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>Command</th><th>Syntax &amp; Arguments</th><th>Description</th><th>Practical Example</th><th>Prerequisites</th></tr></thead><tbody>
@@ -704,13 +699,17 @@ adb shell dpm list-owners</code></pre></div>
 <tr><td><code class="inline-code">/unlock_app</code></td><td>`/unlock_app &lt;gallery\</td><td>phone\</td><td>files\</td><td>pkg&gt;`</td><td>Unfreezes and restores applications hidden via <code class="inline-code">/lock_app</code>.</td><td><code class="inline-code">/unlock_app gallery</code></td><td>Knox Device Owner</td></tr>
 <tr><td><code class="inline-code">/biometrics</code></td><td>`/biometrics [on\</td><td>off\</td><td>status]`</td><td>Deactivates fingerprint and 3D face recognition on lockscreen to counter physical biometric coercion at checkpoints/robberies.</td><td><code class="inline-code">/biometrics off</code></td><td>Knox Device Owner</td></tr>
 <tr><td><code class="inline-code">/dns</code></td><td>`/dns [quad9\</td><td>cloudflare\</td><td>adguard\</td><td>off\</td><td>&lt;host&gt;]`</td><td>Enforces tamper-proof DNS-over-TLS (DoT) system-wide, defeating ISP query logging and rogue Wi-Fi redirects.</td><td><code class="inline-code">/dns quad9</code></td><td>Knox Device Owner, Android 10+</td></tr>
+<tr><td><code class="inline-code">/app_firewall</code></td><td>`/app_firewall [enable\</td><td>disable\</td><td>block &lt;pkg&gt;\</td><td>blacklist\</td><td>whitelist]`</td><td>App network isolation firewall. Isolates unauthorized apps, RATs, or spyware from sending telemetry.</td><td><code class="inline-code">/app_firewall block com.anydesk.anydeskandroid</code></td><td>Knox Device Owner</td></tr>
+<tr><td><code class="inline-code">/usb_autolock</code></td><td>`/usb_autolock [status\</td><td>enable\</td><td>disable\</td><td>delay &lt;sec&gt;]`</td><td>Locked-state USB killswitch: physically cuts data pins whenever screen is locked, neutralizing forensic cables (Cellebrite/GrayKey).</td><td><code class="inline-code">/usb_autolock enable</code></td><td>Knox Device Owner, Android 12+</td></tr>
+<tr><td><code class="inline-code">/anti_2g</code></td><td>`/anti_2g [status\</td><td>enable\</td><td>disable\</td><td>enforce_5g on\</td><td>off]`</td><td>Anti-2G / IMSI-Catcher Shield: disables insecure legacy 2G cellular connections, blocking stingray eavesdropping and fake base stations.</td><td><code class="inline-code">/anti_2g enable</code></td><td>Knox Device Owner, Android 12+</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
-<h3 id="category-3-location-cellular-rf-telemetry" class="doc-h3">Category 3: Location &amp; Cellular RF Telemetry</h3>
+<h3 id="category-3-location-cellular-rf-telemetry-8-commands" class="doc-h3">Category 3: Location &amp; Cellular RF Telemetry (8 Commands)</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>Command</th><th>Syntax &amp; Arguments</th><th>Description</th><th>Practical Example</th><th>Prerequisites</th></tr></thead><tbody>
 <tr><td><code class="inline-code">/locate</code></td><td><code class="inline-code">/locate</code></td><td>Forcibly turns on GNSS hardware receiver (Device Owner) and returns high-precision coordinates with Google Maps link.</td><td><code class="inline-code">/locate</code></td><td>Location permission</td></tr>
+<tr><td><code class="inline-code">/gps</code></td><td>`/gps [on\</td><td>off\</td><td>force\</td><td>status]`</td><td>Direct remote hardware GPS chip power and GNSS satellite fix controller.</td><td><code class="inline-code">/gps force</code></td><td>Location permission, Device Owner</td></tr>
 <tr><td><code class="inline-code">/tower</code></td><td><code class="inline-code">/tower</code></td><td>Scans cellular radios for LTE, 5G NR, and GSM base station identities (MCC, MNC, LAC/TAC, CID, dBm) for indoor triangulation.</td><td><code class="inline-code">/tower</code></td><td>Telephony permission</td></tr>
 <tr><td><code class="inline-code">/sim</code></td><td><code class="inline-code">/sim [slot]</code></td><td>Dumps active SIM slots, carrier names, subscription IDs, signal strength levels, network types (2G/3G/4G/5G), and ICCID.</td><td><code class="inline-code">/sim</code></td><td>Read Phone State</td></tr>
 <tr><td><code class="inline-code">/sim_lock</code></td><td>`/sim_lock [enable\</td><td>disable\</td><td>whitelist\</td><td>phone\</td><td>status]`</td><td>Armed SIM tray ejection guard. Locks device into Kiosk mode on SIM removal. Sends silent outbound SMS on foreign SIM insertion to expose thief's caller ID.</td><td><code class="inline-code">/sim_lock phone +1234567890</code></td><td>Device Owner, Send SMS</td></tr>
@@ -753,27 +752,33 @@ adb shell dpm list-owners</code></pre></div>
 <tr><td><code class="inline-code">/ring_stop</code></td><td><code class="inline-code">/ring_stop</code></td><td>Immediately silences active emergency alarm siren.</td><td><code class="inline-code">/ring_stop</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/vibrate_pulse</code></td><td>`/vibrate_pulse [pulse\</td><td>sos\</td><td>continuous\</td><td>stop]`</td><td>Tactile device locator for locating device covertly in hostile environments without triggering loud audio sirens.</td><td><code class="inline-code">/vibrate_pulse sos</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/message</code></td><td><code class="inline-code">/message &lt;text&gt;</code></td><td>Displays fullscreen high-priority alert dialog over lockscreen with 1-tap call-owner button.</td><td><code class="inline-code">/message Police tracking active!</code></td><td>Draw Over Apps permission</td></tr>
+<tr><td><code class="inline-code">/escrow</code></td><td>`/escrow [status\</td><td>test]`</td><td>Audits hardware cryptographic escrow token enrollment and keyguard readiness for remote PIN resets.</td><td><code class="inline-code">/escrow status</code></td><td>Knox Device Owner</td></tr>
+<tr><td><code class="inline-code">/sim_tray_lock</code></td><td>`/sim_tray_lock [arm\</td><td>disarm\</td><td>release\</td><td>status]`</td><td>Armed SIM tray ejection defense: rotates lockscreen PIN to random 8-digit secret and suspends all user apps upon SIM tampering.</td><td><code class="inline-code">/sim_tray_lock arm</code></td><td>Knox Device Owner, Escrow Token</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
-<h3 id="category-6-autonomous-traps-defense" class="doc-h3">Category 6: Autonomous Traps &amp; Defense</h3>
+<h3 id="category-6-traps-mobile-cyber-defense-suite-15-commands" class="doc-h3">Category 6: Traps &amp; Mobile Cyber Defense Suite (15 Commands)</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>Command</th><th>Syntax &amp; Arguments</th><th>Description</th><th>Practical Example</th><th>Prerequisites</th></tr></thead><tbody>
 <tr><td><code class="inline-code">/duress_pin</code></td><td>`/duress_pin &lt;pin\</td><td>clear\</td><td>status&gt;`</td><td>Sets 4–8 digit decoy coercion PIN. Unlocks to sterile home screen, hides banking/crypto into shadow vault, snaps mugshot, and sends SOS.</td><td><code class="inline-code">/duress_pin 2580</code></td><td>Pro License, Accessibility</td></tr>
+<tr><td><code class="inline-code">/a11y_shield</code></td><td>`/a11y_shield [status\</td><td>enable\</td><td>disable\</td><td>scan\</td><td>strict on\</td><td>off]`</td><td>Real-time Accessibility Trojan Shield. Blocks unauthorized a11y hijacking and banking overlay malware.</td><td><code class="inline-code">/a11y_shield enable</code></td><td>Knox Device Owner / Accessibility</td></tr>
+<tr><td><code class="inline-code">/clipper_guard</code></td><td>`/clipper_guard [status\</td><td>enable\</td><td>disable\</td><td>action alert\</td><td>poison\</td><td>sanitize]`</td><td>Crypto Clipper Trap: intercepts malicious clipboard replacements of cryptocurrency addresses (BTC, ETH, SOL, TON).</td><td><code class="inline-code">/clipper_guard enable</code></td><td>None</td></tr>
+<tr><td><code class="inline-code">/canary_guard</code></td><td>`/canary_guard [status\</td><td>arm\</td><td>disarm\</td><td>action wipe\</td><td>lock\</td><td>alert]`</td><td>Ransomware Canary Tripwire Guard: plants covert decoy files and instantly reacts if modified or encrypted.</td><td><code class="inline-code">/canary_guard arm</code></td><td>Storage permission</td></tr>
+<tr><td><code class="inline-code">/app_install_lock</code></td><td>`/app_install_lock [status\</td><td>enable\</td><td>disable\</td><td>allowed &lt;pkgs&gt;]`</td><td>Sideload &amp; App Install Lockdown: blocks unauthorized APK package installations and sideloading.</td><td><code class="inline-code">/app_install_lock enable</code></td><td>Knox Device Owner</td></tr>
+<tr><td><code class="inline-code">/otp_guard</code></td><td>`/otp_guard [status\</td><td>enable\</td><td>disable\</td><td>suppress on\</td><td>off\</td><td>vault on\</td><td>off]`</td><td>2FA / OTP Interception Guard: protects 2FA SMS tokens from notification snooping, keyloggers, and spyware.</td><td><code class="inline-code">/otp_guard enable</code></td><td>SMS permission</td></tr>
 <tr><td><code class="inline-code">/pattern_guard</code></td><td>`/pattern_guard [enable\</td><td>disable\</td><td>threshold &lt;1-10&gt;\</td><td>status]`</td><td>Monitors failed unlock attempts on OS keyguard. Once threshold (default 3) is exceeded, captures intruder photo and GPS fix.</td><td><code class="inline-code">/pattern_guard threshold 3</code></td><td>Device Admin</td></tr>
 <tr><td><code class="inline-code">/trap</code></td><td>`/trap [on\</td><td>off\</td><td>status\</td><td>snatch\</td><td>charger\</td><td>pocket]`</td><td>Master controller for autonomous sensor traps: Snatch (&gt;26 m/s²), Charger disconnect, Pocket extraction (5s grace).</td><td><code class="inline-code">/trap snatch on</code></td><td>Pro License</td></tr>
 <tr><td><code class="inline-code">/thermal</code></td><td>`/thermal [on\</td><td>off\</td><td>threshold &lt;40-65&gt;\</td><td>status]`</td><td>Anti-EDL heat-gun anomaly trap. Detects battery heating (&gt;48°C) from technician ungluing back glass. Severs USB data pins and snaps photo.</td><td><code class="inline-code">/thermal threshold 48</code></td><td>Knox Device Owner</td></tr>
 <tr><td><code class="inline-code">/deadman</code></td><td>`/deadman [enable\</td><td>disable\</td><td>hours &lt;1-72&gt;\</td><td>heartbeat\</td><td>status]`</td><td>Anti-EDL auto-destruct timer. If phone is isolated in Faraday box/offline without heartbeat for configured hours, triggers irreversible wipe.</td><td><code class="inline-code">/deadman hours 12</code></td><td>Knox Device Owner</td></tr>
 <tr><td><code class="inline-code">/shred</code></td><td><code class="inline-code">/shred &lt;password&gt; &lt;target&gt;</code></td><td>Irreversible multi-pass cryptographic file shredder. Overwrites files with 2-pass PRNG noise and zero-fill. Targets: <code class="inline-code">downloads</code>, <code class="inline-code">documents</code>, <code class="inline-code">camera</code>, <code class="inline-code">cache</code>.</td><td><code class="inline-code">/shred MyPass123 downloads</code></td><td>Pro License, Master Password</td></tr>
 <tr><td><code class="inline-code">/stealth</code></td><td>`/stealth [hide\</td><td>show\</td><td>toggle\</td><td>status]`</td><td>Completely conceals or restores PASA application icon from Android home screen and app drawer. Background protection stays 100% active.</td><td><code class="inline-code">/stealth hide</code></td><td>None</td></tr>
-<tr><td><code class="inline-code">/hide</code></td><td><code class="inline-code">/hide</code></td><td>Quick alias for <code class="inline-code">/stealth hide</code>.</td><td><code class="inline-code">/hide</code></td><td>None</td></tr>
-<tr><td><code class="inline-code">/show</code></td><td><code class="inline-code">/show</code></td><td>Quick alias for <code class="inline-code">/stealth show</code>.</td><td><code class="inline-code">/show</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/tamper_detect</code></td><td>`/tamper_detect [scan\</td><td>status]`</td><td>Scans for root binaries (<code class="inline-code">su</code>), Magisk, active debuggers, Xposed/Frida hooks, and APK signature tampering.</td><td><code class="inline-code">/tamper_detect scan</code></td><td>None</td></tr>
 <tr><td><code class="inline-code">/harden_boot</code></td><td>`/harden_boot [lock\</td><td>unlock\</td><td>status]`</td><td>Enforces restrictions blocking OEM bootloader unlocking and USB debugging, neutralizing Fastboot attacks.</td><td><code class="inline-code">/harden_boot lock</code></td><td>Knox Device Owner</td></tr>
+<tr><td><code class="inline-code">/factory_reset_defense</code></td><td>`/factory_reset_defense [on\</td><td>off\</td><td>status]`</td><td>Deep Knox hardware policy preventing master reset, recovery wipe, and fastboot flashing.</td><td><code class="inline-code">/factory_reset_defense on</code></td><td>Knox Device Owner</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
-<h3 id="category-7-extraction-telephony" class="doc-h3">Category 7: Extraction &amp; Telephony</h3>
+<h3 id="category-7-extraction-telephony-6-commands" class="doc-h3">Category 7: Extraction &amp; Telephony (6 Commands)</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>Command</th><th>Syntax &amp; Arguments</th><th>Description</th><th>Practical Example</th><th>Prerequisites</th></tr></thead><tbody>
 <tr><td><code class="inline-code">/call</code></td><td>`/call &lt;phone_number&gt; [speaker\</td><td>earpiece]`</td><td>Remotely places outbound phone call via cellular radio on speakerphone for room listening.</td><td><code class="inline-code">/call +1234567890 speaker</code></td><td>Call Phone permission</td></tr>
@@ -782,7 +787,6 @@ adb shell dpm list-owners</code></pre></div>
 <tr><td><code class="inline-code">/sms_log</code></td><td><code class="inline-code">/sms_log [count=15]</code></td><td>Extracts recent incoming and outgoing SMS text messages and 2FA authentication codes from device inbox.</td><td><code class="inline-code">/sms_log 10</code></td><td>Read SMS</td></tr>
 <tr><td><code class="inline-code">/sendsms</code></td><td>`/sendsms [sim1\</td><td>sim2] &lt;number&gt; &lt;message&gt;`</td><td>Transmits an outbound SMS message directly via cellular radio (reveals unknown SIM phone number via caller ID).</td><td><code class="inline-code">/sendsms +1234567890 Test SMS</code></td><td>Send SMS permission</td></tr>
 <tr><td><code class="inline-code">/history</code></td><td><code class="inline-code">/history [count=20]</code></td><td>Returns cryptographic audit trail of recent C2 command executions from local encrypted database.</td><td><code class="inline-code">/history 30</code></td><td>None</td></tr>
-<tr><td><code class="inline-code">/app_firewall</code></td><td>`/app_firewall [enable\</td><td>disable\</td><td>block &lt;pkg&gt;\</td><td>blacklist\</td><td>whitelist]`</td><td>App network isolation firewall. Isolates unauthorized apps or RATs (TeamViewer, AnyDesk) from sending telemetry.</td><td><code class="inline-code">/app_firewall block com.anydesk.anydeskandroid</code></td><td>None</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
@@ -816,7 +820,7 @@ adb shell dpm list-owners</code></pre></div>
 │ 🔢 Failed PIN x3   │ Front Mugshot + GPS Telemetry to Telegram         │
 │ 🔥 Heat Gun &gt;48°C  │ Sever USB Data Pins + Kiosk Lock + Alert          │
 │ ⏳ Faraday Box     │ Dead Man's Countdown Reaches 0 -&gt; Crypto Auto-Wipe│
-└────────────────────┴───────────────────────────────────────────────────┘</code></pre></div>
+└────────────────────┴───────────────────────────────────────────────────┘</code></pre></div>
 <h3 id="snatch-and-run-trap-trap-snatch" class="doc-h3">Snatch-and-Run Trap (<code class="inline-code">/trap snatch</code>)</h3>
 <ul class="doc-list">
 <li><strong>Detection:</strong> Accelerometer vector magnitude $\sqrt{x^2 + y^2 + z^2} &gt; 26.0\text{ m/s}^2\ (\approx 2.65\text{G})$.</li>
@@ -922,7 +926,7 @@ adb shell dpm list-owners</code></pre></div>
 <p class="doc-p">When your phone has no internet connection, mobile data is toggled off, or you are roaming abroad, the cellular SMS fallback provides complete out-of-band control.</p>
 <h3 id="command-protocol-syntax" class="doc-h3">Command Protocol Syntax</h3>
 <p class="doc-p">Send an SMS from any mobile phone to the target device's SIM number:</p>
-<div class="code-block"><div class="code-head"><span>COMMAND</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>PASA &lt;credential&gt; &lt;command&gt; [arguments...]</code></pre></div>
+<div class="code-block"><div class="code-head"><span>COMMAND</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>PASA &lt;credential&gt; &lt;command&gt; [arguments...]</code></pre></div>
 <ul class="doc-list">
 <li><code class="inline-code">&lt;credential&gt;</code> can be either:</li>
 </ul>
@@ -948,7 +952,7 @@ PASA 123456 /wifi_connect HomeNetwork Pass123
 PASA 123456 /lockscreen_info Call +1-555-0199
 PASA 123456 /reboot
 PASA 123456 /app_uninstall com.spyware.app
-PASA 123456 /help</code></pre></div>
+PASA 123456 /help</code></pre></div>
 <hr class="divider">
 <h2 id="10-licensing-ota-updates-warranty-emergency-contacts" class="doc-h2"><span class="h-anchor">#</span>10. Licensing, OTA Updates, Warranty &amp; Emergency Contacts</h2>
 <h3 id="licensing-tiers-hard-lockout-policy" class="doc-h3">Licensing Tiers &amp; Hard Lockout Policy</h3>
@@ -957,7 +961,7 @@ PASA 123456 /help</code></pre></div>
 <thead><tr><th>Feature / Tier</th><th>Tactical Evaluation (Free Trial)</th><th>Pro Lifetime Shield ($25 / ৳3,000)</th><th>Enterprise Fleet ($99 / ৳12,000)</th></tr></thead><tbody>
 <tr><td><strong>Validity</strong></td><td>7 Days</td><td>100 Years (Lifetime)</td><td>100 Years (Lifetime)</td></tr>
 <tr><td><strong>Device Allowance</strong></td><td>1 Device</td><td>1 Device (up to 3 supported)</td><td>5 Devices (up to 10 supported)</td></tr>
-<tr><td><strong>All 86 C2 Commands</strong></td><td>✅ Full Access</td><td>✅ Full Access</td><td>✅ Full Access</td></tr>
+<tr><td><strong>All 94 C2 Commands</strong></td><td>✅ Full Access</td><td>✅ Full Access</td><td>✅ Full Access</td></tr>
 <tr><td><strong>Knox Device Owner Suite</strong></td><td>✅ Full Access</td><td>✅ Full Access</td><td>✅ Full Access</td></tr>
 <tr><td><strong>Hardware Escrow Token PIN Reset</strong></td><td>✅ Full Access</td><td>✅ Full Access</td><td>✅ Full Access</td></tr>
 <tr><td><strong>Offline Ed25519 Certificate</strong></td><td>❌ None</td><td>✅ Permanent Offline Cryptography</td><td>✅ Permanent Offline Cryptography</td></tr>
@@ -973,12 +977,11 @@ PASA 123456 /help</code></pre></div>
 <li>When an update is published, send <code class="inline-code">/update_confirm</code>.</li>
 <li><strong>Silent Background Installation:</strong> On Device Owner devices, PASA Sentinel downloads the signed APK, verifies its SHA-256 hash, and commits the package install session silently in the background without user prompts. An exact alarm watchdog restarts the background service immediately after update!</li>
 </ul>
-<h3 id="payment-methods-24-hour-refund-guarantee" class="doc-h3">Payment Methods &amp; 7-Day Refund Guarantee</h3>
+<h3 id="payment-methods-7-day-money-back-guarantee" class="doc-h3">Payment Methods &amp; 7-Day Money-Back Guarantee</h3>
 <ul class="doc-list">
-<li><strong>Instant Automated Checkout:</strong> Purchase via LemonSqueezy using credit/debit cards, Apple Pay, Google Pay, or local payment methods. License keys and zero-touch setup QR codes are issued instantly on screen and via encrypted email.</li>
-<li><strong>Self-Service Customer Portal:</strong> Manage your licenses, view activation status, and generate instant provisioning QR codes at <a href="/portal" class="doc-link">https://pasa.izhaanintellect.fun/portal</a>.</li>
-<li><strong>Cryptocurrency &amp; Local Options:</strong> Binance Pay (USDT) and bKash/Nagad available on request via WhatsApp VIP Concierge.</li>
-<li><strong>7-Day 100% Money-Back Guarantee:</strong> If you are not completely satisfied, request a refund within 7 days of purchase via our automated portal or WhatsApp for an unconditional 100% refund.</li>
+<li><strong>Binance Pay (Crypto):</strong> UID <code class="inline-code">756303714</code> (Nickname: <code class="inline-code">RBR48</code>). Pay in USDT and submit TxID via web checkout or bot.</li>
+<li><strong>bKash (Bangladesh Local):</strong> Personal account <code class="inline-code">01737-910040</code> or official account requested via WhatsApp.</li>
+<li><strong>7-Day 100% Money-Back Guarantee:</strong> If you are not completely satisfied, request a refund within 7 days of purchase via WhatsApp or Telegram for an unconditional 100% refund.</li>
 </ul>
 <h3 id="emergency-operational-cheatsheet" class="doc-h3">Emergency Operational Cheatsheet</h3>
 <ul class="doc-list">
@@ -995,7 +998,7 @@ PASA 123456 /help</code></pre></div>
         <h1 id="pasa-sentinel-private-android-security-agent" class="doc-h1">🛡️ PASA Sentinel (Private Android Security Agent)</h1>
 <h2 id="স্বার্বভৌম-মোবাইল-প্রতিরক্ষা-ও-গোপন-অ্যান্টি-থেফ্ট-সিস্টেম" class="doc-h2"><span class="h-anchor">#</span>স্বার্বভৌম মোবাইল প্রতিরক্ষা ও গোপন অ্যান্টি-থেফ্ট সিস্টেম</h2>
 <h3 id="পূর্ণাঙ্গ-ব্যবহারকারী-ম্যানুয়াল-ও-অপারেশনাল-ফিল্ড-গাইড-বাংলা-সংস্করণ" class="doc-h3">পূর্ণাঙ্গ ব্যবহারকারী ম্যানুয়াল ও অপারেশনাল ফিল্ড গাইড (বাংলা সংস্করণ)</h3>
-<p class="doc-p"><strong>প্রোডাকশন সংস্করণ:</strong> v3.7.15 (বিল্ড ৭৯) | <strong>অপারেটিং সিস্টেম সাপোর্ট:</strong> অ্যান্ড্রয়েড 8.0 – 16 (API 26 – 36) | <strong>ডকুমেন্ট রিভিশন:</strong> 2026.2</p>
+<p class="doc-p"><strong>প্রোডাকশন সংস্করণ:</strong> v3.7.14 (বিল্ড ৭৯) | <strong>অপারেটিং সিস্টেম সাপোর্ট:</strong> অ্যান্ড্রয়েড 8.0 – 16 (API 26 – 36) | <strong>ডকুমেন্ট রিভিশন:</strong> 2026.2</p>
 <hr class="divider">
 <h2 id="সূচিপত্র-table-of-contents" class="doc-h2"><span class="h-anchor">#</span>সূচিপত্র (Table of Contents)</h2>
 <ol class="doc-list-num">
@@ -1027,16 +1030,16 @@ PASA 123456 /help</code></pre></div>
 <li><a href="#ইন্টারঅ্যাক্টিভ-উইজার্ড-ও-গাইডেড-প্রম্পট" class="doc-link" target="_blank" rel="noopener">ইন্টারঅ্যাক্টিভ উইজার্ড ও গাইডেড প্রম্পট</a></li>
 </ul>
 <ol class="doc-list-num">
-<li><a href="#৬-পূর্ণাঙ্গ-কমান্ড-রেফারেন্স-ম্যাট্রিক্স-সকল-৮৬টি-কমান্ড" class="doc-link" target="_blank" rel="noopener">পূর্ণাঙ্গ কমান্ড রেফারেন্স ম্যাট্রিক্স (সকল ৮৬টি কমান্ড)</a></li>
+<li><a href="#৬-পূর্ণাঙ্গ-কমান্ড-রেফারেন্স-ম্যাট্রিক্স-সকল-৯৪টি-কমান্ড" class="doc-link" target="_blank" rel="noopener">পূর্ণাঙ্গ কমান্ড রেফারেন্স ম্যাট্রিক্স (সকল ৯৪টি কমান্ড)</a></li>
 </ol>
 <ul class="doc-list">
 <li><a href="#বিভাগ-১-কোর-ও-ডায়াগনস্টিকস" class="doc-link" target="_blank" rel="noopener">বিভাগ ১: কোর ও ডায়াগনস্টিকস (৮টি কমান্ড)</a></li>
-<li><a href="#বিভাগ-২-এন্টারপ্রাইজ-নক্স-ডিভাইস-ওনার-স্যুট" class="doc-link" target="_blank" rel="noopener">বিভাগ ২: এন্টারপ্রাইজ নক্স ডিভাইস ওনার স্যুট (১৯টি কমান্ড)</a></li>
-<li><a href="#বিভাগ-৩-লোকেশন-ও-সেলুলার-আরএফ-টেলিমেট্রি" class="doc-link" target="_blank" rel="noopener">বিভাগ ৩: লোকেশন ও সেলুলার আরএফ টেলিমেট্রি (৭টি কমান্ড)</a></li>
+<li><a href="#বিভাগ-২-এন্টারপ্রাইজ-নক্স-ডিভাইস-ওনার-স্যুট" class="doc-link" target="_blank" rel="noopener">বিভাগ ২: এন্টারপ্রাইজ নক্স ডিভাইস ওনার স্যুট (২২টি কমান্ড)</a></li>
+<li><a href="#বিভাগ-৩-লোকেশন-ও-সেলুলার-আরএফ-টেলিমেট্রি" class="doc-link" target="_blank" rel="noopener">বিভাগ ৩: লোকেশন ও সেলুলার আরএফ টেলিমেট্রি (৮টি কমান্ড)</a></li>
 <li><a href="#বিভাগ-৪-গোপন-ফরেনসিক্স-ও-নজরদারি" class="doc-link" target="_blank" rel="noopener">বিভাগ ৪: গোপন ফরেনসিক্স ও নজরদারি (১৩টি কমান্ড)</a></li>
-<li><a href="#বিভাগ-৫-লকডাউন-অ্যালার্ট-ও-ডিসেপশন" class="doc-link" target="_blank" rel="noopener">বিভাগ ৫: লকডাউন, অ্যালার্ট ও ডিসেপশন (১২টি কমান্ড)</a></li>
-<li><a href="#বিভাগ-৬-স্বয়ংক্রিয়-সেন্সর-ট্র্যাপ-ও-প্রতিরক্ষা" class="doc-link" target="_blank" rel="noopener">বিভাগ ৬: স্বয়ংক্রিয় সেন্সর ট্র্যাপ ও প্রতিরক্ষা (১১টি কমান্ড)</a></li>
-<li><a href="#বিভাগ-৭-ডেটা-এক্সট্রাকশন-ও-টেলিফোনি" class="doc-link" target="_blank" rel="noopener">বিভাগ ৭: ডেটা এক্সট্রাকশন ও টেলিফোনি (৭টি কমান্ড)</a></li>
+<li><a href="#বিভাগ-৫-লকডাউন-অ্যালার্ট-ও-ডিসেপশন" class="doc-link" target="_blank" rel="noopener">বিভাগ ৫: লকডাউন, অ্যালার্ট ও ডিসেপশন (১৩টি কমান্ড)</a></li>
+<li><a href="#বিভাগ-৬-সেন্সর-ট্র্যাপ-ও-সাইবার-ডিফেন্স-স্যুট" class="doc-link" target="_blank" rel="noopener">বিভাগ ৬: সেন্সর ট্র্যাপ ও সাইবার ডিফেন্স স্যুট (১৫টি কমান্ড)</a></li>
+<li><a href="#বিভাগ-৭-ডেটা-এক্সট্রাকশন-ও-টেলিফোনি" class="doc-link" target="_blank" rel="noopener">বিভাগ ৭: ডেটা এক্সট্রাকশন ও টেলিফোনি (৬টি কমান্ড)</a></li>
 <li><a href="#বিভাগ-৮-সিস্টেম-রক্ষণাবেক্ষণ-ও-ওটিএ-আপডেট" class="doc-link" target="_blank" rel="noopener">বিভাগ ৮: সিস্টেম, রক্ষণাবেক্ষণ ও ওটিএ আপডেট (৯টি কমান্ড)</a></li>
 </ul>
 <ol class="doc-list-num">
@@ -1047,9 +1050,9 @@ PASA 123456 /help</code></pre></div>
 <li><a href="#চার্জার-ডিসকানেক্ট-ও-লকড-ইউএসবি-ইনসার্শন-ট্র্যাপ-trap-charger" class="doc-link" target="_blank" rel="noopener">চার্জার ডিসকানেক্ট ও লকড ইউএসবি ইনসার্শন ট্র্যাপ (<code class="inline-code">/trap charger</code>)</a></li>
 <li><a href="#পকেট-ও-ব্যাগ-এক্সট্রাকশন-ট্র্যাপ-trap-pocket" class="doc-link" target="_blank" rel="noopener">পকেট ও ব্যাগ এক্সট্রাকশন ট্র্যাপ (<code class="inline-code">/trap pocket</code>)</a></li>
 <li><a href="#সিম-ইজেকশন-ও-চোরের-অটোমেটিক-এসএমএস-ট্র্যাপ-sim_lock" class="doc-link" target="_blank" rel="noopener">সিম ইজেকশন ও চোরের অটোমেটিক এসএমএস ট্র্যাপ (<code class="inline-code">/sim_lock</code>)</a></li>
-<li><a href="#প্যাটার্ন-গার্ড-ভুল-পাসওয়ার্ড-অ্যালার্ট-pattern_guard" class="doc-link" target="_blank" rel="noopener">প্যাটার্ন গার্ড / ভুল পাসওয়ার্ড অ্যালার্ট (<code class="inline-code">/pattern_guard</code>)</a></li>
+<li><a href="#প্যাটার্ন-গার্ড--ভুল-পাসওয়ার্ড-অ্যালার্ট-pattern_guard" class="doc-link" target="_blank" rel="noopener">প্যাটার্ন গার্ড / ভুল পাসওয়ার্ড অ্যালার্ট (<code class="inline-code">/pattern_guard</code>)</a></li>
 <li><a href="#থার্মাল-অ্যানোমালি-হিট-গান-ট্র্যাপ-thermal" class="doc-link" target="_blank" rel="noopener">থার্মাল অ্যানোমালি হিট-গান ট্র্যাপ (<code class="inline-code">/thermal</code>)</a></li>
-<li><a href="#ডেড-ম্যানস-সুইচ-ফ্যারাডে-আইসোলেশন-অটো-ডেস্ট্রাক্ট-deadman" class="doc-link" target="_blank" rel="noopener">ডেড ম্যানস সুইচ / ফ্যারাডে আইসোলেশন অটো-ডেস্ট্রাক্ট (<code class="inline-code">/deadman</code>)</a></li>
+<li><a href="#ডেড-ম্যানস-সুইচ--ফ্যারাডে-আইসোলেশন-অটো-ডেস্ট্রাক্ট-deadman" class="doc-link" target="_blank" rel="noopener">ডেড ম্যানস সুইচ / ফ্যারাডে আইসোলেশন অটো-ডেস্ট্রাক্ট (<code class="inline-code">/deadman</code>)</a></li>
 </ul>
 <ol class="doc-list-num">
 <li><a href="#৮-উন্নত-ডিসেপশন-ও-অ্যান্টি-কোয়ার্সন-সিকিউরিটি-ফিচার" class="doc-link" target="_blank" rel="noopener">উন্নত ডিসেপশন ও অ্যান্টি-কোয়ার্সন সিকিউরিটি ফিচার</a></li>
@@ -1077,7 +1080,7 @@ PASA 123456 /help</code></pre></div>
 <ul class="doc-list">
 <li><a href="#লাইসেন্সিং-টিয়ার-ও-৭-দিনের-ট্রায়াল-লকআউট-নিয়ম" class="doc-link" target="_blank" rel="noopener">লাইসেন্সিং টিয়ার ও ৭ দিনের ট্রায়াল লকআউট নিয়ম</a></li>
 <li><a href="#স্বয়ংক্রিয়-সাইলেন্ট-ব্যাকগ্রাউন্ড-ওটিএ-আপডেট" class="doc-link" target="_blank" rel="noopener">স্বয়ংক্রিয় সাইলেন্ট ব্যাকগ্রাউন্ড ওটিএ আপডেট</a></li>
-<li><a href="#পেমেন্ট-মেথড-ও-২৪-ঘণ্টার-১০০-মানিব্যাক-গ্যারান্টি" class="doc-link" target="_blank" rel="noopener">পেমেন্ট মেথড ও ২৪ ঘণ্টার ১০০% মানিব্যাক গ্যারান্টি</a></li>
+<li><a href="#পেমেন্ট-মেথড-ও-৭-দিনের-১০০-মানিব্যাক-গ্যারান্টি" class="doc-link" target="_blank" rel="noopener">পেমেন্ট মেথড ও ৭ দিনের ১০০% মানিব্যাক গ্যারান্টি</a></li>
 <li><a href="#জরুরি-ফিল্ড-চিটশিট-ও-অফিসিয়াল-লিংক" class="doc-link" target="_blank" rel="noopener">জরুরি ফিল্ড চিটশিট ও অফিসিয়াল লিংক</a></li>
 </ul>
 <hr class="divider">
@@ -1203,7 +1206,7 @@ adb shell dpm set-device-owner com.izhaanintellect.pasa/.admin.PasaDeviceAdmin
 # Active admin set to component {com.izhaanintellect.pasa/com.izhaanintellect.pasa.admin.PasaDeviceAdmin}
 
 # ৫. ডিভাইস ওনার নিশ্চিতকরণ
-adb shell dpm list-owners</code></pre></div>
+adb shell dpm list-owners</code></pre></div>
 <hr class="divider">
 <h3 id="ডিভাইস-ওনার-সেটআপের-সাধারণ-ত্রুটি-ও-সমাধান" class="doc-h3">ডিভাইস ওনার সেটআপের সাধারণ ত্রুটি ও সমাধান</h3>
 <ul class="doc-list">
@@ -1241,7 +1244,7 @@ adb shell dpm list-owners</code></pre></div>
 │  [X] শর্তাবলী ও অ্যান্টি-স্টকারওয়্যার নীতিতে সম্মত      │
 │                                                        │
 │              [ ডিফেন্স সক্রিয় করুন ]                 │
-└────────────────────────────────────────────────────────┘</code></pre></div>
+└────────────────────────────────────────────────────────┘</code></pre></div>
 <h3 id="টেলিগ্রাম-বট-তৈরি-ও-কানেক্ট-করার-নিয়ম" class="doc-h3">টেলিগ্রাম বট তৈরি ও কানেক্ট করার নিয়ম</h3>
 <ol class="doc-list-num">
 <li>টেলিগ্রাম অ্যাপে গিয়ে সার্চ করুন <code class="inline-code">@BotFather</code>।</li>
@@ -1297,7 +1300,7 @@ adb shell dpm list-owners</code></pre></div>
 │       🔒 Lock       │     🎛️ Hub Menu     │   👑 Device Owner   │
 ├─────────────────────┼─────────────────────┼─────────────────────┤
 │     💬 Message      │      🛡️ Traps       │      🔑 License     │
-└─────────────────────┴─────────────────────┴─────────────────────┘</code></pre></div>
+└─────────────────────┴─────────────────────┴─────────────────────┘</code></pre></div>
 <ul class="doc-list">
 <li><strong>Status (স্ট্যাটাস):</strong> লাইভ ব্যাটারি %, জিপিএস লোকেশন, নেটওয়ার্ক ও মেমোরি রিপোর্ট।</li>
 <li><strong>Locate (লোকেট):</strong> স্যাটেলাইট জিপিএস অন করে গুগল ম্যাপ লিংক প্রেরণ।</li>
@@ -1322,7 +1325,7 @@ adb shell dpm list-owners</code></pre></div>
 ╚═════════════════════════════════════════════════════════════╝
  📍 [১. লোকেশন ও সেলুলার আরএফ]     📸 [২. গোপন ফরেনসিক্স ও ক্যামেরা]
  🚨 [৩. লকডাউন ও সাইরেন]          👑 [৪. এন্টারপ্রাইজ ডিভাইস ওনার]
- 🛡️ [৫. স্বয়ংক্রিয় ট্র্যাপসমূহ]    📇 [৬. ডেটা ও সিস্টেম লগ]</code></pre></div>
+ 🛡️ [৫. স্বয়ংক্রিয় ট্র্যাপসমূহ]    📇 [৬. ডেটা ও সিস্টেম লগ]</code></pre></div>
 <ol class="doc-list-num">
 <li><strong>📍 লোকেশন ও সেলুলার আরএফ (<code class="inline-code">menu:location_hub</code>):</strong> স্যাটেলাইট জিপিএস (<code class="inline-code">/locate</code>), সেল টাওয়ার ট্রায়াঙ্গুলেশন (<code class="inline-code">/tower</code>), লাইভ রুট ট্র্যাকিং (<code class="inline-code">/track</code>), নিরাপদ জোন জিওফেন্স (<code class="inline-code">/geofence</code>), সিম কার্ড রেডিও সিগন্যাল (<code class="inline-code">/sim</code>), সিম সোয়াপ ট্র্যাপ (<code class="inline-code">/sim_lock</code>)।</li>
 <li><strong>📸 গোপন ফরেনসিক্স ও নজরদারি (<code class="inline-code">menu:forensics_hub</code>):</strong> হেডলেস ফ্রন্ট/ব্যাক ছবি (<code class="inline-code">/snap</code>), সাইলেন্ট স্ক্রিনশট (<code class="inline-code">/screenshot</code>), স্টোরিবোর্ড ফ্রেম বার্স্ট (<code class="inline-code">/screen_burst</code>), গোপন ভিডিও (<code class="inline-code">/video</code>), রুমের গোপন অডিও রেকর্ড (<code class="inline-code">/record</code>), লাইভ ভিডিও স্ট্রিম (<code class="inline-code">/livestream</code>), ক্লিপবোর্ড ডেটা ও সাম্প্রতিক ফটো রিকভারি।</li>
@@ -1350,7 +1353,7 @@ adb shell dpm list-owners</code></pre></div>
 <li><strong>লাইসেন্স অ্যাক্টিভেশন উইজার্ড (<code class="inline-code">wizard:license:activate</code>):</strong> ক্রয়কৃত লাইসেন্স কী চেয়ে নিয়ে অফলাইন ভেরিফাই করবে।</li>
 </ul>
 <hr class="divider">
-<h2 id="৬-পূর্ণাঙ্গ-কমান্ড-রেফারেন্স-ম্যাট্রিক্স-সকল-৮৬টি-কমান্ড" class="doc-h2"><span class="h-anchor">#</span>৬. পূর্ণাঙ্গ কমান্ড রেফারেন্স ম্যাট্রিক্স (সকল ৮৬টি কমান্ড)</h2>
+<h2 id="৬-পূর্ণাঙ্গ-কমান্ড-রেফারেন্স-ম্যাট্রিক্স-সকল-৯৪টি-কমান্ড" class="doc-h2"><span class="h-anchor">#</span>৬. পূর্ণাঙ্গ কমান্ড রেফারেন্স ম্যাট্রিক্স (সকল ৯৪টি কমান্ড)</h2>
 <h3 id="বিভাগ-১-কোর-ও-ডায়াগনস্টিকস" class="doc-h3">বিভাগ ১: কোর ও ডায়াগনস্টিকস</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>কমান্ড</th><th>সিনট্যাক্স ও আর্গুমেন্ট</th><th>বিবরণ</th><th>বাস্তব উদাহরণ</th><th>প্রয়োজনীয় পূর্বশর্ত</th></tr></thead><tbody>
@@ -1387,13 +1390,17 @@ adb shell dpm list-owners</code></pre></div>
 <tr><td><code class="inline-code">/unlock_app</code></td><td>`/unlock_app &lt;gallery\</td><td>phone\</td><td>files\</td><td>pkg&gt;`</td><td><code class="inline-code">/lock_app</code> দিয়ে লুকানো অ্যাপ পুনরায় দৃশ্যমান করে।</td><td><code class="inline-code">/unlock_app gallery</code></td><td>নক্স ডিভাইস ওনার</td></tr>
 <tr><td><code class="inline-code">/biometrics</code></td><td>`/biometrics [on\</td><td>off\</td><td>status]`</td><td>লকস্ক্রিনের ফিঙ্গারপ্রিন্ট ও ফেস আনলক বন্ধ করে দেয়, ফলে জোরপূর্বক আঙুল ছুঁইয়ে আনলক করা অসম্ভব।</td><td><code class="inline-code">/biometrics off</code></td><td>নক্স ডিভাইস ওনার</td></tr>
 <tr><td><code class="inline-code">/dns</code></td><td>`/dns [quad9\</td><td>cloudflare\</td><td>adguard\</td><td>off\</td><td>&lt;host&gt;]`</td><td>পুরো ফোনে সিস্টেম-লেভেল এনক্রিপ্টেড ডিএনএস (DoT) বাধ্য করে, আইএসপি ট্র্যাকিং ব্লক করে।</td><td><code class="inline-code">/dns quad9</code></td><td>নক্স ডিভাইস ওনার, Android 10+</td></tr>
+<tr><td><code class="inline-code">/app_firewall</code></td><td>`/app_firewall [enable\</td><td>disable\</td><td>block &lt;pkg&gt;\</td><td>blacklist\</td><td>whitelist]`</td><td>অ্যাপের ইন্টারনেট সংযোগ বিচ্ছিন্ন করে দূরবর্তী হ্যাকিং বা র‍্যাট (TeamViewer, AnyDesk) ব্লক করে।</td><td><code class="inline-code">/app_firewall block com.anydesk.anydeskandroid</code></td><td>নক্স ডিভাইস ওনার</td></tr>
+<tr><td><code class="inline-code">/usb_autolock</code></td><td>`/usb_autolock [status\</td><td>enable\</td><td>disable\</td><td>delay &lt;sec&gt;]`</td><td>স্ক্রিন লক থাকা অবস্থায় স্বয়ংক্রিয়ভাবে ইউএসবি ডেটা পিন বন্ধ করে দিয়ে ফরেনসিক ক্যাবল অ্যাটাক প্রতিরোধ করে।</td><td><code class="inline-code">/usb_autolock enable</code></td><td>নক্স ডিভাইস ওনার, Android 12+</td></tr>
+<tr><td><code class="inline-code">/anti_2g</code></td><td>`/anti_2g [status\</td><td>enable\</td><td>disable\</td><td>enforce_5g on\</td><td>off]`</td><td>হ্যাকারদের ফেক সেল টাওয়ার (IMSI Catcher) এড়াতে মডেম লেভেলে অনিরাপদ ২জি রেডিও বন্ধ করে।</td><td><code class="inline-code">/anti_2g enable</code></td><td>নক্স ডিভাইস ওনার, Android 12+</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
-<h3 id="বিভাগ-৩-লোকেশন-ও-সেলুলার-আরএফ-টেলিমেট্রি" class="doc-h3">বিভাগ ৩: লোকেশন ও সেলুলার আরএফ টেলিমেট্রি</h3>
+<h3 id="বিভাগ-৩-লোকেশন-ও-সেলুলার-আরএফ-টেলিমেট্রি-৮টি-কমান্ড" class="doc-h3">বিভাগ ৩: লোকেশন ও সেলুলার আরএফ টেলিমেট্রি (৮টি কমান্ড)</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>কমান্ড</th><th>সিনট্যাক্স ও আর্গুমেন্ট</th><th>বিবরণ</th><th>বাস্তব উদাহরণ</th><th>প্রয়োজনীয় পূর্বশর্ত</th></tr></thead><tbody>
 <tr><td><code class="inline-code">/locate</code></td><td><code class="inline-code">/locate</code></td><td>জিপিএস হার্ডওয়্যার স্বয়ংক্রিয় অন করে পিনপয়েন্ট অক্ষাংশ/দ্রাঘিমাংশ ও গুগল ম্যাপ লিংক পাঠায়।</td><td><code class="inline-code">/locate</code></td><td>লোকেশন পারমিশন</td></tr>
+<tr><td><code class="inline-code">/gps</code></td><td>`/gps [on\</td><td>off\</td><td>force\</td><td>status]`</td><td>দূর থেকে সরাসরি ফোনের স্যাটেলাইট জিপিএস চিপের পাওয়ার অন/অফ ও জোরপূর্বক অবস্থান নির্ণয় করে।</td><td><code class="inline-code">/gps force</code></td><td>লোকেশন পারমিশন, ডিভাইস ওনার</td></tr>
 <tr><td><code class="inline-code">/tower</code></td><td><code class="inline-code">/tower</code></td><td>স্যাটেলাইট সিগন্যাল না থাকলে নিকটবর্তী এলটিই/৫জি ও জিএসএম সেল টাওয়ার তথ্য সংগ্রহ করে।</td><td><code class="inline-code">/tower</code></td><td>টেলিফোনি পারমিশন</td></tr>
 <tr><td><code class="inline-code">/sim</code></td><td><code class="inline-code">/sim [slot]</code></td><td>সক্রিয় সিম স্লট, ক্যারিয়ারের নাম, সিগন্যাল লেভেল, নেটওয়ার্ক প্রযুক্তি (4G/5G) ও ICCID দেখায়।</td><td><code class="inline-code">/sim</code></td><td>ফোন স্টেট পারমিশন</td></tr>
 <tr><td><code class="inline-code">/sim_lock</code></td><td>`/sim_lock [enable\</td><td>disable\</td><td>whitelist\</td><td>phone\</td><td>status]`</td><td>সিম কার্ড খুললে ফোন কিয়স্ক লক করে। অপরিচিত সিম ঢোকালে চোরের নম্বর থেকে গোপনে মালিককে এসএমএস পাঠায়।</td><td><code class="inline-code">/sim_lock phone +88017XXXXXXXX</code></td><td>ডিভাইস ওনার, এসএমএস পারমিশন</td></tr>
@@ -1436,27 +1443,33 @@ adb shell dpm list-owners</code></pre></div>
 <tr><td><code class="inline-code">/ring_stop</code></td><td><code class="inline-code">/ring_stop</code></td><td>চলমান জরুরি অ্যালার্ম সাইরেন অবিলম্বে থামিয়ে দেয়।</td><td><code class="inline-code">/ring_stop</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/vibrate_pulse</code></td><td>`/vibrate_pulse [pulse\</td><td>sos\</td><td>continuous\</td><td>stop]`</td><td>শব্দ না করে গোপনে ডিভাইস খুঁজে পেতে স্পেশাল ট্যাকটাইল ভাইব্রেশন প্যাটার্ন বা এসওএস বাজায়।</td><td><code class="inline-code">/vibrate_pulse sos</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/message</code></td><td><code class="inline-code">/message &lt;text&gt;</code></td><td>লকস্ক্রিনের ওপরে বড় অক্ষরে একটি পপআপ ডায়ালগ ও ১-ট্যাপ কল বাটন প্রদর্শন করে।</td><td><code class="inline-code">/message পুলিশ ট্র্যাকিং চলছে!</code></td><td>ড্র ওভার অ্যাপস পারমিশন</td></tr>
+<tr><td><code class="inline-code">/escrow</code></td><td>`/escrow [status\</td><td>arm]`</td><td>রিমোট পিন রিসেটের জন্য নক্স হার্ডওয়্যার এসক্রো পাসওয়ার্ড টোকেন সক্রিয় বা পরীক্ষা করে।</td><td><code class="inline-code">/escrow status</code></td><td>নক্স ডিভাইস ওনার</td></tr>
+<tr><td><code class="inline-code">/sim_tray_lock</code></td><td>`/sim_tray_lock [arm\</td><td>release\</td><td>status]`</td><td>অচেনা সিম ঢুকলে স্ক্রিন লক পিন পরিবর্তন করে এবং সমস্ত অ্যাপ বরখাস্ত করে ফোনকে ব্রিক বানিয়ে ফেলে।</td><td><code class="inline-code">/sim_tray_lock arm</code></td><td>নক্স ডিভাইস ওনার, এসক্রো টোকেন</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
-<h3 id="বিভাগ-৬-স্বয়ংক্রিয়-সেন্সর-ট্র্যাপ-ও-প্রতিরক্ষা" class="doc-h3">বিভাগ ৬: স্বয়ংক্রিয় সেন্সর ট্র্যাপ ও প্রতিরক্ষা</h3>
+<h3 id="বিভাগ-৬-সেন্সর-ট্র্যাপ-ও-সাইবার-ডিফেন্স-স্যুট-১৫টি-কমান্ড" class="doc-h3">বিভাগ ৬: সেন্সর ট্র্যাপ ও সাইবার ডিফেন্স স্যুট (১৫টি কমান্ড)</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>কমান্ড</th><th>সিনট্যাক্স ও আর্গুমেন্ট</th><th>বিবরণ</th><th>বাস্তব উদাহরণ</th><th>প্রয়োজনীয় পূর্বশর্ত</th></tr></thead><tbody>
 <tr><td><code class="inline-code">/duress_pin</code></td><td>`/duress_pin &lt;pin\</td><td>clear\</td><td>status&gt;`</td><td>৪–৮ ডিজিটের ডিকয় পিন। ডাকাত বা চেকপয়েন্টে চাপ প্রয়োগ করে আনলক করালে ব্যাংকিং অ্যাপ লুকিয়ে এসওএস পাঠায়।</td><td><code class="inline-code">/duress_pin 2580</code></td><td>প্রো লাইসেন্স, অ্যাক্সেসিবিলিটি</td></tr>
+<tr><td><code class="inline-code">/a11y_shield</code></td><td>`/a11y_shield [on\</td><td>off\</td><td>status]`</td><td>অ্যাক্সেসিবিলিটি পারমিশন অপব্যবহারকারী ব্যাংকিং ট্রোজান ও ম্যালওয়্যার প্রতিরোধ করে।</td><td><code class="inline-code">/a11y_shield on</code></td><td>নক্স ডিভাইস ওনার / অ্যাক্সেসিবিলিটি</td></tr>
+<tr><td><code class="inline-code">/clipper_guard</code></td><td>`/clipper_guard [on\</td><td>off\</td><td>status]`</td><td>ক্লিপবোর্ডে থাকা ক্রিপ্টো ওয়ালেট অ্যাড্রেস হাইজ্যাকিং ও পরিবর্তন প্রতিরোধ করে।</td><td><code class="inline-code">/clipper_guard on</code></td><td>নেই</td></tr>
+<tr><td><code class="inline-code">/canary_guard</code></td><td>`/canary_guard [on\</td><td>off\</td><td>status]`</td><td>স্টোরেজে ডিকয় ফাইল বসিয়ে র‍্যানসমওয়্যারের এনক্রিপশন চেষ্টা শনাক্ত করে লক করে।</td><td><code class="inline-code">/canary_guard on</code></td><td>স্টোরেজ পারমিশন</td></tr>
+<tr><td><code class="inline-code">/app_install_lock</code></td><td>`/app_install_lock [on\</td><td>off\</td><td>status]`</td><td>সিস্টেমে অননুমোদিত কোনো এপিকে (APK) সাইডলোড বা ইন্সটলেশন ব্লক করে।</td><td><code class="inline-code">/app_install_lock on</code></td><td>নক্স ডিভাইস ওনার</td></tr>
+<tr><td><code class="inline-code">/otp_guard</code></td><td>`/otp_guard [on\</td><td>off\</td><td>status]`</td><td>ব্যাংকিং ও ২এফএ ওটিপি এসএমএস কোনো সন্দেহজনক অ্যাপের রিডিং ও চুরি প্রতিরোধ করে।</td><td><code class="inline-code">/otp_guard on</code></td><td>এসএমএস পারমিশন</td></tr>
 <tr><td><code class="inline-code">/pattern_guard</code></td><td>`/pattern_guard [enable\</td><td>disable\</td><td>threshold &lt;1-10&gt;\</td><td>status]`</td><td>স্ক্রিনের লক খোলার সময় পরপর ৩ বার ভুল পিন/প্যাটার্ন দিলেই চোরের সেলফি ও জিপিএস পাঠায়।</td><td><code class="inline-code">/pattern_guard threshold 3</code></td><td>ডিভাইস অ্যাডমিন</td></tr>
 <tr><td><code class="inline-code">/trap</code></td><td>`/trap [on\</td><td>off\</td><td>status\</td><td>snatch\</td><td>charger\</td><td>pocket]`</td><td>স্বয়ংক্রিয় সেন্সর ট্র্যাপের মাস্টার সুইচ: স্ন্যাচ ট্র্যাপ (&gt;26 m/s²), চার্জার ট্র্যাপ, পকেট ট্র্যাপ (৫ সেকেন্ড গ্রেস)।</td><td><code class="inline-code">/trap snatch on</code></td><td>প্রো লাইসেন্স</td></tr>
 <tr><td><code class="inline-code">/thermal</code></td><td>`/thermal [on\</td><td>off\</td><td>threshold &lt;40-65&gt;\</td><td>status]`</td><td>চোর পেছনের গ্লাস গলিয়ে টেস্ট পয়েন্ট পাওয়ার জন্য হিট-গান ব্যবহার করলে ইউএসবি পিন কেটে দেয় ও লক করে।</td><td><code class="inline-code">/thermal threshold 48</code></td><td>নক্স ডিভাইস ওনার</td></tr>
 <tr><td><code class="inline-code">/deadman</code></td><td>`/deadman [enable\</td><td>disable\</td><td>hours &lt;1-72&gt;\</td><td>heartbeat\</td><td>status]`</td><td>ফ্যারাডে ব্যাগে নেটওয়ার্ক বিচ্ছিন্ন করে রাখলে নির্দিষ্ট ঘণ্টা পর স্বয়ংক্রিয়ভাবে পুরো ফোন ওয়াইপ করে দেয়।</td><td><code class="inline-code">/deadman hours 12</code></td><td>নক্স ডিভাইস ওনার</td></tr>
 <tr><td><code class="inline-code">/shred</code></td><td><code class="inline-code">/shred &lt;password&gt; &lt;target&gt;</code></td><td>সংবেদনশীল ফাইল মাল্টি-পাস ক্রিপ্টোগ্রাফিক পদ্ধতিতে চিরতরে ধ্বংস করে (টার্গেট: <code class="inline-code">downloads</code>, <code class="inline-code">camera</code>, <code class="inline-code">vault</code>)।</td><td><code class="inline-code">/shred MyPass123 downloads</code></td><td>প্রো লাইসেন্স, মাস্টার পাসওয়ার্ড</td></tr>
 <tr><td><code class="inline-code">/stealth</code></td><td>`/stealth [hide\</td><td>show\</td><td>toggle\</td><td>status]`</td><td>অ্যাপ ড্রয়ার ও হোমস্ক্রিন থেকে পিএএসএ অ্যাপের আইকন সম্পূর্ণ অদৃশ্য বা ফিরিয়ে আনে।</td><td><code class="inline-code">/stealth hide</code></td><td>নেই</td></tr>
-<tr><td><code class="inline-code">/hide</code></td><td><code class="inline-code">/hide</code></td><td>অ্যাপ ড্রয়ার থেকে আইকন লুকানোর দ্রুত শর্টকাট।</td><td><code class="inline-code">/hide</code></td><td>নেই</td></tr>
-<tr><td><code class="inline-code">/show</code></td><td><code class="inline-code">/show</code></td><td>অ্যাপ ড্রয়ারে লুকানো আইকন পুনরায় দৃশ্যমান করার শর্টকাট।</td><td><code class="inline-code">/show</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/tamper_detect</code></td><td>`/tamper_detect [scan\</td><td>status]`</td><td>ফোনে রুট বাইনারি (<code class="inline-code">su</code>), Magisk, ফ্র্যাকচারড ডিবাগার বা হুকিং টুলস আছে কিনা স্ক্যান করে।</td><td><code class="inline-code">/tamper_detect scan</code></td><td>নেই</td></tr>
 <tr><td><code class="inline-code">/harden_boot</code></td><td>`/harden_boot [lock\</td><td>unlock\</td><td>status]`</td><td>ওবিএম বুটলোডার আনলকিং ও ইউএসবি ডিবাগিং সম্পূর্ণ লক করে দেয় (ফাস্টবুট অ্যাটাক প্রতিরোধ)।</td><td><code class="inline-code">/harden_boot lock</code></td><td>নক্স ডিভাইস ওনার</td></tr>
+<tr><td><code class="inline-code">/factory_reset_defense</code></td><td><code class="inline-code">/factory_reset_defense</code></td><td>হার্ডওয়্যার বাটন চেপে রিকভারি মোড দিয়ে রিসেট করা স্থায়ীভাবে ব্লক করে।</td><td><code class="inline-code">/factory_reset_defense</code></td><td>নক্স ডিভাইস ওনার</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
-<h3 id="বিভাগ-৭-ডেটা-এক্সট্রাকশন-ও-টেলিফোনি" class="doc-h3">বিভাগ ৭: ডেটা এক্সট্রাকশন ও টেলিফোনি</h3>
+<h3 id="বিভাগ-৭-ডেটা-এক্সট্রাকশন-ও-টেলিফোনি-৬টি-কমান্ড" class="doc-h3">বিভাগ ৭: ডেটা এক্সট্রাকশন ও টেলিফোনি (৬টি কমান্ড)</h3>
 <div class="table-wrap"><table>
 <thead><tr><th>কমান্ড</th><th>সিনট্যাক্স ও আর্গুমেন্ট</th><th>বিবরণ</th><th>বাস্তব উদাহরণ</th><th>প্রয়োজনীয় পূর্বশর্ত</th></tr></thead><tbody>
 <tr><td><code class="inline-code">/call</code></td><td>`/call &lt;phone_number&gt; [speaker\</td><td>earpiece]`</td><td>ফোন থেকে নির্দিষ্ট নম্বরে সরাসরি লাউডস্পিকারে আউটগোয়িং কল দেয় (রুমের শব্দ শোনার জন্য)।</td><td><code class="inline-code">/call +88017XXXXXXXX speaker</code></td><td>কল ফোন পারমিশন</td></tr>
@@ -1465,7 +1478,6 @@ adb shell dpm list-owners</code></pre></div>
 <tr><td><code class="inline-code">/sms_log</code></td><td><code class="inline-code">/sms_log [count=15]</code></td><td>ফোনের ইনবক্স থেকে সাম্প্রতিক এসএমএস ও ব্যাংকিং ২এফএ কোড দূর থেকেই রিড করে।</td><td><code class="inline-code">/sms_log 10</code></td><td>রিড এসএমএস</td></tr>
 <tr><td><code class="inline-code">/sendsms</code></td><td>`/sendsms [sim1\</td><td>sim2] &lt;number&gt; &lt;message&gt;`</td><td>ফোনের সিম ব্যবহার করে নির্দিষ্ট নম্বরে সরাসরি এসএমএস সেন্ড করে (কলার আইডিতে সিম নম্বর জানতে)।</td><td><code class="inline-code">/sendsms +88017XXXXXXXX টেস্ট এসএমএস</code></td><td>সেন্ড এসএমএস পারমিশন</td></tr>
 <tr><td><code class="inline-code">/history</code></td><td><code class="inline-code">/history [count=20]</code></td><td>সম্প্রতি এক্সিকিউট হওয়া সি২ কমান্ডের ক্রিপ্টোগ্রাফিক হিস্ট্রি অডিট প্রদর্শন করে।</td><td><code class="inline-code">/history 30</code></td><td>নেই</td></tr>
-<tr><td><code class="inline-code">/app_firewall</code></td><td>`/app_firewall [enable\</td><td>disable\</td><td>block &lt;pkg&gt;\</td><td>blacklist\</td><td>whitelist]`</td><td>অ্যাপের ইন্টারনেট সংযোগ বিচ্ছিন্ন করে দূরবর্তী হ্যাকিং বা র‍্যাট (TeamViewer, AnyDesk) ব্লক করে।</td><td><code class="inline-code">/app_firewall block com.anydesk.anydeskandroid</code></td><td>নেই</td></tr>
 </tbody>
 </table></div>
 <hr class="divider">
@@ -1499,7 +1511,7 @@ adb shell dpm list-owners</code></pre></div>
 │ 🔢 ৩ বার ভুল পিন   │ ফ্রন্ট সেলফি ও জিপিএস পিনপয়েন্ট সরাসরি টেলিগ্রামে │
 │ 🔥 হিট-গান &gt;৪৮°C   │ ইউএসবি ডেটা লাইন বিচ্ছিন্নকরণ + লকডাউন             │
 │ ⏳ ফ্যারাডে বক্সে অফ│ ডেড ম্যানস টাইমার শেষ হলে অফলাইনে ক্রিপ্টোগ্রাফিক ওয়াইপ│
-└────────────────────┴───────────────────────────────────────────────────┘</code></pre></div>
+└────────────────────┴───────────────────────────────────────────────────┘</code></pre></div>
 <h3 id="স্ন্যাচ-অ্যান্ড-রান-ট্র্যাপ-trap-snatch" class="doc-h3">স্ন্যাচ-অ্যান্ড-রান ট্র্যাপ (<code class="inline-code">/trap snatch</code>)</h3>
 <ul class="doc-list">
 <li><strong>শনাক্তকরণ:</strong> হাত বা বাইক থেকে টান মেরে ফোন ছিনতাই করার মুহূর্তের মারাত্মক এক্সিলারেশন স্পাইক ($\sqrt{x^2 + y^2 + z^2} &gt; ২৬.০\text{ m/s}^2$ বা প্রায় ২.৬৫G) পরিমাপ করে।</li>
@@ -1602,7 +1614,7 @@ adb shell dpm list-owners</code></pre></div>
 <p class="doc-p">ফোনে ইন্টারনেট, ওয়াই-ফাই বা ডাটা না থাকলে সাধারণ সেলুলার এসএমএস পাঠিয়ে ফোন সম্পূর্ণ নিয়ন্ত্রণ করা যায়।</p>
 <h3 id="এসএমএস-কমান্ডের-সিনট্যাক্স" class="doc-h3">এসএমএস কমান্ডের সিনট্যাক্স</h3>
 <p class="doc-p">যেকোনো মোবাইল থেকে আপনার ফোনের সিম নম্বরে নিচের ফরম্যাটে এসএমএস পাঠান:</p>
-<div class="code-block"><div class="code-head"><span>text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>PASA &lt;ক্রেডেনশিয়াল&gt; &lt;কমান্ড&gt; [আর্গুমেন্ট...]</code></pre></div>
+<div class="code-block"><div class="code-head"><span>text</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>PASA &lt;ক্রেডেনশিয়াল&gt; &lt;কমান্ড&gt; [আর্গুমেন্ট...]</code></pre></div>
 <ul class="doc-list">
 <li><code class="inline-code">&lt;ক্রেডেনশিয়াল&gt;</code> হিসেবে ব্যবহার করতে পারেন:</li>
 </ul>
@@ -1628,7 +1640,7 @@ PASA 123456 /wifi_connect HomeNetwork Pass123
 PASA 123456 /lockscreen_info কল করুন: ০১৭XX-XXXXXX
 PASA 123456 /reboot
 PASA 123456 /app_uninstall com.spyware.app
-PASA 123456 /help</code></pre></div>
+PASA 123456 /help</code></pre></div>
 <hr class="divider">
 <h2 id="১০-লাইসেন্সিং-পলিসি-ওটিএ-আপডেট-রিফান্ড-ও-জরুরি-যোগাযোগ" class="doc-h2"><span class="h-anchor">#</span>১০. লাইসেন্সিং পলিসি, ওটিএ আপডেট, রিফান্ড ও জরুরি যোগাযোগ</h2>
 <h3 id="লাইসেন্সিং-টিয়ার-ও-৭-দিনের-ট্রায়াল-লকআউট-নিয়ম" class="doc-h3">লাইসেন্সিং টিয়ার ও ৭ দিনের ট্রায়াল লকআউট নিয়ম</h3>
@@ -1637,7 +1649,7 @@ PASA 123456 /help</code></pre></div>
 <thead><tr><th>ফিচার / টিয়ার</th><th>ট্যাকটিক্যাল ট্রায়াল (ফ্রি)</th><th>প্রো লাইফটাইম শিল্ড ($২৫ / ৳৩,০০০)</th><th>এন্টারপ্রাইজ ফ্লিট ($৯৯ / ৳১২,০০০)</th></tr></thead><tbody>
 <tr><td><strong>মেয়াদ</strong></td><td>৭ দিন</td><td>১০০ বছর (লাইফটাইম)</td><td>১০০ বছর (লাইফটাইম)</td></tr>
 <tr><td><strong>ডিভাইস সংখ্যা</strong></td><td>১টি ডিভাইস</td><td>১টি ডিভাইস (৩টি পর্যন্ত সাপোর্টেড)</td><td>৫টি ডিভাইস (১০টি পর্যন্ত সাপোর্টেড)</td></tr>
-<tr><td><strong>সকল ৮৬টি C2 কমান্ড</strong></td><td>✅ সম্পূর্ণ উন্মুক্ত</td><td>✅ সম্পূর্ণ উন্মুক্ত</td><td>✅ সম্পূর্ণ উন্মুক্ত</td></tr>
+<tr><td><strong>সকল ৯৪টি C2 কমান্ড</strong></td><td>✅ সম্পূর্ণ উন্মুক্ত</td><td>✅ সম্পূর্ণ উন্মুক্ত</td><td>✅ সম্পূর্ণ উন্মুক্ত</td></tr>
 <tr><td><strong>নক্স ডিভাইস ওনার স্যুট</strong></td><td>✅ সম্পূর্ণ উন্মুক্ত</td><td>✅ সম্পূর্ণ উন্মুক্ত</td><td>✅ সম্পূর্ণ উন্মুক্ত</td></tr>
 <tr><td><strong>হার্ডওয়্যার এসক্রো পিন রিসেট</strong></td><td>✅ সম্পূর্ণ উন্মুক্ত</td><td>✅ সম্পূর্ণ উন্মুক্ত</td><td>✅ সম্পূর্ণ উন্মুক্ত</td></tr>
 <tr><td><strong>অফলাইন Ed25519 সার্টিফিকেট</strong></td><td>❌ নেই</td><td>✅ পার্মানেন্ট অফলাইন ভেরিফিকেশন</td><td>✅ পার্মানেন্ট অফলাইন ভেরিফিকেশন</td></tr>
@@ -1653,12 +1665,11 @@ PASA 123456 /help</code></pre></div>
 <li>আপডেট থাকলে নিশ্চিত করতে সেন্ড করুন: <code class="inline-code">/update_confirm</code>।</li>
 <li>ডিভাইস ওনার প্রিভিলেজ থাকায় পিএএসএ কোনো সিস্টেম পপআপ ছাড়াই ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে নতুন সাইন করা APK ইনস্টল করে সার্ভিস রিস্টার্ট করে নিবে।</li>
 </ul>
-<h3 id="পেমেন্ট-মেথড-ও-২৪-ঘণ্টার-১০০-মানিব্যাক-গ্যারান্টি" class="doc-h3">পেমেন্ট মেথড ও ৭ দিনের ১০০% মানিব্যাক গ্যারান্টি</h3>
+<h3 id="পেমেন্ট-মেথড-ও-৭-দিনের-১০০-মানিব্যাক-গ্যারান্টি" class="doc-h3">পেমেন্ট মেথড ও ৭ দিনের ১০০% মানিব্যাক গ্যারান্টি</h3>
 <ul class="doc-list">
-<li><strong>স্বয়ংক্রিয় ইনস্ট্যান্ট চেকআউট:</strong> লেমনস্কুইজি (LemonSqueezy) গেটওয়ে দিয়ে যেকোনো কার্ড, গুগল পে বা অ্যাপল পে-র মাধ্যমে তাৎক্ষণিক সুরক্ষিত পেমেন্ট করুন। পেমেন্ট সম্পূর্ণ হওয়ার সাথে সাথে স্ক্রিনে এবং ইমেইলে লাইসেন্স কী ও প্রভিশনিং কিউআর কোড পৌঁছে যাবে।</li>
-<li><strong>সেলফ-সার্ভিস কাস্টমার পোর্টাল:</strong> আপনার লাইসেন্স ম্যানেজ করতে এবং ওয়ান-ক্লিক কিউআর স্ক্যান করতে ভিজিট করুন <a href="/portal" class="doc-link">https://pasa.izhaanintellect.fun/portal</a>।</li>
-<li><strong>বিকাশ ও ক্রিপ্টো বিকল্প:</strong> বিকাশ বা বাইন্যান্স পে-তে পেমেন্ট করতে চাইলে সরাসরি অফিসিয়াল হোয়াটসঅ্যাপ ভিআইপি সাপোর্টে যোগাযোগ করুন।</li>
-<li><strong>৭ দিনের ১০০% নো-কোশ্চেন রিফান্ড গ্যারান্টি:</strong> কেনার ৭ দিনের মধ্যে সন্তুষ্ট না হলে অটোমেটিক গেটওয়ে রিভার্সাল বা হোয়াটসঅ্যাপের মাধ্যমে ১০০% টাকা ফেরত পেয়ে যাবেন।</li>
+<li><strong>বিকাশ (বাংলাদেশ লোকাল):</strong> অফিশিয়াল ব্যক্তিগত বিকাশ নম্বর <code class="inline-code">01737-910040</code> অথবা অফিসিয়াল হোয়াটসঅ্যাপে যোগাযোগের মাধ্যমে।</li>
+<li><strong>বাইন্যান্স পে (ক্রিপ্টো):</strong> UID <code class="inline-code">756303714</code> (ডাকনাম: <code class="inline-code">RBR48</code>)। ইউএসডিটিতে পেমেন্ট করে TxID সাবমিট করলেই ইনস্ট্যান্ট কী জেনারেট হয়।</li>
+<li><strong>৭ দিনের নো-কোয়েশ্চেন-আসকড ১০০% রিফান্ড গ্যারান্টি:</strong> কেনার ৭ দিনের মধ্যে যেকোনো কারণে সন্তুষ্ট না হলে হোয়াটসঅ্যাপে জানালেই কোনো প্রশ্ন ছাড়াই সম্পূর্ণ টাকা ফেরত দেওয়া হবে।</li>
 </ul>
 <h3 id="জরুরি-ফিল্ড-চিটশিট-ও-অফিসিয়াল-লিংক" class="doc-h3">জরুরি ফিল্ড চিটশিট ও অফিসিয়াল লিংক</h3>
 <ul class="doc-list">
@@ -1680,8 +1691,8 @@ PASA 123456 /help</code></pre></div>
 </button>
 
 <script>
-const enTocData = [{"level":2,"title":"Sovereign Mobile Defense & Covert Anti-Theft System","id":"sovereign-mobile-defense-covert-anti-theft-system"},{"level":3,"title":"Comprehensive User Manual & Operational Field Guide (English Edition)","id":"comprehensive-user-manual-operational-field-guide-english-edition"},{"level":2,"title":"Table of Contents","id":"table-of-contents"},{"level":2,"title":"1. System Overview & Zero-Storage Philosophy","id":"1-system-overview-zero-storage-philosophy"},{"level":3,"title":"🛡️ Core Architectural Principles","id":"core-architectural-principles"},{"level":2,"title":"2. Operating System Compatibility & Permissions Matrix","id":"2-operating-system-compatibility-permissions-matrix"},{"level":3,"title":"2.1 OS Compatibility","id":"21-os-compatibility"},{"level":3,"title":"2.2 Permissions Matrix","id":"22-permissions-matrix"},{"level":2,"title":"3. Step-by-Step Installation & Device Owner Provisioning","id":"3-step-by-step-installation-device-owner-provisioning"},{"level":3,"title":"Critical Provisioning Prerequisite (Zero-Account Rule)","id":"critical-provisioning-prerequisite-zero-account-rule"},{"level":3,"title":"Method A: Guided Windows Setup Kit (Recommended)","id":"method-a-guided-windows-setup-kit-recommended"},{"level":3,"title":"Method B: Manual ADB CLI Method","id":"method-b-manual-adb-cli-method"},{"level":3,"title":"Troubleshooting Device Owner Provisioning","id":"troubleshooting-device-owner-provisioning"},{"level":2,"title":"4. Initial Setup, Credential Arming & Hardware Escrow","id":"4-initial-setup-credential-arming-hardware-escrow"},{"level":3,"title":"Telegram Bot Creation & Pairing","id":"telegram-bot-creation-pairing"},{"level":3,"title":"Master Password & Cryptographic Identity","id":"master-password-cryptographic-identity"},{"level":3,"title":"Arming Hardware Escrow Token (Android 8.0 – 16 PIN Reset)","id":"arming-hardware-escrow-token-android-80-16-pin-reset"},{"level":3,"title":"Air-Gapped TOTP SMS Fallback Enrollment","id":"air-gapped-totp-sms-fallback-enrollment"},{"level":3,"title":"Commercial License Activation (Ed25519 Offline Verification)","id":"commercial-license-activation-ed25519-offline-verification"},{"level":2,"title":"5. Telegram Bot C2 Operations & Interactive Console","id":"5-telegram-bot-c2-operations-interactive-console"},{"level":3,"title":"The 4x3 Persistent Quick-Access Keyboard","id":"the-4x3-persistent-quick-access-keyboard"},{"level":3,"title":"The 6-Hub Interactive Command Console (`/menu`)","id":"the-6-hub-interactive-command-console-menu"},{"level":3,"title":"Interactive Conversational Wizards","id":"interactive-conversational-wizards"},{"level":2,"title":"6. Complete Command Reference Matrix (All 86 Commands)","id":"6-complete-command-reference-matrix-all-86-commands"},{"level":3,"title":"Category 1: Core & Diagnostics","id":"category-1-core-diagnostics"},{"level":3,"title":"Category 2: Enterprise Knox Device Owner Suite","id":"category-2-enterprise-knox-device-owner-suite"},{"level":3,"title":"Category 3: Location & Cellular RF Telemetry","id":"category-3-location-cellular-rf-telemetry"},{"level":3,"title":"Category 4: Covert Forensics & Surveillance","id":"category-4-covert-forensics-surveillance"},{"level":3,"title":"Category 5: Lockdown, Alert & Deception","id":"category-5-lockdown-alert-deception"},{"level":3,"title":"Category 6: Autonomous Traps & Defense","id":"category-6-autonomous-traps-defense"},{"level":3,"title":"Category 7: Extraction & Telephony","id":"category-7-extraction-telephony"},{"level":3,"title":"Category 8: System, Maintenance & Updates","id":"category-8-system-maintenance-updates"},{"level":2,"title":"7. Autonomous Sensor Traps & Edge Defenses","id":"7-autonomous-sensor-traps-edge-defenses"},{"level":3,"title":"Snatch-and-Run Trap (`/trap snatch`)","id":"snatch-and-run-trap-trap-snatch"},{"level":3,"title":"Charger Disconnect & USB Insertion Trap (`/trap charger`)","id":"charger-disconnect-usb-insertion-trap-trap-charger"},{"level":3,"title":"Pocket & Bag Extraction Trap (`/trap pocket`)","id":"pocket-bag-extraction-trap-trap-pocket"},{"level":3,"title":"SIM Ejection & Foreign SIM Auto-SMS Trap (`/sim_lock`)","id":"sim-ejection-foreign-sim-auto-sms-trap-sim_lock"},{"level":3,"title":"Pattern Guard / Failed Lockscreen Trap (`/pattern_guard`)","id":"pattern-guard-failed-lockscreen-trap-pattern_guard"},{"level":3,"title":"Thermal Anomaly Heat-Gun Trap (`/thermal`)","id":"thermal-anomaly-heat-gun-trap-thermal"},{"level":3,"title":"Dead Man's Switch / Faraday Isolation Auto-Destruct (`/deadman`)","id":"dead-mans-switch-faraday-isolation-auto-destruct-deadman"},{"level":2,"title":"8. High-Security Deception & Anti-Coercion Features","id":"8-high-security-deception-anti-coercion-features"},{"level":3,"title":"Duress PIN & Sterile Sandbox Decoy OS (`/duress_pin`)","id":"duress-pin-sterile-sandbox-decoy-os-duress_pin"},{"level":3,"title":"Fake Shutdown & Tactile Touch Sensor Canvas (`/fakeshutdown`, `/wake`)","id":"fake-shutdown-tactile-touch-sensor-canvas-fakeshutdown-wake"},{"level":3,"title":"Stealth Mode & App Drawer Concealment (`/stealth`, `/hide`, `/show`)","id":"stealth-mode-app-drawer-concealment-stealth-hide-show"},{"level":3,"title":"Shadow App Vault Freezing (`/freeze`, `/unfreeze`, `/frozen`)","id":"shadow-app-vault-freezing-freeze-unfreeze-frozen"},{"level":3,"title":"App Network Isolation Firewall (`/app_firewall`)","id":"app-network-isolation-firewall-app_firewall"},{"level":3,"title":"System-Wide Encrypted DNS-over-TLS (`/dns`)","id":"system-wide-encrypted-dns-over-tls-dns"},{"level":3,"title":"Biometric Coercion Killswitch (`/biometrics`)","id":"biometric-coercion-killswitch-biometrics"},{"level":2,"title":"9. Air-Gapped Cellular SMS Fallback Protocol","id":"9-air-gapped-cellular-sms-fallback-protocol"},{"level":3,"title":"Command Protocol Syntax","id":"command-protocol-syntax"},{"level":3,"title":"Dual-SIM Dynamic Return Routing","id":"dual-sim-dynamic-return-routing"},{"level":3,"title":"Ready-to-Use 1-Tap Monospace SMS Templates","id":"ready-to-use-1-tap-monospace-sms-templates"},{"level":2,"title":"10. Licensing, OTA Updates, Warranty & Emergency Contacts","id":"10-licensing-ota-updates-warranty-emergency-contacts"},{"level":3,"title":"Licensing Tiers & Hard Lockout Policy","id":"licensing-tiers-hard-lockout-policy"},{"level":3,"title":"Automated Silent OTA Updates (`/check_update`, `/update_confirm`)","id":"automated-silent-ota-updates-check_update-update_confirm"},{"level":3,"title":"Payment Methods & 24-Hour Refund Guarantee","id":"payment-methods-24-hour-refund-guarantee"},{"level":3,"title":"Emergency Operational Cheatsheet","id":"emergency-operational-cheatsheet"}];
-const bnTocData = [{"level":2,"title":"স্বার্বভৌম মোবাইল প্রতিরক্ষা ও গোপন অ্যান্টি-থেফ্ট সিস্টেম","id":"স্বার্বভৌম-মোবাইল-প্রতিরক্ষা-ও-গোপন-অ্যান্টি-থেফ্ট-সিস্টেম"},{"level":3,"title":"পূর্ণাঙ্গ ব্যবহারকারী ম্যানুয়াল ও অপারেশনাল ফিল্ড গাইড (বাংলা সংস্করণ)","id":"পূর্ণাঙ্গ-ব্যবহারকারী-ম্যানুয়াল-ও-অপারেশনাল-ফিল্ড-গাইড-বাংলা-সংস্করণ"},{"level":2,"title":"সূচিপত্র (Table of Contents)","id":"সূচিপত্র-table-of-contents"},{"level":2,"title":"১. সিস্টেম পরিচিতি ও জিরো-স্টোরেজ দর্শন","id":"১-সিস্টেম-পরিচিতি-ও-জিরো-স্টোরেজ-দর্শন"},{"level":3,"title":"🛡️ মূল স্থাপত্য ও নিরাপত্তা বৈশিষ্ট্য","id":"মূল-স্থাপত্য-ও-নিরাপত্তা-বৈশিষ্ট্য"},{"level":2,"title":"২. অপারেটিং সিস্টেম সামঞ্জস্যতা ও পারমিশন ম্যাট্রিক্স","id":"২-অপারেটিং-সিস্টেম-সামঞ্জস্যতা-ও-পারমিশন-ম্যাট্রিক্স"},{"level":3,"title":"২.১ ওএস সামঞ্জস্যতা","id":"২১-ওএস-সামঞ্জস্যতা"},{"level":3,"title":"২.২ প্রয়োজনীয় পারমিশন তালিকা","id":"২২-প্রয়োজনীয়-পারমিশন-তালিকা"},{"level":2,"title":"৩. ডিভাইস ওনার প্রোভিশনিং ও ইনস্টলেশন গাইডলাইন","id":"৩-ডিভাইস-ওনার-প্রোভিশনিং-ও-ইনস্টলেশন-গাইডলাইন"},{"level":3,"title":"⚠️ অত্যন্ত গুরুত্বপূর্ণ পূর্বশর্ত: জিরো-অ্যাকাউন্ট রুল (Zero-Account Rule)","id":"অত্যন্ত-গুরুত্বপূর্ণ-পূর্বশর্ত-জিরো-অ্যাকাউন্ট-রুল-zero-account-rule"},{"level":3,"title":"পদ্ধতি ক: উইন্ডোজ সেটআপ কিট উইজার্ড (সবচেয়ে সহজ ও প্রস্তাবিত)","id":"পদ্ধতি-ক-উইন্ডোজ-সেটআপ-কিট-উইজার্ড-সবচেয়ে-সহজ-ও-প্রস্তাবিত"},{"level":3,"title":"পদ্ধতি খ: ম্যানুয়াল এডিবি (ADB) কমান্ড লাইন পদ্ধতি","id":"পদ্ধতি-খ-ম্যানুয়াল-এডিবি-adb-কমান্ড-লাইন-পদ্ধতি"},{"level":3,"title":"ডিভাইস ওনার সেটআপের সাধারণ ত্রুটি ও সমাধান","id":"ডিভাইস-ওনার-সেটআপের-সাধারণ-ত্রুটি-ও-সমাধান"},{"level":2,"title":"৪. প্রাথমিক কনফিগারেশন, টেলিগ্রাম বট পেয়ারিং ও হার্ডওয়্যার এসক্রো","id":"৪-প্রাথমিক-কনফিগারেশন-টেলিগ্রাম-বট-পেয়ারিং-ও-হার্ডওয়্যার-এসক্রো"},{"level":3,"title":"টেলিগ্রাম বট তৈরি ও কানেক্ট করার নিয়ম","id":"টেলিগ্রাম-বট-তৈরি-ও-কানেক্ট-করার-নিয়ম"},{"level":3,"title":"মাস্টার পাসওয়ার্ড ও ক্রিপ্টোগ্রাফিক আইডেন্টিটি","id":"মাস্টার-পাসওয়ার্ড-ও-ক্রিপ্টোগ্রাফিক-আইডেন্টিটি"},{"level":3,"title":"হার্ডওয়্যার এসক্রো টোকেন আর্মিং (রিমোট পিন রিসেট সক্রিয়করণ)","id":"হার্ডওয়্যার-এসক্রো-টোকেন-আর্মিং-রিমোট-পিন-রিসেট-সক্রিয়করণ"},{"level":3,"title":"অফলাইন এয়ার-গ্যাপড TOTP এসএমএস ব্যাকডোর সেটআপ","id":"অফলাইন-এয়ার-গ্যাপড-totp-এসএমএস-ব্যাকডোর-সেটআপ"},{"level":3,"title":"লাইসেন্স অ্যাক্টিভেশন (Ed25519 অফলাইন ভেরিফিকেশন)","id":"লাইসেন্স-অ্যাক্টিভেশন-ed25519-অফলাইন-ভেরিফিকেশন"},{"level":2,"title":"৫. টেলিগ্রাম বট C2 অপারেশন ও ইন্টারঅ্যাক্টিভ কনসোল","id":"৫-টেলিগ্রাম-বট-c2-অপারেশন-ও-ইন্টারঅ্যাক্টিভ-কনসোল"},{"level":3,"title":"৪x৩ পারসিস্টেন্ট কুইক-অ্যাকশন কিবোর্ড","id":"৪x৩-পারসিস্টেন্ট-কুইক-অ্যাকশন-কিবোর্ড"},{"level":3,"title":"৬-হাব ইন্টারঅ্যাক্টিভ ড্যাশবোর্ড কনসোল (`/menu`)","id":"৬-হাব-ইন্টারঅ্যাক্টিভ-ড্যাশবোর্ড-কনসোল-menu"},{"level":3,"title":"ইন্টারঅ্যাক্টিভ উইজার্ড ও গাইডেড প্রম্পট","id":"ইন্টারঅ্যাক্টিভ-উইজার্ড-ও-গাইডেড-প্রম্পট"},{"level":2,"title":"৬. পূর্ণাঙ্গ কমান্ড রেফারেন্স ম্যাট্রিক্স (সকল ৮৬টি কমান্ড)","id":"৬-পূর্ণাঙ্গ-কমান্ড-রেফারেন্স-ম্যাট্রিক্স-সকল-৮৬টি-কমান্ড"},{"level":3,"title":"বিভাগ ১: কোর ও ডায়াগনস্টিকস","id":"বিভাগ-১-কোর-ও-ডায়াগনস্টিকস"},{"level":3,"title":"বিভাগ ২: এন্টারপ্রাইজ নক্স ডিভাইস ওনার স্যুট","id":"বিভাগ-২-এন্টারপ্রাইজ-নক্স-ডিভাইস-ওনার-স্যুট"},{"level":3,"title":"বিভাগ ৩: লোকেশন ও সেলুলার আরএফ টেলিমেট্রি","id":"বিভাগ-৩-লোকেশন-ও-সেলুলার-আরএফ-টেলিমেট্রি"},{"level":3,"title":"বিভাগ ৪: গোপন ফরেনসিক্স ও নজরদারি","id":"বিভাগ-৪-গোপন-ফরেনসিক্স-ও-নজরদারি"},{"level":3,"title":"বিভাগ ৫: লকডাউন, অ্যালার্ট ও ডিসেপশন","id":"বিভাগ-৫-লকডাউন-অ্যালার্ট-ও-ডিসেপশন"},{"level":3,"title":"বিভাগ ৬: স্বয়ংক্রিয় সেন্সর ট্র্যাপ ও প্রতিরক্ষা","id":"বিভাগ-৬-স্বয়ংক্রিয়-সেন্সর-ট্র্যাপ-ও-প্রতিরক্ষা"},{"level":3,"title":"বিভাগ ৭: ডেটা এক্সট্রাকশন ও টেলিফোনি","id":"বিভাগ-৭-ডেটা-এক্সট্রাকশন-ও-টেলিফোনি"},{"level":3,"title":"বিভাগ ৮: সিস্টেম, রক্ষণাবেক্ষণ ও ওটিএ আপডেট","id":"বিভাগ-৮-সিস্টেম-রক্ষণাবেক্ষণ-ও-ওটিএ-আপডেট"},{"level":2,"title":"৭. স্বয়ংক্রিয় সেন্সর ট্র্যাপ ও এজ ডিফেন্স মেকানিজম","id":"৭-স্বয়ংক্রিয়-সেন্সর-ট্র্যাপ-ও-এজ-ডিফেন্স-মেকানিজম"},{"level":3,"title":"স্ন্যাচ-অ্যান্ড-রান ট্র্যাপ (`/trap snatch`)","id":"স্ন্যাচ-অ্যান্ড-রান-ট্র্যাপ-trap-snatch"},{"level":3,"title":"চার্জার ডিসকানেক্ট ও লকড ইউএসবি ইনসার্শন ট্র্যাপ (`/trap charger`)","id":"চার্জার-ডিসকানেক্ট-ও-লকড-ইউএসবি-ইনসার্শন-ট্র্যাপ-trap-charger"},{"level":3,"title":"পকেট ও ব্যাগ এক্সট্রাকশন ট্র্যাপ (`/trap pocket`)","id":"পকেট-ও-ব্যাগ-এক্সট্রাকশন-ট্র্যাপ-trap-pocket"},{"level":3,"title":"সিম ইজেকশন ও চোরের অটোমেটিক এসএমএস ট্র্যাপ (`/sim_lock`)","id":"সিম-ইজেকশন-ও-চোরের-অটোমেটিক-এসএমএস-ট্র্যাপ-sim_lock"},{"level":3,"title":"প্যাটার্ন গার্ড / ভুল পাসওয়ার্ড অ্যালার্ট (`/pattern_guard`)","id":"প্যাটার্ন-গার্ড-ভুল-পাসওয়ার্ড-অ্যালার্ট-pattern_guard"},{"level":3,"title":"থার্মাল অ্যানোমালি হিট-গান ট্র্যাপ (`/thermal`)","id":"থার্মাল-অ্যানোমালি-হিট-গান-ট্র্যাপ-thermal"},{"level":3,"title":"ডেড ম্যানস সুইচ / ফ্যারাডে আইসোলেশন অটো-ডেস্ট্রাক্ট (`/deadman`)","id":"ডেড-ম্যানস-সুইচ-ফ্যারাডে-আইসোলেশন-অটো-ডেস্ট্রাক্ট-deadman"},{"level":2,"title":"৮. উন্নত ডিসেপশন ও অ্যান্টি-কোয়ার্সন সিকিউরিটি ফিচার","id":"৮-উন্নত-ডিসেপশন-ও-অ্যান্টি-কোয়ার্সন-সিকিউরিটি-ফিচার"},{"level":3,"title":"ড্যুরেস পিন ও স্টেরাইল স্যান্ডবক্স ডিকয় ওএস (`/duress_pin`)","id":"ড্যুরেস-পিন-ও-স্টেরাইল-স্যান্ডবক্স-ডিকয়-ওএস-duress_pin"},{"level":3,"title":"ফেক শাটডাউন ও অদৃশ্য টাচ সেন্সর ট্র্যাপ (`/fakeshutdown`, `/wake`)","id":"ফেক-শাটডাউন-ও-অদৃশ্য-টাচ-সেন্সর-ট্র্যাপ-fakeshutdown-wake"},{"level":3,"title":"স্টিলথ মোড ও অ্যাপ ড্রয়ার থেকে অদৃশ্যকরণ (`/stealth`, `/hide`, `/show`)","id":"স্টিলথ-মোড-ও-অ্যাপ-ড্রয়ার-থেকে-অদৃশ্যকরণ-stealth-hide-show"},{"level":3,"title":"শ্যাডো অ্যাপ ভল্ট ও অ্যাপ ফ্রিজিং (`/freeze`, `/unfreeze`, `/frozen`)","id":"শ্যাডো-অ্যাপ-ভল্ট-ও-অ্যাপ-ফ্রিজিং-freeze-unfreeze-frozen"},{"level":3,"title":"অ্যাপ নেটওয়ার্ক আইসোলেশন ফায়ারওয়াল (`/app_firewall`)","id":"অ্যাপ-নেটওয়ার্ক-আইসোলেশন-ফায়ারওয়াল-app_firewall"},{"level":3,"title":"সিস্টেম-ওয়াইড এনক্রিপ্টেড ডিএনএস (`/dns`)","id":"সিস্টেম-ওয়াইড-এনক্রিপ্টেড-ডিএনএস-dns"},{"level":3,"title":"বায়োমেট্রিক জোরপূর্বক আনলক কিলসুইচ (`/biometrics`)","id":"বায়োমেট্রিক-জোরপূর্বক-আনলক-কিলসুইচ-biometrics"},{"level":2,"title":"৯. সম্পূর্ণ অফলাইন এয়ার-গ্যাপড সেলুলার এসএমএস ব্যাকফল","id":"৯-সম্পূর্ণ-অফলাইন-এয়ার-গ্যাপড-সেলুলার-এসএমএস-ব্যাকফল"},{"level":3,"title":"এসএমএস কমান্ডের সিনট্যাক্স","id":"এসএমএস-কমান্ডের-সিনট্যাক্স"},{"level":3,"title":"ডুয়াল-সিম ডায়নামিক রাউটিং","id":"ডুয়াল-সিম-ডায়নামিক-রাউটিং"},{"level":3,"title":"১-ট্যাপ কপি করার উপযোগী রেডিমেড এসএমএস টেমপ্লেট","id":"১-ট্যাপ-কপি-করার-উপযোগী-রেডিমেড-এসএমএস-টেমপ্লেট"},{"level":2,"title":"১০. লাইসেন্সিং পলিসি, ওটিএ আপডেট, রিফান্ড ও জরুরি যোগাযোগ","id":"১০-লাইসেন্সিং-পলিসি-ওটিএ-আপডেট-রিফান্ড-ও-জরুরি-যোগাযোগ"},{"level":3,"title":"লাইসেন্সিং টিয়ার ও ৭ দিনের ট্রায়াল লকআউট নিয়ম","id":"লাইসেন্সিং-টিয়ার-ও-৭-দিনের-ট্রায়াল-লকআউট-নিয়ম"},{"level":3,"title":"স্বয়ংক্রিয় সাইলেন্ট ব্যাকগ্রাউন্ড ওটিএ আপডেট","id":"স্বয়ংক্রিয়-সাইলেন্ট-ব্যাকগ্রাউন্ড-ওটিএ-আপডেট"},{"level":3,"title":"পেমেন্ট মেথড ও ২৪ ঘণ্টার ১০০% মানিব্যাক গ্যারান্টি","id":"পেমেন্ট-মেথড-ও-২৪-ঘণ্টার-১০০-মানিব্যাক-গ্যারান্টি"},{"level":3,"title":"জরুরি ফিল্ড চিটশিট ও অফিসিয়াল লিংক","id":"জরুরি-ফিল্ড-চিটশিট-ও-অফিসিয়াল-লিংক"}];
+const enTocData = [{"level":2,"title":"Sovereign Mobile Defense & Covert Anti-Theft System","id":"sovereign-mobile-defense-covert-anti-theft-system"},{"level":3,"title":"Comprehensive User Manual & Operational Field Guide (English Edition)","id":"comprehensive-user-manual-operational-field-guide-english-edition"},{"level":2,"title":"Table of Contents","id":"table-of-contents"},{"level":2,"title":"1. System Overview & Zero-Storage Philosophy","id":"1-system-overview-zero-storage-philosophy"},{"level":3,"title":"🛡️ Core Architectural Principles","id":"core-architectural-principles"},{"level":2,"title":"2. Operating System Compatibility & Permissions Matrix","id":"2-operating-system-compatibility-permissions-matrix"},{"level":3,"title":"2.1 OS Compatibility","id":"21-os-compatibility"},{"level":3,"title":"2.2 Permissions Matrix","id":"22-permissions-matrix"},{"level":2,"title":"3. Step-by-Step Installation & Device Owner Provisioning","id":"3-step-by-step-installation-device-owner-provisioning"},{"level":3,"title":"Critical Provisioning Prerequisite (Zero-Account Rule)","id":"critical-provisioning-prerequisite-zero-account-rule"},{"level":3,"title":"Method A: Guided Windows Setup Kit (Recommended)","id":"method-a-guided-windows-setup-kit-recommended"},{"level":3,"title":"Method B: Manual ADB CLI Method","id":"method-b-manual-adb-cli-method"},{"level":3,"title":"Troubleshooting Device Owner Provisioning","id":"troubleshooting-device-owner-provisioning"},{"level":2,"title":"4. Initial Setup, Credential Arming & Hardware Escrow","id":"4-initial-setup-credential-arming-hardware-escrow"},{"level":3,"title":"Telegram Bot Creation & Pairing","id":"telegram-bot-creation-pairing"},{"level":3,"title":"Master Password & Cryptographic Identity","id":"master-password-cryptographic-identity"},{"level":3,"title":"Arming Hardware Escrow Token (Android 8.0 – 16 PIN Reset)","id":"arming-hardware-escrow-token-android-80-16-pin-reset"},{"level":3,"title":"Air-Gapped TOTP SMS Fallback Enrollment","id":"air-gapped-totp-sms-fallback-enrollment"},{"level":3,"title":"Commercial License Activation (Ed25519 Offline Verification)","id":"commercial-license-activation-ed25519-offline-verification"},{"level":2,"title":"5. Telegram Bot C2 Operations & Interactive Console","id":"5-telegram-bot-c2-operations-interactive-console"},{"level":3,"title":"The 4x3 Persistent Quick-Access Keyboard","id":"the-4x3-persistent-quick-access-keyboard"},{"level":3,"title":"The 6-Hub Interactive Command Console (`/menu`)","id":"the-6-hub-interactive-command-console-menu"},{"level":3,"title":"Interactive Conversational Wizards","id":"interactive-conversational-wizards"},{"level":2,"title":"6. Complete Command Reference Matrix (All 94 Commands)","id":"6-complete-command-reference-matrix-all-94-commands"},{"level":3,"title":"Category 1: Core & Diagnostics","id":"category-1-core-diagnostics"},{"level":3,"title":"Category 2: Enterprise Knox Device Owner Suite","id":"category-2-enterprise-knox-device-owner-suite"},{"level":3,"title":"Category 3: Location & Cellular RF Telemetry (8 Commands)","id":"category-3-location-cellular-rf-telemetry-8-commands"},{"level":3,"title":"Category 4: Covert Forensics & Surveillance","id":"category-4-covert-forensics-surveillance"},{"level":3,"title":"Category 5: Lockdown, Alert & Deception","id":"category-5-lockdown-alert-deception"},{"level":3,"title":"Category 6: Traps & Mobile Cyber Defense Suite (15 Commands)","id":"category-6-traps-mobile-cyber-defense-suite-15-commands"},{"level":3,"title":"Category 7: Extraction & Telephony (6 Commands)","id":"category-7-extraction-telephony-6-commands"},{"level":3,"title":"Category 8: System, Maintenance & Updates","id":"category-8-system-maintenance-updates"},{"level":2,"title":"7. Autonomous Sensor Traps & Edge Defenses","id":"7-autonomous-sensor-traps-edge-defenses"},{"level":3,"title":"Snatch-and-Run Trap (`/trap snatch`)","id":"snatch-and-run-trap-trap-snatch"},{"level":3,"title":"Charger Disconnect & USB Insertion Trap (`/trap charger`)","id":"charger-disconnect-usb-insertion-trap-trap-charger"},{"level":3,"title":"Pocket & Bag Extraction Trap (`/trap pocket`)","id":"pocket-bag-extraction-trap-trap-pocket"},{"level":3,"title":"SIM Ejection & Foreign SIM Auto-SMS Trap (`/sim_lock`)","id":"sim-ejection-foreign-sim-auto-sms-trap-sim_lock"},{"level":3,"title":"Pattern Guard / Failed Lockscreen Trap (`/pattern_guard`)","id":"pattern-guard-failed-lockscreen-trap-pattern_guard"},{"level":3,"title":"Thermal Anomaly Heat-Gun Trap (`/thermal`)","id":"thermal-anomaly-heat-gun-trap-thermal"},{"level":3,"title":"Dead Man's Switch / Faraday Isolation Auto-Destruct (`/deadman`)","id":"dead-mans-switch-faraday-isolation-auto-destruct-deadman"},{"level":2,"title":"8. High-Security Deception & Anti-Coercion Features","id":"8-high-security-deception-anti-coercion-features"},{"level":3,"title":"Duress PIN & Sterile Sandbox Decoy OS (`/duress_pin`)","id":"duress-pin-sterile-sandbox-decoy-os-duress_pin"},{"level":3,"title":"Fake Shutdown & Tactile Touch Sensor Canvas (`/fakeshutdown`, `/wake`)","id":"fake-shutdown-tactile-touch-sensor-canvas-fakeshutdown-wake"},{"level":3,"title":"Stealth Mode & App Drawer Concealment (`/stealth`, `/hide`, `/show`)","id":"stealth-mode-app-drawer-concealment-stealth-hide-show"},{"level":3,"title":"Shadow App Vault Freezing (`/freeze`, `/unfreeze`, `/frozen`)","id":"shadow-app-vault-freezing-freeze-unfreeze-frozen"},{"level":3,"title":"App Network Isolation Firewall (`/app_firewall`)","id":"app-network-isolation-firewall-app_firewall"},{"level":3,"title":"System-Wide Encrypted DNS-over-TLS (`/dns`)","id":"system-wide-encrypted-dns-over-tls-dns"},{"level":3,"title":"Biometric Coercion Killswitch (`/biometrics`)","id":"biometric-coercion-killswitch-biometrics"},{"level":2,"title":"9. Air-Gapped Cellular SMS Fallback Protocol","id":"9-air-gapped-cellular-sms-fallback-protocol"},{"level":3,"title":"Command Protocol Syntax","id":"command-protocol-syntax"},{"level":3,"title":"Dual-SIM Dynamic Return Routing","id":"dual-sim-dynamic-return-routing"},{"level":3,"title":"Ready-to-Use 1-Tap Monospace SMS Templates","id":"ready-to-use-1-tap-monospace-sms-templates"},{"level":2,"title":"10. Licensing, OTA Updates, Warranty & Emergency Contacts","id":"10-licensing-ota-updates-warranty-emergency-contacts"},{"level":3,"title":"Licensing Tiers & Hard Lockout Policy","id":"licensing-tiers-hard-lockout-policy"},{"level":3,"title":"Automated Silent OTA Updates (`/check_update`, `/update_confirm`)","id":"automated-silent-ota-updates-check_update-update_confirm"},{"level":3,"title":"Payment Methods & 7-Day Money-Back Guarantee","id":"payment-methods-7-day-money-back-guarantee"},{"level":3,"title":"Emergency Operational Cheatsheet","id":"emergency-operational-cheatsheet"}];
+const bnTocData = [{"level":2,"title":"স্বার্বভৌম মোবাইল প্রতিরক্ষা ও গোপন অ্যান্টি-থেফ্ট সিস্টেম","id":"স্বার্বভৌম-মোবাইল-প্রতিরক্ষা-ও-গোপন-অ্যান্টি-থেফ্ট-সিস্টেম"},{"level":3,"title":"পূর্ণাঙ্গ ব্যবহারকারী ম্যানুয়াল ও অপারেশনাল ফিল্ড গাইড (বাংলা সংস্করণ)","id":"পূর্ণাঙ্গ-ব্যবহারকারী-ম্যানুয়াল-ও-অপারেশনাল-ফিল্ড-গাইড-বাংলা-সংস্করণ"},{"level":2,"title":"সূচিপত্র (Table of Contents)","id":"সূচিপত্র-table-of-contents"},{"level":2,"title":"১. সিস্টেম পরিচিতি ও জিরো-স্টোরেজ দর্শন","id":"১-সিস্টেম-পরিচিতি-ও-জিরো-স্টোরেজ-দর্শন"},{"level":3,"title":"🛡️ মূল স্থাপত্য ও নিরাপত্তা বৈশিষ্ট্য","id":"মূল-স্থাপত্য-ও-নিরাপত্তা-বৈশিষ্ট্য"},{"level":2,"title":"২. অপারেটিং সিস্টেম সামঞ্জস্যতা ও পারমিশন ম্যাট্রিক্স","id":"২-অপারেটিং-সিস্টেম-সামঞ্জস্যতা-ও-পারমিশন-ম্যাট্রিক্স"},{"level":3,"title":"২.১ ওএস সামঞ্জস্যতা","id":"২১-ওএস-সামঞ্জস্যতা"},{"level":3,"title":"২.২ প্রয়োজনীয় পারমিশন তালিকা","id":"২২-প্রয়োজনীয়-পারমিশন-তালিকা"},{"level":2,"title":"৩. ডিভাইস ওনার প্রোভিশনিং ও ইনস্টলেশন গাইডলাইন","id":"৩-ডিভাইস-ওনার-প্রোভিশনিং-ও-ইনস্টলেশন-গাইডলাইন"},{"level":3,"title":"⚠️ অত্যন্ত গুরুত্বপূর্ণ পূর্বশর্ত: জিরো-অ্যাকাউন্ট রুল (Zero-Account Rule)","id":"অত্যন্ত-গুরুত্বপূর্ণ-পূর্বশর্ত-জিরো-অ্যাকাউন্ট-রুল-zero-account-rule"},{"level":3,"title":"পদ্ধতি ক: উইন্ডোজ সেটআপ কিট উইজার্ড (সবচেয়ে সহজ ও প্রস্তাবিত)","id":"পদ্ধতি-ক-উইন্ডোজ-সেটআপ-কিট-উইজার্ড-সবচেয়ে-সহজ-ও-প্রস্তাবিত"},{"level":3,"title":"পদ্ধতি খ: ম্যানুয়াল এডিবি (ADB) কমান্ড লাইন পদ্ধতি","id":"পদ্ধতি-খ-ম্যানুয়াল-এডিবি-adb-কমান্ড-লাইন-পদ্ধতি"},{"level":3,"title":"ডিভাইস ওনার সেটআপের সাধারণ ত্রুটি ও সমাধান","id":"ডিভাইস-ওনার-সেটআপের-সাধারণ-ত্রুটি-ও-সমাধান"},{"level":2,"title":"৪. প্রাথমিক কনফিগারেশন, টেলিগ্রাম বট পেয়ারিং ও হার্ডওয়্যার এসক্রো","id":"৪-প্রাথমিক-কনফিগারেশন-টেলিগ্রাম-বট-পেয়ারিং-ও-হার্ডওয়্যার-এসক্রো"},{"level":3,"title":"টেলিগ্রাম বট তৈরি ও কানেক্ট করার নিয়ম","id":"টেলিগ্রাম-বট-তৈরি-ও-কানেক্ট-করার-নিয়ম"},{"level":3,"title":"মাস্টার পাসওয়ার্ড ও ক্রিপ্টোগ্রাফিক আইডেন্টিটি","id":"মাস্টার-পাসওয়ার্ড-ও-ক্রিপ্টোগ্রাফিক-আইডেন্টিটি"},{"level":3,"title":"হার্ডওয়্যার এসক্রো টোকেন আর্মিং (রিমোট পিন রিসেট সক্রিয়করণ)","id":"হার্ডওয়্যার-এসক্রো-টোকেন-আর্মিং-রিমোট-পিন-রিসেট-সক্রিয়করণ"},{"level":3,"title":"অফলাইন এয়ার-গ্যাপড TOTP এসএমএস ব্যাকডোর সেটআপ","id":"অফলাইন-এয়ার-গ্যাপড-totp-এসএমএস-ব্যাকডোর-সেটআপ"},{"level":3,"title":"লাইসেন্স অ্যাক্টিভেশন (Ed25519 অফলাইন ভেরিফিকেশন)","id":"লাইসেন্স-অ্যাক্টিভেশন-ed25519-অফলাইন-ভেরিফিকেশন"},{"level":2,"title":"৫. টেলিগ্রাম বট C2 অপারেশন ও ইন্টারঅ্যাক্টিভ কনসোল","id":"৫-টেলিগ্রাম-বট-c2-অপারেশন-ও-ইন্টারঅ্যাক্টিভ-কনসোল"},{"level":3,"title":"৪x৩ পারসিস্টেন্ট কুইক-অ্যাকশন কিবোর্ড","id":"৪x৩-পারসিস্টেন্ট-কুইক-অ্যাকশন-কিবোর্ড"},{"level":3,"title":"৬-হাব ইন্টারঅ্যাক্টিভ ড্যাশবোর্ড কনসোল (`/menu`)","id":"৬-হাব-ইন্টারঅ্যাক্টিভ-ড্যাশবোর্ড-কনসোল-menu"},{"level":3,"title":"ইন্টারঅ্যাক্টিভ উইজার্ড ও গাইডেড প্রম্পট","id":"ইন্টারঅ্যাক্টিভ-উইজার্ড-ও-গাইডেড-প্রম্পট"},{"level":2,"title":"৬. পূর্ণাঙ্গ কমান্ড রেফারেন্স ম্যাট্রিক্স (সকল ৯৪টি কমান্ড)","id":"৬-পূর্ণাঙ্গ-কমান্ড-রেফারেন্স-ম্যাট্রিক্স-সকল-৯৪টি-কমান্ড"},{"level":3,"title":"বিভাগ ১: কোর ও ডায়াগনস্টিকস","id":"বিভাগ-১-কোর-ও-ডায়াগনস্টিকস"},{"level":3,"title":"বিভাগ ২: এন্টারপ্রাইজ নক্স ডিভাইস ওনার স্যুট","id":"বিভাগ-২-এন্টারপ্রাইজ-নক্স-ডিভাইস-ওনার-স্যুট"},{"level":3,"title":"বিভাগ ৩: লোকেশন ও সেলুলার আরএফ টেলিমেট্রি (৮টি কমান্ড)","id":"বিভাগ-৩-লোকেশন-ও-সেলুলার-আরএফ-টেলিমেট্রি-৮টি-কমান্ড"},{"level":3,"title":"বিভাগ ৪: গোপন ফরেনসিক্স ও নজরদারি","id":"বিভাগ-৪-গোপন-ফরেনসিক্স-ও-নজরদারি"},{"level":3,"title":"বিভাগ ৫: লকডাউন, অ্যালার্ট ও ডিসেপশন","id":"বিভাগ-৫-লকডাউন-অ্যালার্ট-ও-ডিসেপশন"},{"level":3,"title":"বিভাগ ৬: সেন্সর ট্র্যাপ ও সাইবার ডিফেন্স স্যুট (১৫টি কমান্ড)","id":"বিভাগ-৬-সেন্সর-ট্র্যাপ-ও-সাইবার-ডিফেন্স-স্যুট-১৫টি-কমান্ড"},{"level":3,"title":"বিভাগ ৭: ডেটা এক্সট্রাকশন ও টেলিফোনি (৬টি কমান্ড)","id":"বিভাগ-৭-ডেটা-এক্সট্রাকশন-ও-টেলিফোনি-৬টি-কমান্ড"},{"level":3,"title":"বিভাগ ৮: সিস্টেম, রক্ষণাবেক্ষণ ও ওটিএ আপডেট","id":"বিভাগ-৮-সিস্টেম-রক্ষণাবেক্ষণ-ও-ওটিএ-আপডেট"},{"level":2,"title":"৭. স্বয়ংক্রিয় সেন্সর ট্র্যাপ ও এজ ডিফেন্স মেকানিজম","id":"৭-স্বয়ংক্রিয়-সেন্সর-ট্র্যাপ-ও-এজ-ডিফেন্স-মেকানিজম"},{"level":3,"title":"স্ন্যাচ-অ্যান্ড-রান ট্র্যাপ (`/trap snatch`)","id":"স্ন্যাচ-অ্যান্ড-রান-ট্র্যাপ-trap-snatch"},{"level":3,"title":"চার্জার ডিসকানেক্ট ও লকড ইউএসবি ইনসার্শন ট্র্যাপ (`/trap charger`)","id":"চার্জার-ডিসকানেক্ট-ও-লকড-ইউএসবি-ইনসার্শন-ট্র্যাপ-trap-charger"},{"level":3,"title":"পকেট ও ব্যাগ এক্সট্রাকশন ট্র্যাপ (`/trap pocket`)","id":"পকেট-ও-ব্যাগ-এক্সট্রাকশন-ট্র্যাপ-trap-pocket"},{"level":3,"title":"সিম ইজেকশন ও চোরের অটোমেটিক এসএমএস ট্র্যাপ (`/sim_lock`)","id":"সিম-ইজেকশন-ও-চোরের-অটোমেটিক-এসএমএস-ট্র্যাপ-sim_lock"},{"level":3,"title":"প্যাটার্ন গার্ড / ভুল পাসওয়ার্ড অ্যালার্ট (`/pattern_guard`)","id":"প্যাটার্ন-গার্ড-ভুল-পাসওয়ার্ড-অ্যালার্ট-pattern_guard"},{"level":3,"title":"থার্মাল অ্যানোমালি হিট-গান ট্র্যাপ (`/thermal`)","id":"থার্মাল-অ্যানোমালি-হিট-গান-ট্র্যাপ-thermal"},{"level":3,"title":"ডেড ম্যানস সুইচ / ফ্যারাডে আইসোলেশন অটো-ডেস্ট্রাক্ট (`/deadman`)","id":"ডেড-ম্যানস-সুইচ-ফ্যারাডে-আইসোলেশন-অটো-ডেস্ট্রাক্ট-deadman"},{"level":2,"title":"৮. উন্নত ডিসেপশন ও অ্যান্টি-কোয়ার্সন সিকিউরিটি ফিচার","id":"৮-উন্নত-ডিসেপশন-ও-অ্যান্টি-কোয়ার্সন-সিকিউরিটি-ফিচার"},{"level":3,"title":"ড্যুরেস পিন ও স্টেরাইল স্যান্ডবক্স ডিকয় ওএস (`/duress_pin`)","id":"ড্যুরেস-পিন-ও-স্টেরাইল-স্যান্ডবক্স-ডিকয়-ওএস-duress_pin"},{"level":3,"title":"ফেক শাটডাউন ও অদৃশ্য টাচ সেন্সর ট্র্যাপ (`/fakeshutdown`, `/wake`)","id":"ফেক-শাটডাউন-ও-অদৃশ্য-টাচ-সেন্সর-ট্র্যাপ-fakeshutdown-wake"},{"level":3,"title":"স্টিলথ মোড ও অ্যাপ ড্রয়ার থেকে অদৃশ্যকরণ (`/stealth`, `/hide`, `/show`)","id":"স্টিলথ-মোড-ও-অ্যাপ-ড্রয়ার-থেকে-অদৃশ্যকরণ-stealth-hide-show"},{"level":3,"title":"শ্যাডো অ্যাপ ভল্ট ও অ্যাপ ফ্রিজিং (`/freeze`, `/unfreeze`, `/frozen`)","id":"শ্যাডো-অ্যাপ-ভল্ট-ও-অ্যাপ-ফ্রিজিং-freeze-unfreeze-frozen"},{"level":3,"title":"অ্যাপ নেটওয়ার্ক আইসোলেশন ফায়ারওয়াল (`/app_firewall`)","id":"অ্যাপ-নেটওয়ার্ক-আইসোলেশন-ফায়ারওয়াল-app_firewall"},{"level":3,"title":"সিস্টেম-ওয়াইড এনক্রিপ্টেড ডিএনএস (`/dns`)","id":"সিস্টেম-ওয়াইড-এনক্রিপ্টেড-ডিএনএস-dns"},{"level":3,"title":"বায়োমেট্রিক জোরপূর্বক আনলক কিলসুইচ (`/biometrics`)","id":"বায়োমেট্রিক-জোরপূর্বক-আনলক-কিলসুইচ-biometrics"},{"level":2,"title":"৯. সম্পূর্ণ অফলাইন এয়ার-গ্যাপড সেলুলার এসএমএস ব্যাকফল","id":"৯-সম্পূর্ণ-অফলাইন-এয়ার-গ্যাপড-সেলুলার-এসএমএস-ব্যাকফল"},{"level":3,"title":"এসএমএস কমান্ডের সিনট্যাক্স","id":"এসএমএস-কমান্ডের-সিনট্যাক্স"},{"level":3,"title":"ডুয়াল-সিম ডায়নামিক রাউটিং","id":"ডুয়াল-সিম-ডায়নামিক-রাউটিং"},{"level":3,"title":"১-ট্যাপ কপি করার উপযোগী রেডিমেড এসএমএস টেমপ্লেট","id":"১-ট্যাপ-কপি-করার-উপযোগী-রেডিমেড-এসএমএস-টেমপ্লেট"},{"level":2,"title":"১০. লাইসেন্সিং পলিসি, ওটিএ আপডেট, রিফান্ড ও জরুরি যোগাযোগ","id":"১০-লাইসেন্সিং-পলিসি-ওটিএ-আপডেট-রিফান্ড-ও-জরুরি-যোগাযোগ"},{"level":3,"title":"লাইসেন্সিং টিয়ার ও ৭ দিনের ট্রায়াল লকআউট নিয়ম","id":"লাইসেন্সিং-টিয়ার-ও-৭-দিনের-ট্রায়াল-লকআউট-নিয়ম"},{"level":3,"title":"স্বয়ংক্রিয় সাইলেন্ট ব্যাকগ্রাউন্ড ওটিএ আপডেট","id":"স্বয়ংক্রিয়-সাইলেন্ট-ব্যাকগ্রাউন্ড-ওটিএ-আপডেট"},{"level":3,"title":"পেমেন্ট মেথড ও ৭ দিনের ১০০% মানিব্যাক গ্যারান্টি","id":"পেমেন্ট-মেথড-ও-৭-দিনের-১০০-মানিব্যাক-গ্যারান্টি"},{"level":3,"title":"জরুরি ফিল্ড চিটশিট ও অফিসিয়াল লিংক","id":"জরুরি-ফিল্ড-চিটশিট-ও-অফিসিয়াল-লিংক"}];
 let currentLang = 'en';
 
 function renderToc() {
@@ -1701,7 +1712,7 @@ function switchLang(lang) {
   document.getElementById('contentBn').style.display = lang === 'bn' ? 'block' : 'none';
   document.getElementById('tocTitle').innerText = lang === 'en' ? 'Table of Contents' : 'ম্যানুয়াল সূচিপত্র';
   document.getElementById('searchInput').placeholder = lang === 'en' ? 'Filter sections...' : 'বিষয়বস্তু খুঁজুন...';
-  document.getElementById('headerSub').innerText = lang === 'en' ? 'FIELD MANUAL // v3.7.15 (Build 80)' : 'ফিল্ড ম্যানুয়াল // v৩.৭.১৪ (বিল্ড ৭৯)';
+  document.getElementById('headerSub').innerText = lang === 'en' ? 'FIELD MANUAL // v3.5.8' : 'ফিল্ড ম্যানুয়াল // v৩.৫.৮';
   renderToc();
 }
 
@@ -1752,4 +1763,3 @@ renderToc();
 
 </body>
 </html>
-

@@ -570,7 +570,7 @@ function generateHtml() {
   }
   .cmd-badge:hover { background: #e2e8f0; color: var(--cyan); border-color: var(--cyan); }
 
-  /* ── 86-COMMAND TACTICAL TERMINAL ── */
+  /* ── 94-COMMAND TACTICAL TERMINAL ── */
   .cmd-controls {
     max-width: 900px; margin: 0 auto 20px; display: flex; flex-direction: column; gap: 12px;
   }
@@ -848,7 +848,7 @@ function generateHtml() {
       <a href="#dossier" class="nav-link" data-i18n="nav_dossier">Evidence Wall</a>
       <a href="#setup-kit" class="nav-link" data-i18n="nav_setup_kit">Setup Kit</a>
       <a href="#features" class="nav-link" data-i18n="nav_features">Capabilities</a>
-      <a href="#commands" class="nav-link" data-i18n="nav_commands">86 Commands</a>
+      <a href="#commands" class="nav-link" data-i18n="nav_commands">94 Commands</a>
       <a href="#comparison" class="nav-link" data-i18n="nav_comparison">Comparison</a>
       <a href="#faq" class="nav-link" data-i18n="nav_faq">Master FAQ</a>
       <a href="#pricing" class="nav-link" data-i18n="nav_pricing">Licensing</a>
@@ -887,7 +887,7 @@ function generateHtml() {
   <a href="#dossier" onclick="toggleMobileDrawer()" data-i18n="nav_dossier">Evidence Wall</a>
   <a href="#setup-kit" onclick="toggleMobileDrawer()" data-i18n="nav_setup_kit">Setup Kit</a>
   <a href="#features" onclick="toggleMobileDrawer()" data-i18n="nav_features">Capabilities</a>
-  <a href="#commands" onclick="toggleMobileDrawer()" data-i18n="nav_commands">86 Commands</a>
+  <a href="#commands" onclick="toggleMobileDrawer()" data-i18n="nav_commands">94 Commands</a>
   <a href="#comparison" onclick="toggleMobileDrawer()" data-i18n="nav_comparison">Comparison</a>
   <a href="#faq" onclick="toggleMobileDrawer()" data-i18n="nav_faq">Master FAQ</a>
   <a href="#pricing" onclick="toggleMobileDrawer()" data-i18n="nav_pricing">Licensing</a>
@@ -1192,19 +1192,19 @@ function generateHtml() {
   </div>
 </section>
 
-<!-- ── INTERACTIVE 86-COMMAND C2 TERMINAL ── -->
+<!-- ── INTERACTIVE 94-COMMAND C2 TERMINAL ── -->
 <section id="commands" class="section">
   <div class="wrap">
     <div class="section-hdr">
       <span class="section-tag" data-i18n="cmd_tag">COMMAND CONSOLE REPERTOIRE</span>
-      <h2 class="section-title" data-i18n="cmd_title">86 Telegram &amp; Air-Gapped SMS Commands</h2>
+      <h2 class="section-title" data-i18n="cmd_title">94 Telegram &amp; Air-Gapped SMS Commands</h2>
       <p class="section-lede" data-i18n="cmd_lede">
         Every single hardware defensive action is remotely triggerable via Telegram Bot C2 or cellular SMS. Click any command to copy its syntax.
       </p>
     </div>
 
     <div class="cmd-controls">
-      <input type="text" id="commandSearch" class="cmd-search" placeholder="Search 86 C2 commands (e.g. snap, usb_lock, duress, sim_lock, locate, deadman)..." oninput="filterCommands()">
+      <input type="text" id="commandSearch" class="cmd-search" placeholder="Search 94 C2 commands (e.g. snap, usb_lock, duress, sim_lock, locate, deadman)..." oninput="filterCommands()">
       <div class="cmd-pills" id="commandPills">
         <!-- Rendered dynamically by JS -->
       </div>
@@ -1354,13 +1354,13 @@ function generateHtml() {
             <div class="plan-price-sub" data-i18n="plan_pro_period">One-time payment • Lifetime OTA Updates</div>
           </div>
           <ul class="plan-features">
-            <li><span>✓</span> <span data-i18n="f_pro_1">All 86 Telegram C2 Commands</span></li>
+            <li><span>✓</span> <span data-i18n="f_pro_1">All 94 Telegram C2 Commands</span></li>
             <li><span>✓</span> <span data-i18n="f_pro_2">Knox-Grade Device Owner Provisioning</span></li>
             <li><span>✓</span> <span data-i18n="f_pro_3">Hardware Escrow Token PIN Reset</span></li>
             <li><span>✓</span> <span data-i18n="f_pro_4">Anti-EDL/BROM Dead Man's Switch</span></li>
             <li><span>✓</span> <span data-i18n="f_pro_5">SIM Ejection Foreign Number Trap</span></li>
             <li><span>✓</span> <span data-i18n="f_pro_6">1-on-1 Personal Remote Setup Onboarding</span></li>
-            <li><span>✓</span> <span data-i18n="f_pro_7">24-Hour 100% Refund Guarantee</span></li>
+            <li><span>✓</span> <span data-i18n="f_pro_7">7-Day 100% Money-Back Guarantee</span></li>
           </ul>
         </div>
         <a href="https://wa.me/8801762033445?text=Hello%20PASA%20Team%2C%20I%20want%20to%20activate%20PASA%20Pro%20Lifetime%20Shield." target="_blank" class="btn-plan primary" data-i18n="btn_buy_pro">
@@ -1460,9 +1460,14 @@ function generateHtml() {
         <a href="#dossier" data-i18n="nav_dossier">Evidence Wall</a>
         <a href="#setup-kit" data-i18n="nav_setup_kit">Setup Kit</a>
         <a href="#features" data-i18n="nav_features">Capabilities</a>
-        <a href="#commands" data-i18n="nav_commands">86 Commands</a>
+        <a href="#commands" data-i18n="nav_commands">94 Commands</a>
         <a href="#faq" data-i18n="nav_faq">Master FAQ</a>
         <a href="#pricing" data-i18n="nav_pricing">Licensing</a>
+        <a href="/portal.html">Customer Portal</a>
+        <a href="/manual.html">Manual</a>
+        <a href="/FAQ_EN.md">FAQ (EN)</a>
+        <a href="/FAQ.md">FAQ (বাংলা)</a>
+        <a href="https://github.com/rbr48/pasa" target="_blank" rel="noopener">GitHub</a>
         <a href="/privacy.html">Privacy Policy</a>
         <a href="/terms.html">Terms of Service</a>
       </div>
@@ -1488,7 +1493,7 @@ const translations = {
     nav_dossier: "Evidence Wall",
     nav_setup_kit: "Setup Kit",
     nav_features: "Capabilities",
-    nav_commands: "86 Commands",
+    nav_commands: "94 Commands",
     nav_comparison: "Comparison",
     nav_faq: "Master FAQ",
     nav_pricing: "Licensing",
@@ -1542,7 +1547,7 @@ const translations = {
     feat_lede: "Battle-tested countermeasures built specifically to defeat professional criminal theft, forensic extractions, and armed robbery.",
 
     cmd_tag: "COMMAND CONSOLE REPERTOIRE",
-    cmd_title: "86 Telegram & Air-Gapped SMS Commands",
+    cmd_title: "94 Telegram & Air-Gapped SMS Commands",
     cmd_lede: "Every single hardware defensive action is remotely triggerable via Telegram Bot C2 or cellular SMS. Click any command to copy its syntax.",
 
     comp_tag: "ARCHITECTURAL COMPARISON",
@@ -1584,13 +1589,13 @@ const translations = {
     f_eval_2: "Headless Camera Capture Test",
     f_eval_3: "GPS & Cell Tower Telemetry",
     f_eval_4: "Community Telegram Support",
-    f_pro_1: "All 86 Telegram C2 Commands",
+    f_pro_1: "All 94 Telegram C2 Commands",
     f_pro_2: "Knox-Grade Device Owner Provisioning",
     f_pro_3: "Hardware Escrow Token PIN Reset",
     f_pro_4: "Anti-EDL/BROM Dead Man's Switch",
     f_pro_5: "SIM Ejection Foreign Number Trap",
     f_pro_6: "1-on-1 Personal Remote Setup Onboarding",
-    f_pro_7: "24-Hour 100% Refund Guarantee",
+    f_pro_7: "7-Day 100% Money-Back Guarantee",
     f_ent_1: "5x Pro Lifetime Device Licenses",
     f_ent_2: "Dedicated Private Relay Server Node",
     f_ent_3: "Zero-Knowledge Fleet Management",
@@ -1611,7 +1616,7 @@ const translations = {
     nav_dossier: "প্রমাণ ডসিয়ার",
     nav_setup_kit: "সেটআপ কিট",
     nav_features: "ফিচারসমূহ",
-    nav_commands: "৮৬টি কমান্ড",
+    nav_commands: "৯৪টি কমান্ড",
     nav_comparison: "তুলনা",
     nav_faq: "প্রশ্নোত্তর",
     nav_pricing: "লাইসেন্সিং",
@@ -1665,7 +1670,7 @@ const translations = {
     feat_lede: "পেশাদার চোরের বাস্তব কৌশল, ফরেনসিক ক্যাবল এক্সট্রাকশন এবং অস্ত্রধারী ডাকাতের হাত থেকে বাঁচার নিখুঁত প্রতিরক্ষা ব্যবস্থা।",
 
     cmd_tag: "পূর্ণাঙ্গ কমান্ড সম্ভার",
-    cmd_title: "৮৬টি টেলিগ্রাম ও অফলাইন এসএমএস কমান্ড",
+    cmd_title: "৯৪টি টেলিগ্রাম ও অফলাইন এসএমএস কমান্ড",
     cmd_lede: "আপনার ব্যক্তিগত টেলিগ্রাম বট অথবা বাটন ফোনের সাধারণ এসএমএস দিয়ে প্রতিটি ফিচার নিয়ন্ত্রণযোগ্য। সিনট্যাক্স কপি করতে যেকোনো কমান্ডে ক্লিক করুন।",
 
     comp_tag: "আর্কিটেকচার তুলনা",
@@ -1707,13 +1712,13 @@ const translations = {
     f_eval_2: "হেডলেস ক্যামেরা ক্যাপচার পরীক্ষা",
     f_eval_3: "জিপিএস ও সেল টাওয়ার টেলিমেট্রি",
     f_eval_4: "কমিউনিটি টেলিগ্রাম সাপোর্ট",
-    f_pro_1: "সকল ৮৬টি টেলিগ্রাম সি২ কমান্ড",
+    f_pro_1: "সকল ৯৪টি টেলিগ্রাম সি২ কমান্ড",
     f_pro_2: "নক্স-গ্রেড ডিভাইস ওনার সুপারভাইজার",
     f_pro_3: "হার্ডওয়্যার এসক্রো টোকেন পিন রিসেট",
     f_pro_4: "অ্যান্টি-ইডিএল/বিআরওএম ডেড ম্যান সুইচ",
     f_pro_5: "সিম ইজেক্ট ও চোরের নম্বর ট্র্যাপ",
     f_pro_6: "১-অন-১ রিমোট সেটআপ অনবোর্ডিং সাপোর্ট",
-    f_pro_7: "২৪ ঘণ্টার ১০০% মানিব্যাক গ্যারান্টি",
+    f_pro_7: "৭ দিনের ১০০% মানিব্যাক গ্যারান্টি",
     f_ent_1: "৫টি প্রো লাইফটাইম ডিভাইস লাইসেন্স",
     f_ent_2: "ডেডিকেটেড প্রাইভেট রিলে সার্ভার নোড",
     f_ent_3: "জিরো-নলেজ ফ্লিট ম্যানেজমেন্ট",
@@ -2119,8 +2124,8 @@ function setLanguage(lang) {
   const searchCmd = document.getElementById('commandSearch');
   if (searchCmd) {
     searchCmd.placeholder = lang === 'bn'
-      ? '৮৬টি কমান্ড খুঁজুন (যেমন: snap, usb_lock, duress, sim_lock, locate, deadman)...'
-      : 'Search 86 C2 commands (e.g. snap, usb_lock, duress, sim_lock, locate, deadman)...';
+      ? '৯৪টি কমান্ড খুঁজুন (যেমন: snap, usb_lock, duress, sim_lock, locate, deadman)...'
+      : 'Search 94 C2 commands (e.g. snap, usb_lock, duress, sim_lock, locate, deadman)...';
   }
 
   renderFeatureHubTabs();
@@ -2236,19 +2241,21 @@ function renderFeatureCards() {
   }).join('');
 }
 
-/* ── 86-Command Tactical Terminal ── */
+/* ── 94-Command Tactical Terminal ── */
 function renderCommandPills() {
   const pillsContainer = document.getElementById('commandPills');
   if (!pillsContainer || typeof rawCommands === 'undefined') return;
   const isBn = currentLang === 'bn';
 
   const cats = [
-    { id: 'all', en: 'All Commands (86)', bn: 'সকল কমান্ড (৮৬)' },
-    { id: 'knox', en: 'Device Owner (18)', bn: 'ডিভাইস ওনার (১৮)' },
+    { id: 'all', en: 'All Commands (94)', bn: 'সকল কমান্ড (৯৪)' },
+    { id: 'knox', en: 'Device Owner (22)', bn: 'ডিভাইস ওনার (২২)' },
+    { id: 'traps', en: 'Traps & Cyber Defense (15)', bn: 'ট্র্যাপ ও সাইবার ডিফেন্স (১৫)' },
+    { id: 'lockdown', en: 'Lockdown (13)', bn: 'লকডাউন (১৩)' },
     { id: 'forensics', en: 'Covert Forensics (13)', bn: 'গোপন নজরদারি (১৩)' },
     { id: 'location', en: 'Location & RF (8)', bn: 'লোকেশন ও আরএফ (৮)' },
-    { id: 'lockdown', en: 'Lockdown (12)', bn: 'লকডাউন (১২)' },
-    { id: 'traps', en: 'Traps (10)', bn: 'ট্র্যাপ ও ডিফেন্স (১০)' },
+    { id: 'telephony', en: 'Telephony & Data (6)', bn: 'টেলিফোনি ও ডেটা (৬)' },
+    { id: 'system', en: 'System & Remote Wipe (9)', bn: 'সিস্টেম ও ওয়াইপ (৯)' },
     { id: 'core', en: 'Core (8)', bn: 'কোর সিস্টেম (৮)' }
   ];
 

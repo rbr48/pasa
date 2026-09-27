@@ -610,8 +610,8 @@ const faqData = [
     categoryNameBn: "আইনি বৈধতা ও লাইসেন্স",
     qEn: "Is PASA Sentinel a monthly subscription?",
     qBn: "পাসা সেন্টিনেলের লাইসেন্স কি প্রতি মাসের সাবস্ক্রিপশন?",
-    aEn: `<p><strong>No monthly fees or recurring traps.</strong> We provide a Lifetime Pro License ($25 / ৳3,000 BDT) with lifetime OTA updates, verified offline via cryptographic Ed25519 digital signatures.</p>`,
-    aBn: `<p>না। কমার্শিয়াল অ্যাপগুলোর মতো প্রতি মাসে বা বছরে বড় অঙ্কের ফি নেওয়া আমরা সমর্থন করি না। <strong>লাইফটাইম প্রো লাইসেন্স ($২৫ / ৩,০০০ টাকা):</strong> একবারের জন্য একটি লাইসেন্স কি কিনলে আজীবন সব ফিচার এবং আনলিমিটেড আপডেট পাওয়া যায়। লাইসেন্সটি ক্রিপ্টোগ্রাফিক Ed25519 অফলাইন চাবি দিয়ে যাচাই করা হয়।</p>`
+    aEn: `<p><strong>No monthly fees or recurring traps.</strong> We provide a Lifetime Pro License ($25 / ৳3,000 BDT) with lifetime OTA updates, verified offline via cryptographic Ed25519 digital signatures. Customers can manage activations and perform Zero-Touch QR provisioning anytime via our <a href="/portal.html" style="color:var(--cyan);font-weight:600;">Customer Self-Service Portal</a>.</p>`,
+    aBn: `<p>না। কমার্শিয়াল অ্যাপগুলোর মতো প্রতি মাসে বা বছরে বড় অঙ্কের ফি নেওয়া আমরা সমর্থন করি না। <strong>লাইফটাইম প্রো লাইসেন্স ($২৫ / ৩,০০০ টাকা):</strong> একবারের জন্য একটি লাইসেন্স কি কিনলে আজীবন সব ফিচার এবং আনলিমিটেড আপডেট পাওয়া যায়। লাইসেন্সটি ক্রিপ্টোগ্রাফিক Ed25519 অফলাইন চাবি দিয়ে যাচাই করা হয়। এছাড়া আমাদের <a href="/portal.html" style="color:var(--cyan);font-weight:600;">কাস্টমার পোর্টাল</a> থেকে যেকোনো সময় জিরো-টাচ কিউআর স্ক্যান করে ১০ সেকেন্ডে অ্যাক্টিভ করা যায়।</p>`
   },
   {
     category: "legal",
@@ -619,8 +619,44 @@ const faqData = [
     categoryNameBn: "আইনি বৈধতা ও লাইসেন্স",
     qEn: "What is the refund and warranty policy?",
     qBn: "কেনার পর কোনো সমস্যা হলে কি টাকা ফেরত (Refund) পাওয়া যাবে?",
-    aEn: `<p>We back PASA with an unconditional <strong>24-Hour 100% Money-Back Guarantee</strong> and <strong>7 Days of Dedicated Personal Onboarding Support</strong>. Refunds are processed immediately via Binance Pay or bKash.</p>`,
-    aBn: `<p>হ্যাঁ। কেনার পর <strong>২৪ ঘণ্টার মধ্যে নো-কোয়েশ্চেন-আসকড ১০০% রিফান্ড গ্যারান্টি</strong> এবং <strong>৭ দিনের টেকনিক্যাল সাপোর্ট গ্যারান্টি</strong> রয়েছে। Binance Pay বা bKash-এর মাধ্যমে অনতিবিলম্বে রিফান্ড প্রসেস করা হয়।</p>`
+    aEn: `<p>We back PASA Sentinel with an unconditional <strong>7-Day No-Questions-Asked 100% Money-Back Guarantee</strong> and dedicated technical support. Refunds are processed immediately via Binance Pay or bKash.</p>`,
+    aBn: `<p>হ্যাঁ। কেনার পর <strong>৭ দিনের নো-কোয়েশ্চেন-আসকড ১০০% মানিব্যাক গ্যারান্টি</strong> এবং ডেডিকেটেড টেকনিক্যাল সাপোর্ট রয়েছে। Binance Pay বা bKash-এর মাধ্যমে অনতিবিলম্বে রিফান্ড প্রসেস করা হয়।</p>`
+  },
+  {
+    category: "privacy",
+    categoryNameEn: "Privacy & Sovereignty",
+    categoryNameBn: "প্রাইভেসি ও সার্বভৌমত্ব",
+    qEn: "What is Sovereign Zero-Data Mode? Do my botToken and chatId ever leave my device?",
+    qBn: "সভরেন জিরো-ডাটা আর্কিটেকচার কী এবং আমার বট টোকেন বা চ্যাট আইডি কি কোনো সার্ভারে জমা থাকে?",
+    aEn: `<p><strong>No, they never leave your device.</strong> In PASA v3.6.0+, the handset operates in Sovereign Mode: botToken and ownerChatId remain strictly inside encrypted device storage, and the phone polls official Telegram API servers directly. License status checks transmit only an irreversible salted hash (<code>SHA256(deviceId:key)</code>)—zero device identity is exposed to our servers.</p>`,
+    aBn: `<p><strong>না, কখনোই না।</strong> v3.6.0+ থেকে পাসা সম্পূর্ণ Sovereign Mode-এ চলে: botToken ও ownerChatId ১০০% অন-ডিভাইস এনক্রিপ্টেড স্টোরেজে থাকে এবং ফোনটি সরাসরি টেলিগ্রাম এপিআই সার্ভারে লং-পোলিং করে। সার্ভারে কেবল একটি অপরিবর্তনযোগ্য ক্রিপ্টোগ্রাফিক হ্যাশ (<code>SHA256(deviceId:key)</code>) যায়—কোনো ব্যক্তিগত ডেটা বাইরে যায় না।</p>`
+  },
+  {
+    category: "device-owner",
+    categoryNameEn: "Device Owner & Hardware",
+    categoryNameBn: "ডিভাইস ওনার ও হার্ডওয়্যার",
+    qEn: "How easy is Device Owner setup for non-technical users?",
+    qBn: "ডিভাইস ওনার সেটআপ করা কি অনেক জটিল? সাধারণ ব্যবহারকারী কীভাবে এটি করবেন?",
+    aEn: `<p>We provide the <strong>PASA Windows Setup Kit (1-Click Guided Wizard)</strong>. Non-technical users do not need to type any command lines. Simply unzip the kit on a Windows PC and run <code>PASA Device Owner Setup.bat</code>. The automated PowerShell wizard downloads official Google ADB binaries, verifies device connection, and activates Device Owner mode in under 2 minutes.</p>`,
+    aBn: `<p>আমাদের রয়েছে <strong>PASA Windows Setup Kit (১-ক্লিক উইজার্ড)</strong>। ব্যবহারকারীকে কোনো কমান্ড টাইপ করতে হয় না। শুধু উইন্ডোজ কম্পিউটারে <code>PASA Device Owner Setup.bat</code> ফাইলটি রান করলেই স্বয়ংক্রিয় পাওয়ারশেল উইজার্ড চালু হয়ে অফিসিয়াল গুগল এডিবি দিয়ে মাত্র ২ মিনিটে ডিভাইস ওনার সক্রিয় করে দেয়।</p>`
+  },
+  {
+    category: "traps",
+    categoryNameEn: "Traps & Cyber Defense",
+    categoryNameBn: "ট্র্যাপ ও সাইবার ডিফেন্স",
+    qEn: "What is Cryptographic SIM Tray Lock (/sim_tray_lock)?",
+    qBn: "ক্রিপ্টোগ্রাফিক সিম ট্রে লক (/sim_tray_lock) কীভাবে ফোনকে চোরের জন্য ব্রিক বানিয়ে ফেলে?",
+    aEn: `<p>When <code>/sim_tray_lock</code> is armed and an unauthorized SIM card is inserted: 1) PASA rotates the OS lockscreen PIN to a secret 8-digit random PIN using Knox hardware escrow tokens, delivering it only to the owner via Telegram. 2) Suspends all third-party apps (<code>setPackagesSuspended</code>) at the OS level—turning the phone into a complete brick while PASA continues streaming live GPS beacons.</p>`,
+    aBn: `<p>অননুমোদিত সিম ঢোকানোমাত্রই পাসা: ১) নক্স এসক্রো টোকেন দিয়ে লকস্ক্রিন পিনকে একটি গোপন ৮-সংখ্যার র‍্যান্ডম পিনে পরিবর্তন করে কেবল মালিকের টেলিগ্রামে পাঠায়। ২) ফোনের সব অ্যাপ বরখাস্ত (<code>setPackagesSuspended</code>) করে ফোনকে অকেজো ব্রিক বানিয়ে ফেলে—অথচ পাসা নিজে সচল থেকে জিপিএস ট্র্যাকিং পাঠাতে থাকে।</p>`
+  },
+  {
+    category: "traps",
+    categoryNameEn: "Traps & Cyber Defense",
+    categoryNameBn: "ট্র্যাপ ও সাইবার ডিফেন্স",
+    qEn: "What is the Advanced Mobile Cyber Defense Suite (A11y Shield, Clipper Guard, Canary Guard)?",
+    qBn: "উন্নত সাইবার প্রতিরক্ষা স্যুট (A11y Shield, Clipper Guard, Canary Guard) কীভাবে ডিভাইসকে রক্ষা করে?",
+    aEn: `<p>PASA incorporates an enterprise-grade mobile cyber defense suite: <code>/a11y_shield</code> intercepts banking trojans abusing Accessibility services; <code>/clipper_guard</code> traps crypto wallet clipboard hijacking; <code>/canary_guard</code> plants decoy files to trip ransomware; <code>/app_install_lock</code> blocks unauthorized APK sideloads; and <code>/anti_2g</code> disables 2G cellular radio to stop rogue IMSI-catcher / Stingray eavesdropping.</p>`,
+    aBn: `<p>পাসার রয়েছে অ্যাডভান্সড সাইবার ডিফেন্স স্যুট: <code>/a11y_shield</code> অ্যাক্সেসিবিলিটি পারমিশন অপব্যবহারকারী ব্যাংকিং ট্রোজান প্রতিহত করে; <code>/clipper_guard</code> ক্রিপ্টো ওয়ালেট হাইজ্যাকিং ধরে; <code>/canary_guard</code> স্টোরেজে ডিকয় ফাইল বসিয়ে র‍্যানসমওয়্যার প্রতিরোধ করে; <code>/app_install_lock</code> অননুমোদিত এপিকে সাইডলোড ব্লক করে; এবং <code>/anti_2g</code> হ্যাকারদের ফেক সেল টাওয়ার এড়াতে ২জি রেডিও বন্ধ করে দেয়।</p>`
   }
 ];
 

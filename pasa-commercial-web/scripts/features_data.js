@@ -1,5 +1,5 @@
 /**
- * PASA Sentinel — Comprehensive Capabilities & 86-Command C2 Matrix Dataset
+ * PASA Sentinel — Comprehensive Capabilities & 94-Command C2 Matrix Dataset
  * Bilingual: English (EN) and Bengali (BN)
  */
 
@@ -407,7 +407,7 @@ const featureHubs = [
       {
         tag: "COMPLETE COVERAGE",
         titleEn: "Exhaustive SMS Command Coverage",
-        titleBn: "৮৬টি কমান্ডেরই পূর্ণাঙ্গ এসএমএস ব্যাকআপ",
+        titleBn: "৯৪টি কমান্ডেরই পূর্ণাঙ্গ এসএমএস ব্যাকআপ",
         descEn: "Every essential command functions over SMS: /locate, /lock, /unlock, /usb_lock, /camera_lock, /ring, /fakeshutdown, /security_audit, /app_uninstall, /wipe, and more.",
         descBn: "লোকেশন দেখা, ফোন লক করা, ইউএসবি ব্লক করা, ক্যামেরা বন্ধ করা, সাইরেন বাজানো, ফেক শাটডাউন—সবকিছুই সাধারণ এসএমএস পাঠিয়ে করা যায়।",
         threatEn: "Total command autonomy even when the Telegram API or internet is blocked by ISPs.",
@@ -584,6 +584,8 @@ const commandsMatrix = [
   { cmd: "/biometrics", params: "[on|off]", cat: "knox", tg: true, sms: true, descEn: "Deactivates fingerprint and 3D face unlock, enforcing master passphrase", descBn: "ফিঙ্গারপ্রিন্ট ও ফেস আনলক বন্ধ করে শুধু জটিল পাসওয়ার্ড বাধ্যতামূলক করে" },
   { cmd: "/dns", params: "[set <host>|off|status]", cat: "knox", tg: true, sms: false, descEn: "Enforces tamper-proof DNS-over-TLS (DoT) across cellular and Wi-Fi", descBn: "সিস্টেম-জুড়ে এনক্রিপ্টেড ডিএনএস (DoT) বাধ্যতামূলক করে ট্র্যাকিং রোধ করে" },
   { cmd: "/app_firewall", params: "[status|enable|disable|block|unblock]", cat: "knox", tg: true, sms: false, descEn: "Isolates specific packages from outbound cellular and Wi-Fi internet access", descBn: "নির্দিষ্ট অ্যাপের ইন্টারনেট সংযোগ পুরোপুরি বন্ধ করে ম্যালওয়্যার রোধ করে" },
+  { cmd: "/usb_autolock", params: "[on|off|status]", cat: "knox", tg: true, sms: false, descEn: "Automatically cuts physical USB data signaling pins when screen is locked", descBn: "স্ক্রিন লক থাকা অবস্থায় স্বয়ংক্রিয়ভাবে ইউএসবি ডেটা পিন বন্ধ করে দেয়" },
+  { cmd: "/anti_2g", params: "[on|off|status]", cat: "knox", tg: true, sms: false, descEn: "Permanently disables 2G cellular radio to prevent rogue IMSI-catcher / Stingray eavesdropping", descBn: "হ্যাকারদের ফেক সেল টাওয়ার (IMSI Catcher) এড়াতে মডেম লেভেলে ২জি রেডিও বন্ধ করে" },
 
   // 3. Location & Cellular RF
   { cmd: "/locate", params: "", cat: "location", tg: true, sms: true, descEn: "Acquires multi-constellation GNSS satellite coordinates with Google Maps link", descBn: "স্যাটেলাইট জিপিএস অন করে নিখুঁত লোকেশন ও গুগল ম্যাপ লিংক দেয়" },
@@ -623,9 +625,15 @@ const commandsMatrix = [
   { cmd: "/ring_stop", params: "", cat: "lockdown", tg: true, sms: true, descEn: "Silences the active emergency siren immediately", descBn: "চলমান জরুরি সাইরেন তৎক্ষণাৎ বন্ধ করে" },
   { cmd: "/vibrate_pulse", params: "[pulse|sos|stop]", cat: "lockdown", tg: true, sms: true, descEn: "Triggers covert haptic vibrations to locate device without sound", descBn: "শব্দ ছাড়া গোপন ভাইব্রেশনের মাধ্যমে লুকিয়ে রাখা ফোন খুঁজে বের করে" },
   { cmd: "/message", params: "<text>", cat: "lockdown", tg: true, sms: true, descEn: "Pushes high-priority dialog notice directly over current activity", descBn: "স্ক্রিনের উপর হাই-প্রায়োরিটি ইমার্জেন্সি ডায়ালগ মেসেজ প্রদর্শন করে" },
+  { cmd: "/sim_tray_lock", params: "[arm|release|status]", cat: "lockdown", tg: true, sms: true, descEn: "Rotates lockscreen to 8-digit secret PIN and suspends all 3rd-party apps on foreign SIM insertion", descBn: "অচেনা সিম ঢুকলে স্ক্রিন লক পিন পরিবর্তন করে এবং সমস্ত অ্যাপ বরখাস্ত করে ফোনকে ব্রিক বানিয়ে ফেলে" },
 
   // 6. Defense & Traps
   { cmd: "/duress_pin", params: "<pin>", cat: "traps", tg: true, sms: true, descEn: "Configures decoy duress PIN that unlocks a sterile sandbox while alerting SOS", descBn: "ডিকয় পিন সেট করে—যা দিলে ব্যাংকিং অ্যাপ ছাড়া খালি ডামি ওএস খোলে" },
+  { cmd: "/a11y_shield", params: "[on|off|status]", cat: "traps", tg: true, sms: false, descEn: "Audits and intercepts banking trojans and malicious apps abusing Accessibility permissions", descBn: "অ্যাক্সেসিবিলিটি পারমিশন অপব্যবহারকারী ব্যাংকিং ট্রোজান ও ম্যালওয়্যার প্রতিরোধ করে" },
+  { cmd: "/clipper_guard", params: "[on|off|status]", cat: "traps", tg: true, sms: false, descEn: "Detects and neutralizes cryptocurrency wallet address hijacking in the system clipboard", descBn: "ক্লিপবোর্ডে থাকা ক্রিপ্টো ওয়ালেট অ্যাড্রেস হাইজ্যাকিং ও পরিবর্তন প্রতিরোধ করে" },
+  { cmd: "/canary_guard", params: "[on|off|status]", cat: "traps", tg: true, sms: false, descEn: "Places decoy tripwire files to detect ransomware encryption attempts and lockdown phone", descBn: "স্টোরেজে ডিকয় ফাইল বসিয়ে র‍্যানসমওয়্যারের এনক্রিপশন চেষ্টা শনাক্ত করে লক করে" },
+  { cmd: "/app_install_lock", params: "[on|off|status]", cat: "traps", tg: true, sms: false, descEn: "Blocks all unauthorized third-party APK sideloading and package installations", descBn: "সিস্টেমে অননুমোদিত কোনো এপিকে (APK) সাইডলোড বা ইন্সটলেশন ব্লক করে" },
+  { cmd: "/otp_guard", params: "[on|off|status]", cat: "traps", tg: true, sms: false, descEn: "Guards 2FA SMS and banking OTP verification codes against third-party interception", descBn: "ব্যাংকিং ও ২এফএ ওটিপি এসএমএস কোনো সন্দেহজনক অ্যাপের রিডিং ও চুরি প্রতিরোধ করে" },
   { cmd: "/pattern_guard", params: "[on|off|status]", cat: "traps", tg: true, sms: false, descEn: "Snaps front camera mugshot on 2nd consecutive failed lockscreen attempt", descBn: "পরপর দুইবার ভুল পিন বা প্যাটার্ন দিলে সাইলেন্টলি চোরের সেলফি তোলে" },
   { cmd: "/trap", params: "[snatch|pocket|charger] [on|off]", cat: "traps", tg: true, sms: false, descEn: "Arms autonomous kinetic accelerometer, pocket proximity, or charger traps", descBn: "ছিনতাই রোধক এক্সিলেরোমিটার, পকেট ও চার্জার সেন্সর ট্র্যাপ সচল করে" },
   { cmd: "/thermal", params: "[on|off|status|threshold]", cat: "traps", tg: true, sms: false, descEn: "Arms heat-gun anomaly trap detecting repair shop hardware tampering", descBn: "সার্ভিসিং সেন্টারে হিট-গান দিয়ে বডি বা চিপ খোলার চেষ্টা শনাক্ত করে লক করে" },
