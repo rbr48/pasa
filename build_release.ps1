@@ -177,7 +177,7 @@ $buildLogOut  = Join-Path $env:TEMP "pasa_build_stdout.log"
 $gradleArgs = @("assembleRelease", "--no-daemon")
 $localJdk = "C:\Program Files\Microsoft\jdk-17.0.20.8-hotspot"
 if (Test-Path $localJdk) {
-    $gradleArgs += "-Dorg.gradle.java.home=$localJdk"
+    $gradleArgs += "-Dorg.gradle.java.home=`"$localJdk`""
 }
 
 Push-Location $ProjectRoot

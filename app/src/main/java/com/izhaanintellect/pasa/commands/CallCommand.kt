@@ -105,6 +105,17 @@ class CallCommand @Inject constructor(
                 context.getSystemService(Context.TELECOM_SERVICE) as? TelecomManager
             } else null
 
+            // Wake up display so dialing UI is active
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+            @Suppress("DEPRECATION")
+            val wakeLock = powerManager?.newWakeLock(
+                android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK or android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                "pasa:outbound_call_wake"
+            )
+            try {
+                wakeLock?.acquire(10000L)
+            } catch (_: Exception) {}
+
             val uri = Uri.fromParts("tel", cleanNumber, null)
 
             // Resolve the PhoneAccountHandle for the requested SIM slot
@@ -112,20 +123,28 @@ class CallCommand @Inject constructor(
                 resolvePhoneAccount(telecomManager, simSlot)
             } else null
 
-            // Place the call
+            // Place the call via TelecomManager, or fallback to ACTION_CALL intent
+            var callPlaced = false
             if (telecomManager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val extras = Bundle().apply {
-                    if (useSpeaker && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        putBoolean(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, true)
+                try {
+                    val extras = Bundle().apply {
+                        if (useSpeaker && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            putBoolean(TelecomManager.EXTRA_START_CALL_WITH_SPEAKERPHONE, true)
+                        }
+                        // Pin the call to the specific SIM PhoneAccount if one was resolved
+                        if (accountHandle != null) {
+                            putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, accountHandle)
+                        }
                     }
-                    // Pin the call to the specific SIM PhoneAccount if one was resolved
-                    if (accountHandle != null) {
-                        putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, accountHandle)
-                    }
+                    telecomManager.placeCall(uri, extras)
+                    callPlaced = true
+                    Log.i(TAG, "Call placed via TelecomManager to $cleanNumber (simSlot=$simSlot, speaker=$useSpeaker)")
+                } catch (te: Exception) {
+                    Log.w(TAG, "TelecomManager.placeCall exception: ${te.message}, falling back to launchCallIntent", te)
                 }
-                telecomManager.placeCall(uri, extras)
-                Log.i(TAG, "Call placed via TelecomManager to $cleanNumber (simSlot=$simSlot, speaker=$useSpeaker)")
-            } else {
+            }
+
+            if (!callPlaced) {
                 launchCallIntent(cleanNumber, simSlot)
             }
 
@@ -340,14 +359,20 @@ class CallCommand @Inject constructor(
             try {
                 val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
                 val admin = PasaDeviceAdmin.getComponentName(context)
-                dpm.setPermissionGrantState(
-                    admin,
-                    context.packageName,
+                listOf(
                     Manifest.permission.CALL_PHONE,
-                    DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED
-                )
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.READ_PHONE_NUMBERS
+                ).forEach { perm ->
+                    dpm.setPermissionGrantState(
+                        admin,
+                        context.packageName,
+                        perm,
+                        DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED
+                    )
+                }
             } catch (e: Exception) {
-                Log.w(TAG, "Could not self-heal CALL_PHONE via Device Owner: ${e.message}")
+                Log.w(TAG, "Could not self-heal telephony permissions via Device Owner: ${e.message}")
             }
         }
     }

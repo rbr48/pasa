@@ -26,22 +26,20 @@ class RecordCommand @Inject constructor(
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        // SECURITY: Require authentication for audio recording
-        val password = args.firstOrNull()
-        if (password.isNullOrBlank() || !authManager.verifyMasterPassword(password)) {
-            return CommandResult(
-                success = false,
-                message = "🔐 Authentication required: <code>/record &lt;password&gt; [seconds]</code> or <code>/record &lt;password&gt; stop</code>"
-            )
+        // If master password was provided as first argument, consume it; otherwise parse parameters directly
+        val effectiveArgs = if (args.isNotEmpty() && authManager.hasMasterPassword() && authManager.verifyMasterPassword(args[0])) {
+            args.drop(1)
+        } else {
+            args
         }
 
-        val sub = args.getOrNull(1)?.lowercase()
+        val sub = effectiveArgs.firstOrNull()?.lowercase()
         if (sub == "stop") {
             audioRecorderManager.stopRecording()
             return CommandResult(success = true, message = "⏹️ Audio recording stopped.")
         }
 
-        val durationSeconds = (args.getOrNull(1)?.toIntOrNull() ?: DEFAULT_DURATION)
+        val durationSeconds = (effectiveArgs.firstOrNull()?.toIntOrNull() ?: DEFAULT_DURATION)
             .coerceIn(1, MAX_DURATION)
 
         Log.i(TAG, "Recording audio for ${durationSeconds}s")

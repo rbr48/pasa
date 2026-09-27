@@ -1,10 +1,15 @@
 package com.izhaanintellect.pasa.commands
 
+import android.Manifest
+import android.app.admin.DevicePolicyManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.telephony.SmsManager
 import android.telephony.SubscriptionManager
 import android.util.Log
+import androidx.core.content.ContextCompat
+import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -87,16 +92,18 @@ class SendSmsCommand @Inject constructor(
             )
         }
 
-        val phoneNumber = numberArg.trim()
+        val rawNumber = numberArg.trim()
+        // Sanitize phone number (strip whitespace, parens, hyphens, keep leading + and digits)
+        val phoneNumber = rawNumber.filter { it.isDigit() || it == '+' }
         val messageBody = messageArg.trim()
 
-        // Validate phone number format (basic check)
-        if (!phoneNumber.matches(Regex("^\\+?[0-9]{7,15}$"))) {
+        // Validate phone number format (supports short codes like 121 and international numbers)
+        if (phoneNumber.length < 3 || phoneNumber.length > 16 || !phoneNumber.matches(Regex("^\\+?[0-9]{3,15}$"))) {
             return CommandResult(
                 success = false,
                 message = "❌ <b>Invalid Phone Number</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                        "⚠️ Phone must be 7-15 digits, optionally prefixed with +\n" +
-                        "<code>$phoneNumber</code> is not valid."
+                        "⚠️ Phone must be 3-15 digits (e.g. <code>+8801700000000</code> or <code>121</code>).\n" +
+                        "Provided: <code>$rawNumber</code>"
             )
         }
 
@@ -110,6 +117,9 @@ class SendSmsCommand @Inject constructor(
             )
         }
 
+        // Self-heal SMS and Phone State permissions via Device Owner
+        ensureSmsPermission()
+
         return try {
             sendSms(phoneNumber, messageBody, simSelector)
         } catch (e: Exception) {
@@ -117,8 +127,31 @@ class SendSmsCommand @Inject constructor(
             CommandResult(
                 success = false,
                 message = "❌ <b>SMS Send Failed</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                        "<code>${e.message}</code>"
+                        "<code>${e.localizedMessage ?: e.message}</code>"
             )
+        }
+    }
+
+    private fun ensureSmsPermission() {
+        if (PasaDeviceAdmin.isDeviceOwner(context)) {
+            try {
+                val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+                val admin = PasaDeviceAdmin.getComponentName(context)
+                listOf(
+                    Manifest.permission.SEND_SMS,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.READ_PHONE_NUMBERS
+                ).forEach { perm ->
+                    dpm.setPermissionGrantState(
+                        admin,
+                        context.packageName,
+                        perm,
+                        DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED
+                    )
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not self-heal SMS permissions via Device Owner: ${e.message}")
+            }
         }
     }
 
@@ -155,23 +188,38 @@ class SendSmsCommand @Inject constructor(
     }
 
     private fun getSmsManager(simSelector: String): SmsManager {
-        return when (simSelector) {
-            "sim1" -> getSmsManagerForSlot(0) ?: SmsManager.getDefault()
-            "sim2" -> getSmsManagerForSlot(1) ?: SmsManager.getDefault()
-            else -> {
-                // Use default/active SIM
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    context.getSystemService(SmsManager::class.java) ?: SmsManager.getDefault()
-                } else {
-                    @Suppress("DEPRECATION")
-                    SmsManager.getDefault()
-                }
+        return try {
+            when (simSelector) {
+                "sim1" -> getSmsManagerForSlot(0) ?: getDefaultSmsManager()
+                "sim2" -> getSmsManagerForSlot(1) ?: getDefaultSmsManager()
+                else -> getDefaultSmsManager()
             }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error selecting SmsManager: ${e.message}, using default")
+            getDefaultSmsManager()
+        }
+    }
+
+    private fun getDefaultSmsManager(): SmsManager {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            context.getSystemService(SmsManager::class.java) ?: SmsManager.getDefault()
+        } else {
+            @Suppress("DEPRECATION")
+            SmsManager.getDefault()
         }
     }
 
     private fun getSmsManagerForSlot(slotIndex: Int): SmsManager? {
         return try {
+            val hasReadPhone = ContextCompat.checkSelfPermission(
+                context, Manifest.permission.READ_PHONE_STATE
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!hasReadPhone) {
+                Log.w(TAG, "READ_PHONE_STATE not granted — cannot resolve SIM slot $slotIndex")
+                return null
+            }
+
             // Get subscription IDs for all active SIMs
             val subscriptionManager = context.getSystemService(SubscriptionManager::class.java)
             val activeSubscriptions = subscriptionManager?.activeSubscriptionInfoList ?: emptyList()

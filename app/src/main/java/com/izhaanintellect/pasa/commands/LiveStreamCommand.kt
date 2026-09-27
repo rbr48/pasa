@@ -56,24 +56,11 @@ class LiveStreamCommand @Inject constructor(
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        // SECURITY: Require authentication for this sensitive operation
-        val password = args.firstOrNull()
-        if (password.isNullOrBlank() || !authManager.verifyMasterPassword(password)) {
-            return CommandResult(
-                success = false,
-                message = """
-                    🔐 <b>Authentication Required</b>
-                    ━━━━━━━━━━━━━━━━━━━━
-                    This sensitive operation requires your master password.
-
-                    <b>Usage:</b>
-                    <code>/livestream &lt;password&gt; [front|back] [duration]</code>
-
-                    <b>Examples:</b>
-                    <code>/livestream mypassword front 5</code>
-                    <code>/livestream mypassword back 10</code>
-                """.trimIndent()
-            )
+        // If master password was provided as first argument, consume it; otherwise parse parameters directly
+        val effectiveArgs = if (args.isNotEmpty() && authManager.hasMasterPassword() && authManager.verifyMasterPassword(args[0])) {
+            args.drop(1)
+        } else {
+            args
         }
 
         if (isStreaming.get()) {
@@ -83,11 +70,10 @@ class LiveStreamCommand @Inject constructor(
             )
         }
 
-        // Parse arguments (skip password which is args[0])
         var useFront = true
         var durationMinutes = DEFAULT_DURATION_MINUTES
 
-        for (arg in args.drop(1)) {
+        for (arg in effectiveArgs) {
             when (arg.lowercase()) {
                 "front" -> useFront = true
                 "back", "rear" -> useFront = false

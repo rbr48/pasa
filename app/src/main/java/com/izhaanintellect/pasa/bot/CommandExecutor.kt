@@ -217,7 +217,7 @@ class CommandExecutor @Inject constructor(
                 "/wifi_connect" -> "wizard:wifi_connect"
                 "/autolock" -> "wizard:autolock"
                 "/lockscreen_info" -> "wizard:lockscreen_info"
-                "/set_os_pin", "/lock_pin" -> "wizard:set_os_pin"
+                "/set_os_pin" -> "wizard:set_os_pin"
                 "/lost_mode", "/lostmode" -> "wizard:lost_mode"
                 "/deadman" -> "wizard:deadman"
                 "/thermal" -> "wizard:thermal"
@@ -673,7 +673,7 @@ class CommandExecutor @Inject constructor(
     private fun resolveHandler(cmd: String): Command? {
         return when (cmd) {
             "/lock", "/lock_message", "/lost_mode", "/lostmode" -> lockCommand
-            "/set_os_pin", "/set_pin", "/reset_pin", "/lock_pin" -> setOsPinCommand
+            "/set_os_pin", "/set_pin", "/reset_pin" -> setOsPinCommand
             "/set_master_pin", "/set_password", "/master_pin", "/master_password" -> setMasterPinCommand
             "/unlock" -> unlockCommand
             "/device_owner", "/owner", "/kiosk" -> deviceOwnerCommand
@@ -899,13 +899,65 @@ class CommandExecutor @Inject constructor(
     }
 
     private suspend fun sendText(chatId: Long, message: String, replyMarkup: Any? = null) {
-        try {
-            telegramApi.sendMessage(
-                token = preferencesManager.botToken,
-                request = SendMessageRequest(chatId = chatId, text = message, replyMarkup = replyMarkup)
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to send text message", e)
+        val maxLen = 3900
+        if (message.length <= maxLen) {
+            try {
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(chatId = chatId, text = message, replyMarkup = replyMarkup)
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to send text message", e)
+            }
+            return
+        }
+
+        // Split message into safe chunks preserving line boundaries
+        val lines = message.split("\n")
+        val chunks = mutableListOf<String>()
+        val currentChunk = StringBuilder()
+
+        for (line in lines) {
+            if (currentChunk.length + line.length + 1 > maxLen) {
+                if (currentChunk.isNotEmpty()) {
+                    chunks.add(currentChunk.toString())
+                    currentChunk.clear()
+                }
+                if (line.length > maxLen) {
+                    var remaining = line
+                    while (remaining.length > maxLen) {
+                        chunks.add(remaining.substring(0, maxLen))
+                        remaining = remaining.substring(maxLen)
+                    }
+                    if (remaining.isNotEmpty()) {
+                        currentChunk.append(remaining).append("\n")
+                    }
+                } else {
+                    currentChunk.append(line).append("\n")
+                }
+            } else {
+                currentChunk.append(line).append("\n")
+            }
+        }
+        if (currentChunk.isNotEmpty()) {
+            chunks.add(currentChunk.toString())
+        }
+
+        for ((idx, chunk) in chunks.withIndex()) {
+            val isLast = (idx == chunks.size - 1)
+            try {
+                telegramApi.sendMessage(
+                    token = preferencesManager.botToken,
+                    request = SendMessageRequest(
+                        chatId = chatId,
+                        text = chunk.trimEnd(),
+                        replyMarkup = if (isLast) replyMarkup else null
+                    )
+                )
+                if (!isLast) kotlinx.coroutines.delay(180L)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to send text chunk $idx", e)
+            }
         }
     }
 

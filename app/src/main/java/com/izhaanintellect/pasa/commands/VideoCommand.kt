@@ -25,20 +25,20 @@ class VideoCommand @Inject constructor(
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        // SECURITY: Require authentication for camera recording
-        val password = args.firstOrNull()
-        if (password.isNullOrBlank() || !authManager.verifyMasterPassword(password)) {
-            return CommandResult(
-                success = false,
-                message = "🔐 Authentication required: <code>/video &lt;password&gt; [front|back] [seconds]</code>"
-            )
+        // If master password was provided as first argument, consume it; otherwise parse parameters directly
+        val effectiveArgs = if (args.isNotEmpty() && authManager.hasMasterPassword() && authManager.verifyMasterPassword(args[0])) {
+            args.drop(1)
+        } else {
+            args
         }
 
-        val useFront = args.getOrNull(1)?.lowercase()?.let {
+        val useFront = effectiveArgs.firstOrNull()?.lowercase()?.let {
             it != "back" && it != "rear"
         } ?: true
 
-        val durationSeconds = args.getOrNull(2)?.toIntOrNull()?.coerceIn(1, 60) ?: 15
+        val durationSeconds = effectiveArgs.getOrNull(1)?.toIntOrNull()?.coerceIn(1, 60)
+            ?: effectiveArgs.firstOrNull()?.toIntOrNull()?.coerceIn(1, 60)
+            ?: 15
         val cameraLabel = if (useFront) "front" else "rear"
         Log.i(TAG, "Recording video headlessly (camera=$cameraLabel, duration=${durationSeconds}s)")
 

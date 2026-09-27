@@ -27,31 +27,61 @@ class ShredCommand @Inject constructor(
     }
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
-        if (args.size < 2) {
+        val hasPass = authManager.hasMasterPassword()
+        var targetKey: String? = null
+        var authenticated = !hasPass
+
+        // If 2+ args: check if first or second is master password
+        if (args.size >= 2) {
+            if (authManager.verifyMasterPassword(args[0])) {
+                authenticated = true
+                targetKey = args[1].lowercase()
+            } else if (authManager.verifyMasterPassword(args[1])) {
+                authenticated = true
+                targetKey = args[0].lowercase()
+            }
+        } else if (args.size == 1) {
+            targetKey = args[0].lowercase()
+        }
+
+        if (targetKey == null) {
             return CommandResult(
                 success = false,
-                message = "⚠️ <b>Usage:</b> <code>/shred &lt;master_password&gt; &lt;target&gt;</code>\n\n" +
-                        "<b>Targets:</b>\n" +
-                        "• <code>cache</code> — App temporary files & thumbnails\n" +
-                        "• <code>ota</code> — Downloaded update binaries\n" +
-                        "• <code>logs</code> — Forensic audit logs\n" +
-                        "• <code>vault</code> — App encrypted vault storage\n\n" +
-                        "<i>All targeted files are overwritten with 3 passes of cryptographic pseudo-random noise before permanent deletion.</i>"
+                message = """
+                    ⚠️ <b>Usage:</b> <code>/shred &lt;master_password&gt; &lt;target&gt;</code>
+
+                    <b>Targets:</b>
+                    • <code>downloads</code> — Download folder
+                    • <code>documents</code> — Documents folder
+                    • <code>camera</code> — Camera Roll (DCIM)
+                    • <code>cache</code> — App temporary files & thumbnails
+                    • <code>ota</code> — Downloaded update binaries
+                    • <code>logs</code> — Forensic audit logs
+                    • <code>vault</code> — App encrypted vault storage
+
+                    <i>All targeted files are overwritten with 3 passes of cryptographic pseudo-random noise before permanent deletion.</i>
+                """.trimIndent()
             )
         }
 
-        val password = args[0]
-        val targetKey = args[1].lowercase()
-
-        if (!authManager.verifyMasterPassword(password)) {
-            Log.w(TAG, "Shred command failed: invalid master password")
+        if (!authenticated) {
             return CommandResult(
                 success = false,
-                message = "❌ <b>Authentication Failed:</b> Incorrect master password."
+                message = """
+                    🔐 <b>Confirmation Required: Shred ${targetKey.uppercase()}</b>
+                    ━━━━━━━━━━━━━━━━━━━━
+                    Permanently overwriting files is irreversible.
+                    To confirm cryptographic shredding, send:
+                    <code>/shred &lt;master_password&gt; $targetKey</code>
+                """.trimIndent()
             )
         }
 
         val targetDir: File = when (targetKey) {
+            "downloads", "download" -> android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
+            "documents", "document", "docs" -> android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOCUMENTS)
+            "camera", "dcim" -> android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DCIM)
+            "pictures", "photos" -> android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES)
             "cache" -> context.cacheDir
             "ota" -> File(context.filesDir, "ota")
             "logs" -> File(context.filesDir, "logs")

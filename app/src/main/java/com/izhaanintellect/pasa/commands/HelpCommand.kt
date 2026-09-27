@@ -19,10 +19,8 @@ class HelpCommand @Inject constructor() : Command {
             ━━━━━━━━━━━━━━━━━━━━
             
             🔐 <b>Emergency Containment</b>
-            • <code>/lock</code> — Lock device immediately
-            • <code>/lock_message &lt;text&gt;</code> — Set lock screen banner
-            • <code>/lock_pin &lt;pin&gt;</code> — Lock with emergency 4-8 digit PIN
-            • <code>/set_os_pin &lt;pin&gt;</code> — Overwrite hardware OS lock PIN [Device Owner]
+            • <code>/lock</code> — Lock screen immediately (or <code>/lock lost &lt;pass&gt;</code> for Kiosk Lost Mode)
+            • <code>/set_os_pin &lt;pass&gt; &lt;pin&gt;</code> — Overwrite hardware OS lock PIN [Device Owner]
             • <code>/unlock</code> — Release lock and restore device
             • <code>/fakeshutdown &lt;pass&gt;</code> — Authentic OEM power-down blackout deception
             • <code>/fakeshutdown auto on|always|off</code> — Auto-intercept Power button menu

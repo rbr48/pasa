@@ -138,14 +138,6 @@ class TelegramMenuManager @Inject constructor(
             "menu:sms_help" -> buildSmsHelpSubmenu()
             "menu:license" -> buildLicenseSubmenu()
             // Wizards with 1-tap copyable templates
-            "wizard:lock_pin" -> buildWizardCard(
-                title = "🔑 Knox Hardware OS Lock PIN Reset",
-                desc = "Overwrites forgotten or thief lockscreen PIN using Knox escrow tokens without wiping data.",
-                syntax = "/set_os_pin <master_password> <new_pin>",
-                example = "/set_os_pin MySecretPass123 5892",
-                note = "Requires Knox Device Owner. To simply lock screen immediately, tap <b>🔒 Instant Lock</b>.",
-                parentHub = "menu:lockdown_hub"
-            )
             "wizard:lost_mode" -> buildWizardCard(
                 title = "🛡️ Lost Mode Kiosk Lockdown",
                 desc = "Engages full-screen Kiosk defense overlay, disables keyguard biometrics, and turns off screen.",

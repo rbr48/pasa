@@ -70,21 +70,11 @@ class StorageAccessCommand @Inject constructor(
     }
 
     suspend fun executeGalleryLatest(args: List<String>, chatId: Long): CommandResult = withContext(Dispatchers.IO) {
-        if (authManager.hasMasterPassword()) {
-            val candidate = args.firstOrNull()?.trim()
-            if (candidate.isNullOrBlank()) {
-                return@withContext CommandResult(
-                    success = false,
-                    message = """
-                        🔑 <b>Gallery Extraction (Zero-Trust Guard)</b>
-                        ━━━━━━━━━━━━━━━━━━━━
-                        To extract camera roll photos, Master Password verification is required.
+        // If password is supplied as non-numeric first arg, verify it; otherwise if it's a numeric count or empty, allow direct extraction
+        val countArg = args.firstOrNull { it.toIntOrNull() != null }?.toIntOrNull()
+        val candidate = args.firstOrNull { it.toIntOrNull() == null }?.trim()
 
-                        <b>Syntax:</b> <code>/gallery_latest &lt;master_password&gt; [count 1-10]</code>
-                        <b>Example:</b> <code>/gallery_latest MySecretPass123 3</code>
-                    """.trimIndent()
-                )
-            }
+        if (!candidate.isNullOrBlank() && authManager.hasMasterPassword()) {
             if (!verifyCredentials(candidate)) {
                 return@withContext CommandResult(
                     success = false,
@@ -93,8 +83,7 @@ class StorageAccessCommand @Inject constructor(
             }
         }
 
-        val requestedCount = (if (authManager.hasMasterPassword()) args.getOrNull(1) else args.firstOrNull())
-            ?.toIntOrNull()?.coerceIn(1, 10) ?: 3
+        val requestedCount = (countArg ?: 3).coerceIn(1, 10)
 
         val projection = arrayOf(
             MediaStore.Images.Media._ID,
@@ -182,41 +171,34 @@ class StorageAccessCommand @Inject constructor(
 
     suspend fun executeGetFile(args: List<String>, chatId: Long): CommandResult = withContext(Dispatchers.IO) {
         val remainingArgs = if (authManager.hasMasterPassword()) {
-            if (args.isEmpty()) {
-                val lastDirNote = lastListedDirectory?.let {
-                    "\n📂 <b>Active Directory:</b> <code>${it.absolutePath}</code>\n" +
-                    if (lastListedFiles.isNotEmpty()) "🔢 <b>Available Numbers:</b> <code>1</code> to <code>${lastListedFiles.size}</code>\n" else ""
-                } ?: ""
-
-                return@withContext CommandResult(
-                    success = false,
-                    message = """
-                        🔑 <b>File Download (Zero-Trust Guard)</b>
-                        ━━━━━━━━━━━━━━━━━━━━
-                        To download files from device storage, Master Password verification is required.$lastDirNote
-                        <b>Syntax:</b> <code>/getfile &lt;master_password&gt; &lt;#|name|path&gt;</code>
-                        <b>Example:</b> <code>/getfile MySecretPass123 1</code>
-                        <b>Example:</b> <code>/getfile MySecretPass123 /sdcard/Download/document.pdf</code>
-                    """.trimIndent()
-                )
+            if (args.size >= 2 && verifyCredentials(args[0])) {
+                args.drop(1)
+            } else {
+                args
             }
-
-            val candidate = args[0].trim()
-            if (!verifyCredentials(candidate)) {
-                return@withContext CommandResult(
-                    success = false,
-                    message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. File extraction rejected."
-                )
-            }
-            args.drop(1)
         } else {
             args
         }
 
         if (remainingArgs.isEmpty()) {
+            val lastDirNote = lastListedDirectory?.let {
+                "\n📂 <b>Active Directory:</b> <code>${it.absolutePath}</code>\n" +
+                if (lastListedFiles.isNotEmpty()) "🔢 <b>Available Numbers:</b> <code>1</code> to <code>${lastListedFiles.size}</code>\n" else ""
+            } ?: ""
+
             return@withContext CommandResult(
                 success = false,
-                message = "❌ Missing file target. Usage: <code>/getfile &lt;master_password&gt; &lt;#|name|path&gt;</code>"
+                message = """
+                    📁 <b>File Download Guide</b>
+                    ━━━━━━━━━━━━━━━━━━━━
+                    Download any file from phone storage directly to Telegram.$lastDirNote
+                    <b>Syntax:</b> <code>/getfile &lt;#|name|path&gt;</code>
+                    <b>Examples:</b>
+                    • <code>/getfile 1</code>
+                    • <code>/getfile /sdcard/Download/document.pdf</code>
+
+                    💡 <i>Tip: Run <code>/list_files</code> first to see numbered files.</i>
+                """.trimIndent()
             )
         }
 
