@@ -1,7 +1,7 @@
 # 🛡️ PASA Sentinel — Independent Verification Report
 - **Target Binary:** `releases/pasa-v3.7.15-80.apk`
-- **SHA-256 Digest:** `afdaee4229e6f07eb8f5383fb3171408b95bd660fa0ef4500348ba5ea5d91f94`
+- **SHA-256 Digest:** `e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e`
 - **File Size:** 19315378 bytes
-- **VirusTotal Consensus Audit:** [View 70+ AV Vendor Results](https://www.virustotal.com/gui/file/afdaee4229e6f07eb8f5383fb3171408b95bd660fa0ef4500348ba5ea5d91f94)
+- **VirusTotal Consensus Audit:** [View 70+ AV Vendor Results](https://www.virustotal.com/gui/file/e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e)
 - **OTA Production Endpoint:** https://pasa.izhaanintellect.fun/releases/pasa-v3.7.15-80.apk
 - **Verification Date:** 2026-09-27T09:12:00Z

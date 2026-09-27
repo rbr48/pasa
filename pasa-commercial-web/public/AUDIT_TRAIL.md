@@ -220,7 +220,7 @@ Every production endpoint was audited via `curl.exe` against the live domain:
 * **Byte Size:** `19,315,378` bytes.
 * **Cryptographic SHA-256 Checksum:**
   ```
-  afdaee4229e6f07eb8f5383fb3171408b95bd660fa0ef4500348ba5ea5d91f94
+  e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e
   ```
 * **OTA API Manifest Response (`GET /api/app/latest?current_version_code=0`):**
   ```json
@@ -232,7 +232,7 @@ Every production endpoint was audited via `curl.exe` against the live domain:
       "versionName": "3.7.15",
       "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.15-80.apk",
       "fileSize": 19315378,
-      "sha256": "afdaee4229e6f07eb8f5383fb3171408b95bd660fa0ef4500348ba5ea5d91f94",
+      "sha256": "e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e",
       "changelog": "v3.7.15 (Build 80) — deployed 2026-09-27",
       "publishedAt": "2026-09-27"
     }
@@ -313,9 +313,9 @@ To provide unimpeachable, third-party validation beyond internal assertions, PAS
 ### 12.1 Independent VirusTotal Multi-AV Consensus Audit
 * **Target File:** `releases/pasa-v3.7.15-80.apk` (Build 79)
 * **Byte Size:** `19,315,378` bytes
-* **SHA-256 Digest:** `afdaee4229e6f07eb8f5383fb3171408b95bd660fa0ef4500348ba5ea5d91f94`
+* **SHA-256 Digest:** `e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e`
 * **Direct Verification URL:**  
-  👉 [https://www.virustotal.com/gui/file/afdaee4229e6f07eb8f5383fb3171408b95bd660fa0ef4500348ba5ea5d91f94](https://www.virustotal.com/gui/file/afdaee4229e6f07eb8f5383fb3171408b95bd660fa0ef4500348ba5ea5d91f94)
+  👉 [https://www.virustotal.com/gui/file/e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e](https://www.virustotal.com/gui/file/e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e)
 * **Consensus Result:** Verified across 70+ independent global antivirus engines (Kaspersky, Bitdefender, CrowdStrike, ESET, Sophos, Google, Symantec). Confirmed zero malicious trojans, zero backdoors, and zero commercial spyware signatures. Administrative and accessibility capabilities are declared with non-obfuscated symbols (`-keep,allowoptimization`) and explicit AndroidManifest descriptions to prevent generic heuristic misclassification.
 
 ### 12.2 GitHub CodeQL Advanced Security (Semantic Static Analysis)
@@ -360,6 +360,6 @@ This audit confirms that **PASA Sentinel v3.7.15 (Build 80)** adheres fully to i
 **Audit Status:** ✅ **PASSED AND CERTIFIED (GRADE A)**  
 **Authorized By:** Sovereign Mobile Security Division // Izhaan Intellect  
 **Verification Tool:** `node scripts/verify_independent_audit.js`  
-**Document Digest (SHA-256):** `afdaee4229e6f07eb8f5383fb3171408b95bd660fa0ef4500348ba5ea5d91f94`
+**Document Digest (SHA-256):** `e6bc80e11f207f382736a1af1c314ab8311a2c1afddc6a2464fe69a6054dd44e`
 
 

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -13,9 +12,6 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -30,9 +26,11 @@ import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.databinding.ActivityScreenGuardBinding
 import com.izhaanintellect.pasa.location.LocationTracker
 import com.izhaanintellect.pasa.network.PasaBackendApi
+import com.izhaanintellect.pasa.util.AudioGuard
+import com.izhaanintellect.pasa.util.DisplayGuard
+import com.izhaanintellect.pasa.util.InputGuard
 import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -57,7 +55,7 @@ class ScreenGuardActivity : AppCompatActivity() {
     @Inject lateinit var pasaBackendApi: PasaBackendApi
     @Inject lateinit var cameraManager: StealthCameraManager
 
-    private var previousRingerMode: Int = AudioManager.RINGER_MODE_NORMAL
+    private var previousRingerMode: Int = android.media.AudioManager.RINGER_MODE_NORMAL
     private var lastTouchAlertTime: Long = 0L
     private var secretTapCount: Int = 0
     private var lastSecretTapTime: Long = 0L
@@ -87,15 +85,13 @@ class ScreenGuardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         try {
-            configureImmersiveBlackout()
+            DisplayGuard.configureImmersive(
+                window, window.decorView,
+                setShowWhenLocked = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) setShowWhenLocked(true) },
+                setTurnScreenOn = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) setTurnScreenOn(true) }
+            )
 
-            // Enter Lock Task mode to suppress power menu, home, and recents buttons
-            try {
-                startLockTask()
-                Log.i(TAG, "Entered Lock Task mode for screen guard")
-            } catch (e: Exception) {
-                Log.w(TAG, "Could not enter Lock Task mode: ${e.message}")
-            }
+            InputGuard.enterLockTask(this)
 
             binding = ActivityScreenGuardBinding.inflate(layoutInflater)
             setContentView(binding.root)
@@ -105,7 +101,6 @@ class ScreenGuardActivity : AppCompatActivity() {
             // Trap back button
             onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    // Completely ignore back button during screen guard
                     Log.d(TAG, "Back button pressed during screen guard - ignored")
                 }
             })
@@ -118,22 +113,8 @@ class ScreenGuardActivity : AppCompatActivity() {
                 registerReceiver(wakeReceiver, filter)
             }
 
-            // Silence ringer and media (safely without crashing if DND access is not granted)
-            try {
-                val audioManager = getSystemService(Context.AUDIO_SERVICE) as? AudioManager
-                if (audioManager != null) {
-                    val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? android.app.NotificationManager
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || nm?.isNotificationPolicyAccessGranted == true) {
-                        previousRingerMode = audioManager.ringerMode
-                        audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                    } else {
-                        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
-                        audioManager.adjustStreamVolume(AudioManager.STREAM_SYSTEM, AudioManager.ADJUST_MUTE, 0)
-                    }
-                }
-            } catch (e: Throwable) {
-                Log.w(TAG, "Could not set silent mode: ${e.message}")
-            }
+            // Silence audio via AudioGuard
+            previousRingerMode = AudioGuard.silenceAll(this)
 
             // Phase 1: Show authentic Android Shutdown spinner for 2.2 seconds
             binding.layoutShutdownDialog.visibility = View.VISIBLE
@@ -141,9 +122,8 @@ class ScreenGuardActivity : AppCompatActivity() {
             Handler(Looper.getMainLooper()).postDelayed({
                 try {
                     if (!isFinishing && !isDestroyed) {
-                        // Phase 2: Complete Blackout
                         binding.layoutShutdownDialog.visibility = View.GONE
-                        dimScreenToBlack()
+                        DisplayGuard.dimToMinimum(window)
                         Log.i(TAG, "Screen guard blackout sequence initiated")
                     }
                 } catch (e: Throwable) {
@@ -151,7 +131,7 @@ class ScreenGuardActivity : AppCompatActivity() {
                 }
             }, 2200)
 
-            // Touch capture listener on the screen: trigger on any physical touch contact (press, tap, swipe)
+            // Touch capture listeners
             binding.viewBlackout.setOnTouchListener { v, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {
                     v.performClick()
@@ -197,22 +177,25 @@ class ScreenGuardActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        configureImmersiveBlackout()
+        DisplayGuard.configureImmersive(
+            window, window.decorView,
+            setShowWhenLocked = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) setShowWhenLocked(true) },
+            setTurnScreenOn = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) setTurnScreenOn(true) }
+        )
         if (binding.layoutShutdownDialog.visibility != View.VISIBLE) {
-            dimScreenToBlack()
+            DisplayGuard.dimToMinimum(window)
         }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (!hasFocus && preferencesManager.isFakeShutdownActive) {
-            // System dialog or notification appeared — dismiss it and reclaim focus
-            try {
-                @Suppress("DEPRECATION")
-                sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
-            } catch (_: Exception) {}
-            // Re-apply immersive mode
-            configureImmersiveBlackout()
+            InputGuard.dismissSystemOverlays(this)
+            DisplayGuard.configureImmersive(
+                window, window.decorView,
+                setShowWhenLocked = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) setShowWhenLocked(true) },
+                setTurnScreenOn = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) setTurnScreenOn(true) }
+            )
         }
     }
 
@@ -222,7 +205,7 @@ class ScreenGuardActivity : AppCompatActivity() {
             Log.w(TAG, "ScreenGuardActivity paused while still active — re-launching")
             try {
                 val relaunchIntent = ScreenGuardActivity.createIntent(applicationContext)
-                com.izhaanintellect.pasa.util.SecurityActivityLauncher.launch(
+                SecurityActivityLauncher.launch(
                     context = applicationContext,
                     intent = relaunchIntent,
                     notificationId = 2003,
@@ -256,39 +239,20 @@ class ScreenGuardActivity : AppCompatActivity() {
             return true
         }
 
-        when (event.keyCode) {
-            KeyEvent.KEYCODE_VOLUME_UP,
-            KeyEvent.KEYCODE_VOLUME_DOWN,
-            KeyEvent.KEYCODE_VOLUME_MUTE,
-            KeyEvent.KEYCODE_CALL,
-            KeyEvent.KEYCODE_HEADSETHOOK -> {
-                Log.d(TAG, "Suppressed hardware key event during screen guard: ${event.keyCode}")
-                return true // Silently consume hardware button event without showing volume HUD
-            }
+        if (InputGuard.shouldConsumeKey(event.keyCode)) {
+            Log.d(TAG, "Suppressed hardware key event during screen guard: ${event.keyCode}")
+            return true
         }
         return super.dispatchKeyEvent(event)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        when (keyCode) {
-            KeyEvent.KEYCODE_VOLUME_UP,
-            KeyEvent.KEYCODE_VOLUME_DOWN,
-            KeyEvent.KEYCODE_VOLUME_MUTE,
-            KeyEvent.KEYCODE_CALL,
-            KeyEvent.KEYCODE_HEADSETHOOK -> return true
-        }
+        if (InputGuard.shouldConsumeKey(keyCode)) return true
         return super.onKeyDown(keyCode, event)
-    }
-
-    private fun dimScreenToBlack() {
-        val layoutParams = window.attributes
-        layoutParams.screenBrightness = 0.001f // Minimum brightness
-        window.attributes = layoutParams
     }
 
     private fun handleScreenTouchInteraction() {
         val now = System.currentTimeMillis()
-        // Rate limit forensic alerts to once every 15 seconds
         if (now - lastTouchAlertTime < 15000) return
         lastTouchAlertTime = now
 
@@ -296,13 +260,11 @@ class ScreenGuardActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // 1. Fetch GPS location immediately
                 val loc = locationTracker.getCurrentLocation()
                 val locMsg = if (loc != null) {
                     "📍 <b>Location:</b> <a href=\"https://www.google.com/maps?q=${loc.latitude},${loc.longitude}\">${loc.latitude}, ${loc.longitude}</a>\n\n"
                 } else ""
 
-                // 2. Capture front camera photo
                 var photoFile: File? = null
                 try {
                     photoFile = cameraManager.capturePhoto(useFrontCamera = true)
@@ -316,7 +278,6 @@ class ScreenGuardActivity : AppCompatActivity() {
                     photoFile = captureResult.file
                 }
 
-                // 3. Dispatch deception alert to owner
                 val alertMsg = "⚠️ <b>Someone touched or tapped the phone screen while display standby was active!</b>\n" +
                         "The device screen is blacked out and appears powered off to the perpetrator.\n\n" +
                         locMsg +
@@ -342,7 +303,6 @@ class ScreenGuardActivity : AppCompatActivity() {
         lngVal: Double?,
         photoFile: File?
     ) {
-        // Direct Telegram dispatch (Strategy 1: Zero-Storage, zero server media persistence)
         if (!preferencesManager.botToken.isNullOrBlank() && preferencesManager.ownerChatIdLong != 0L) {
             try {
                 val locMsg = if (latVal != null && lngVal != null) {
@@ -390,7 +350,6 @@ class ScreenGuardActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(TAG, "Direct Telegram dispatch failed: ${e.message}")
             } finally {
-                // Immediately shred local forensic photo after dispatch
                 try {
                     photoFile?.let { if (it.exists()) it.delete() }
                 } catch (_: Exception) {}
@@ -402,24 +361,14 @@ class ScreenGuardActivity : AppCompatActivity() {
         Log.i(TAG, "exitScreenGuard called - restoring device state")
         preferencesManager.isFakeShutdownActive = false
 
-        // Cancel high-priority alert notification
         SecurityActivityLauncher.dismissNotification(this, ScreenGuardCommand.NOTIFICATION_ID)
 
-        // Restore brightness
-        val layoutParams = window.attributes
-        layoutParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
-        window.attributes = layoutParams
+        DisplayGuard.restoreBrightness(window)
 
-        // Acquire hardware bright wake lock so physical AMOLED/LCD panel turns back on
         SecurityActivityLauncher.wakeScreen(this)
 
-        // Restore ringer mode
-        try {
-            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            audioManager.ringerMode = previousRingerMode
-        } catch (_: Exception) {}
+        AudioGuard.restore(this, previousRingerMode)
 
-        // If lost mode is NOT active, ensure AlertMessageActivity is dismissed as well
         if (!preferencesManager.isLostModeActive) {
             try {
                 val dismissLostModeIntent = Intent(AlertMessageActivity.ACTION_DISMISS_LOST_MODE).apply {
@@ -429,15 +378,8 @@ class ScreenGuardActivity : AppCompatActivity() {
             } catch (_: Exception) {}
         }
 
-        // Exit Lock Task mode
-        try {
-            stopLockTask()
-            Log.i(TAG, "Stopped Lock Task mode during exitScreenGuard")
-        } catch (e: Exception) {
-            Log.w(TAG, "Error stopping lock task: ${e.message}")
-        }
+        InputGuard.exitLockTask(this)
 
-        // Direct user back to Home launcher if lost mode is not active
         if (!preferencesManager.isLostModeActive) {
             try {
                 val homeIntent = Intent(Intent.ACTION_MAIN).apply {
@@ -449,43 +391,6 @@ class ScreenGuardActivity : AppCompatActivity() {
         }
 
         finish()
-    }
-
-    private fun configureImmersiveBlackout() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                setShowWhenLocked(true)
-                setTurnScreenOn(true)
-            }
-
-            @Suppress("DEPRECATION")
-            window.addFlags(
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-            )
-
-            // Hide system bars completely
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                window.setDecorFitsSystemWindows(false)
-                window.insetsController?.let {
-                    it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                    it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                }
-            } else {
-                @Suppress("DEPRECATION")
-                window.decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                )
-            }
-        } catch (e: Throwable) {
-            Log.w(TAG, "Error configuring immersive blackout: ${e.message}")
-        }
     }
 
     override fun onDestroy() {
