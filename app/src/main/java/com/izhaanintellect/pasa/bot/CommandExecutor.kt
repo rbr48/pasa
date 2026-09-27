@@ -214,8 +214,6 @@ class CommandExecutor @Inject constructor(
             val wizardKey = when (cmdClean) {
                 "/lock_app" -> "wizard:lock_app"
                 "/unlock_app" -> "wizard:unlock_app"
-                "/sendsms" -> "wizard:sendsms"
-                "/call", "/dial" -> "wizard:call"
                 "/getfile" -> "wizard:getfile"
                 "/autolock" -> "wizard:autolock"
                 "/lockscreen_info" -> "wizard:lockscreen_info"
@@ -964,7 +962,16 @@ class CommandExecutor @Inject constructor(
                     request = SendMessageRequest(chatId = chatId, text = message, replyMarkup = replyMarkup)
                 )
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to send text message", e)
+                Log.e(TAG, "Failed to send text message with HTML, retrying plain text fallback: ${e.message}")
+                try {
+                    val plain = android.text.Html.fromHtml(message, android.text.Html.FROM_HTML_MODE_LEGACY).toString()
+                    telegramApi.sendMessage(
+                        token = preferencesManager.botToken,
+                        request = SendMessageRequest(chatId = chatId, text = plain, parseMode = "", replyMarkup = replyMarkup)
+                    )
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Failed fallback plain text message: ${e2.message}", e2)
+                }
             }
             return
         }
@@ -1013,7 +1020,21 @@ class CommandExecutor @Inject constructor(
                 )
                 if (!isLast) kotlinx.coroutines.delay(180L)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to send text chunk $idx", e)
+                Log.e(TAG, "Failed to send text chunk $idx, retrying plain text fallback: ${e.message}")
+                try {
+                    val plain = android.text.Html.fromHtml(chunk.trimEnd(), android.text.Html.FROM_HTML_MODE_LEGACY).toString()
+                    telegramApi.sendMessage(
+                        token = preferencesManager.botToken,
+                        request = SendMessageRequest(
+                            chatId = chatId,
+                            text = plain,
+                            parseMode = "",
+                            replyMarkup = if (isLast) replyMarkup else null
+                        )
+                    )
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Failed fallback plain text chunk $idx: ${e2.message}", e2)
+                }
             }
         }
     }

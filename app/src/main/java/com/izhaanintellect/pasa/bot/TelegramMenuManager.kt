@@ -697,7 +697,6 @@ class TelegramMenuManager @Inject constructor(
             appendLine("• <b>Contacts:</b> Query device address book names & phone numbers.")
             appendLine("• <b>Call History:</b> View recent incoming, outgoing, and missed calls.")
             appendLine("• <b>SMS Inbox:</b> View recent SMS text messages and 2FA OTP codes.")
-            appendLine("• <b>Direct Outbound SMS:</b> Dispatch SMS message via SIM slot directly.")
             appendLine("• <b>Audit Trail:</b> Inspect recent command execution history.")
             appendLine("• <b>Installed Apps:</b> List installed applications and package identifiers.")
             appendLine("• <b>Network Telemetry:</b> Current IP, Wi-Fi SSID, and cellular network status.")
@@ -714,7 +713,7 @@ class TelegramMenuManager @Inject constructor(
                 ),
                 listOf(
                     InlineKeyboardButton("💬 SMS Inbox", callbackData = "cmd:sms_log"),
-                    InlineKeyboardButton("✉️ Send Outbound SMS", callbackData = "wizard:sendsms")
+                    InlineKeyboardButton("📲 SMS TOTP Setup", callbackData = "cmd:smssetup")
                 ),
                 listOf(
                     InlineKeyboardButton("📜 Command Audit Trail", callbackData = "cmd:history"),
@@ -722,15 +721,11 @@ class TelegramMenuManager @Inject constructor(
                 ),
                 listOf(
                     InlineKeyboardButton("🌐 Network Telemetry", callbackData = "cmd:network"),
-                    InlineKeyboardButton("📲 SMS TOTP Setup", callbackData = "cmd:smssetup")
+                    InlineKeyboardButton("🗑️ File Shredder", callbackData = "menu:shred")
                 ),
                 listOf(
                     InlineKeyboardButton("📂 Browse Storage Files", callbackData = "cmd:list_files"),
                     InlineKeyboardButton("📁 Download File", callbackData = "wizard:getfile")
-                ),
-                listOf(
-                    InlineKeyboardButton("📞 Remote Outbound Call", callbackData = "wizard:call"),
-                    InlineKeyboardButton("🗑️ File Shredder", callbackData = "menu:shred")
                 ),
                 listOf(
                     InlineKeyboardButton("⚠️ Remote Factory Wipe", callbackData = "menu:wipe"),
@@ -1145,6 +1140,13 @@ class TelegramMenuManager @Inject constructor(
 
     // ── Helper Wizard Card ───────────────────────────────────────────────────
 
+    private fun escapeForTelegramCode(raw: String): String {
+        return raw
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+    }
+
     private fun buildWizardCard(
         title: String,
         desc: String,
@@ -1160,11 +1162,11 @@ class TelegramMenuManager @Inject constructor(
             appendLine(desc)
             appendLine()
             appendLine("📝 <b>Format:</b>")
-            appendLine("<code>$syntax</code>")
+            appendLine("<code>${escapeForTelegramCode(syntax)}</code>")
             appendLine()
             appendLine("💡 <b>Tap to Copy & Send:</b>")
             example.lines().forEach { line ->
-                appendLine("<code>$line</code>")
+                appendLine("<code>${escapeForTelegramCode(line)}</code>")
             }
             appendLine()
             if (note.isNotBlank()) {
