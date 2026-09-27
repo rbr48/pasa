@@ -23,6 +23,7 @@ pasa-commercial-web/public/releases/
 *.mp4
 *.avi
 Screenshots/
+promo_video_builder/
 
 # Internal AI Agent Memory & Directives
 AGENTS.md
