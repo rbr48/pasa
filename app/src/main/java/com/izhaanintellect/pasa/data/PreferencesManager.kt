@@ -393,6 +393,10 @@ class PreferencesManager @Inject constructor(
         get() = prefs.getString(KEY_RESET_PASSWORD_TOKEN, null)
         set(value) = prefs.edit().putString(KEY_RESET_PASSWORD_TOKEN, value).apply()
 
+    var isEscrowTokenArmed: Boolean
+        get() = prefs.getBoolean("escrow_token_armed", false)
+        set(value) = prefs.edit().putBoolean("escrow_token_armed", value).apply()
+
     var isDuressActive: Boolean
         get() = prefs.getBoolean(KEY_DURESS_ACTIVE, false)
         set(value) = prefs.edit().putBoolean(KEY_DURESS_ACTIVE, value).apply()

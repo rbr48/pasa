@@ -329,28 +329,39 @@ class CallCommand @Inject constructor(
     }
 
     private fun showHelp(): CommandResult {
+        val buttons = com.izhaanintellect.pasa.bot.InlineKeyboardMarkup(
+            inlineKeyboard = listOf(
+                listOf(
+                    com.izhaanintellect.pasa.bot.InlineKeyboardButton("📊 Available SIM Accounts", callbackData = "cmd:call:status"),
+                    com.izhaanintellect.pasa.bot.InlineKeyboardButton("📶 SIM Telemetry", callbackData = "cmd:sim")
+                ),
+                listOf(
+                    com.izhaanintellect.pasa.bot.InlineKeyboardButton("🔙 Back to Data Hub", callbackData = "menu:data_hub")
+                )
+            )
+        )
         return CommandResult(
-            success = false,
+            success = true,
             message = """
-                📞 <b>Remote Outbound Calling</b>
+                📞 <b>Remote Cellular Outbound Calling</b>
                 ━━━━━━━━━━━━━━━━━━━━
                 Place an immediate phone call from the device's cellular radio.
 
-                ⚡ <b>Usage:</b>
-                • <code>/call &lt;number&gt;</code>                  — Default SIM, speakerphone
-                • <code>/call &lt;number&gt; sim1</code>             — Force SIM 1
-                • <code>/call &lt;number&gt; sim2</code>             — Force SIM 2
-                • <code>/call &lt;number&gt; earpiece</code>         — Route to earpiece
-                • <code>/call &lt;number&gt; sim2 speaker</code>     — SIM 2 + speakerphone
-                • <code>/call status</code>                    — Show available SIM accounts
+                ⚡ <b>Usage &amp; Templates (Tap to copy):</b>
+                • <code>/call &lt;phone_number&gt;</code> (Default SIM, speaker)
+                • <code>/call &lt;phone_number&gt; sim1 speaker</code>
+                • <code>/call &lt;phone_number&gt; sim2 speaker</code>
+                • <code>/call &lt;phone_number&gt; earpiece</code>
+                • <code>/call status</code> (List call-capable SIMs)
 
                 <b>Examples:</b>
-                • <code>/call +8801700000000</code>
-                • <code>/call +8801700000000 sim2</code>
-                • <code>/call +1234567890 sim1 speaker</code>
+                <code>/call +8801700000000</code>
+                <code>/call +8801700000000 sim2</code>
+                <code>/call +1234567890 sim1 speaker</code>
 
-                💡 <i>Speaker is default. Use <code>earpiece</code> for silent dialing.</i>
-            """.trimIndent()
+                💡 <i>Speakerphone is default. Use <code>earpiece</code> for silent dialing.</i>
+            """.trimIndent(),
+            replyMarkup = buttons
         )
     }
 

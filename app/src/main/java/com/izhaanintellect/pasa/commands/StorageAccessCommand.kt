@@ -70,12 +70,21 @@ class StorageAccessCommand @Inject constructor(
     }
 
     suspend fun executeGalleryLatest(args: List<String>, chatId: Long): CommandResult = withContext(Dispatchers.IO) {
-        // If password is supplied as non-numeric first arg, verify it; otherwise if it's a numeric count or empty, allow direct extraction
+        // If password is supplied as non-numeric first arg, verify it; otherwise if session is active or numeric count, allow direct extraction
         val countArg = args.firstOrNull { it.toIntOrNull() != null }?.toIntOrNull()
-        val candidate = args.firstOrNull { it.toIntOrNull() == null }?.trim()
+        val candidate = args.firstOrNull { it.toIntOrNull() == null && it.lowercase() !in setOf("latest", "gallery", "photos", "get", "extract", "3", "5", "10") }?.trim()
 
-        if (!candidate.isNullOrBlank() && authManager.hasMasterPassword()) {
-            if (!verifyCredentials(candidate)) {
+        if (authManager.hasMasterPassword() && !authManager.isSessionAuthenticated()) {
+            if (candidate.isNullOrBlank()) {
+                return@withContext CommandResult(
+                    success = false,
+                    message = "🔐 <b>Gallery Extraction (Zero-Trust Guard)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                            "Accessing camera roll photos requires Master Password authentication.\n\n" +
+                            "<b>Syntax:</b> <code>/gallery_latest &lt;master_password&gt; [count]</code>\n" +
+                            "<b>Example:</b> <code>/gallery_latest MySecretPass123 3</code>\n\n" +
+                            "💡 <i>Or send <code>/auth &lt;master_password&gt;</code> to unlock 15-minute quick session!</i>"
+                )
+            } else if (!verifyCredentials(candidate)) {
                 return@withContext CommandResult(
                     success = false,
                     message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. Gallery extraction rejected."
@@ -170,14 +179,27 @@ class StorageAccessCommand @Inject constructor(
     }
 
     suspend fun executeGetFile(args: List<String>, chatId: Long): CommandResult = withContext(Dispatchers.IO) {
-        val remainingArgs = if (authManager.hasMasterPassword()) {
+        val remainingArgs = if (authManager.hasMasterPassword() && !authManager.isSessionAuthenticated()) {
             if (args.size >= 2 && verifyCredentials(args[0])) {
+                args.drop(1)
+            } else if (args.size >= 1 && verifyCredentials(args[0])) {
+                emptyList()
+            } else {
+                return@withContext CommandResult(
+                    success = false,
+                    message = "🔐 <b>Storage Download (Zero-Trust Guard)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                            "Downloading files requires Master Password verification.\n\n" +
+                            "<b>Syntax:</b> <code>/getfile &lt;master_password&gt; &lt;#|path&gt;</code>\n" +
+                            "<b>Example:</b> <code>/getfile MySecretPass123 1</code>\n\n" +
+                            "💡 <i>Or send <code>/auth &lt;master_password&gt;</code> to unlock 15-minute quick session!</i>"
+                )
+            }
+        } else {
+            if (args.size >= 2 && authManager.hasMasterPassword() && verifyCredentials(args[0])) {
                 args.drop(1)
             } else {
                 args
             }
-        } else {
-            args
         }
 
         if (remainingArgs.isEmpty()) {

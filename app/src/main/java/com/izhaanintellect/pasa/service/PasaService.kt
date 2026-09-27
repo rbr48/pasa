@@ -3,11 +3,13 @@ package com.izhaanintellect.pasa.service
 import android.app.AlarmManager
 import android.app.Notification
 import android.app.PendingIntent
+import android.app.admin.DevicePolicyManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
+import com.izhaanintellect.pasa.admin.PasaDeviceAdmin
 import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
@@ -681,6 +683,37 @@ class PasaService : LifecycleService() {
                     Intent.ACTION_USER_PRESENT -> {
                         preferencesManager.lastOwnerHeartbeatTime = System.currentTimeMillis()
                         Log.d(TAG, "Device physically unlocked (USER_PRESENT) — Dead Man's Switch heartbeat refreshed")
+
+                        // Check if Escrow Token just got armed on physical lockscreen unlock
+                        try {
+                            if (PasaDeviceAdmin.isDeviceOwner(this@PasaService)) {
+                                val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+                                val component = PasaDeviceAdmin.getComponentName(this@PasaService)
+                                val isActive = dpm?.isResetPasswordTokenActive(component) == true
+                                if (isActive && !preferencesManager.isEscrowTokenArmed) {
+                                    preferencesManager.isEscrowTokenArmed = true
+                                    Log.i(TAG, "🎉 Hardware Escrow Token is now ARMED via Keyguard unlock!")
+                                    lifecycleScope.launch(Dispatchers.IO) {
+                                        try {
+                                            telegramApi.sendMessage(
+                                                token = preferencesManager.botToken,
+                                                request = com.izhaanintellect.pasa.bot.SendMessageRequest(
+                                                    chatId = preferencesManager.ownerChatIdLong,
+                                                    text = "✅ <b>Hardware Escrow Token Successfully Activated!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                                                            "Android Keyguard has authenticated and armed the token.\n\n" +
+                                                            "You can now remotely change your device lockscreen PIN anytime by sending <code>/set_os_pin &lt;pin&gt;</code> or use Duress unlock.",
+                                                    parseMode = "HTML"
+                                                )
+                                            )
+                                        } catch (e: Exception) {
+                                            Log.w(TAG, "Failed to send escrow armed celebration message: ${e.message}")
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Error checking escrow activation on USER_PRESENT: ${e.message}")
+                        }
                     }
                     Intent.ACTION_BATTERY_CHANGED -> {
                         checkThermalAnomaly(intent)

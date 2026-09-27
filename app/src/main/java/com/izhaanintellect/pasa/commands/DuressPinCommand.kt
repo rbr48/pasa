@@ -53,21 +53,29 @@ class DuressPinCommand @Inject constructor(
                 "✅ Ready"
             }
 
-            val tokenStatusText = if (isTokenActive) {
-                "✅ Armed"
-            } else {
-                "⚠️ Pending Activation (Tap button below to arm)"
+            val isTokenEnrolled = !preferencesManager.resetPasswordToken.isNullOrBlank()
+            val tokenStatusText = when {
+                isTokenActive -> "✅ Armed (Ready for remote PIN reset & Duress unlock)"
+                isTokenEnrolled -> "⏳ Enrolled & Staged (Lock screen & enter PIN once to complete activation)"
+                else -> "⚠️ Not Enrolled (Send /escrow arm to initialize)"
             }
 
             val replyMarkup = if (!isTokenActive && com.izhaanintellect.pasa.admin.PasaDeviceAdmin.isDeviceOwner(context)) {
                 InlineKeyboardMarkup(
                     inlineKeyboard = listOf(
                         listOf(
-                            InlineKeyboardButton("🔐 Arm Escrow Token", callbackData = "cmd:escrow:arm")
+                            InlineKeyboardButton("🔒 Lock Screen to Arm", callbackData = "cmd:lock:instant"),
+                            InlineKeyboardButton("🔐 Arm Escrow Prompt", callbackData = "cmd:escrow:arm")
                         )
                     )
                 )
             } else null
+
+            val usageHint = if (authManager.isSessionAuthenticated() || !authManager.hasMasterPassword()) {
+                "• <code>/duress_pin &lt;4-8 digits&gt;</code> to set\n• <code>/duress_pin clear</code> to remove."
+            } else {
+                "• <code>/duress_pin &lt;master_password&gt; &lt;4-8 digits&gt;</code> to set\n• <code>/duress_pin &lt;master_password&gt; clear</code> to remove.\n\n💡 <i>Or send <code>/auth &lt;master_password&gt;</code> to unlock 15-minute quick session!</i>"
+            }
 
             return CommandResult(
                 success = true,
@@ -77,34 +85,51 @@ class DuressPinCommand @Inject constructor(
                         "Attempt Lockout: $lockoutStatus\n" +
                         "Lockscreen Keypad Detection: ${if (a11yActive) "✅ Active" else "⚠️ Disabled (Enable in Accessibility)"}\n" +
                         "Hardware Escrow Token: $tokenStatusText\n\n" +
-                        (if (!isTokenActive) "💡 <i>Duress unlock works even without escrow token, but arming it enables hardware OS PIN clearing!</i>\n\n" else "") +
-                        "<i>Usage: <code>/duress_pin &lt;4-8 digits&gt;</code> to set, <code>/duress_pin clear</code> to remove.</i>",
+                        (if (!isTokenActive) "💡 <i>Duress unlock (mugshot, sat GPS SOS & Decoy OS) works immediately! To enable Knox hardware lockscreen clearing, lock screen & unlock once.</i>\n\n" else "") +
+                        "<b>Usage:</b>\n$usageHint",
                 replyMarkup = replyMarkup
             )
         }
 
-        if (authManager.hasMasterPassword()) {
+        val target: String
+        if (authManager.hasMasterPassword() && !authManager.isSessionAuthenticated()) {
             if (args.size < 2) {
+                if (args.size == 1 && authManager.verifyMasterPassword(args[0].trim())) {
+                    authManager.recordSessionAuthenticated()
+                    return CommandResult(
+                        success = false,
+                        message = "✅ <b>Master Password Verified!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                                "15-minute session active. Please specify your desired 4-8 digit Decoy Duress PIN:\n" +
+                                "<code>/duress_pin &lt;4-8 digits&gt;</code>"
+                    )
+                }
                 return CommandResult(
                     success = false,
                     message = "🔐 <b>Duress Coercion PIN (Zero-Trust Guard)</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
                             "To prevent unauthorized server tampering, configuring or clearing your decoy Duress PIN requires your Master Password.\n\n" +
                             "<b>Set:</b> <code>/duress_pin &lt;master_password&gt; &lt;4-8 digits&gt;</code>\n" +
                             "<b>Clear:</b> <code>/duress_pin &lt;master_password&gt; clear</code>\n" +
-                            "<b>Status:</b> <code>/duress_pin status</code>"
+                            "<b>Status:</b> <code>/duress_pin status</code>\n\n" +
+                            "💡 <i>Or authenticate your session once via <code>/auth &lt;master_password&gt;</code>.</i>"
                 )
             }
 
-            val masterPassword = args[0]
+            val masterPassword = args[0].trim()
             if (!authManager.verifyMasterPassword(masterPassword)) {
                 return CommandResult(
                     success = false,
                     message = "⛔ <b>Authentication Failed!</b> Incorrect Master Password. Duress PIN operation rejected."
                 )
             }
+            target = args[1].trim()
+        } else {
+            // Session is authenticated or no master password configured
+            target = if (args.size >= 2 && authManager.hasMasterPassword() && authManager.verifyMasterPassword(args[0].trim())) {
+                args[1].trim()
+            } else {
+                args.firstOrNull()?.trim() ?: ""
+            }
         }
-
-        val target = (if (authManager.hasMasterPassword()) args.getOrNull(1) else args.firstOrNull())?.trim() ?: ""
 
         if (target.equals("clear", ignoreCase = true) || target.equals("remove", ignoreCase = true)) {
             preferencesManager.duressPin = null

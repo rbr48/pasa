@@ -138,69 +138,124 @@ class TelegramMenuManager @Inject constructor(
             "menu:sms_help" -> buildSmsHelpSubmenu()
             "menu:license" -> buildLicenseSubmenu()
             // Wizards with 1-tap copyable templates
+            // Wizards with 1-tap copyable templates and interactive quick buttons
             "wizard:lost_mode" -> buildWizardCard(
                 title = "🛡️ Lost Mode Kiosk Lockdown",
                 desc = "Engages full-screen Kiosk defense overlay, disables keyguard biometrics, and turns off screen.",
                 syntax = "/lock lost <master_password> [message]",
                 example = "/lock lost MySecretPass123 Device reported stolen! Call 01700000000",
                 note = "To release Lost Mode remotely later, send <code>/unlock &lt;master_password&gt;</code>.",
-                parentHub = "menu:lockdown_hub"
+                parentHub = "menu:lockdown_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("🔒 Instant Lock (No Pass)", callbackData = "cmd:lock:instant")
+                    )
+                )
             )
             "wizard:set_os_pin" -> buildWizardCard(
                 title = "🔑 Knox Hardware OS Lock PIN Reset",
                 desc = "Overwrites forgotten or thief lockscreen PIN using Knox escrow tokens without wiping data.",
                 syntax = "/set_os_pin <new_pin>",
                 example = "/set_os_pin 7391",
-                note = "Requires Knox Device Owner. If Master Password is set, send <code>/set_os_pin &lt;masterPass&gt; &lt;newPin&gt;</code>.",
-                parentHub = "menu:device_owner_hub"
+                note = "Requires Knox Device Owner. If Master Password is set, send <code>/set_os_pin &lt;masterPass&gt; &lt;newPin&gt;</code> or send <code>/auth &lt;masterPass&gt;</code> first.",
+                parentHub = "menu:device_owner_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("🔐 Arm Escrow Token", callbackData = "cmd:escrow:arm"),
+                        InlineKeyboardButton("📊 Escrow Status", callbackData = "cmd:escrow:status")
+                    )
+                )
             )
             "wizard:lock_app" -> buildWizardCard(
                 title = "🧊 Smart Application Lockout",
                 desc = "Completely conceals and freezes target apps from launcher and memory.",
                 syntax = "/lock_app <target>",
-                example = "/lock_app gallery\n/lock_app phone\n/lock_app com.whatsapp",
+                example = "/lock_app gallery\n/lock_app phone\n/lock_app files\n/lock_app com.whatsapp",
                 note = "Available shortcuts: <code>gallery</code>, <code>phone</code>, <code>files</code>, or any package name.",
-                parentHub = "menu:device_owner_hub"
+                parentHub = "menu:device_owner_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("🧊 Freeze Gallery", callbackData = "cmd:lock_app:gallery"),
+                        InlineKeyboardButton("🧊 Freeze Phone", callbackData = "cmd:lock_app:phone"),
+                        InlineKeyboardButton("🧊 Freeze Files", callbackData = "cmd:lock_app:files")
+                    ),
+                    listOf(
+                        InlineKeyboardButton("📦 View Frozen Apps", callbackData = "cmd:frozen")
+                    )
+                )
             )
             "wizard:unlock_app" -> buildWizardCard(
                 title = "☀️ Restore Locked Application",
                 desc = "Unfreezes and restores hidden applications back to the app drawer.",
                 syntax = "/unlock_app <target>",
-                example = "/unlock_app gallery\n/unlock_app com.whatsapp",
+                example = "/unlock_app gallery\n/unlock_app phone\n/unlock_app files\n/unlock_app com.whatsapp",
                 note = "Restores app icon and unfreezes app processes immediately.",
-                parentHub = "menu:device_owner_hub"
+                parentHub = "menu:device_owner_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("☀️ Restore Gallery", callbackData = "cmd:unlock_app:gallery"),
+                        InlineKeyboardButton("☀️ Restore Phone", callbackData = "cmd:unlock_app:phone"),
+                        InlineKeyboardButton("☀️ Restore Files", callbackData = "cmd:unlock_app:files")
+                    ),
+                    listOf(
+                        InlineKeyboardButton("📦 View Frozen Apps", callbackData = "cmd:frozen")
+                    )
+                )
             )
             "wizard:call" -> buildWizardCard(
                 title = "📞 Remote Cellular Outbound Calling",
                 desc = "Remotely commands phone to place an outbound phone call via selected SIM slot.",
                 syntax = "/call <number> [sim1|sim2] [speaker|earpiece]",
-                example = "/call +8801700000000 sim1 speaker",
-                note = "Requires Device Owner or call phone permission. To inspect active carrier slots, send <code>/call status</code>.",
-                parentHub = "menu:data_hub"
+                example = "/call +8801700000000\n/call +8801700000000 sim1 speaker\n/call +8801700000000 sim2 speaker\n/call +8801700000000 earpiece",
+                note = "Requires Device Owner or CALL_PHONE permission. Inspect available SIM slots below.",
+                parentHub = "menu:data_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("📊 Available SIM Accounts", callbackData = "cmd:call:status"),
+                        InlineKeyboardButton("📶 SIM Telemetry", callbackData = "cmd:sim")
+                    )
+                )
             )
             "wizard:sendsms" -> buildWizardCard(
                 title = "✉️ Direct Cellular Outbound SMS",
                 desc = "Transmits an outbound SMS directly through the device's cellular radio.",
                 syntax = "/sendsms [sim1|sim2] <number> <message>",
-                example = "/sendsms +8801700000000 Emergency: Verify device location.",
+                example = "/sendsms +8801700000000 Emergency: Verify device location.\n/sendsms sim1 +8801700000000 Ping from PASA\n/sendsms sim2 +8801700000000 Ping from PASA",
                 note = "Can be used to expose unknown SIM phone number via caller ID.",
-                parentHub = "menu:data_hub"
+                parentHub = "menu:data_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("📶 Active SIMs & Signal", callbackData = "cmd:sim")
+                    )
+                )
             )
             "wizard:getfile" -> buildWizardCard(
                 title = "📁 Download Storage File",
                 desc = "Extracts any document, photo, or recording directly to Telegram (up to 50MB).",
                 syntax = "/getfile <file_number_or_path>",
                 example = "/getfile 1\n/getfile /sdcard/Download/secret.pdf",
-                note = "Tip: Send <code>/list_files</code> first to see numbered files with 1-tap download IDs!",
-                parentHub = "menu:data_hub"
+                note = "Tip: Tap 'Browse Storage Files' below to see numbered files with 1-tap download IDs!",
+                parentHub = "menu:data_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("📂 Browse Storage Files", callbackData = "cmd:list_files")
+                    )
+                )
             )
             "wizard:wifi_connect" -> buildWizardCard(
                 title = "📶 Emergency Wi-Fi Auto-Provisioning",
                 desc = "Remotely connects phone to a specific Wi-Fi network while device is locked.",
                 syntax = "/wifi_connect <ssid> [password]",
-                example = "/wifi_connect OfficeNetwork SecretPass123",
+                example = "/wifi_connect HomeNetwork SecretPass123\n/wifi_connect OpenGuestNetwork\n/wifi_connect status\n/wifi_connect on\n/wifi_connect off",
                 note = "Works on Android 10+ using WifiNetworkSpecifier and Android 8-9 using WifiConfiguration.",
-                parentHub = "menu:device_owner_hub"
+                parentHub = "menu:device_owner_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("📶 Wi-Fi Status", callbackData = "cmd:wifi_connect:status"),
+                        InlineKeyboardButton("🟢 Turn ON", callbackData = "cmd:wifi_connect:on"),
+                        InlineKeyboardButton("🔴 Turn OFF", callbackData = "cmd:wifi_connect:off")
+                    )
+                )
             )
             "wizard:lockscreen_info" -> buildWizardCard(
                 title = "📱 Lockscreen Emergency Banner",
@@ -208,7 +263,12 @@ class TelegramMenuManager @Inject constructor(
                 syntax = "/lockscreen_info <message>",
                 example = "/lockscreen_info Reward if returned: Call 01700000000",
                 note = "To clear the banner, send <code>/lockscreen_info clear</code>.",
-                parentHub = "menu:device_owner_hub"
+                parentHub = "menu:device_owner_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("❌ Clear Banner", callbackData = "cmd:lockscreen_info:clear")
+                    )
+                )
             )
             "wizard:autolock" -> buildWizardCard(
                 title = "⏱️ Screen Inactivity Autolock Timeout",
@@ -216,7 +276,15 @@ class TelegramMenuManager @Inject constructor(
                 syntax = "/autolock <seconds>",
                 example = "/autolock 30",
                 note = "Send <code>/autolock default</code> to restore system default timeout.",
-                parentHub = "menu:device_owner_hub"
+                parentHub = "menu:device_owner_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("⏱️ 15s", callbackData = "cmd:autolock:15"),
+                        InlineKeyboardButton("⏱️ 30s", callbackData = "cmd:autolock:30"),
+                        InlineKeyboardButton("⏱️ 60s", callbackData = "cmd:autolock:60"),
+                        InlineKeyboardButton("⏱️ Default", callbackData = "cmd:autolock:default")
+                    )
+                )
             )
             "wizard:sim_phone" -> buildWizardCard(
                 title = "📱 Set Emergency SMS Recipient",
@@ -230,17 +298,31 @@ class TelegramMenuManager @Inject constructor(
                 title = "💀 Anti-Forensic Dead Man's Switch",
                 desc = "Autonomous timer that executes containment/shredding if phone stays disconnected without owner check-in.",
                 syntax = "/deadman arm <hours> [wipe|lock]",
-                example = "/deadman arm 24 lock",
+                example = "/deadman arm 24 lock\n/deadman arm 48 lock\n/deadman disarm",
                 note = "To disarm, send <code>/deadman disarm</code>.",
-                parentHub = "menu:traps_hub"
+                parentHub = "menu:traps_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("📊 Deadman Status", callbackData = "cmd:deadman:status"),
+                        InlineKeyboardButton("💀 Arm 24h Lock", callbackData = "cmd:deadman:arm:24"),
+                        InlineKeyboardButton("🔓 Disarm", callbackData = "cmd:deadman:disarm")
+                    )
+                )
             )
             "wizard:thermal" -> buildWizardCard(
                 title = "🔥 Thermal Anomaly Trap (Anti-EDL)",
                 desc = "Detects hardware heat-gun backplate ungluing (>48°C) by forensic technicians.",
                 syntax = "/thermal arm [celsius_threshold]",
-                example = "/thermal arm 48",
+                example = "/thermal arm 48\n/thermal arm 52\n/thermal disarm",
                 note = "Severs USB data signaling pins immediately and enforces Kiosk defense.",
-                parentHub = "menu:traps_hub"
+                parentHub = "menu:traps_hub",
+                quickActions = listOf(
+                    listOf(
+                        InlineKeyboardButton("📊 Thermal Status", callbackData = "cmd:thermal:status"),
+                        InlineKeyboardButton("🔥 Arm (48°C)", callbackData = "cmd:thermal:arm:48"),
+                        InlineKeyboardButton("🔓 Disarm", callbackData = "cmd:thermal:disarm")
+                    )
+                )
             )
             else -> buildMainMenu()
         }
@@ -818,12 +900,22 @@ class TelegramMenuManager @Inject constructor(
             appendLine("3. Silently captures front & rear stealth selfies")
             appendLine("4. Obtains high-accuracy GPS coordinates")
             appendLine("5. Transmits an urgent 🚨 SOS Beacon to Telegram!")
+            appendLine()
+            appendLine("📝 <b>How to Configure:</b>")
+            appendLine("Send: <code>/duress_pin &lt;4-8 digit PIN&gt;</code>")
+            appendLine("Example: <code>/duress_pin 9182</code>")
+            appendLine()
+            appendLine("ℹ️ <i>If Master Password is set, send /auth &lt;password&gt; first or include it: /duress_pin &lt;password&gt; &lt;pin&gt;</i>")
         }
 
         val keyboard = InlineKeyboardMarkup(
             inlineKeyboard = listOf(
                 listOf(
                     InlineKeyboardButton("📊 Check Duress Status", callbackData = "cmd:duress_pin:status"),
+                    InlineKeyboardButton("🔐 Arm Escrow Token", callbackData = "cmd:escrow:arm")
+                ),
+                listOf(
+                    InlineKeyboardButton("🔒 Lock Screen to Arm", callbackData = "cmd:lock:instant"),
                     InlineKeyboardButton("❌ Clear Duress PIN", callbackData = "cmd:duress_pin:clear")
                 ),
                 listOf(
@@ -1030,7 +1122,8 @@ class TelegramMenuManager @Inject constructor(
         syntax: String,
         example: String,
         note: String,
-        parentHub: String
+        parentHub: String,
+        quickActions: List<List<InlineKeyboardButton>> = emptyList()
     ): MenuResponse {
         val text = buildString {
             appendLine("<b>$title</b>")
@@ -1052,14 +1145,18 @@ class TelegramMenuManager @Inject constructor(
             appendLine("<i>Copy the command above, edit if needed, and send it into this chat!</i>")
         }
 
-        val keyboard = InlineKeyboardMarkup(
-            inlineKeyboard = listOf(
-                listOf(
-                    InlineKeyboardButton("🔙 Back to Hub", callbackData = parentHub),
-                    InlineKeyboardButton("🏠 Dashboard", callbackData = "menu:main")
-                )
+        val rows = mutableListOf<List<InlineKeyboardButton>>()
+        if (quickActions.isNotEmpty()) {
+            rows.addAll(quickActions)
+        }
+        rows.add(
+            listOf(
+                InlineKeyboardButton("🔙 Back to Hub", callbackData = parentHub),
+                InlineKeyboardButton("🏠 Dashboard", callbackData = "menu:main")
             )
         )
+
+        val keyboard = InlineKeyboardMarkup(inlineKeyboard = rows)
         return MenuResponse(text, keyboard)
     }
 
@@ -1106,15 +1203,18 @@ class TelegramMenuManager @Inject constructor(
             BotCommand("menu", "📱 Open interactive touchscreen control panel"),
             BotCommand("help", "📖 Show full help manual & command guide"),
             BotCommand("status", "📊 Live battery, storage, RAM & sensor telemetry"),
+            BotCommand("auth", "🔓 Authenticate 15-minute administrative session"),
+            BotCommand("logout", "🔒 Lock active administrative session"),
             BotCommand("selftest", "🩺 Run 9-point security, GPS & sensor audit"),
             BotCommand("info", "ℹ️ Hardware specs, SIM details & OS version"),
             BotCommand("locate", "📍 Acquire instant GPS fix & Google Maps pin"),
             BotCommand("tower", "📡 Cell tower triangulation & signal RF telemetry"),
             BotCommand("sim", "📶 Active SIM slots, carrier name & signal RF"),
             BotCommand("sim_lock", "🛡️ SIM swap guard & ICCID whitelist lock"),
+            BotCommand("sim_tray_lock", "🔒 Cryptographic SIM tray lock (brick upon swap)"),
             BotCommand("sendsms", "✉️ Send outbound SMS directly via SIM slot"),
-            BotCommand("track", "🛰️ Start continuous live GPS tracking"),
-            BotCommand("track_stop", "🛑 Stop continuous GPS tracking"),
+            BotCommand("call", "📞 Remotely place outbound cellular phone call"),
+            BotCommand("track", "🛰️ Start or stop continuous live GPS tracking"),
             BotCommand("geofence", "🌐 Configure safe zone radius & breach alerts"),
             BotCommand("snap", "📸 Capture stealth photo (front, rear, or both)"),
             BotCommand("livestream", "🔴 Stream near-live camera video to Telegram"),
@@ -1130,22 +1230,27 @@ class TelegramMenuManager @Inject constructor(
             BotCommand("set_os_pin", "🔐 Overwrite hardware OS lockscreen PIN (Device Owner)"),
             BotCommand("set_master_pin", "🔑 Set cryptographic master PIN for remote control"),
             BotCommand("escrow", "🔐 Arm or check Knox hardware escrow password token"),
+            BotCommand("duress_pin", "🆘 Set decoy coercion PIN for emergency SOS"),
             BotCommand("unlock", "🔓 Dismiss Lost Mode & unlock device screen"),
             BotCommand("fakeshutdown", "🕶️ Fake shutdown: blackout screen & silent traps"),
             BotCommand("wake", "☀️ Restore device from Fake Shutdown blackout"),
-            BotCommand("ring", "🚨 Trigger maximum volume emergency siren"),
-            BotCommand("ring_stop", "🔇 Silence active emergency alarm siren"),
+            BotCommand("ring", "🚨 Trigger or stop maximum volume emergency siren"),
             BotCommand("vibrate_pulse", "📳 Locate device silently via tactile vibrations"),
+            BotCommand("trap", "🛡️ Arm sensor traps (snatch, charger, pocket)"),
             BotCommand("pattern_guard", "👁️ Failed pattern/PIN intrusion monitor & mugshot"),
             BotCommand("app_firewall", "🧱 Block RAT & spyware network outbound telemetry"),
             BotCommand("battery_alert", "🔋 Monitor abnormal drain & charging disconnects"),
+            BotCommand("a11y_shield", "🛡️ Accessibility Trojan shield & auto-defense"),
+            BotCommand("usb_autolock", "🔌 Locked-state USB killswitch (Cellebrite blocker)"),
+            BotCommand("anti_2g", "📡 Anti-2G / IMSI-Catcher Stingray shield"),
+            BotCommand("clipper_guard", "🪙 Crypto address clipboard hijacking trap"),
+            BotCommand("app_install_lock", "🚫 Sideload & unauthorized APK install lockdown"),
+            BotCommand("canary_guard", "🪤 Ransomware canary tripwire honeypot guard"),
+            BotCommand("otp_guard", "🛡️ 2FA / OTP notification interception guard"),
+            BotCommand("deadman", "💀 Anti-forensic dead man's switch timer"),
+            BotCommand("thermal", "🔥 Thermal anomaly trap (anti-EDL/heat gun)"),
             BotCommand("harden_boot", "🔒 Lock recovery mode & prevent unauthorized reset"),
             BotCommand("tamper_detect", "🔍 Scan for root, debuggers, hooks & emulators"),
-            BotCommand("dead_drop", "☁️ Backup evidence to encrypted local/cloud vault"),
-            BotCommand("message", "📢 Display urgent fullscreen alert on device"),
-            BotCommand("duress_pin", "🆘 Set decoy coercion PIN for emergency SOS"),
-            BotCommand("trap", "🛡️ Arm sensor traps (snatch, charger, pocket)"),
-            BotCommand("shred", "🗑️ Cryptographically shred sensitive files"),
             BotCommand("device_owner", "👑 Check Device Owner & Kiosk hardware lock"),
             BotCommand("antitamper", "🛡️ Safe boot, airplane mode & factory reset lock"),
             BotCommand("usb_lock", "🔌 Cut USB data signaling pins (charge only)"),
@@ -1161,12 +1266,12 @@ class TelegramMenuManager @Inject constructor(
             BotCommand("freeze", "🧊 Vanish banking & private apps into shadow vault"),
             BotCommand("unfreeze", "🔥 Restore hidden applications to launcher"),
             BotCommand("frozen", "📦 List currently frozen shadow vault apps"),
+            BotCommand("lock_app", "🧊 Freeze gallery, phone, files, or sensitive app"),
+            BotCommand("unlock_app", "☀️ Restore locked/hidden application"),
             BotCommand("biometrics", "🚫 Biometric coercion killswitch (forces Master PIN)"),
             BotCommand("dns", "🛡️ Enforce system-wide Private DNS-over-TLS"),
             BotCommand("reboot", "🔄 Remotely restart phone hardware (Device Owner)"),
-            BotCommand("stealth", "👁️ Toggle PASA app icon in launcher"),
-            BotCommand("hide", "🔇 Hide PASA app icon from phone launcher"),
-            BotCommand("show", "👁️ Restore PASA app icon to phone launcher"),
+            BotCommand("stealth", "👁️ Hide or restore PASA app icon in launcher"),
             BotCommand("contacts", "👥 Search device address book contacts"),
             BotCommand("call_log", "📞 View incoming and outgoing call history"),
             BotCommand("sms_log", "💬 View recent SMS inbox messages"),
@@ -1174,19 +1279,17 @@ class TelegramMenuManager @Inject constructor(
             BotCommand("network", "🌐 Current IP, Wi-Fi SSID & cell carrier info"),
             BotCommand("apps", "📦 List installed applications"),
             BotCommand("app_uninstall", "❌ Silently uninstall package (Device Owner)"),
+            BotCommand("gallery_latest", "🖼️ Extract recent photos from camera roll"),
+            BotCommand("getfile", "📁 Download file from storage directly to Telegram"),
+            BotCommand("list_files", "📂 Browse files in device storage directory"),
+            BotCommand("shred", "🗑️ Cryptographically shred sensitive files"),
             BotCommand("smssetup", "📲 Enroll TOTP for secure offline SMS commands"),
             BotCommand("sms_help", "📲 Air-gapped cellular SMS command manual & cheat sheet"),
             BotCommand("license", "🔑 Check Pro license status or activate key"),
             BotCommand("check_update", "🔄 Check for OTA app updates"),
-            BotCommand("update_confirm", "⚡ Download and install pending OTA update"),
-            BotCommand("call", "📞 Remotely place outbound cellular phone call"),
-            BotCommand("lock_app", "🧊 Freeze gallery, phone, files, or sensitive app"),
-            BotCommand("unlock_app", "☀️ Restore locked/hidden application"),
-            BotCommand("gallery_latest", "🖼️ Extract recent photos from camera roll"),
-            BotCommand("getfile", "📁 Download file from storage directly to Telegram"),
-            BotCommand("list_files", "📂 Browse files in device storage directory"),
-            BotCommand("wipe", "⚠️ Emergency remote factory reset (requires auth)"),
-            BotCommand("wipe_confirm", "💥 Confirm remote factory reset with password")
+            BotCommand("message", "📢 Display urgent fullscreen alert on device"),
+            BotCommand("dead_drop", "☁️ Backup evidence to encrypted local/cloud vault"),
+            BotCommand("wipe", "⚠️ Emergency remote factory reset (requires auth)")
         )
     }
 

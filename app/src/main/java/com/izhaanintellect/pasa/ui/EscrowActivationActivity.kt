@@ -103,56 +103,61 @@ class EscrowActivationActivity : AppCompatActivity() {
 
         SecurityActivityLauncher.dismissNotification(this, NOTIFICATION_ID)
 
-        if (result.resultCode == Activity.RESULT_OK || isActive) {
-            Toast.makeText(this, "✅ Hardware Escrow Token Armed!", Toast.LENGTH_SHORT).show()
-
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val pending = pendingPin
-                    if (!pending.isNullOrBlank()) {
-                        // ANDROID 16 FIX: Add 500ms delay for token to fully activate after credential verification
-                        kotlinx.coroutines.delay(500L)
-
-                        // Retry up to 3 times with exponential backoff for token readiness
-                        var lastError = ""
-                        var success = false
-                        for (attempt in 1..3) {
-                            val (result, msg) = PasaDeviceAdmin.resetDevicePassword(this@EscrowActivationActivity, pending, preferencesManager)
-                            success = result
-                            lastError = msg
-
+        if (result.resultCode == Activity.RESULT_OK) {
+            val tokenActiveNow = dpm.isResetPasswordTokenActive(component)
+            if (tokenActiveNow) {
+                preferencesManager.isEscrowTokenArmed = true
+                Toast.makeText(this, "✅ Hardware Escrow Token Armed!", Toast.LENGTH_SHORT).show()
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val pending = pendingPin
+                        if (!pending.isNullOrBlank()) {
+                            kotlinx.coroutines.delay(500L)
+                            var lastError = ""
+                            var success = false
+                            for (attempt in 1..3) {
+                                val (res, msg) = PasaDeviceAdmin.resetDevicePassword(this@EscrowActivationActivity, pending, preferencesManager)
+                                success = res
+                                lastError = msg
+                                if (success) break
+                                if (attempt < 3) kotlinx.coroutines.delay(200L * attempt)
+                            }
                             if (success) {
-                                Log.i(TAG, "PIN reset succeeded on attempt $attempt")
-                                break
+                                dispatchTelegramNotification(
+                                    "🔐 <b>OS Lockscreen PIN Updated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                                            "✅ Hardware escrow token verified and armed.\n" +
+                                            "🔑 <b>New Hardware PIN:</b> <code>$pending</code>\n\n" +
+                                            "<i>Your phone's lockscreen PIN has been permanently updated. Future PIN resets can now be executed 100% remotely!</i>"
+                                )
+                            } else {
+                                dispatchTelegramNotification(
+                                    "❌ <b>Failed to apply new PIN after 3 attempts:</b>\n$lastError"
+                                )
                             }
-
-                            Log.w(TAG, "PIN reset attempt $attempt failed: $msg")
-                            if (attempt < 3) {
-                                kotlinx.coroutines.delay(200L * attempt) // 200ms, 400ms backoff
-                            }
-                        }
-
-                        if (success) {
-                            dispatchTelegramNotification(
-                                "🔐 <b>OS Lockscreen PIN Updated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                                        "✅ Hardware escrow token verified and armed.\n" +
-                                        "🔑 <b>New Hardware PIN:</b> <code>$pending</code>\n\n" +
-                                        "<i>Your phone's lockscreen PIN has been permanently updated. Future PIN resets can now be executed 100% remotely!</i>"
-                            )
                         } else {
                             dispatchTelegramNotification(
-                                "❌ <b>Failed to apply new PIN after 3 attempts:</b>\n$lastError"
+                                "✅ <b>Hardware Escrow Token Successfully Armed!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                                        "Android Keyguard has authorized remote password management.\n\n" +
+                                        "You can now remotely change your device lockscreen PIN anytime by sending <code>/set_os_pin &lt;pin&gt;</code>."
                             )
                         }
-                    } else {
-                        dispatchTelegramNotification(
-                            "✅ <b>Hardware Escrow Token Successfully Armed!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                                    "Android Keyguard has authorized remote password management.\n\n" +
-                                    "You can now remotely change your device lockscreen PIN anytime by sending <code>/set_os_pin &lt;pin&gt;</code>."
-                        )
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error notifying Telegram after escrow activation", e)
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error notifying Telegram after escrow activation", e)
+                }
+            } else {
+                Toast.makeText(this, "📱 Lock & unlock phone once to finish arming", Toast.LENGTH_LONG).show()
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        dispatchTelegramNotification(
+                            "⏳ <b>Hardware Escrow Token Staged</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                                    "Credential confirmed! Android requires one lockscreen cycle to bind the synthetic password.\n\n" +
+                                    "📱 <b>Action needed:</b> Lock your phone screen (press Power button) and unlock it once with your PIN.\n\n" +
+                                    "⚡ Keyguard will then instantly activate the token, and PASA will alert you!"
+                        )
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error notifying Telegram after escrow staging", e)
+                    }
                 }
             }
         } else {

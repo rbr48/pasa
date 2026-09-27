@@ -42,23 +42,34 @@ class SendSmsCommand @Inject constructor(
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
         if (args.isEmpty()) {
+            val buttons = com.izhaanintellect.pasa.bot.InlineKeyboardMarkup(
+                inlineKeyboard = listOf(
+                    listOf(
+                        com.izhaanintellect.pasa.bot.InlineKeyboardButton("📶 Active SIMs & Signal", callbackData = "cmd:sim"),
+                        com.izhaanintellect.pasa.bot.InlineKeyboardButton("🔙 Back to Data Hub", callbackData = "menu:data_hub")
+                    )
+                )
+            )
             return CommandResult(
-                success = false,
+                success = true,
                 message = """
-                    📱 <b>Send SMS Command</b>
+                    ✉️ <b>Direct Cellular Outbound SMS</b>
                     ━━━━━━━━━━━━━━━━━━━━
-                    ⚠️ <b>Usage:</b>
+                    Transmits an SMS directly through the device's cellular radio.
+
+                    📝 <b>Format &amp; Templates (Tap to copy):</b>
                     • <code>/sendsms &lt;number&gt; &lt;message&gt;</code>
                     • <code>/sendsms sim1 &lt;number&gt; &lt;message&gt;</code>
                     • <code>/sendsms sim2 &lt;number&gt; &lt;message&gt;</code>
 
                     <b>Examples:</b>
-                    <code>/sendsms +8801XXXXXXXXX Ping from PASA</code>
-                    <code>/sendsms sim2 +1234567890 Test message</code>
+                    <code>/sendsms +8801700000000 Emergency: Verify device location.</code>
+                    <code>/sendsms sim1 +8801700000000 Ping from PASA</code>
+                    <code>/sendsms sim2 +8801700000000 Ping from PASA</code>
 
-                    ℹ️ When recipient receives the SMS, caller ID shows your SIM's phone number.
-                    This helps verify which line number the device's SIM is using.
-                """.trimIndent()
+                    ℹ️ <i>When the recipient receives the SMS, caller ID exposes the phone number of the device's SIM.</i>
+                """.trimIndent(),
+                replyMarkup = buttons
             )
         }
 
@@ -81,14 +92,19 @@ class SendSmsCommand @Inject constructor(
         if (numberArg.isNullOrBlank()) {
             return CommandResult(
                 success = false,
-                message = "❌ <b>Invalid Arguments</b>\n━━━━━━━━━━━━━━━━━━━━\n⚠️ Phone number is required."
+                message = "❌ <b>Missing Phone Number</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                        "<b>Usage:</b> <code>/sendsms &lt;number&gt; &lt;message&gt;</code>"
             )
         }
 
         if (messageArg.isNullOrBlank()) {
+            val prefix = if (simSelector != "default") "$simSelector " else ""
             return CommandResult(
                 success = false,
-                message = "❌ <b>Invalid Arguments</b>\n━━━━━━━━━━━━━━━━━━━━\n⚠️ Message body is required."
+                message = "❌ <b>Missing SMS Message Body</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
+                        "Recipient: <code>$numberArg</code>\n\n" +
+                        "<b>Please send with your message body:</b>\n" +
+                        "<code>/sendsms $prefix$numberArg Your emergency message here</code>"
             )
         }
 

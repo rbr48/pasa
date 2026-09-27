@@ -212,10 +212,8 @@ class CommandExecutor @Inject constructor(
             val wizardKey = when (cmdClean) {
                 "/lock_app" -> "wizard:lock_app"
                 "/unlock_app" -> "wizard:unlock_app"
-                "/call" -> "wizard:call"
                 "/sendsms" -> "wizard:sendsms"
                 "/getfile" -> "wizard:getfile"
-                "/wifi_connect" -> "wizard:wifi_connect"
                 "/autolock" -> "wizard:autolock"
                 "/lockscreen_info" -> "wizard:lockscreen_info"
                 "/set_os_pin" -> "wizard:set_os_pin"
@@ -674,6 +672,48 @@ class CommandExecutor @Inject constructor(
 
     private fun resolveHandler(cmd: String): Command? {
         return when (cmd) {
+            "/auth", "/login", "/authenticate" -> object : Command {
+                override val name = "/auth"
+                override val description = "Authenticate active 15-minute administrative session"
+                override val usage = "/auth <master_password>"
+                override suspend fun execute(args: List<String>, chatId: Long): com.izhaanintellect.pasa.commands.CommandResult {
+                    val pass = args.firstOrNull()?.trim()
+                    if (pass.isNullOrBlank()) {
+                        return com.izhaanintellect.pasa.commands.CommandResult(
+                            success = false,
+                            message = if (authManager.isSessionAuthenticated()) {
+                                "🟢 <b>Administrative Session Active</b>\n━━━━━━━━━━━━━━━━━━━━\nYour session is currently authenticated and active (15-min rolling window).\nYou can execute protected commands directly!"
+                            } else {
+                                "🔐 <b>Administrative Session Locked</b>\n━━━━━━━━━━━━━━━━━━━━\nAuthenticate your session for 15 minutes of uninterrupted command execution:\n\n<code>/auth &lt;master_password&gt;</code>"
+                            }
+                        )
+                    }
+                    val valid = authManager.verifyMasterPassword(pass)
+                    return if (valid) {
+                        com.izhaanintellect.pasa.commands.CommandResult(
+                            success = true,
+                            message = "🔓 <b>Session Authenticated Successfully!</b>\n━━━━━━━━━━━━━━━━━━━━\nAdministrative session is now active for 15 minutes.\nYou can run all protected commands without entering your Master Password on every command."
+                        )
+                    } else {
+                        com.izhaanintellect.pasa.commands.CommandResult(
+                            success = false,
+                            message = "❌ <b>Authentication Failed:</b> Incorrect Master Password."
+                        )
+                    }
+                }
+            }
+            "/logout" -> object : Command {
+                override val name = "/logout"
+                override val description = "Clear authenticated administrative session"
+                override val usage = "/logout"
+                override suspend fun execute(args: List<String>, chatId: Long): com.izhaanintellect.pasa.commands.CommandResult {
+                    authManager.clearSessionAuthentication()
+                    return com.izhaanintellect.pasa.commands.CommandResult(
+                        success = true,
+                        message = "🔒 <b>Administrative Session Cleared</b>\n━━━━━━━━━━━━━━━━━━━━\nProtected commands will now require Master Password verification."
+                    )
+                }
+            }
             "/lock", "/lock_message", "/lost_mode", "/lostmode" -> lockCommand
             "/set_os_pin", "/set_pin", "/reset_pin" -> setOsPinCommand
             "/escrow", "/escrow_arm", "/arm_escrow" -> escrowCommand

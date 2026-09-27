@@ -21,16 +21,28 @@ class WifiProvisionCommand @Inject constructor(
 
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
         if (args.isEmpty()) {
+            val (ok, statusText) = PasaDeviceAdmin.getWifiStatus(context)
+            val buttons = com.izhaanintellect.pasa.bot.InlineKeyboardMarkup(
+                inlineKeyboard = listOf(
+                    listOf(
+                        com.izhaanintellect.pasa.bot.InlineKeyboardButton("🟢 Turn Wi-Fi ON", callbackData = "cmd:wifi_connect:on"),
+                        com.izhaanintellect.pasa.bot.InlineKeyboardButton("🔴 Turn Wi-Fi OFF", callbackData = "cmd:wifi_connect:off")
+                    ),
+                    listOf(
+                        com.izhaanintellect.pasa.bot.InlineKeyboardButton("🔄 Refresh Status", callbackData = "cmd:wifi_connect:status"),
+                        com.izhaanintellect.pasa.bot.InlineKeyboardButton("🔙 Back to Hub", callbackData = "menu:device_owner_hub")
+                    )
+                )
+            )
             return CommandResult(
-                success = false,
-                message = "📶 <b>Emergency Wi-Fi Control</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
-                        "<b>Syntax:</b>\n" +
-                        "• <code>/wifi_connect &lt;ssid&gt; [password]</code> — Auto-connect while locked\n" +
-                        "• <code>/wifi_connect status</code> — View Wi-Fi radio & active connection\n" +
-                        "• <code>/wifi_connect on</code> — Turn on Wi-Fi radio\n" +
-                        "• <code>/wifi_connect off</code> — Turn off Wi-Fi radio\n\n" +
+                success = true,
+                message = "$statusText\n\n" +
+                        "📶 <b>Auto-Connect to Wi-Fi Network:</b>\n" +
+                        "• <code>/wifi_connect &lt;ssid&gt; &lt;password&gt;</code>\n" +
+                        "• <code>/wifi_connect &lt;open_ssid&gt;</code>\n\n" +
                         "<b>Example:</b>\n" +
-                        "<code>/wifi_connect HomeNetwork MySecretPass123</code>"
+                        "<code>/wifi_connect HomeNetwork MySecretPass123</code>",
+                replyMarkup = buttons
             )
         }
 
