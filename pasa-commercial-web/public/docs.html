@@ -407,7 +407,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:var(--txt)}
   <div class="topbar-actions">
     <a href="/" class="topbar-link">Console</a>
     <a href="/portal" class="topbar-link">Portal</a>
-    <span class="version-badge">v3.7.8 (Build 73)</span>
+    <span class="version-badge">v3.7.13 (Build 78)</span>
     <a href="/releases/pasa-latest.apk" class="topbar-btn topbar-btn-crimson">Download APK</a>
   </div>
 </header>
@@ -565,7 +565,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:var(--txt)}
   </div>
   <h1 class="doc-title">PASA Sentinel Documentation</h1>
   <div class="doc-meta">
-    <span class="doc-meta-badge">v3.7.8 (Build 73)</span>
+    <span class="doc-meta-badge">v3.7.13 (Build 78)</span>
     <span class="doc-meta-badge">Android 8.0 – 16</span>
     <span class="doc-meta-badge">Knox Device Owner</span>
     <span>Updated Sept 2026</span>
@@ -648,7 +648,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02);color:var(--txt)}
 <span class="cm">https://pasa.izhaanintellect.fun/releases/pasa-latest.apk</span>
 
 <span class="comment"># SHA-256 verification (ALWAYS verify before installing)</span>
-<span class="cm">76cd262348d2c4e433bc87a2ed2357d7b5a14acde3e4c174e8bef4ea935fd93e</span>
+<span class="cm">b282efb02bbcd54bc9941a5964c8c7d0fdf52490f1496469c97434c60a7f144e</span>
 
 <span class="comment"># Install via ADB (sideload)</span>
 adb install -r pasa-latest.apk</code></pre>
@@ -691,7 +691,7 @@ adb install -r pasa-latest.apk</code></pre>
 
   <div class="callout success">
     <div class="callout-title">Success</div>
-    <p>PASA will send a confirmation message to your Telegram bot: <code>🛡️ PASA SENTINEL v3.7.8 // ARMED & OPERATIONAL</code>. Send <code>/status</code> to verify all systems are active.</p>
+    <p>PASA will send a confirmation message to your Telegram bot: <code>🛡️ PASA SENTINEL v3.7.13 // ARMED & OPERATIONAL</code>. Send <code>/status</code> to verify all systems are active.</p>
   </div>
 
   <h2 class="doc-h2" id="qs-step5"><a class="anchor" href="#qs-step5">#</a> Step 5: Arm Hardware Escrow Token (PIN Reset)</h2>
@@ -824,7 +824,7 @@ adb devices
 <span class="comment"># Expected: device serial listed as "device" (not "unauthorized")</span>
 
 <span class="comment"># Step 2: Download and install APK</span>
-adb install -r pasa-v3.7.8-73.apk
+adb install -r pasa-v3.7.13-78.apk
 
 <span class="comment"># Step 3: Set Device Owner (ONE TIME ONLY)</span>
 adb shell dpm set-device-owner \
@@ -861,7 +861,7 @@ adb shell dpm list-owners</code></pre>
 
   <div class="callout">
     <div class="callout-title">Sovereign Mode</div>
-    <p>In v3.7.8+, your <code>botToken</code> and <code>ownerChatId</code> <strong>never leave your Android device</strong>. The client communicates directly and exclusively with <code>api.telegram.org</code>. No intermediary VPS poller is ever involved in your personal C2 pipeline.</p>
+    <p>In v3.7.13+, your <code>botToken</code> and <code>ownerChatId</code> <strong>never leave your Android device</strong>. The client communicates directly and exclusively with <code>api.telegram.org</code>. No intermediary VPS poller is ever involved in your personal C2 pipeline.</p>
   </div>
 
   <h2 class="doc-h2" id="create-bot"><a class="anchor" href="#create-bot">#</a> Creating Your Private Bot</h2>
@@ -1283,7 +1283,7 @@ PASA 419582 /wipe_confirm</code></pre>
         <tr><td>Silent OTA Updates</td><td class="check-yes">✓</td><td class="check-yes">✓ Lifetime</td><td class="check-yes">✓ Lifetime</td></tr>
         <tr><td>Ed25519 Offline Certificate</td><td class="check-no">✗</td><td class="check-yes">✓ 100-Year</td><td class="check-yes">✓ 100-Year</td></tr>
         <tr><td>Private Server Relay Node</td><td class="check-no">✗</td><td class="check-no">✗</td><td class="check-yes">✓ Dedicated</td></tr>
-        <tr><td>VIP WhatsApp Concierge</td><td class="check-no">✗</td><td class="check-no">✗</td><td class="check-yes">✓ +880 1728 284848</td></tr>
+        <tr><td>VIP WhatsApp Concierge</td><td class="check-no">✗</td><td class="check-no">✗</td><td class="check-yes">✓ +880 1762 033445</td></tr>
         <tr><td>Zero-Touch QR Provisioning</td><td class="check-no">✗</td><td class="check-yes">✓</td><td class="check-yes">✓</td></tr>
       </tbody>
     </table>
@@ -1434,15 +1434,15 @@ PASA 419582 /wipe_confirm</code></pre>
 
   <h2 class="doc-h2" id="virustotal"><a class="anchor" href="#virustotal">#</a> VirusTotal Multi-Scanner Report</h2>
 
-  <p class="doc-p">PASA Sentinel v3.7.8 APK has been scanned by 70+ antivirus engines on VirusTotal:</p>
+  <p class="doc-p">PASA Sentinel v3.7.13 APK has been scanned by 70+ antivirus engines on VirusTotal:</p>
 
   <div class="code-block">
     <div class="code-header"><span class="lang">apk verification</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-    <pre><code>File:     pasa-v3.7.8-73.apk
-Size:     19,266,128 bytes (18.4 MB)
-SHA-256:  76cd262348d2c4e433bc87a2ed2357d7b5a14acde3e4c174e8bef4ea935fd93e
+    <pre><code>File:     pasa-v3.7.13-78.apk
+Size:     19,299,007 bytes (18.4 MB)
+SHA-256:  b282efb02bbcd54bc9941a5964c8c7d0fdf52490f1496469c97434c60a7f144e
 Result:   <span class="str">0/72 detections</span>
-Report:   <span class="cm">https://www.virustotal.com/gui/file/76cd262348d2c4e433bc87a2ed2357d7b5a14acde3e4c174e8bef4ea935fd93e</span></code></pre>
+Report:   <span class="cm">https://www.virustotal.com/gui/file/b282efb02bbcd54bc9941a5964c8c7d0fdf52490f1496469c97434c60a7f144e</span></code></pre>
   </div>
 
   <h2 class="doc-h2" id="static-analysis"><a class="anchor" href="#static-analysis">#</a> Static Code Analysis (CodeQL + MobSF)</h2>
@@ -1685,3 +1685,4 @@ loadFromHash();
 </script>
 </body>
 </html>
+

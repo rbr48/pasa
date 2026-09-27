@@ -1,7 +1,7 @@
 # 🛡️ PASA Sentinel (Private Android Security Agent)
 ## Sovereign Mobile Defense & Covert Anti-Theft System
 ### Comprehensive User Manual & Operational Field Guide (English Edition)
-**Production Version:** v3.5.6 (Build 52) | **OS Target:** Android 8.0 – 16 (API 26 – 36) | **Document Revision:** 2026.1
+**Production Version:** v3.7.13 (Build 78) | **OS Target:** Android 8.0 – 16 (API 26 – 36) | **Document Revision:** 2026.2
 
 ---
 
@@ -641,8 +641,10 @@ PASA Sentinel operates on an offline sovereign ownership model with zero recurri
 * **Official Website:** `https://pasa.izhaanintellect.fun`
 * **Direct APK Download:** `https://pasa.izhaanintellect.fun/releases/pasa-latest.apk`
 * **Windows Setup Kit:** `https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip`
-* **WhatsApp VIP Concierge:** `+880 1728 284848`
+* **WhatsApp VIP Concierge:** `+880 1762 033445`
 * **Telegram Support Bot:** `@pasa_sentinel_bot`
 
 ---
 *PASA Sentinel — Sovereign Mobile Defense Architecture. Built by Izhaan Intellect.*
+
+

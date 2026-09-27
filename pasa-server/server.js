@@ -4941,7 +4941,15 @@ app.get(['/api/app/download/:filename', '/releases/:filename'], (req, res) => {
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ ok: false, description: 'Release file not found' });
   }
-  res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+  let contentType = 'application/octet-stream';
+  if (filename.endsWith('.apk')) {
+    contentType = 'application/vnd.android.package-archive';
+  } else if (filename.endsWith('.zip')) {
+    contentType = 'application/zip';
+  } else if (filename.endsWith('.json')) {
+    contentType = 'application/json';
+  }
+  res.setHeader('Content-Type', contentType);
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   const stat = fs.statSync(filePath);
