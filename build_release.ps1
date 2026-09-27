@@ -301,6 +301,15 @@ if ($apiOut -match "versionCode.*$VersionCode") {
 }
 
 # ---------------------------------------------------------------------------
+# STEP 10 -- Broadcast release announcement to Telegram Channel
+# ---------------------------------------------------------------------------
+Write-Step "STEP 10 -- Broadcast release announcement to Telegram Channel"
+
+$broadcastScript = Join-Path $ProjectRoot "pasa-server\scripts\broadcast_channel.js"
+if (Test-Path $broadcastScript) {
+    & node $broadcastScript
+    Write-OK "Broadcast sent to @pasa_sentinel_official"
+}
 # Done
 # ---------------------------------------------------------------------------
 Write-Host ""
