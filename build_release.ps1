@@ -32,11 +32,24 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot     = $PSScriptRoot
 $BuildGradle     = Join-Path $ProjectRoot "app\build.gradle.kts"
 $AppBuildDir     = Join-Path $ProjectRoot "app\build"
-$ReleasesDir     = Join-Path $ProjectRoot "releases"
-$VpsUser         = "root"
-$VpsHost         = "148.135.137.245"
-$VpsPort         = 2222
-$SshKey          = if (Test-Path "C:\Users\WALTON\.ssh\id_ed25519") { "C:\Users\WALTON\.ssh\id_ed25519" } else { "C:\Users\USER\.ssh\id_rsa_dbm" }
+# Source local deployment overrides if present (git-ignored)
+$LocalDeployConfig = Join-Path $ProjectRoot ".deploy.local.ps1"
+if (Test-Path $LocalDeployConfig) {
+    . $LocalDeployConfig
+}
+
+$VpsUser         = if ($env:PASA_VPS_USER) { $env:PASA_VPS_USER } else { "root" }
+$VpsHost         = if ($env:PASA_VPS_HOST) { $env:PASA_VPS_HOST } else { "127.0.0.1" }
+$VpsPort         = if ($env:PASA_VPS_PORT) { [int]$env:PASA_VPS_PORT } else { 22 }
+$SshKey          = if ($env:PASA_SSH_KEY -and (Test-Path $env:PASA_SSH_KEY)) {
+    $env:PASA_SSH_KEY
+} elseif (Test-Path (Join-Path $HOME ".ssh\id_ed25519")) {
+    Join-Path $HOME ".ssh\id_ed25519"
+} elseif (Test-Path (Join-Path $HOME ".ssh\id_rsa")) {
+    Join-Path $HOME ".ssh\id_rsa"
+} else {
+    Join-Path $HOME ".ssh\id_rsa"
+}
 $VpsWebRoot      = "/var/www/pasa-commercial-web/public/releases"
 $VpsServerRoot   = "/var/www/pasa-server/releases"
 $VpsInjectScript = "/var/www/pasa-server/inject_release.js"
