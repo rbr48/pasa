@@ -338,12 +338,12 @@ For independent verification by enterprise security teams, regulatory auditors, 
 * **Complete SARIF Audit Bundle:** [📦 PASA-Security-Audit-SARIF-v3.7.15.zip](https://pasa.izhaanintellect.fun/audit/PASA-Security-Audit-SARIF-v3.7.15.zip)
 * **Bundle SHA-256 Digest:**
   ```text
-  328142e519790ee6a9dace0213ed11fecafe5b8f862cd5040ba2e049e9bee0c6
+  3271918168d539e90c3b8b0c49efa987ee27d1136a60f13109553a55b4a805fb
   ```
 * **Raw Individual SARIF Reports:**
-  - [CodeQL Android Client Audit (Kotlin/Java)](https://pasa.izhaanintellect.fun/audit/codeql-java-kotlin.sarif) (1.16 MB)
-  - [CodeQL Server & C2 Audit (JavaScript)](https://pasa.izhaanintellect.fun/audit/codeql-javascript.sarif) (1.10 MB)
-  - [MobSF Mobile App Security Report](https://pasa.izhaanintellect.fun/audit/mobsfscan.sarif) (1.03 MB)
+  - [CodeQL Android Client Audit (Kotlin/Java)](https://pasa.izhaanintellect.fun/audit/codeql-java-kotlin.sarif) (1.14 MB)
+  - [CodeQL Server & C2 Audit (JavaScript)](https://pasa.izhaanintellect.fun/audit/codeql-javascript.sarif) (1.29 MB)
+  - [MobSF Mobile App Security Report](https://pasa.izhaanintellect.fun/audit/mobsfscan.sarif) (1.13 MB)
   - [Audit Summary & Provenance](https://pasa.izhaanintellect.fun/audit/independent_audit_summary.md)
 
 ---

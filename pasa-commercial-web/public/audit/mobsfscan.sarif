@@ -144,34 +144,6 @@
               }
             },
             {
-              "id": "android_tapjacking",
-              "help": {
-                "text": "This app does not have capabilities to prevent tapjacking attacks.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9"
-              },
-              "name": "This app does not have capabilities to prevent tapjacking attacks (CWE-200)",
-              "properties": {
-                "tags": [
-                  "security",
-                  "external/cwe/cwe-200",
-                  "owasp-mobile/m1",
-                  "masvs/platform-9"
-                ],
-                "precision": "medium",
-                "security-severity": "2.0",
-                "problem.severity": "note"
-              },
-              "defaultConfiguration": {
-                "level": "note"
-              },
-              "fullDescription": {
-                "text": "This app does not have capabilities to prevent tapjacking attacks."
-              },
-              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9",
-              "shortDescription": {
-                "text": "This app does not have capabilities to prevent tapjacking attacks (CWE-200)"
-              }
-            },
-            {
               "id": "android_certificate_transparency",
               "help": {
                 "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4"
@@ -200,17 +172,17 @@
               }
             },
             {
-              "id": "android_root_detection",
+              "id": "android_ssl_pinning",
               "help": {
-                "text": "This app does not have root detection capabilities. Running a sensitive application on a rooted device questions the device integrity and affects users data.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1"
+                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4"
               },
-              "name": "This app does not have root detection capabilities (CWE-919)",
+              "name": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel (CWE-295)",
               "properties": {
                 "tags": [
                   "security",
-                  "external/cwe/cwe-919",
-                  "owasp-mobile/m8",
-                  "masvs/resilience-1"
+                  "external/cwe/cwe-295",
+                  "owasp-mobile/m3",
+                  "masvs/network-4"
                 ],
                 "precision": "medium",
                 "security-severity": "2.0",
@@ -220,11 +192,39 @@
                 "level": "note"
               },
               "fullDescription": {
-                "text": "This app does not have root detection capabilities. Running a sensitive application on a rooted device questions the device integrity and affects users data."
+                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel."
               },
-              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
+              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
               "shortDescription": {
-                "text": "This app does not have root detection capabilities (CWE-919)"
+                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel (CWE-295)"
+              }
+            },
+            {
+              "id": "android_tapjacking",
+              "help": {
+                "text": "This app does not have capabilities to prevent tapjacking attacks.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9"
+              },
+              "name": "This app does not have capabilities to prevent tapjacking attacks (CWE-200)",
+              "properties": {
+                "tags": [
+                  "security",
+                  "external/cwe/cwe-200",
+                  "owasp-mobile/m1",
+                  "masvs/platform-9"
+                ],
+                "precision": "medium",
+                "security-severity": "2.0",
+                "problem.severity": "note"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "fullDescription": {
+                "text": "This app does not have capabilities to prevent tapjacking attacks."
+              },
+              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9",
+              "shortDescription": {
+                "text": "This app does not have capabilities to prevent tapjacking attacks (CWE-200)"
               }
             },
             {
@@ -256,17 +256,17 @@
               }
             },
             {
-              "id": "android_ssl_pinning",
+              "id": "android_root_detection",
               "help": {
-                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4"
+                "text": "This app does not have root detection capabilities. Running a sensitive application on a rooted device questions the device integrity and affects users data.\n\nReference: https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1"
               },
-              "name": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel (CWE-295)",
+              "name": "This app does not have root detection capabilities (CWE-919)",
               "properties": {
                 "tags": [
                   "security",
-                  "external/cwe/cwe-295",
-                  "owasp-mobile/m3",
-                  "masvs/network-4"
+                  "external/cwe/cwe-919",
+                  "owasp-mobile/m8",
+                  "masvs/resilience-1"
                 ],
                 "precision": "medium",
                 "security-severity": "2.0",
@@ -276,11 +276,11 @@
                 "level": "note"
               },
               "fullDescription": {
-                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel."
+                "text": "This app does not have root detection capabilities. Running a sensitive application on a rooted device questions the device integrity and affects users data."
               },
-              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
+              "helpUri": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
               "shortDescription": {
-                "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel (CWE-295)"
+                "text": "This app does not have root detection capabilities (CWE-919)"
               }
             }
           ],
@@ -292,7 +292,7 @@
       "invocations": [
         {
           "executionSuccessful": true,
-          "endTimeUtc": "2026-09-27T04:37:24Z"
+          "endTimeUtc": "2026-09-27T10:03:00Z"
         }
       ],
       "results": [
@@ -1098,9 +1098,9 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                Log.e(TAG, \"Failed launching FakeShutdownActivity on power menu intercept\", e)"
+                    "text": "                Log.e(TAG, \"Failed launching ScreenGuardActivity on power menu intercept\", e)"
                   },
-                  "endColumn": 95,
+                  "endColumn": 94,
                   "endLine": 442,
                   "startColumn": 17,
                   "startLine": 442
@@ -4500,9 +4500,9 @@
                     "text": "            Log.e(TAG, \"Failed to upload document: ${e.message}\", e)"
                   },
                   "endColumn": 69,
-                  "endLine": 918,
+                  "endLine": 921,
                   "startColumn": 13,
-                  "startLine": 918
+                  "startLine": 921
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -4533,9 +4533,9 @@
                     "text": "            Log.e(TAG, \"Failed to upload video\", e)"
                   },
                   "endColumn": 52,
-                  "endLine": 952,
+                  "endLine": 955,
                   "startColumn": 13,
-                  "startLine": 952
+                  "startLine": 955
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -4566,9 +4566,9 @@
                     "text": "                Log.e(TAG, \"Failed to send text message with HTML, retrying plain text fallback: ${e.message}\")"
                   },
                   "endColumn": 112,
-                  "endLine": 965,
+                  "endLine": 968,
                   "startColumn": 17,
-                  "startLine": 965
+                  "startLine": 968
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -4599,9 +4599,9 @@
                     "text": "                    Log.e(TAG, \"Failed fallback plain text message: ${e2.message}\", e2)"
                   },
                   "endColumn": 88,
-                  "endLine": 973,
+                  "endLine": 976,
                   "startColumn": 21,
-                  "startLine": 973
+                  "startLine": 976
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -4632,9 +4632,9 @@
                     "text": "                Log.e(TAG, \"Failed to send text chunk $idx, retrying plain text fallback: ${e.message}\")"
                   },
                   "endColumn": 105,
-                  "endLine": 1023,
+                  "endLine": 1026,
                   "startColumn": 17,
-                  "startLine": 1023
+                  "startLine": 1026
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -4665,9 +4665,9 @@
                     "text": "                    Log.e(TAG, \"Failed fallback plain text chunk $idx: ${e2.message}\", e2)"
                   },
                   "endColumn": 91,
-                  "endLine": 1036,
+                  "endLine": 1039,
                   "startColumn": 21,
-                  "startLine": 1036
+                  "startLine": 1039
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -4698,9 +4698,9 @@
                     "text": "            Log.e(TAG, \"Failed to upload photo\", e)"
                   },
                   "endColumn": 52,
-                  "endLine": 1072,
+                  "endLine": 1075,
                   "startColumn": 13,
-                  "startLine": 1072
+                  "startLine": 1075
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -4731,9 +4731,9 @@
                     "text": "            Log.e(TAG, \"Failed to upload audio\", e)"
                   },
                   "endColumn": 52,
-                  "endLine": 1106,
+                  "endLine": 1109,
                   "startColumn": 13,
-                  "startLine": 1106
+                  "startLine": 1109
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -4764,9 +4764,9 @@
                     "text": "            Log.e(TAG, \"Failed to dispatch location pin\", e)"
                   },
                   "endColumn": 61,
-                  "endLine": 1117,
+                  "endLine": 1120,
                   "startColumn": 13,
-                  "startLine": 1117
+                  "startLine": 1120
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -4797,9 +4797,9 @@
                     "text": "            Log.e(TAG, \"Error inserting command log\", e)"
                   },
                   "endColumn": 57,
-                  "endLine": 1134,
+                  "endLine": 1137,
                   "startColumn": 13,
-                  "startLine": 1134
+                  "startLine": 1137
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/bot/CommandExecutor.kt"
@@ -7434,237 +7434,6 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                Log.e(TAG, \"Failed launching test fake shutdown: ${e.message}\", e)"
-                  },
-                  "endColumn": 83,
-                  "endLine": 76,
-                  "startColumn": 17,
-                  "startLine": 76
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/FakeShutdownCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "        Log.i(TAG, \"Waking device from Fake Shutdown\")"
-                  },
-                  "endColumn": 55,
-                  "endLine": 241,
-                  "startColumn": 9,
-                  "startLine": 241
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/FakeShutdownCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "            Log.w(TAG, \"Failed to broadcast wake intent: ${e.message}\")"
-                  },
-                  "endColumn": 72,
-                  "endLine": 262,
-                  "startColumn": 13,
-                  "startLine": 262
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/FakeShutdownCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "        Log.i(TAG, \"Starting Fake Shutdown deception\")"
-                  },
-                  "endColumn": 55,
-                  "endLine": 274,
-                  "startColumn": 9,
-                  "startLine": 274
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/FakeShutdownCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                    Log.i(TAG, \"Lock Task mode re-applied for fake shutdown\")"
-                  },
-                  "endColumn": 78,
-                  "endLine": 286,
-                  "startColumn": 21,
-                  "startLine": 286
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/FakeShutdownCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                Log.w(TAG, \"Could not configure Lock Task mode: ${e.message}\")"
-                  },
-                  "endColumn": 79,
-                  "endLine": 289,
-                  "startColumn": 17,
-                  "startLine": 289
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/FakeShutdownCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "            Log.e(TAG, \"Failed to launch FakeShutdownActivity\", e)"
-                  },
-                  "endColumn": 67,
-                  "endLine": 304,
-                  "startColumn": 13,
-                  "startLine": 304
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/FakeShutdownCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
                     "text": "        Log.i(TAG, \"Geofence set at ${loc.latitude},${loc.longitude} r=${radius}m\")"
                   },
                   "endColumn": 84,
@@ -10149,6 +9918,237 @@
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/ScreenBurstCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                Log.e(TAG, \"Failed launching test screen guard: ${e.message}\", e)"
+                  },
+                  "endColumn": 82,
+                  "endLine": 76,
+                  "startColumn": 17,
+                  "startLine": 76
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/ScreenGuardCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "        Log.i(TAG, \"Waking device from screen guard (isFromTelegramOwner=$isFromTelegramOwner)\")"
+                  },
+                  "endColumn": 97,
+                  "endLine": 243,
+                  "startColumn": 9,
+                  "startLine": 243
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/ScreenGuardCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.w(TAG, \"Failed to broadcast wake intent: ${e.message}\")"
+                  },
+                  "endColumn": 72,
+                  "endLine": 267,
+                  "startColumn": 13,
+                  "startLine": 267
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/ScreenGuardCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "        Log.i(TAG, \"Starting display standby deception\")"
+                  },
+                  "endColumn": 57,
+                  "endLine": 279,
+                  "startColumn": 9,
+                  "startLine": 279
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/ScreenGuardCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                    Log.i(TAG, \"Lock Task mode re-applied for screen guard\")"
+                  },
+                  "endColumn": 77,
+                  "endLine": 291,
+                  "startColumn": 21,
+                  "startLine": 291
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/ScreenGuardCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                Log.w(TAG, \"Could not configure Lock Task mode: ${e.message}\")"
+                  },
+                  "endColumn": 79,
+                  "endLine": 294,
+                  "startColumn": 17,
+                  "startLine": 294
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/ScreenGuardCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.e(TAG, \"Failed to launch ScreenGuardActivity\", e)"
+                  },
+                  "endColumn": 66,
+                  "endLine": 309,
+                  "startColumn": 13,
+                  "startLine": 309
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/ScreenGuardCommand.kt"
                 }
               }
             }
@@ -12747,12 +12747,12 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "            Log.i(TAG, \"\u26a0\ufe0f /unlock called but Lost Mode not active\")"
+                    "text": "            Log.i(TAG, \"\u26a0\ufe0f /unlock called but neither Lost Mode nor Fake Shutdown is active\")"
                   },
-                  "endColumn": 73,
-                  "endLine": 39,
+                  "endColumn": 98,
+                  "endLine": 45,
                   "startColumn": 13,
-                  "startLine": 39
+                  "startLine": 45
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
@@ -12780,12 +12780,12 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "        Log.i(TAG, \"\ud83d\udd13 Processing remote unlock\")"
+                    "text": "        Log.i(TAG, \"\ud83d\udd13 Processing remote unlock (LostMode=$isLostMode, FakeShutdown=$isFakeShutdown)\")"
                   },
-                  "endColumn": 52,
-                  "endLine": 75,
+                  "endColumn": 105,
+                  "endLine": 89,
                   "startColumn": 9,
-                  "startLine": 75
+                  "startLine": 89
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
@@ -12813,12 +12813,12 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "            Log.i(TAG, \"\u2705 Lost Mode preferences cleared\")"
+                    "text": "                    Log.i(TAG, \"\u2705 Fake Shutdown dismissal broadcast sent\")"
                   },
-                  "endColumn": 60,
-                  "endLine": 81,
-                  "startColumn": 13,
-                  "startLine": 81
+                  "endColumn": 77,
+                  "endLine": 107,
+                  "startColumn": 21,
+                  "startLine": 107
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
@@ -12846,12 +12846,12 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                        Log.i(TAG, \"\u2705 Keyguard features restored (disabledFeatures=$disabledFeatures)\")"
+                    "text": "                    Log.w(TAG, \"\u26a0\ufe0f Failed to broadcast fake shutdown dismissal: ${e.message}\")"
                   },
-                  "endColumn": 106,
-                  "endLine": 103,
-                  "startColumn": 25,
-                  "startLine": 103
+                  "endColumn": 99,
+                  "endLine": 109,
+                  "startColumn": 21,
+                  "startLine": 109
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
@@ -12879,141 +12879,9 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                        Log.w(TAG, \"\u26a0\ufe0f Could not restore keyguard features: ${e.message}\")"
+                    "text": "                Log.i(TAG, \"\u2705 Lost Mode preferences cleared\")"
                   },
-                  "endColumn": 95,
-                  "endLine": 105,
-                  "startColumn": 25,
-                  "startLine": 105
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                        Log.i(TAG, \"\u2705 Lockscreen owner message cleared\")"
-                  },
-                  "endColumn": 75,
-                  "endLine": 111,
-                  "startColumn": 25,
-                  "startLine": 111
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                        Log.w(TAG, \"\u26a0\ufe0f Could not clear lockscreen message: ${e.message}\")"
-                  },
-                  "endColumn": 94,
-                  "endLine": 113,
-                  "startColumn": 25,
-                  "startLine": 113
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                Log.i(TAG, \"\u2705 Device Owner restrictions cleared\")"
-                  },
-                  "endColumn": 68,
-                  "endLine": 116,
-                  "startColumn": 17,
-                  "startLine": 116
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                Log.w(TAG, \"\u26a0\ufe0f Partial Device Owner cleanup: ${e.message}\")"
-                  },
-                  "endColumn": 80,
+                  "endColumn": 64,
                   "endLine": 118,
                   "startColumn": 17,
                   "startLine": 118
@@ -13044,12 +12912,12 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                Log.i(TAG, \"\u2705 Dismissal broadcast sent\")"
+                    "text": "                            Log.i(TAG, \"\u2705 Keyguard features restored (disabledFeatures=$disabledFeatures)\")"
                   },
-                  "endColumn": 59,
-                  "endLine": 127,
-                  "startColumn": 17,
-                  "startLine": 127
+                  "endColumn": 110,
+                  "endLine": 139,
+                  "startColumn": 29,
+                  "startLine": 139
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
@@ -13077,12 +12945,12 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                Log.w(TAG, \"\u26a0\ufe0f Broadcast failed: ${e.message}\")"
+                    "text": "                            Log.w(TAG, \"\u26a0\ufe0f Could not restore keyguard features: ${e.message}\")"
                   },
-                  "endColumn": 68,
-                  "endLine": 129,
-                  "startColumn": 17,
-                  "startLine": 129
+                  "endColumn": 99,
+                  "endLine": 141,
+                  "startColumn": 29,
+                  "startLine": 141
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
@@ -13110,45 +12978,243 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                Log.i(TAG, \"\u2705 Notification dismissed\")"
-                  },
-                  "endColumn": 57,
-                  "endLine": 138,
-                  "startColumn": 17,
-                  "startLine": 138
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                Log.w(TAG, \"\u26a0\ufe0f Notification dismiss failed: ${e.message}\")"
+                    "text": "                            Log.i(TAG, \"\u2705 Lockscreen owner message cleared\")"
                   },
                   "endColumn": 79,
-                  "endLine": 140,
-                  "startColumn": 17,
-                  "startLine": 140
+                  "endLine": 152,
+                  "startColumn": 29,
+                  "startLine": 152
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                            Log.w(TAG, \"\u26a0\ufe0f Could not clear lockscreen message: ${e.message}\")"
+                  },
+                  "endColumn": 98,
+                  "endLine": 154,
+                  "startColumn": 29,
+                  "startLine": 154
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                    Log.i(TAG, \"\u2705 Device Owner restrictions cleared\")"
+                  },
+                  "endColumn": 72,
+                  "endLine": 157,
+                  "startColumn": 21,
+                  "startLine": 157
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                    Log.w(TAG, \"\u26a0\ufe0f Partial Device Owner cleanup: ${e.message}\")"
+                  },
+                  "endColumn": 84,
+                  "endLine": 159,
+                  "startColumn": 21,
+                  "startLine": 159
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                    Log.i(TAG, \"\u2705 Lost Mode dismissal broadcast sent\")"
+                  },
+                  "endColumn": 73,
+                  "endLine": 168,
+                  "startColumn": 21,
+                  "startLine": 168
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                    Log.w(TAG, \"\u26a0\ufe0f Broadcast failed: ${e.message}\")"
+                  },
+                  "endColumn": 72,
+                  "endLine": 170,
+                  "startColumn": 21,
+                  "startLine": 170
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                    Log.i(TAG, \"\u2705 Notification dismissed\")"
+                  },
+                  "endColumn": 61,
+                  "endLine": 179,
+                  "startColumn": 21,
+                  "startLine": 179
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                    Log.w(TAG, \"\u26a0\ufe0f Notification dismiss failed: ${e.message}\")"
+                  },
+                  "endColumn": 83,
+                  "endLine": 181,
+                  "startColumn": 21,
+                  "startLine": 181
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
@@ -13179,9 +13245,9 @@
                     "text": "            Log.e(TAG, \"\u274c Unlock failed: ${e.message}\", e)"
                   },
                   "endColumn": 61,
-                  "endLine": 151,
+                  "endLine": 197,
                   "startColumn": 13,
-                  "startLine": 151
+                  "startLine": 197
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/commands/UnlockCommand.kt"
@@ -27267,15 +27333,15 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                Log.i(TAG, \"Received remote wake broadcast. Exiting Fake Shutdown mode.\")"
+                    "text": "                Log.i(TAG, \"Received remote wake broadcast. Exiting screen guard mode.\")"
                   },
-                  "endColumn": 90,
+                  "endColumn": 89,
                   "endLine": 79,
                   "startColumn": 17,
                   "startLine": 79
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27300,81 +27366,15 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                Log.i(TAG, \"Entered Lock Task mode for fake shutdown\")"
+                    "text": "                    Log.d(TAG, \"Back button pressed during screen guard - ignored\")"
                   },
-                  "endColumn": 71,
-                  "endLine": 93,
-                  "startColumn": 17,
-                  "startLine": 93
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                Log.w(TAG, \"Could not enter Lock Task mode: ${e.message}\")"
-                  },
-                  "endColumn": 75,
-                  "endLine": 95,
-                  "startColumn": 17,
-                  "startLine": 95
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                    Log.d(TAG, \"Back button pressed during fake shutdown - ignored\")"
-                  },
-                  "endColumn": 85,
-                  "endLine": 107,
+                  "endColumn": 84,
+                  "endLine": 104,
                   "startColumn": 21,
-                  "startLine": 107
+                  "startLine": 104
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27399,48 +27399,15 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                Log.w(TAG, \"Could not set silent mode: ${e.message}\")"
+                    "text": "                        Log.i(TAG, \"Screen guard blackout sequence initiated\")"
                   },
-                  "endColumn": 70,
-                  "endLine": 133,
-                  "startColumn": 17,
-                  "startLine": 133
-                },
-                "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-STORAGE-3",
-            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_kotlin_logging",
-          "ruleIndex": 0
-        },
-        {
-          "message": {
-            "text": "The App logs information. Sensitive information should never be logged."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "                        Log.i(TAG, \"Fake shutdown blackout sequence initiated\")"
-                  },
-                  "endColumn": 80,
-                  "endLine": 145,
+                  "endColumn": 79,
+                  "endLine": 127,
                   "startColumn": 25,
-                  "startLine": 145
+                  "startLine": 127
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27468,12 +27435,12 @@
                     "text": "                    Log.w(TAG, \"Blackout transition warning: ${e.message}\")"
                   },
                   "endColumn": 76,
-                  "endLine": 148,
+                  "endLine": 130,
                   "startColumn": 21,
-                  "startLine": 148
+                  "startLine": 130
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27498,15 +27465,15 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "            Log.e(TAG, \"Fatal error in FakeShutdownActivity.onCreate\", e)"
+                    "text": "            Log.e(TAG, \"Fatal error in ScreenGuardActivity.onCreate\", e)"
                   },
-                  "endColumn": 74,
-                  "endLine": 184,
+                  "endColumn": 73,
+                  "endLine": 166,
                   "startColumn": 13,
-                  "startLine": 184
+                  "startLine": 166
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27531,15 +27498,15 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "            Log.w(TAG, \"FakeShutdownActivity paused while still active \u2014 re-launching\")"
+                    "text": "            Log.w(TAG, \"ScreenGuardActivity paused while still active \u2014 re-launching\")"
                   },
-                  "endColumn": 90,
-                  "endLine": 220,
+                  "endColumn": 89,
+                  "endLine": 205,
                   "startColumn": 13,
-                  "startLine": 220
+                  "startLine": 205
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27564,15 +27531,81 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                Log.e(TAG, \"Failed to re-launch fake shutdown: ${e.message}\")"
+                    "text": "                Log.e(TAG, \"Failed to re-launch screen guard: ${e.message}\")"
                   },
-                  "endColumn": 78,
+                  "endColumn": 77,
+                  "endLine": 219,
+                  "startColumn": 17,
+                  "startLine": 219
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.d(TAG, \"Hardware emergency escape sequence: Volume Up pressed ($volumeUpEscapeCount/4)\")"
+                  },
+                  "endColumn": 105,
+                  "endLine": 232,
+                  "startColumn": 13,
+                  "startLine": 232
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "                Log.w(TAG, \"Hardware emergency escape sequence triggered (4x Volume Up). Exiting screen guard.\")"
+                  },
+                  "endColumn": 113,
                   "endLine": 234,
                   "startColumn": 17,
                   "startLine": 234
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27597,15 +27630,15 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "                Log.d(TAG, \"Suppressed hardware key event during fake shutdown: ${event.keyCode}\")"
+                    "text": "            Log.d(TAG, \"Suppressed hardware key event during screen guard: ${event.keyCode}\")"
                   },
-                  "endColumn": 99,
-                  "endLine": 246,
-                  "startColumn": 17,
-                  "startLine": 246
+                  "endColumn": 94,
+                  "endLine": 243,
+                  "startColumn": 13,
+                  "startLine": 243
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27630,15 +27663,15 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "        Log.w(TAG, \"Screen touch detected in Fake Shutdown mode! Dispatching deception alert & photo.\")"
+                    "text": "        Log.w(TAG, \"Screen touch detected in screen guard mode! Dispatching alert & photo.\")"
                   },
-                  "endColumn": 104,
-                  "endLine": 276,
+                  "endColumn": 93,
+                  "endLine": 259,
                   "startColumn": 9,
-                  "startLine": 276
+                  "startLine": 259
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27666,12 +27699,12 @@
                     "text": "                    Log.w(TAG, \"Direct cameraManager capture failed: ${e.message}\")"
                   },
                   "endColumn": 84,
-                  "endLine": 291,
+                  "endLine": 272,
                   "startColumn": 21,
-                  "startLine": 291
+                  "startLine": 272
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27699,12 +27732,12 @@
                     "text": "                    Log.i(TAG, \"Attempting photo capture via StealthCaptureBridge\")"
                   },
                   "endColumn": 84,
-                  "endLine": 295,
+                  "endLine": 276,
                   "startColumn": 21,
-                  "startLine": 295
+                  "startLine": 276
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27732,12 +27765,12 @@
                     "text": "                Log.e(TAG, \"Error in handleScreenTouchInteraction\", e)"
                   },
                   "endColumn": 71,
-                  "endLine": 314,
+                  "endLine": 294,
                   "startColumn": 17,
-                  "startLine": 314
+                  "startLine": 294
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27765,12 +27798,12 @@
                     "text": "                        Log.w(TAG, \"Failed to send direct location pin: ${locErr.message}\")"
                   },
                   "endColumn": 92,
-                  "endLine": 368,
+                  "endLine": 347,
                   "startColumn": 25,
-                  "startLine": 368
+                  "startLine": 347
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27798,12 +27831,12 @@
                     "text": "                Log.e(TAG, \"Direct Telegram dispatch failed: ${e.message}\")"
                   },
                   "endColumn": 76,
-                  "endLine": 372,
+                  "endLine": 351,
                   "startColumn": 17,
-                  "startLine": 372
+                  "startLine": 351
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -27828,15 +27861,15 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
-                    "text": "            Log.w(TAG, \"Error configuring immersive blackout: ${e.message}\")"
+                    "text": "        Log.i(TAG, \"exitScreenGuard called - restoring device state\")"
                   },
-                  "endColumn": 77,
-                  "endLine": 439,
-                  "startColumn": 13,
-                  "startLine": 439
+                  "endColumn": 70,
+                  "endLine": 361,
+                  "startColumn": 9,
+                  "startLine": 361
                 },
                 "artifactLocation": {
-                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/FakeShutdownActivity.kt"
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/ui/ScreenGuardActivity.kt"
                 }
               }
             }
@@ -29313,6 +29346,39 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
+                    "text": "            Log.w(TAG, \"Could not set silent mode: ${e.message}\")"
+                  },
+                  "endColumn": 66,
+                  "endLine": 34,
+                  "startColumn": 13,
+                  "startLine": 34
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/AudioGuard.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
                     "text": "                    Log.i(TAG, \"Launched OEM background settings via: ${intent.component}\")"
                   },
                   "endColumn": 92,
@@ -29355,6 +29421,171 @@
                 },
                 "artifactLocation": {
                   "uri": "app/src/main/java/com/izhaanintellect/pasa/util/BatteryOptimizationHelper.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.w(TAG, \"Error configuring immersive mode: ${e.message}\")"
+                  },
+                  "endColumn": 73,
+                  "endLine": 71,
+                  "startColumn": 13,
+                  "startLine": 71
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/DisplayGuard.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.i(TAG, \"Entered Lock Task mode\")"
+                  },
+                  "endColumn": 49,
+                  "endLine": 21,
+                  "startColumn": 13,
+                  "startLine": 21
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/InputGuard.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.w(TAG, \"Could not enter Lock Task mode: ${e.message}\")"
+                  },
+                  "endColumn": 71,
+                  "endLine": 23,
+                  "startColumn": 13,
+                  "startLine": 23
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/InputGuard.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.i(TAG, \"Stopped Lock Task mode\")"
+                  },
+                  "endColumn": 49,
+                  "endLine": 33,
+                  "startColumn": 13,
+                  "startLine": 33
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/InputGuard.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.w(TAG, \"Error stopping lock task: ${e.message}\")"
+                  },
+                  "endColumn": 65,
+                  "endLine": 35,
+                  "startColumn": 13,
+                  "startLine": 35
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/InputGuard.kt"
                 }
               }
             }
@@ -29973,6 +30204,72 @@
               "physicalLocation": {
                 "region": {
                   "snippet": {
+                    "text": "            Log.d(TAG, \"Screen hardware wake-lock acquired for ${durationMs}ms\")"
+                  },
+                  "endColumn": 81,
+                  "endLine": 137,
+                  "startColumn": 13,
+                  "startLine": 137
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/SecurityActivityLauncher.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "            Log.w(TAG, \"Failed acquiring screen wake lock: ${e.message}\")"
+                  },
+                  "endColumn": 74,
+                  "endLine": 139,
+                  "startColumn": 13,
+                  "startLine": 139
+                },
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/izhaanintellect/pasa/util/SecurityActivityLauncher.kt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-STORAGE-3",
+            "cwe": "CWE-532: Insertion of Sensitive Information into Log File",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05d-Testing-Data-Storage.md#logs",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_kotlin_logging",
+          "ruleIndex": 0
+        },
+        {
+          "message": {
+            "text": "The App logs information. Sensitive information should never be logged."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
                     "text": "            Log.i(TAG, \"Enqueued WorkManager upload job for uploadId: $uploadId\")"
                   },
                   "endColumn": 82,
@@ -30492,39 +30789,6 @@
         },
         {
           "message": {
-            "text": "This app does not have capabilities to prevent tapjacking attacks."
-          },
-          "level": "note",
-          "locations": [
-            {
-              "physicalLocation": {
-                "region": {
-                  "snippet": {
-                    "text": "Missing Best Practice"
-                  },
-                  "endColumn": 1,
-                  "endLine": 1,
-                  "startColumn": 1,
-                  "startLine": 1
-                },
-                "artifactLocation": {
-                  "uri": "."
-                }
-              }
-            }
-          ],
-          "properties": {
-            "owasp-mobile": "M1: Improper Platform Usage",
-            "masvs": "MSTG-PLATFORM-9",
-            "cwe": "CWE-200: Information Exposure",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9",
-            "security-severity": "2.0"
-          },
-          "ruleId": "android_tapjacking",
-          "ruleIndex": 5
-        },
-        {
-          "message": {
             "text": "This app does not enforce TLS Certificate Transparency which helps to detect SSL certificates that have been mistakenly issued by a certificate authority or maliciously acquired from an otherwise unimpeachable certificate authority."
           },
           "level": "note",
@@ -30554,11 +30818,11 @@
             "security-severity": "2.0"
           },
           "ruleId": "android_certificate_transparency",
-          "ruleIndex": 6
+          "ruleIndex": 5
         },
         {
           "message": {
-            "text": "This app does not have root detection capabilities. Running a sensitive application on a rooted device questions the device integrity and affects users data."
+            "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel."
           },
           "level": "note",
           "locations": [
@@ -30580,13 +30844,46 @@
             }
           ],
           "properties": {
-            "owasp-mobile": "M8: Code Tampering",
-            "masvs": "MSTG-RESILIENCE-1",
-            "cwe": "CWE-919: Weaknesses in Mobile Applications",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
+            "owasp-mobile": "M3: Insecure Communication",
+            "masvs": "MSTG-NETWORK-4",
+            "cwe": "CWE-295: Improper Certificate Validation",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
             "security-severity": "2.0"
           },
-          "ruleId": "android_root_detection",
+          "ruleId": "android_ssl_pinning",
+          "ruleIndex": 6
+        },
+        {
+          "message": {
+            "text": "This app does not have capabilities to prevent tapjacking attacks."
+          },
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "region": {
+                  "snippet": {
+                    "text": "Missing Best Practice"
+                  },
+                  "endColumn": 1,
+                  "endLine": 1,
+                  "startColumn": 1,
+                  "startLine": 1
+                },
+                "artifactLocation": {
+                  "uri": "."
+                }
+              }
+            }
+          ],
+          "properties": {
+            "owasp-mobile": "M1: Improper Platform Usage",
+            "masvs": "MSTG-PLATFORM-9",
+            "cwe": "CWE-200: Information Exposure",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05h-Testing-Platform-Interaction.md#testing-for-overlay-attacks-mstg-platform-9",
+            "security-severity": "2.0"
+          },
+          "ruleId": "android_tapjacking",
           "ruleIndex": 7
         },
         {
@@ -30624,7 +30921,7 @@
         },
         {
           "message": {
-            "text": "This app does not use TLS/SSL certificate or public key pinning to detect or prevent MITM attacks in secure communication channel."
+            "text": "This app does not have root detection capabilities. Running a sensitive application on a rooted device questions the device integrity and affects users data."
           },
           "level": "note",
           "locations": [
@@ -30646,13 +30943,13 @@
             }
           ],
           "properties": {
-            "owasp-mobile": "M3: Insecure Communication",
-            "masvs": "MSTG-NETWORK-4",
-            "cwe": "CWE-295: Improper Certificate Validation",
-            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05g-Testing-Network-Communication.md#testing-custom-certificate-stores-and-certificate-pinning-mstg-network-4",
+            "owasp-mobile": "M8: Code Tampering",
+            "masvs": "MSTG-RESILIENCE-1",
+            "cwe": "CWE-919: Weaknesses in Mobile Applications",
+            "reference": "https://github.com/MobSF/owasp-mstg/blob/master/Document/0x05j-Testing-Resiliency-Against-Reverse-Engineering.md#testing-root-detection-mstg-resilience-1",
             "security-severity": "2.0"
           },
-          "ruleId": "android_ssl_pinning",
+          "ruleId": "android_root_detection",
           "ruleIndex": 9
         }
       ]
