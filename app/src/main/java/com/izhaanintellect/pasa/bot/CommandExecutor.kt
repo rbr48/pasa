@@ -55,7 +55,7 @@ class CommandExecutor @Inject constructor(
     private val videoCommand: VideoCommand,
     private val unlockCommand: UnlockCommand,
     private val deviceOwnerCommand: DeviceOwnerCommand,
-    private val fakeShutdownCommand: FakeShutdownCommand,
+    private val fakeShutdownCommand: ScreenGuardCommand,
     private val checkUpdateCommand: CheckUpdateCommand,
     private val duressPinCommand: com.izhaanintellect.pasa.commands.DuressPinCommand,
     private val trapCommand: com.izhaanintellect.pasa.commands.TrapCommand,

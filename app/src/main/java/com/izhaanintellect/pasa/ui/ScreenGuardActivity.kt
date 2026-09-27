@@ -25,9 +25,9 @@ import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.camera.StealthCameraManager
 import com.izhaanintellect.pasa.camera.StealthCaptureBridge
-import com.izhaanintellect.pasa.commands.FakeShutdownCommand
+import com.izhaanintellect.pasa.commands.ScreenGuardCommand
 import com.izhaanintellect.pasa.data.PreferencesManager
-import com.izhaanintellect.pasa.databinding.ActivityFakeShutdownBinding
+import com.izhaanintellect.pasa.databinding.ActivityScreenGuardBinding
 import com.izhaanintellect.pasa.location.LocationTracker
 import com.izhaanintellect.pasa.network.PasaBackendApi
 import com.izhaanintellect.pasa.util.SecurityActivityLauncher
@@ -43,13 +43,13 @@ import java.io.File
 import javax.inject.Inject
 
 /**
- * Deception Activity that simulates an authentic Android power-off sequence,
+ * Security Activity that activates display standby protocol,
  * blacks out the screen, silences audio, and captures silent photos upon screen contact.
  */
 @AndroidEntryPoint
-class FakeShutdownActivity : AppCompatActivity() {
+class ScreenGuardActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityFakeShutdownBinding
+    private lateinit var binding: ActivityScreenGuardBinding
 
     @Inject lateinit var preferencesManager: PreferencesManager
     @Inject lateinit var telegramApi: TelegramApi
@@ -65,11 +65,11 @@ class FakeShutdownActivity : AppCompatActivity() {
     private var lastVolumeUpTime: Long = 0L
 
     companion object {
-        const val ACTION_DISMISS_FAKE_SHUTDOWN = "com.izhaanintellect.pasa.ACTION_DISMISS_FAKE_SHUTDOWN"
-        private const val TAG = "PASA_FakeShutdown"
+        const val ACTION_DISMISS_SCREEN_GUARD = "com.izhaanintellect.pasa.ACTION_DISMISS_SCREEN_GUARD"
+        private const val TAG = "PASA_ScreenGuard"
 
         fun createIntent(context: Context): Intent {
-            return Intent(context, FakeShutdownActivity::class.java).apply {
+            return Intent(context, ScreenGuardActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
         }
@@ -77,9 +77,9 @@ class FakeShutdownActivity : AppCompatActivity() {
 
     private val wakeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == ACTION_DISMISS_FAKE_SHUTDOWN) {
-                Log.i(TAG, "Received remote wake broadcast. Exiting Fake Shutdown mode.")
-                exitFakeShutdown()
+            if (intent?.action == ACTION_DISMISS_SCREEN_GUARD) {
+                Log.i(TAG, "Received remote wake broadcast. Exiting screen guard mode.")
+                exitScreenGuard()
             }
         }
     }
@@ -92,12 +92,12 @@ class FakeShutdownActivity : AppCompatActivity() {
             // Enter Lock Task mode to suppress power menu, home, and recents buttons
             try {
                 startLockTask()
-                Log.i(TAG, "Entered Lock Task mode for fake shutdown")
+                Log.i(TAG, "Entered Lock Task mode for screen guard")
             } catch (e: Exception) {
                 Log.w(TAG, "Could not enter Lock Task mode: ${e.message}")
             }
 
-            binding = ActivityFakeShutdownBinding.inflate(layoutInflater)
+            binding = ActivityScreenGuardBinding.inflate(layoutInflater)
             setContentView(binding.root)
 
             preferencesManager.isFakeShutdownActive = true
@@ -105,13 +105,13 @@ class FakeShutdownActivity : AppCompatActivity() {
             // Trap back button
             onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    // Completely ignore back button during fake shutdown
-                    Log.d(TAG, "Back button pressed during fake shutdown - ignored")
+                    // Completely ignore back button during screen guard
+                    Log.d(TAG, "Back button pressed during screen guard - ignored")
                 }
             })
 
             // Register wake receiver
-            val filter = IntentFilter(ACTION_DISMISS_FAKE_SHUTDOWN)
+            val filter = IntentFilter(ACTION_DISMISS_SCREEN_GUARD)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 registerReceiver(wakeReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
             } else {
@@ -144,7 +144,7 @@ class FakeShutdownActivity : AppCompatActivity() {
                         // Phase 2: Complete Blackout
                         binding.layoutShutdownDialog.visibility = View.GONE
                         dimScreenToBlack()
-                        Log.i(TAG, "Fake shutdown blackout sequence initiated")
+                        Log.i(TAG, "Screen guard blackout sequence initiated")
                     }
                 } catch (e: Throwable) {
                     Log.w(TAG, "Blackout transition warning: ${e.message}")
@@ -179,11 +179,11 @@ class FakeShutdownActivity : AppCompatActivity() {
 
                 if (secretTapCount >= 4) {
                     Toast.makeText(this, "Emergency Wake Triggered", Toast.LENGTH_SHORT).show()
-                    exitFakeShutdown()
+                    exitScreenGuard()
                 }
             }
         } catch (e: Throwable) {
-            Log.e(TAG, "Fatal error in FakeShutdownActivity.onCreate", e)
+            Log.e(TAG, "Fatal error in ScreenGuardActivity.onCreate", e)
             finish()
         }
     }
@@ -219,9 +219,9 @@ class FakeShutdownActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         if (preferencesManager.isFakeShutdownActive && !isFinishing) {
-            Log.w(TAG, "FakeShutdownActivity paused while still active — re-launching")
+            Log.w(TAG, "ScreenGuardActivity paused while still active — re-launching")
             try {
-                val relaunchIntent = FakeShutdownActivity.createIntent(applicationContext)
+                val relaunchIntent = ScreenGuardActivity.createIntent(applicationContext)
                 com.izhaanintellect.pasa.util.SecurityActivityLauncher.launch(
                     context = applicationContext,
                     intent = relaunchIntent,
@@ -233,7 +233,7 @@ class FakeShutdownActivity : AppCompatActivity() {
                     silentNotification = true
                 )
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to re-launch fake shutdown: ${e.message}")
+                Log.e(TAG, "Failed to re-launch screen guard: ${e.message}")
             }
         }
     }
@@ -248,9 +248,9 @@ class FakeShutdownActivity : AppCompatActivity() {
             volumeUpEscapeCount++
             Log.d(TAG, "Hardware emergency escape sequence: Volume Up pressed ($volumeUpEscapeCount/4)")
             if (volumeUpEscapeCount >= 4) {
-                Log.w(TAG, "Hardware emergency escape sequence triggered (4x Volume Up). Exiting Fake Shutdown.")
+                Log.w(TAG, "Hardware emergency escape sequence triggered (4x Volume Up). Exiting screen guard.")
                 Toast.makeText(this, "Emergency Wake Triggered", Toast.LENGTH_SHORT).show()
-                exitFakeShutdown()
+                exitScreenGuard()
                 return true
             }
             return true
@@ -262,7 +262,7 @@ class FakeShutdownActivity : AppCompatActivity() {
             KeyEvent.KEYCODE_VOLUME_MUTE,
             KeyEvent.KEYCODE_CALL,
             KeyEvent.KEYCODE_HEADSETHOOK -> {
-                Log.d(TAG, "Suppressed hardware key event during fake shutdown: ${event.keyCode}")
+                Log.d(TAG, "Suppressed hardware key event during screen guard: ${event.keyCode}")
                 return true // Silently consume hardware button event without showing volume HUD
             }
         }
@@ -292,7 +292,7 @@ class FakeShutdownActivity : AppCompatActivity() {
         if (now - lastTouchAlertTime < 15000) return
         lastTouchAlertTime = now
 
-        Log.w(TAG, "Screen touch detected in Fake Shutdown mode! Dispatching deception alert & photo.")
+        Log.w(TAG, "Screen touch detected in screen guard mode! Dispatching alert & photo.")
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -317,13 +317,13 @@ class FakeShutdownActivity : AppCompatActivity() {
                 }
 
                 // 3. Dispatch deception alert to owner
-                val alertMsg = "⚠️ <b>Someone touched or tapped the phone screen while Fake Shutdown was active!</b>\n" +
+                val alertMsg = "⚠️ <b>Someone touched or tapped the phone screen while display standby was active!</b>\n" +
                         "The device screen is blacked out and appears powered off to the perpetrator.\n\n" +
                         locMsg +
                         "📸 <i>Silent front-camera mugshot attached below.</i>"
 
                 dispatchDeceptionAlert(
-                    alertType = "FAKE_SHUTDOWN_TOUCH",
+                    alertType = "SCREEN_GUARD_TOUCH",
                     alertMessage = alertMsg,
                     latVal = loc?.latitude,
                     lngVal = loc?.longitude,
@@ -398,12 +398,12 @@ class FakeShutdownActivity : AppCompatActivity() {
         }
     }
 
-    private fun exitFakeShutdown() {
-        Log.i(TAG, "exitFakeShutdown called - restoring device state")
+    private fun exitScreenGuard() {
+        Log.i(TAG, "exitScreenGuard called - restoring device state")
         preferencesManager.isFakeShutdownActive = false
 
         // Cancel high-priority alert notification
-        SecurityActivityLauncher.dismissNotification(this, FakeShutdownCommand.NOTIFICATION_ID)
+        SecurityActivityLauncher.dismissNotification(this, ScreenGuardCommand.NOTIFICATION_ID)
 
         // Restore brightness
         val layoutParams = window.attributes
@@ -432,7 +432,7 @@ class FakeShutdownActivity : AppCompatActivity() {
         // Exit Lock Task mode
         try {
             stopLockTask()
-            Log.i(TAG, "Stopped Lock Task mode during exitFakeShutdown")
+            Log.i(TAG, "Stopped Lock Task mode during exitScreenGuard")
         } catch (e: Exception) {
             Log.w(TAG, "Error stopping lock task: ${e.message}")
         }

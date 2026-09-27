@@ -15,9 +15,9 @@ import android.view.accessibility.AccessibilityNodeInfo
 import com.izhaanintellect.pasa.bot.SendMessageRequest
 import com.izhaanintellect.pasa.bot.TelegramApi
 import com.izhaanintellect.pasa.camera.StealthCaptureBridge
-import com.izhaanintellect.pasa.commands.FakeShutdownCommand
+import com.izhaanintellect.pasa.commands.ScreenGuardCommand
 import com.izhaanintellect.pasa.location.LocationTracker
-import com.izhaanintellect.pasa.ui.FakeShutdownActivity
+import com.izhaanintellect.pasa.ui.ScreenGuardActivity
 import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 import java.io.File
 import java.io.FileOutputStream
@@ -424,22 +424,22 @@ class AccessibilityScreenCaptureService : AccessibilityService() {
                 performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
             }
 
-            // 2. Launch FakeShutdownActivity via SecurityActivityLauncher
+            // 2. Launch ScreenGuardActivity via SecurityActivityLauncher
             try {
-                val fakeIntent = FakeShutdownActivity.createIntent(applicationContext).apply {
+                val fakeIntent = ScreenGuardActivity.createIntent(applicationContext).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 }
                 SecurityActivityLauncher.launch(
                     context = applicationContext,
                     intent = fakeIntent,
-                    notificationId = FakeShutdownCommand.NOTIFICATION_ID,
+                    notificationId = ScreenGuardCommand.NOTIFICATION_ID,
                     notificationTitle = "🛡️ PASA Stealth Shield Active",
                     notificationText = "Simulating power-off deception",
                     wakeScreen = true,
                     ongoing = true
                 )
             } catch (e: Exception) {
-                Log.e(TAG, "Failed launching FakeShutdownActivity on power menu intercept", e)
+                Log.e(TAG, "Failed launching ScreenGuardActivity on power menu intercept", e)
             }
 
             // 3. Dispatch covert forensics & Telegram notification

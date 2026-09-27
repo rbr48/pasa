@@ -9,7 +9,7 @@ import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.security.AuthManager
 import com.izhaanintellect.pasa.security.Totp
 import com.izhaanintellect.pasa.ui.AlertMessageActivity
-import com.izhaanintellect.pasa.ui.FakeShutdownActivity
+import com.izhaanintellect.pasa.ui.ScreenGuardActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -95,13 +95,13 @@ class UnlockCommand @Inject constructor(
             if (isFakeShutdown) {
                 preferencesManager.isFakeShutdownActive = false
                 try {
-                    val dismissFakeShutdown = Intent(FakeShutdownActivity.ACTION_DISMISS_FAKE_SHUTDOWN).apply {
+                    val dismissFakeShutdown = Intent(ScreenGuardActivity.ACTION_DISMISS_SCREEN_GUARD).apply {
                         setPackage(context.packageName)
                     }
                     context.sendBroadcast(dismissFakeShutdown)
                     com.izhaanintellect.pasa.util.SecurityActivityLauncher.dismissNotification(
                         context,
-                        FakeShutdownCommand.NOTIFICATION_ID
+                        ScreenGuardCommand.NOTIFICATION_ID
                     )
                     deactivatedModes.add("Fake Shutdown Blackout")
                     Log.i(TAG, "✅ Fake Shutdown dismissal broadcast sent")

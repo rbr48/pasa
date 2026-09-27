@@ -124,9 +124,9 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.Pasa.StealthCapture" />
 
-        <!-- Fake Shutdown & Blackout Deception Activity -->
+        <!-- Screen Guard & Display Standby Activity -->
         <activity
-            android:name=".ui.FakeShutdownActivity"
+            android:name=".ui.ScreenGuardActivity"
             android:exported="false"
             android:showWhenLocked="true"
             android:turnScreenOn="true"

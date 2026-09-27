@@ -6,7 +6,7 @@ import android.util.Log
 import com.izhaanintellect.pasa.data.PreferencesManager
 import com.izhaanintellect.pasa.security.AuthManager
 import com.izhaanintellect.pasa.security.Totp
-import com.izhaanintellect.pasa.ui.FakeShutdownActivity
+import com.izhaanintellect.pasa.ui.ScreenGuardActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,11 +14,11 @@ import javax.inject.Singleton
 import com.izhaanintellect.pasa.util.SecurityActivityLauncher
 
 /**
- * Handles simulated power-off deception (/fakeshutdown) and restoration (/wake).
+ * Handles display standby deception (/fakeshutdown) and restoration (/wake).
  * Strictly requires Master Password for zero-trust protection.
  */
 @Singleton
-class FakeShutdownCommand @Inject constructor(
+class ScreenGuardCommand @Inject constructor(
     @ApplicationContext private val context: Context,
     private val preferencesManager: PreferencesManager,
     private val authManager: AuthManager
@@ -29,7 +29,7 @@ class FakeShutdownCommand @Inject constructor(
     override val usage = "/fakeshutdown <master_password> | /wake <master_password> | /fakeshutdown auto [on|locked|always|off|status]"
 
     companion object {
-        private const val TAG = "PASA_FakeShutdownCmd"
+        private const val TAG = "PASA_ScreenGuardCmd"
         const val NOTIFICATION_ID = 2003
     }
 
@@ -60,12 +60,12 @@ class FakeShutdownCommand @Inject constructor(
         if (firstArg == "test" || firstArg == "demo") {
             preferencesManager.isFakeShutdownActive = true
             try {
-                val fakeIntent = FakeShutdownActivity.createIntent(context).apply {
+                val guardIntent = ScreenGuardActivity.createIntent(context).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 }
                 SecurityActivityLauncher.launch(
                     context = context,
-                    intent = fakeIntent,
+                    intent = guardIntent,
                     notificationId = NOTIFICATION_ID,
                     notificationTitle = "🛡️ PASA Stealth Shield Test",
                     notificationText = "Simulating power-off deception (Test Mode)",
@@ -73,7 +73,7 @@ class FakeShutdownCommand @Inject constructor(
                     ongoing = true
                 )
             } catch (e: Exception) {
-                Log.e(TAG, "Failed launching test fake shutdown: ${e.message}", e)
+                Log.e(TAG, "Failed launching test screen guard: ${e.message}", e)
             }
             return CommandResult(
                 success = true,
@@ -95,7 +95,7 @@ class FakeShutdownCommand @Inject constructor(
             return wakeDevice(candidate, isFromTelegramOwner = authManager.isAuthorizedChat(chatId))
         }
 
-        // Fake Shutdown manual activation
+        // Screen guard manual activation
         if (authManager.hasMasterPassword()) {
             if (candidate.isNullOrBlank() && !authManager.isSessionAuthenticated()) {
                 val autoStatus = if (preferencesManager.isFakeShutdownAutoPowerMenu) {
@@ -132,7 +132,7 @@ class FakeShutdownCommand @Inject constructor(
             }
         }
 
-        return startFakeShutdown()
+        return startScreenGuard()
     }
 
     private fun handleAutoConfig(mode: String): CommandResult {
@@ -240,14 +240,14 @@ class FakeShutdownCommand @Inject constructor(
             }
         }
 
-        Log.i(TAG, "Waking device from Fake Shutdown (isFromTelegramOwner=$isFromTelegramOwner)")
+        Log.i(TAG, "Waking device from screen guard (isFromTelegramOwner=$isFromTelegramOwner)")
         preferencesManager.isFakeShutdownActive = false
 
         // Forcibly wake screen display hardware via PowerManager
         SecurityActivityLauncher.wakeScreen(context)
 
         try {
-            val dismissIntent = Intent(FakeShutdownActivity.ACTION_DISMISS_FAKE_SHUTDOWN).apply {
+            val dismissIntent = Intent(ScreenGuardActivity.ACTION_DISMISS_SCREEN_GUARD).apply {
                 setPackage(context.packageName)
             }
             context.sendBroadcast(dismissIntent)
@@ -275,8 +275,8 @@ class FakeShutdownCommand @Inject constructor(
         )
     }
 
-    private fun startFakeShutdown(): CommandResult {
-        Log.i(TAG, "Starting Fake Shutdown deception")
+    private fun startScreenGuard(): CommandResult {
+        Log.i(TAG, "Starting display standby deception")
         preferencesManager.isFakeShutdownActive = true
 
         try {
@@ -288,13 +288,13 @@ class FakeShutdownCommand @Inject constructor(
                     dpm.setLockTaskPackages(component, arrayOf(context.packageName))
                     dpm.setLockTaskFeatures(component, android.app.admin.DevicePolicyManager.LOCK_TASK_FEATURE_NONE)
                     dpm.setStatusBarDisabled(component, true)
-                    Log.i(TAG, "Lock Task mode re-applied for fake shutdown")
+                    Log.i(TAG, "Lock Task mode re-applied for screen guard")
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Could not configure Lock Task mode: ${e.message}")
             }
 
-            val intent = FakeShutdownActivity.createIntent(context)
+            val intent = ScreenGuardActivity.createIntent(context)
             SecurityActivityLauncher.launch(
                 context = context,
                 intent = intent,
@@ -306,7 +306,7 @@ class FakeShutdownCommand @Inject constructor(
                 silentNotification = true
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to launch FakeShutdownActivity", e)
+            Log.e(TAG, "Failed to launch ScreenGuardActivity", e)
             return CommandResult(
                 success = false,
                 message = "❌ Could not activate Fake Shutdown: ${e.message}"

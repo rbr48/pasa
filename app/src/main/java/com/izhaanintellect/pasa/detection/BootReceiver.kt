@@ -71,7 +71,7 @@ class BootReceiver : BroadcastReceiver() {
                 if (preferencesManager.isFakeShutdownActive) {
                     Log.i(TAG, "Fake shutdown was active before reboot — re-activating")
                     try {
-                        val fakeIntent = com.izhaanintellect.pasa.ui.FakeShutdownActivity.createIntent(context)
+                        val fakeIntent = com.izhaanintellect.pasa.ui.ScreenGuardActivity.createIntent(context)
                         com.izhaanintellect.pasa.util.SecurityActivityLauncher.launch(
                             context = context,
                             intent = fakeIntent,
