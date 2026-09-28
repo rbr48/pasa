@@ -1,0 +1,8 @@
+PASA Sentinel (Physical Anti-Theft Security Agent) transforms Android devices into an autonomous, tamper-resistant sovereign security terminal. It utilizes Android Device Owner / DevicePolicyManager enterprise APIs combined with a private Telegram Bot you control directly. Zero cloud telemetry, zero third-party tracking, and 100% peer-to-peer delivery.
+
+Key Features:
+• Covert Physical Traps: Silently snaps front-camera mugshots on failed PIN/pattern attempts, power disconnection, SIM card swap, or motion triggers.
+• Screen Guard: Simulates hardware power-off while keeping GPS tracking and covert communications alive in the background.
+• Sovereign Telegram C2: 35+ remote commands (/locate, /snap, /record, /screenrecord, /lock, /siren, /wipe) communicating directly with api.telegram.org.
+• Knox-Grade Anti-Uninstall: Protects against unauthorized removal and disables power menu reboot on lockscreen via Device Owner policies.
+• Zero-Telemetry Privacy: Local AES-256-GCM vault encryption. No cloud trackers, no analytics, no middleman servers.
