@@ -91,7 +91,7 @@ jobs:
     - name: Run mobsfscan Mobile Security Audit
       uses: MobSF/mobsfscan@main
       with:
-        args: '. --sarif --output mobsfscan.sarif --ignore-rules android_kotlin_logging || true'
+        args: '. --sarif --output mobsfscan.sarif --no-fail'
 
     - name: Upload MobSF PDF/JSON Report Artifact
       uses: actions/upload-artifact@v4
