@@ -614,8 +614,8 @@ class SetupActivity : AppCompatActivity() {
                     keyAlias,
                     KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
                 )
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                     .setUserAuthenticationRequired(true)
                     .setInvalidatedByBiometricEnrollment(true)
 
@@ -626,7 +626,7 @@ class SetupActivity : AppCompatActivity() {
                 keyGenerator.generateKey()
             }
             val key = keyStore.getKey(keyAlias, null) as? SecretKey ?: return null
-            Cipher.getInstance("AES/CBC/PKCS7Padding").apply {
+            Cipher.getInstance("AES/GCM/NoPadding").apply {
                 init(Cipher.ENCRYPT_MODE, key)
             }
         } catch (_: Exception) {
