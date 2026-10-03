@@ -38,6 +38,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ### Commercial Licensing Inquiries
 To acquire an Enterprise Fleet License, OEM Redistribution License, or Custom Deployment Agreement:
-* **Email:** [licensing@izhaanintellect.fun](mailto:licensing@izhaanintellect.fun) / [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun)
+* **Email:** [contact@izhaanintellect.fun](mailto:contactg@izhaanintellect.fun) / [support@izhaanintellect.fun](mailto:support@izhaanintellect.fun)
 * **WhatsApp Business:** [+880 1762-033445](https://wa.me/8801762033445)
 * **Official Website:** [https://pasa.izhaanintellect.fun/](https://pasa.izhaanintellect.fun/)
