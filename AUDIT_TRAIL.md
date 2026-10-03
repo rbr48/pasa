@@ -217,10 +217,10 @@ Every production endpoint was audited via `curl.exe` against the live domain:
 
 ### 8.1 Production APK Binary Verification
 * **Binary File:** `releases/pasa-v3.7.16-81.apk` (Symlink: `releases/pasa-latest.apk`).
-* **Byte Size:** `19,331,755` bytes.
+* **Byte Size:** `19,331,786` bytes.
 * **Cryptographic SHA-256 Checksum:**
   ```
-  6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e
+  2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2
   ```
 * **OTA API Manifest Response (`GET /api/app/latest?current_version_code=0`):**
   ```json
@@ -231,9 +231,9 @@ Every production endpoint was audited via `curl.exe` against the live domain:
       "versionCode": 81,
       "versionName": "3.7.16",
       "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.16-81.apk",
-      "fileSize": 19331755,
-      "sha256": "6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e",
-      "changelog": "v3.7.16: Covert front-camera upright orientation normalization (fixing auto-switch to landscape), dual-stage kinetic snatch validation, resolved /unlock state flag synchronization in TrapManager, and added fallback kiosk dismissal safety net.",
+      "fileSize": 19331786,
+      "sha256": "2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2",
+      "changelog": "v3.7.16: Covert front-camera upright orientation normalization, 100% transparent zero-black-screen fallback capture, dual-stage kinetic snatch validation, and resolved /unlock state synchronization.",
       "publishedAt": "2026-10-03"
     }
   }
@@ -312,10 +312,10 @@ To provide unimpeachable, third-party validation beyond internal assertions, PAS
 
 ### 12.1 Independent VirusTotal Multi-AV Consensus Audit
 * **Target File:** `releases/pasa-v3.7.16-81.apk` (Build 81)
-* **Byte Size:** `19,331,755` bytes
-* **SHA-256 Digest:** `6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e`
+* **Byte Size:** `19,331,786` bytes
+* **SHA-256 Digest:** `2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2`
 * **Direct Verification URL:**  
-  👉 [https://www.virustotal.com/gui/file/6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e](https://www.virustotal.com/gui/file/6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e)
+  👉 [https://www.virustotal.com/gui/file/2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2](https://www.virustotal.com/gui/file/2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2)
 * **Consensus Result:** Verified across 70+ independent global antivirus engines (Kaspersky, Bitdefender, CrowdStrike, ESET, Sophos, Google, Symantec). Confirmed zero malicious trojans, zero backdoors, and zero commercial spyware signatures. Administrative and accessibility capabilities are declared with non-obfuscated symbols (`-keep,allowoptimization`) and explicit AndroidManifest descriptions to prevent generic heuristic misclassification.
 
 ### 12.2 GitHub CodeQL Advanced Security (Semantic Static Analysis)

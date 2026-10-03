@@ -7,7 +7,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
 [![Version](https://img.shields.io/badge/Release-v3.7.16%20(Build%2081)-blue.svg)](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
 [![License](https://img.shields.io/badge/License-BSL%201.1-orange.svg)](LICENSE.md)
-[![VirusTotal](https://img.shields.io/badge/VirusTotal-70%2B%20AV%20Clean-brightgreen.svg)](https://www.virustotal.com/gui/file/6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e)
+[![VirusTotal](https://img.shields.io/badge/VirusTotal-70%2B%20AV%20Clean-brightgreen.svg)](https://www.virustotal.com/gui/file/2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2)
 [![CodeQL](https://img.shields.io/badge/CodeQL-Passed-brightgreen.svg)](https://github.com/rbr48/pasa/security/code-scanning)
 [![Zero Storage](https://img.shields.io/badge/Zero%20Storage-Direct--to--Telegram-brightgreen.svg)](PRIVACY.md)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Cloud%20Telemetry-brightgreen.svg)](PRIVACY.md)
@@ -370,10 +370,10 @@ Download the official signed release binary directly from GitHub or our high-spe
 * **Windows Setup Kit:** [📦 PASA-Device-Owner-Setup-Kit.zip](https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip)
 * **Complete SARIF Audit Bundle:** [📦 PASA-Security-Audit-SARIF-v3.7.16.zip](https://pasa.izhaanintellect.fun/audit/PASA-Security-Audit-SARIF-v3.7.16.zip)
 * **Official Version:** `v3.7.16` (Build Code `81`)
-* **File Size:** `19,331,755 bytes` (18.44 MB)
+* **File Size:** `19,331,786 bytes` (18.44 MB)
 * **APK SHA-256 Checksum:**
   ```text
-  6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e
+  2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2
   ```
 * **Setup Kit SHA-256 Checksum:**
   ```text
@@ -384,7 +384,7 @@ Download the official signed release binary directly from GitHub or our high-spe
   3271918168d539e90c3b8b0c49efa987ee27d1136a60f13109553a55b4a805fb
   ```
 * **Independent Audit Portal:** [https://pasa.izhaanintellect.fun/audit/](https://pasa.izhaanintellect.fun/audit/)
-* **VirusTotal Multi-AV Consensus:** [Inspect VirusTotal Audit Report](https://www.virustotal.com/gui/file/6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e)
+* **VirusTotal Multi-AV Consensus:** [Inspect VirusTotal Audit Report](https://www.virustotal.com/gui/file/2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2)
 
 ### Verify on Windows PowerShell:
 ```powershell

@@ -23,16 +23,16 @@ This directory hosts verified production release binaries of **PASA Sentinel (Pr
 Always verify the SHA-256 checksum before sideloading onto your phone:
 
 * **File:** `pasa-v3.7.16-81.apk` / `pasa-latest.apk`
-* **File Size:** `19,331,755 bytes` (18.44 MB)
+* **File Size:** `19,331,786 bytes` (18.44 MB)
 * **SHA-256 Checksum:**
   ```text
-  6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e
+  2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2
   ```
 * **Setup Kit SHA-256:**
   ```text
   7d1f99b6bfaf9975e570414bd1907b30e036952d3601601ee4cebde668080766
   ```
-* **VirusTotal Multi-AV Consensus:** [Inspect Clean Report](https://www.virustotal.com/gui/file/6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e)
+* **VirusTotal Multi-AV Consensus:** [Inspect Clean Report](https://www.virustotal.com/gui/file/2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2)
 
 ### Verify Checksum:
 - **Windows (PowerShell):**

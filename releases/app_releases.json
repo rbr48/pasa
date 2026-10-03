@@ -5,10 +5,10 @@
     "releaseDate": "2026-10-03",
     "fileName": "pasa-v3.7.16-81.apk",
     "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.16-81.apk",
-    "sha256": "6ba3c5df252591f7c090359d27c99f27defe63e6f64bef72256e544ff9dff55e",
-    "size": 19331755,
+    "sha256": "2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2",
+    "size": 19331786,
     "mandatory": false,
-    "releaseNotes": "v3.7.16: Covert front-camera upright orientation normalization (fixing auto-switch to landscape), dual-stage kinetic snatch validation, resolved /unlock state flag synchronization in TrapManager, and added fallback kiosk dismissal safety net."
+    "releaseNotes": "v3.7.16: Covert front-camera upright orientation normalization, 100% transparent zero-black-screen fallback capture, dual-stage kinetic snatch validation, and resolved /unlock state synchronization."
   },
   {
     "versionCode": 80,
