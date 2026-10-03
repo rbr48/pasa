@@ -69,7 +69,9 @@ class StealthCameraManager @Inject constructor(
                             return@addListener
                         }
 
+                        val targetRotation = CameraImageHelper.getTargetRotation(context)
                         val imageCapture = ImageCapture.Builder()
+                            .setTargetRotation(targetRotation)
                             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                             .build()
 
@@ -110,9 +112,9 @@ class StealthCameraManager @Inject constructor(
                                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                                             mainHandler.removeCallbacks(timeoutRunnable)
                                             try {
-                                                optimizeAndStripPhoto(photoFile)
+                                                CameraImageHelper.normalizeAndOptimizePhoto(context, photoFile, useFrontCamera)
                                             } catch (e: Exception) {
-                                                Log.w(TAG, "Photo optimization warning: ${e.message}")
+                                                Log.w(TAG, "Photo normalization warning: ${e.message}")
                                             }
                                             Log.i(TAG, "Photo captured successfully: ${photoFile.absolutePath} (${photoFile.length() / 1024} KB)")
                                             cleanup(lifecycleOwner, cameraProvider)

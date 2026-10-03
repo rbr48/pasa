@@ -15,6 +15,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.*
 import androidx.core.content.ContextCompat
+import com.izhaanintellect.pasa.camera.CameraImageHelper
 import com.izhaanintellect.pasa.camera.StealthCaptureBridge
 import com.izhaanintellect.pasa.databinding.ActivityStealthCaptureBinding
 import java.io.File
@@ -222,7 +223,9 @@ class StealthCaptureActivity : AppCompatActivity() {
         val preview = Preview.Builder().build()
         preview.setSurfaceProvider(binding.previewView.surfaceProvider)
 
+        val targetRotation = CameraImageHelper.getTargetRotation(this)
         val imageCapture = ImageCapture.Builder()
+            .setTargetRotation(targetRotation)
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .build()
 
@@ -242,6 +245,11 @@ class StealthCaptureActivity : AppCompatActivity() {
                         ContextCompat.getMainExecutor(this),
                         object : ImageCapture.OnImageSavedCallback {
                             override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                                try {
+                                    CameraImageHelper.normalizeAndOptimizePhoto(this@StealthCaptureActivity, photoFile, useFront)
+                                } catch (e: Exception) {
+                                    Log.w(TAG, "Photo normalization warning: ${e.message}")
+                                }
                                 Log.i(TAG, "Photo captured successfully: ${photoFile.absolutePath}")
                                 finishWithResult(photoFile, null)
                             }
@@ -290,6 +298,7 @@ class StealthCaptureActivity : AppCompatActivity() {
             .setQualitySelector(qualitySelector)
             .build()
         val videoCapture = VideoCapture.withOutput(recorder)
+        videoCapture.targetRotation = CameraImageHelper.getTargetRotation(this)
 
         try {
             provider.unbindAll()

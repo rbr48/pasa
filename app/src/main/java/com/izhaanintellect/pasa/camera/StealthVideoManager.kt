@@ -82,6 +82,7 @@ class StealthVideoManager @Inject constructor(
                             .setQualitySelector(qualitySelector)
                             .build()
                         val videoCapture = VideoCapture.withOutput(recorder)
+                        videoCapture.targetRotation = CameraImageHelper.getTargetRotation(context)
 
                         cameraProvider!!.unbindAll()
                         lifecycleOwner!!.start()
