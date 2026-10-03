@@ -27,6 +27,8 @@ class TrapCommand @Inject constructor(
             val charger = preferencesManager.isChargerTrapEnabled
             val pocket = preferencesManager.isPocketTrapEnabled
             val thermal = preferencesManager.isThermalTrapEnabled
+            val faraday = preferencesManager.isFaradayTrapEnabled
+            val decoyAirplane = preferencesManager.isFakeAirplaneActive
 
             return CommandResult(
                 success = true,
@@ -35,14 +37,18 @@ class TrapCommand @Inject constructor(
                         "• Snatch & Grab Trap (>2.6G): ${if (snatch) "✅ Enabled" else "❌ Disabled"}\n" +
                         "• Charger Disconnect Trap: ${if (charger) "✅ Enabled" else "❌ Disabled"}\n" +
                         "• Pocket / Bag Extraction Trap: ${if (pocket) "✅ Enabled (5s Grace)" else "❌ Disabled"}\n" +
-                        "• Thermal Anomaly Trap (Anti-EDL): ${if (thermal) "✅ Enabled (${preferencesManager.thermalTrapThresholdCelsius}°C)" else "❌ Disabled"}\n\n" +
+                        "• Thermal Anomaly Trap (Anti-EDL): ${if (thermal) "✅ Enabled (${preferencesManager.thermalTrapThresholdCelsius}°C)" else "❌ Disabled"}\n" +
+                        "• Faraday RF Blackout Trap: ${if (faraday) "✅ Enabled" else "❌ Disabled"}\n" +
+                        "• Decoy Airplane QS Honeypot: ${if (decoyAirplane) "🪤 <b>TRIGGERED (Active)</b>" else "✅ Ready (Armed)"}\n\n" +
                         "<b>Commands:</b>\n" +
                         "• <code>/trap on</code> — Arm all autonomous traps\n" +
                         "• <code>/trap off</code> — Disarm all traps\n" +
                         "• <code>/trap snatch on|off</code> — Toggle snatch trap\n" +
                         "• <code>/trap charger on|off</code> — Toggle charger trap\n" +
                         "• <code>/trap pocket on|off</code> — Toggle pocket extraction trap\n" +
-                        "• <code>/trap thermal on|off</code> — Toggle thermal anomaly trap"
+                        "• <code>/trap thermal on|off</code> — Toggle thermal anomaly trap\n" +
+                        "• <code>/trap faraday on|off</code> — Toggle Faraday blackout trap\n" +
+                        "• <code>/trap airplane_reset</code> — Disarm / reset decoy airplane tile"
             )
         }
 
@@ -100,10 +106,27 @@ class TrapCommand @Inject constructor(
                     message = "🔥 <b>Thermal Anomaly Trap:</b> ${if (state) "✅ Enabled (${preferencesManager.thermalTrapThresholdCelsius}°C)" else "❌ Disabled"}"
                 )
             }
+            "faraday", "blackout", "rf_trap" -> {
+                val state = if (args.size > 1) args[1].lowercase() == "on" else !preferencesManager.isFaradayTrapEnabled
+                preferencesManager.isFaradayTrapEnabled = state
+                return CommandResult(
+                    success = true,
+                    message = "📡 <b>Faraday RF Blackout Trap:</b> ${if (state) "✅ Enabled" else "❌ Disabled"}\n" +
+                            "<i>Locks device, severs USB pins, and captures offline forensics immediately upon total radio severance while locked.</i>"
+                )
+            }
+            "airplane_reset", "reset_airplane", "airplane_off" -> {
+                preferencesManager.isFakeAirplaneActive = false
+                return CommandResult(
+                    success = true,
+                    message = "✈️ <b>Decoy Airplane Honeypot Tile Reset:</b> Inactive / Disarmed.\n" +
+                            "Tile visual state returned to normal."
+                )
+            }
             else -> {
                 return CommandResult(
                     success = false,
-                    message = "⚠️ Unknown action <code>$action</code>. Use <code>/trap on</code>, <code>/trap off</code>, <code>/trap pocket on|off</code>, <code>/trap thermal on|off</code>, or <code>/trap status</code>."
+                    message = "⚠️ Unknown action <code>$action</code>. Use <code>/trap on</code>, <code>/trap off</code>, <code>/trap faraday on|off</code>, <code>/trap airplane_reset</code>, or <code>/trap status</code>."
                 )
             }
         }

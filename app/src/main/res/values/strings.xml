@@ -50,4 +50,5 @@
     <string name="terms_agreement">I agree to the Terms &amp; Conditions and certify that I am the sole lawful owner of this device.</string>
     <string name="terms_read_link">📜 Read Terms of Service &amp; EULA</string>
     <string name="terms_required_error">You must accept the Terms &amp; Conditions and certify device ownership to continue.</string>
+    <string name="tile_airplane_mode">Airplane mode</string>
 </resources>

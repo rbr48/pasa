@@ -93,6 +93,7 @@
             android:name=".ui.SetupActivity"
             android:exported="true"
             android:taskAffinity=""
+            android:launchMode="singleTask"
             android:theme="@style/Theme.Pasa">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -145,6 +146,7 @@
             android:showForAllUsers="true"
             android:excludeFromRecents="true"
             android:taskAffinity=""
+            android:launchMode="singleTask"
             android:theme="@style/Theme.Pasa" />
 
         <!-- Duress Emergency Unlock & Keyguard Dismissal Activity -->
@@ -156,6 +158,7 @@
             android:showForAllUsers="true"
             android:excludeFromRecents="true"
             android:taskAffinity=""
+            android:launchMode="singleTask"
             android:theme="@style/Theme.Pasa.Transparent" />
 
         <!-- PASA Foreground Guardian Service -->
@@ -164,6 +167,18 @@
             android:exported="false"
             android:directBootAware="true"
             android:foregroundServiceType="dataSync|location|camera|microphone" />
+
+        <!-- Decoy Quick Settings Airplane Mode Tile (Uncle Ted Defensive Trap) -->
+        <service
+            android:name=".service.FakeAirplaneTileService"
+            android:label="@string/tile_airplane_mode"
+            android:icon="@drawable/ic_flight"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
 
         <!-- Accessibility Service for Screenshot Capture -->
         <service

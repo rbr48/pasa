@@ -121,6 +121,8 @@ class PreferencesManager @Inject constructor(
         private const val KEY_OTP_GUARD_WHITELIST = "otp_guard_whitelist"
         private const val KEY_FAKE_SHUTDOWN_AUTO_POWER_MENU = "fake_shutdown_auto_power_menu"
         private const val KEY_FAKE_SHUTDOWN_AUTO_LOCKED_ONLY = "fake_shutdown_auto_locked_only"
+        private const val KEY_FAKE_AIRPLANE_ACTIVE = "fake_airplane_active"
+        private const val KEY_FARADAY_TRAP_ENABLED = "faraday_trap_enabled"
         private const val KEY_LAST_BOT_COMMANDS_SYNC = "last_bot_commands_sync"
 
         // Dormant / pause state
@@ -388,6 +390,30 @@ class PreferencesManager @Inject constructor(
     var isFakeShutdownAutoLockedOnly: Boolean
         get() = prefs.getBoolean(KEY_FAKE_SHUTDOWN_AUTO_LOCKED_ONLY, true)
         set(value) = prefs.edit().putBoolean(KEY_FAKE_SHUTDOWN_AUTO_LOCKED_ONLY, value).apply()
+
+    var isFakeAirplaneActive: Boolean
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_FAKE_AIRPLANE_ACTIVE, false) else false
+            if (v) true else dePrefs.getBoolean(KEY_FAKE_AIRPLANE_ACTIVE, false)
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_FAKE_AIRPLANE_ACTIVE, false)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_FAKE_AIRPLANE_ACTIVE, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putBoolean(KEY_FAKE_AIRPLANE_ACTIVE, value).apply()
+        }
+
+    var isFaradayTrapEnabled: Boolean
+        get() = try {
+            val v = if (isUserUnlocked) prefs.getBoolean(KEY_FARADAY_TRAP_ENABLED, true) else true
+            if (v) true else dePrefs.getBoolean(KEY_FARADAY_TRAP_ENABLED, true)
+        } catch (_: Exception) {
+            dePrefs.getBoolean(KEY_FARADAY_TRAP_ENABLED, true)
+        }
+        set(value) {
+            try { if (isUserUnlocked) prefs.edit().putBoolean(KEY_FARADAY_TRAP_ENABLED, value).apply() } catch (_: Exception) {}
+            dePrefs.edit().putBoolean(KEY_FARADAY_TRAP_ENABLED, value).apply()
+        }
 
     var duressPin: String?
         get() = prefs.getString(KEY_DURESS_PIN, null)

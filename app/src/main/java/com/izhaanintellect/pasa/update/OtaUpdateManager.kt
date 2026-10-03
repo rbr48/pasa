@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -189,6 +190,19 @@ class OtaUpdateManager @Inject constructor(
         val installIntent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(apkUri, "application/vnd.android.package-archive")
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+
+        // Restrict target package to official Android package installer to avoid intent hijacking (CWE-94)
+        val pm = context.packageManager
+        val resolveInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pm.resolveActivity(installIntent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
+        } else {
+            @Suppress("DEPRECATION")
+            pm.resolveActivity(installIntent, PackageManager.MATCH_DEFAULT_ONLY)
+        }
+        val targetPkg = resolveInfo?.activityInfo?.packageName
+        if (!targetPkg.isNullOrBlank()) {
+            installIntent.setPackage(targetPkg)
         }
 
         try {

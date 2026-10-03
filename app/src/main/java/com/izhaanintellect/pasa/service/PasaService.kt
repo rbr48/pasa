@@ -61,6 +61,7 @@ class PasaService : LifecycleService() {
     @Inject lateinit var clipperGuardManager: com.izhaanintellect.pasa.security.ClipperGuardManager
     @Inject lateinit var ransomwareCanaryManager: com.izhaanintellect.pasa.security.RansomwareCanaryManager
     @Inject lateinit var otpInterceptionGuardManager: com.izhaanintellect.pasa.security.OtpInterceptionGuardManager
+    @Inject lateinit var faradaySentinel: com.izhaanintellect.pasa.detection.FaradaySentinel
     @Inject lateinit var telegramMenuManager: TelegramMenuManager
 
     companion object {
@@ -342,6 +343,7 @@ class PasaService : LifecycleService() {
                 clipperGuardManager.startMonitoring()
                 ransomwareCanaryManager.startMonitoring()
                 otpInterceptionGuardManager.startMonitoring()
+                faradaySentinel.startMonitoring()
             }
             pollingJob?.cancel()
             pollingJob = null
@@ -361,6 +363,7 @@ class PasaService : LifecycleService() {
             clipperGuardManager.startMonitoring()
             ransomwareCanaryManager.startMonitoring()
             otpInterceptionGuardManager.startMonitoring()
+            faradaySentinel.startMonitoring()
             if (!isDirectBoot) {
                 onUserUnlocked()
             }
@@ -424,6 +427,7 @@ class PasaService : LifecycleService() {
         clipperGuardManager.stopMonitoring()
         ransomwareCanaryManager.disarmCanaryTrap()
         otpInterceptionGuardManager.stopMonitoring()
+        faradaySentinel.stopMonitoring()
         locationTracker.stopTracking()
         releaseWakeLock()
         scheduleRestart()

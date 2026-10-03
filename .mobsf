@@ -1,0 +1,3 @@
+# mobsfscan configuration
+ignore:
+  - android_kotlin_logging

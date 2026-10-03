@@ -166,11 +166,12 @@ class AlertMessageActivity : AppCompatActivity() {
             binding.btnCallOwner.text = "📞 Call Owner: $phoneNumber"
             binding.btnCallOwner.setOnClickListener {
                 try {
-                    val dialIntent = Intent(Intent.ACTION_DIAL).apply {
-                        data = Uri.parse("tel:$phoneNumber")
+                    val dialIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${Uri.encode(phoneNumber.trim())}")).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     }
-                    startActivity(dialIntent)
+                    if (dialIntent.resolveActivity(packageManager) != null) {
+                        startActivity(dialIntent)
+                    }
                 } catch (_: Exception) {}
             }
         } else {

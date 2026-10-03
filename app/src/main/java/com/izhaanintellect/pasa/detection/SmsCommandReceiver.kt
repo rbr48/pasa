@@ -97,11 +97,11 @@ class SmsCommandReceiver : BroadcastReceiver() {
         val rawText = fullBody.toString().trim()
         if (!rawText.startsWith(PREFIX, ignoreCase = true)) return
 
-        Log.i(TAG, "PASA SMS command prefix detected from $senderPhone (subId: $subId)")
+        Log.i(TAG, "PASA SMS command prefix detected (subId: $subId)")
 
         // 0. Rate limiting protection against brute force
         if (isRateLimited(senderPhone)) {
-            Log.w(TAG, "SMS Command Dropped: Sender $senderPhone is temporarily rate-limited.")
+            Log.w(TAG, "SMS Command Dropped: Sender is temporarily rate-limited.")
             return
         }
 
@@ -122,7 +122,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
 
         val parts = bodyWithoutPrefix.split("\\s+".toRegex())
         if (parts.size < 2) {
-            Log.w(TAG, "Malformed SMS command: Insufficient arguments after prefix. Raw: $rawText")
+            Log.w(TAG, "Malformed SMS command: Insufficient arguments after prefix.")
             return
         }
 
@@ -154,7 +154,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
                 true
             }
             else -> {
-                Log.w(TAG, "SMS Command Rejected: invalid credential from $senderPhone")
+                Log.w(TAG, "SMS Command Rejected: invalid credential")
                 false
             }
         }
@@ -176,7 +176,7 @@ class SmsCommandReceiver : BroadcastReceiver() {
         }
 
         recordSuccess(senderPhone)
-        Log.i(TAG, "SMS Command Verified: $command ${args.joinToString(" ")}")
+        Log.i(TAG, "SMS Command Verified: $command")
 
         val warningSuffix = if (usedMasterPassword && totpSecret.isBlank()) "\n[Tip: Run /smssetup in Telegram to enroll in 6-digit TOTP]" else ""
 
@@ -513,16 +513,16 @@ class SmsCommandReceiver : BroadcastReceiver() {
             }
             val parts = smsManager.divideMessage(message)
             smsManager.sendMultipartTextMessage(recipient, null, parts, null, null)
-            Log.i(TAG, "SMS reply sent to $recipient via subId $subId: $message")
+            Log.i(TAG, "SMS reply sent via subId $subId")
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to send SMS reply to $recipient via subId $subId", e)
+            Log.e(TAG, "Failed to send SMS reply via subId $subId", e)
             // Fallback to default SmsManager if subId failed
             try {
                 @Suppress("DEPRECATION")
                 val defaultSm = SmsManager.getDefault()
                 val parts = defaultSm.divideMessage(message)
                 defaultSm.sendMultipartTextMessage(recipient, null, parts, null, null)
-                Log.i(TAG, "Fallback default SMS reply sent to $recipient")
+                Log.i(TAG, "Fallback default SMS reply sent")
             } catch (e2: Exception) {
                 Log.e(TAG, "Fallback default SmsManager also failed", e2)
             }
