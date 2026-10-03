@@ -51,6 +51,10 @@ class TrapManager @Inject constructor(
         private const val SNATCH_COOLDOWN_MS = 60_000L
         private const val POCKET_COOLDOWN_MS = 30_000L
         private const val POCKET_GRACE_PERIOD_MS = 5_000L
+        // Dual-stage kinetic validation constants
+        private const val SNATCH_VALIDATION_WINDOW_MS = 250L   // Sampling window after initial spike
+        private const val SNATCH_SUSTAINED_THRESHOLD = 16.0f   // Sustained accel must exceed this
+        private const val SNATCH_RESTING_CEILING = 12.0f       // Below this = settled on surface (gravity ~9.8)
     }
 
     private var sensorManager: SensorManager? = null
@@ -61,6 +65,12 @@ class TrapManager @Inject constructor(
     private var lastPocketTriggerTime = 0L
     private var wasCoveredInPocket = false
     private var pocketGraceJob: kotlinx.coroutines.Job? = null
+    // Dual-stage kinetic validation state
+    private var isValidatingSnatch = false
+    private var validationStartTime = 0L
+    private var validationSpikeCount = 0
+    private var validationSampleCount = 0
+    private var validationPeakMagnitude = 0f
 
     private val keyguardManager by lazy {
         context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
@@ -133,12 +143,54 @@ class TrapManager @Inject constructor(
                 val z = event.values[2]
                 val magnitude = sqrt(x * x + y * y + z * z)
 
-                if (magnitude > SNATCH_ACCEL_THRESHOLD) {
+                // ── Dual-Stage Kinetic Validation ──
+                // Stage 1: Initial spike detection — starts validation window
+                if (!isValidatingSnatch && magnitude > SNATCH_ACCEL_THRESHOLD) {
                     val now = System.currentTimeMillis()
                     if (now - lastSnatchTriggerTime > SNATCH_COOLDOWN_MS) {
-                        lastSnatchTriggerTime = now
-                        Log.w(TAG, "SNATCH DETECTED! Acceleration spike: $magnitude m/s²")
-                        handleSnatchEvent(magnitude)
+                        // Only arm full snatch response when device is LOCKED
+                        // (owner placing phone on desk while unlocked is normal)
+                        if (keyguardManager?.isKeyguardLocked != true) {
+                            Log.d(TAG, "Acceleration spike ${magnitude} m/s² suppressed — device is unlocked (owner use)")
+                            return
+                        }
+                        isValidatingSnatch = true
+                        validationStartTime = now
+                        validationSpikeCount = 1  // Count the initial spike
+                        validationSampleCount = 1
+                        validationPeakMagnitude = magnitude
+                        Log.d(TAG, "Snatch validation ARMED: initial spike ${magnitude} m/s², sampling for ${SNATCH_VALIDATION_WINDOW_MS}ms...")
+                    }
+                    return
+                }
+
+                // Stage 2: Sampling window — collect data to distinguish snatch vs table drop
+                if (isValidatingSnatch) {
+                    val elapsed = System.currentTimeMillis() - validationStartTime
+                    validationSampleCount++
+                    if (magnitude > SNATCH_SUSTAINED_THRESHOLD) {
+                        validationSpikeCount++
+                    }
+                    if (magnitude > validationPeakMagnitude) {
+                        validationPeakMagnitude = magnitude
+                    }
+
+                    // Window expired — make decision
+                    if (elapsed >= SNATCH_VALIDATION_WINDOW_MS) {
+                        isValidatingSnatch = false
+                        val sustainedRatio = if (validationSampleCount > 0) {
+                            validationSpikeCount.toFloat() / validationSampleCount
+                        } else 0f
+
+                        // Real snatch: sustained high-G over >30% of samples in window
+                        // Table drop: single impulse spike, then immediate settle to ~9.8 m/s²
+                        if (sustainedRatio > 0.30f) {
+                            lastSnatchTriggerTime = System.currentTimeMillis()
+                            Log.w(TAG, "SNATCH CONFIRMED! Peak: ${validationPeakMagnitude} m/s², sustained ratio: ${String.format("%.0f", sustainedRatio * 100)}% ($validationSpikeCount/$validationSampleCount samples)")
+                            handleSnatchEvent(validationPeakMagnitude)
+                        } else {
+                            Log.d(TAG, "Snatch suppressed (table drop): peak ${validationPeakMagnitude} m/s², sustained ratio: ${String.format("%.0f", sustainedRatio * 100)}% — device settled to resting gravity")
+                        }
                     }
                 }
             }
@@ -199,6 +251,11 @@ class TrapManager @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Failed to lockNow on snatch", e)
         }
+
+        // ★ CRITICAL: Set Lost Mode state flag so /unlock can release this lockdown
+        preferencesManager.isLostModeActive = true
+        preferencesManager.lostModeMessage = "🚨 SNATCH ALERT: Device locked automatically."
+        Log.i(TAG, "✅ isLostModeActive set to TRUE (snatch trap)")
 
         // 2. Launch Lost Mode Guard Screen via SecurityActivityLauncher
         try {
@@ -329,6 +386,11 @@ class TrapManager @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Failed to lockNow on pocket extraction", e)
         }
+
+        // ★ CRITICAL: Set Lost Mode state flag so /unlock can release this lockdown
+        preferencesManager.isLostModeActive = true
+        preferencesManager.lostModeMessage = "🚨 POCKET TRAP: Device removed from pocket without unlock."
+        Log.i(TAG, "✅ isLostModeActive set to TRUE (pocket extraction trap)")
 
         // 2. Launch Lost Mode Guard Screen
         try {

@@ -42,10 +42,36 @@ class UnlockCommand @Inject constructor(
         val isFakeShutdown = preferencesManager.isFakeShutdownActive
 
         if (!isLostMode && !isFakeShutdown) {
-            Log.i(TAG, "⚠️ /unlock called but neither Lost Mode nor Fake Shutdown is active")
+            Log.i(TAG, "⚠️ /unlock called but neither Lost Mode nor Fake Shutdown flag is active — attempting safety-net dismissal")
+
+            // Safety-net: Even if state flags are out of sync, force-dismiss any orphaned
+            // AlertMessageActivity or ScreenGuardActivity that may still be displayed.
+            // This handles edge cases where traps locked the screen but a bug or race
+            // condition left isLostModeActive = false.
+            try {
+                val dismissLostMode = Intent(AlertMessageActivity.ACTION_DISMISS_LOST_MODE).apply {
+                    setPackage(context.packageName)
+                }
+                context.sendBroadcast(dismissLostMode)
+                com.izhaanintellect.pasa.util.SecurityActivityLauncher.dismissNotification(
+                    context, AlertMessageActivity.NOTIFICATION_ID
+                )
+                val dismissFakeShutdown = Intent(ScreenGuardActivity.ACTION_DISMISS_SCREEN_GUARD).apply {
+                    setPackage(context.packageName)
+                }
+                context.sendBroadcast(dismissFakeShutdown)
+                com.izhaanintellect.pasa.util.SecurityActivityLauncher.dismissNotification(
+                    context, ScreenGuardCommand.NOTIFICATION_ID
+                )
+                Log.i(TAG, "✅ Safety-net dismissal broadcasts sent (state flags were desynced)")
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ Safety-net dismissal failed: ${e.message}")
+            }
+
             return CommandResult(
                 success = true,
-                message = "ℹ️ Device is not currently in Lost Mode or Fake Shutdown."
+                message = "ℹ️ No active lockdown flags found, but safety-net dismissal was broadcast.\n" +
+                        "If the device was stuck in a kiosk screen, it should now be released."
             )
         }
 
