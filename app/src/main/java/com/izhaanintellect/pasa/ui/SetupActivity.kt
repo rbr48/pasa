@@ -545,7 +545,7 @@ class SetupActivity : AppCompatActivity() {
 
         val biometricManager = BiometricManager.from(this)
         val canAuthenticate = biometricManager.canAuthenticate(
-            BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
         )
 
         if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
@@ -581,7 +581,7 @@ class SetupActivity : AppCompatActivity() {
                 .setTitle(title)
                 .setSubtitle(subtitle)
                 .setNegativeButtonText("Use Master Password")
-                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK)
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
                 .build()
 
             prompt.authenticate(promptInfo)

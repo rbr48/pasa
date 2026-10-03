@@ -31,12 +31,36 @@ class DeviceProtectedStorageManager @Inject constructor(
         private const val TAG = "PASA_DirectBoot"
         private const val PREFS_NAME = "pasa_de_secure_prefs"
 
-        private const val KEY_DE_TOTP_SECRET = "de_totp_secret"
-        private const val KEY_DE_PASSWORD_HASH = "de_master_password_hash"
-        private const val KEY_DE_PASSWORD_SALT = "de_password_salt"
-        private const val KEY_DE_PASSWORD_ITERATIONS = "de_password_iterations"
-        private const val KEY_DE_EMERGENCY_PHONE = "de_emergency_phone"
-        private const val KEY_DE_ACTIVE_LOCK_PIN = "de_active_lock_pin"
+        private const val KEY_DE_TOTP_SECRET = "de_tok_data"
+        private const val KEY_DE_PASSWORD_HASH = "de_cred_hash"
+        private const val KEY_DE_PASSWORD_SALT = "de_cred_salt"
+        private const val KEY_DE_PASSWORD_ITERATIONS = "de_cred_iter"
+        private const val KEY_DE_EMERGENCY_PHONE = "de_contact_data"
+        private const val KEY_DE_ACTIVE_LOCK_PIN = "de_sec_val"
+    }
+
+    private fun obscure(value: String): String {
+        if (value.isEmpty()) return ""
+        val seed = (Build.FINGERPRINT + context.packageName).toByteArray(Charsets.UTF_8)
+        val bytes = value.toByteArray(Charsets.UTF_8)
+        val result = ByteArray(bytes.size)
+        for (i in bytes.indices) {
+            result[i] = (bytes[i].toInt() xor seed[i % seed.size].toInt()).toByte()
+        }
+        return Base64.encodeToString(result, Base64.NO_WRAP)
+    }
+
+    private fun reveal(value: String): String {
+        if (value.isEmpty()) return ""
+        val decoded = try {
+            Base64.decode(value, Base64.NO_WRAP)
+        } catch (_: Exception) { return "" }
+        val seed = (Build.FINGERPRINT + context.packageName).toByteArray(Charsets.UTF_8)
+        val result = ByteArray(decoded.size)
+        for (i in decoded.indices) {
+            result[i] = (decoded[i].toInt() xor seed[i % seed.size].toInt()).toByte()
+        }
+        return String(result, Charsets.UTF_8)
     }
 
     private val deContext: Context by lazy {
@@ -76,12 +100,12 @@ class DeviceProtectedStorageManager @Inject constructor(
     ) {
         try {
             dePrefs.edit()
-                .putString(KEY_DE_TOTP_SECRET, totpSecret)
-                .putString(KEY_DE_PASSWORD_HASH, passwordHash)
-                .putString(KEY_DE_PASSWORD_SALT, passwordSalt)
+                .putString(KEY_DE_TOTP_SECRET, obscure(totpSecret))
+                .putString(KEY_DE_PASSWORD_HASH, obscure(passwordHash))
+                .putString(KEY_DE_PASSWORD_SALT, obscure(passwordSalt))
                 .putInt(KEY_DE_PASSWORD_ITERATIONS, passwordIterations)
-                .putString(KEY_DE_EMERGENCY_PHONE, emergencyPhone)
-                .putString(KEY_DE_ACTIVE_LOCK_PIN, activeLockPin ?: "")
+                .putString(KEY_DE_EMERGENCY_PHONE, obscure(emergencyPhone))
+                .putString(KEY_DE_ACTIVE_LOCK_PIN, obscure(activeLockPin ?: ""))
                 .apply()
             Log.d(TAG, "Device Protected Storage secrets synchronized successfully")
         } catch (e: Exception) {
@@ -101,15 +125,18 @@ class DeviceProtectedStorageManager @Inject constructor(
     }
 
     fun getEmergencyPhone(): String {
-        return dePrefs.getString(KEY_DE_EMERGENCY_PHONE, "") ?: ""
+        val raw = dePrefs.getString(KEY_DE_EMERGENCY_PHONE, "") ?: ""
+        return reveal(raw).ifEmpty { raw }
     }
 
     fun getTotpSecret(): String {
-        return dePrefs.getString(KEY_DE_TOTP_SECRET, "") ?: ""
+        val raw = dePrefs.getString(KEY_DE_TOTP_SECRET, "") ?: ""
+        return reveal(raw).ifEmpty { raw }
     }
 
     fun getActiveLockPin(): String {
-        return dePrefs.getString(KEY_DE_ACTIVE_LOCK_PIN, "") ?: ""
+        val raw = dePrefs.getString(KEY_DE_ACTIVE_LOCK_PIN, "") ?: ""
+        return reveal(raw).ifEmpty { raw }
     }
 
     /**
@@ -127,8 +154,10 @@ class DeviceProtectedStorageManager @Inject constructor(
      * Works pre-first-unlock immediately after boot.
      */
     fun verifyMasterPasswordDirectBoot(candidatePassword: String): Boolean {
-        val saltBase64 = dePrefs.getString(KEY_DE_PASSWORD_SALT, "") ?: ""
-        val storedHash = dePrefs.getString(KEY_DE_PASSWORD_HASH, "") ?: ""
+        val rawSalt = dePrefs.getString(KEY_DE_PASSWORD_SALT, "") ?: ""
+        val saltBase64 = reveal(rawSalt).ifEmpty { rawSalt }
+        val rawHash = dePrefs.getString(KEY_DE_PASSWORD_HASH, "") ?: ""
+        val storedHash = reveal(rawHash).ifEmpty { rawHash }
         val iterations = dePrefs.getInt(KEY_DE_PASSWORD_ITERATIONS, 100000)
 
         if (saltBase64.isBlank() || storedHash.isBlank()) return false

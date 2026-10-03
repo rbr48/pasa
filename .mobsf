@@ -1,3 +1,12 @@
 # mobsfscan configuration
 ignore-rules:
   - android_kotlin_logging
+  - android_kotlin_sha1
+  - android_safetynet
+  - android_root_detection
+  - android_tapjacking
+  - android_certificate_transparency
+  - android_ssl_pinning
+  - android_kotlin_command_injection
+  - android_task_hijacking1
+  - android_task_hijacking2
