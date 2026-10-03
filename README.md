@@ -331,7 +331,7 @@ PASA Sentinel is engineered exclusively as a **defensive countermeasure** agains
 Security is fundamental to our mission. PASA Sentinel adheres to **RFC 9116** for coordinated vulnerability disclosure:
 
 * **Security Policy:** [SECURITY.md](SECURITY.md)
-* **Canonical Security Contact:** [security@izhaanintellect.fun](mailto:security@izhaanintellect.fun)
+* **Canonical Security Contact:** [ciso@izhaanintellect.fun](mailto:ciso@izhaanintellect.fun)
 * **RFC 9116 Metadata:** [https://pasa.izhaanintellect.fun/.well-known/security.txt](https://pasa.izhaanintellect.fun/.well-known/security.txt)
 * **Audit Verification Log:** [AUDIT_TRAIL.md](https://pasa.izhaanintellect.fun/AUDIT_TRAIL.md) | [INDEPENDENT_AUDIT_REPORT.json](https://pasa.izhaanintellect.fun/INDEPENDENT_AUDIT_REPORT.json)
 

@@ -23,7 +23,7 @@ Security updates, patches, and hotfixes are actively provided exclusively for th
 If you discover a security vulnerability, cryptographic flaw, or potential privilege escalation vector in PASA Sentinel, please report it privately and securely. **Do NOT open a public GitHub issue for sensitive security vulnerabilities.**
 
 ### Primary Security Contacts:
-* ✉️ **Security Response Team:** [security@izhaanintellect.fun](mailto:security@izhaanintellect.fun)
+* ✉️ **Security Response Team:** [ciso@izhaanintellect.fun](mailto:ciso@izhaanintellect.fun)
 * 🛡️ **Abuse & Stalkerware Escalation:** [contact@izhaanintellect.fun](mailto:contact@izhaanintellect.fun)
 * 💬 **Immediate WhatsApp Incident Desk:** [+880 1762-033445](https://wa.me/8801762033445)
 * 🌐 **RFC 9116 Canonical Policy:** [https://pasa.izhaanintellect.fun/.well-known/security.txt](https://pasa.izhaanintellect.fun/.well-known/security.txt)
