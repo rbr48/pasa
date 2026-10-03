@@ -37,6 +37,12 @@ import com.izhaanintellect.pasa.security.AuthManager
 import com.izhaanintellect.pasa.service.PasaService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
+import java.security.KeyStore
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
 import javax.inject.Inject
 
 /**
@@ -548,15 +554,7 @@ class SetupActivity : AppCompatActivity() {
             BiometricManager.Authenticators.BIOMETRIC_STRONG
         )
 
-        val cipher = try {
-            val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-            val key = keyStore.getKey("pasa_master_key", null) as? javax.crypto.SecretKey
-            if (key != null) {
-                javax.crypto.Cipher.getInstance("AES/GCM/NoPadding").apply {
-                    init(javax.crypto.Cipher.ENCRYPT_MODE, key)
-                }
-            } else null
-        } catch (_: Exception) { null }
+        val cipher = getOrGenerateBiometricCipher()
 
         if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS && cipher != null) {
             val executor = ContextCompat.getMainExecutor(this)
@@ -600,6 +598,39 @@ class SetupActivity : AppCompatActivity() {
         } else {
             isAuthenticating = false
             showMasterPasswordDialog(title, subtitle, isStartup, onSuccess)
+        }
+    }
+
+    private fun getOrGenerateBiometricCipher(): Cipher? {
+        return try {
+            val keyAlias = "pasa_biometric_auth_key"
+            val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+            if (!keyStore.containsAlias(keyAlias)) {
+                val keyGenerator = KeyGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES,
+                    "AndroidKeyStore"
+                )
+                val specBuilder = KeyGenParameterSpec.Builder(
+                    keyAlias,
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+                )
+                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                    .setUserAuthenticationRequired(true)
+                    .setInvalidatedByBiometricEnrollment(true)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    specBuilder.setUserAuthenticationParameters(0, KeyProperties.AUTH_BIOMETRIC_STRONG)
+                }
+                keyGenerator.init(specBuilder.build())
+                keyGenerator.generateKey()
+            }
+            val key = keyStore.getKey(keyAlias, null) as? SecretKey ?: return null
+            Cipher.getInstance("AES/CBC/PKCS7Padding").apply {
+                init(Cipher.ENCRYPT_MODE, key)
+            }
+        } catch (_: Exception) {
+            null
         }
     }
 
