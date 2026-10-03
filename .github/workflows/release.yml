@@ -68,19 +68,23 @@ jobs:
 
           AUDIT_BUNDLE="releases/PASA-Security-Audit-SARIF-$TAG.zip"
           ASSETS=("$APK_FILE" "$SETUP_KIT")
+          if [ -f "releases/pasa-latest.apk" ]; then
+            ASSETS+=("releases/pasa-latest.apk")
+          fi
           if [ -f "$AUDIT_BUNDLE" ]; then
             ASSETS+=("$AUDIT_BUNDLE")
           fi
 
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG already exists, updating notes and assets..."
-            gh release edit "$TAG" --title "PASA Sentinel $TAG (Build $VERSION_CODE)" --notes-file release_notes.md
+            gh release edit "$TAG" --title "PASA Sentinel $TAG (Build $VERSION_CODE)" --notes-file release_notes.md --latest
             gh release upload "$TAG" "${ASSETS[@]}" --clobber
           else
             echo "Creating new release for $TAG..."
             gh release create "$TAG" \
               "${ASSETS[@]}" \
               --title "PASA Sentinel $TAG (Build $VERSION_CODE)" \
+              --latest \
               --notes-file release_notes.md
           fi
 
