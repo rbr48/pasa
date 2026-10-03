@@ -181,60 +181,39 @@ class OtaUpdateManager @Inject constructor(
     }
 
     private fun promptInstall(apkFile: File) {
-        val apkUri: Uri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            apkFile
-        )
-
-        val installIntent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(apkUri, "application/vnd.android.package-archive")
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-        }
-
-        // Restrict target package to official Android package installer to avoid intent hijacking (CWE-94)
-        val pm = context.packageManager
-        val resolveInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.resolveActivity(installIntent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
-        } else {
-            @Suppress("DEPRECATION")
-            pm.resolveActivity(installIntent, PackageManager.MATCH_DEFAULT_ONLY)
-        }
-        val targetPkg = resolveInfo?.activityInfo?.packageName
-        if (!targetPkg.isNullOrBlank()) {
-            installIntent.setPackage(targetPkg)
-        }
-
         try {
-            context.startActivity(installIntent)
-            Log.i(TAG, "Prompted user for APK installation directly")
-        } catch (e: Exception) {
-            Log.w(TAG, "Direct activity launch blocked or failed: ${e.message}")
-        }
-
-        // Always also post a high-priority notification with PendingIntent
-        // Ensures user can tap to install even if Android 14-16 Background Activity Launch (BAL)
-        // restrictions intercepted the direct activity launch when screen was locked/off
-        try {
-            val pendingIntent = PendingIntent.getActivity(
-                context,
-                2026,
-                installIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            val installer = context.packageManager.packageInstaller
+            val params = PackageInstaller.SessionParams(
+                PackageInstaller.SessionParams.MODE_FULL_INSTALL
             )
-            val nm = context.getSystemService(NotificationManager::class.java)
-            val notif = NotificationCompat.Builder(context, PasaApp.ALERT_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("📦 PASA Update Ready")
-                .setContentText("Tap here to complete installation of PASA update")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true)
-                .setContentIntent(pendingIntent)
-                .build()
-            nm?.notify(2026, notif)
-            Log.i(TAG, "Posted high-priority update notification")
+            params.setAppPackageName(context.packageName)
+
+            val sessionId = installer.createSession(params)
+            val session = installer.openSession(sessionId)
+
+            session.openWrite("pasa_ota_prompt", 0, apkFile.length()).use { out ->
+                apkFile.inputStream().use { input ->
+                    input.copyTo(out)
+                }
+                session.fsync(out)
+            }
+
+            val intent = Intent("com.izhaanintellect.pasa.OTA_INSTALL_RESULT").apply {
+                setPackage(context.packageName)
+            }
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                context, 2026, intent, flags
+            )
+
+            session.commit(pendingIntent.intentSender)
+            Log.i(TAG, "Prompt install committed via system PackageInstaller session")
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to post update notification: ${e.message}")
+            Log.e(TAG, "PackageInstaller prompt install failed: ${e.message}", e)
         }
     }
 

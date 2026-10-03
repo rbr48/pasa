@@ -548,11 +548,24 @@ class SetupActivity : AppCompatActivity() {
             BiometricManager.Authenticators.BIOMETRIC_STRONG
         )
 
-        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
+        val cipher = try {
+            val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+            val key = keyStore.getKey("pasa_master_key", null) as? javax.crypto.SecretKey
+            if (key != null) {
+                javax.crypto.Cipher.getInstance("AES/GCM/NoPadding").apply {
+                    init(javax.crypto.Cipher.ENCRYPT_MODE, key)
+                }
+            } else null
+        } catch (_: Exception) { null }
+
+        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS && cipher != null) {
             val executor = ContextCompat.getMainExecutor(this)
             val prompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
+                    try {
+                        result.cryptoObject?.cipher?.doFinal("pasa_session".toByteArray(Charsets.UTF_8))
+                    } catch (_: Exception) {}
                     isAuthenticating = false
                     isSessionAuthenticated = true
                     onSuccess()
@@ -581,10 +594,9 @@ class SetupActivity : AppCompatActivity() {
                 .setTitle(title)
                 .setSubtitle(subtitle)
                 .setNegativeButtonText("Use Master Password")
-                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
                 .build()
 
-            prompt.authenticate(promptInfo)
+            prompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
         } else {
             isAuthenticating = false
             showMasterPasswordDialog(title, subtitle, isStartup, onSuccess)
