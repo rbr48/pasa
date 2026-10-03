@@ -6,7 +6,9 @@ const https = require('https');
 
 // Resolve latest release info
 let latestRelease = null;
-const releasesMetaPath = path.resolve(__dirname, '../pasa-server/data/app_releases.json');
+const repoReleasesMetaPath = path.resolve(__dirname, '../releases/app_releases.json');
+const serverReleasesMetaPath = path.resolve(__dirname, '../pasa-server/data/app_releases.json');
+const releasesMetaPath = fs.existsSync(repoReleasesMetaPath) ? repoReleasesMetaPath : serverReleasesMetaPath;
 if (fs.existsSync(releasesMetaPath)) {
   try {
     const releasesData = JSON.parse(fs.readFileSync(releasesMetaPath, 'utf8'));
