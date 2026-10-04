@@ -32,7 +32,7 @@ Always verify the SHA-256 checksum before sideloading onto your phone:
   ```text
   7d1f99b6bfaf9975e570414bd1907b30e036952d3601601ee4cebde668080766
   ```
-* **VirusTotal Multi-AV Consensus:** [Inspect Clean Report](https://www.virustotal.com/gui/file/2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2)
+* **VirusTotal Multi-AV Consensus:** [Inspect Clean Report](https://www.virustotal.com/gui/file/8cba4546d862b1c4387f68aac8580a603e8c667c67098f5d03e0249a8158bc02)
 
 ### Verify Checksum:
 - **Windows (PowerShell):**

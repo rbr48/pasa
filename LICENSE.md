@@ -25,7 +25,7 @@ You may **NOT** without an explicit, executed Commercial License Agreement from 
 4. **License Circumvention:** Modify, bypass, strip, or disable the offline Ed25519 licensing verification engine or the Knox Device Owner security boundaries for commercial distribution.
 
 ### 4. Official Production Binaries
-Official, cryptographically signed release binaries (`pasa-latest.apk`, `pasa-v3.7.16-81.apk`) signed with the private production key (`pasa-release-key.jks`), continuous over-the-air (OTA) updates, and automated VPS control plane gateways are proprietary services provided under commercial subscription at:
+Official, cryptographically signed release binaries (`pasa-latest.apk`, `pasa-v3.7.17-82.apk`) signed with the private production key (`pasa-release-key.jks`), continuous over-the-air (OTA) updates, and automated VPS control plane gateways are proprietary services provided under commercial subscription at:
 👉 **Official Commercial Portal:** [https://pasa.izhaanintellect.fun/#pricing](https://pasa.izhaanintellect.fun/#pricing)
 
 ### 5. Change License Transition

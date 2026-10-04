@@ -1,6 +1,6 @@
 # 🛡️ PASA Sentinel (Private Android Security Agent) — Master Technical FAQ & Defense Field Guide
 
-> **Version:** v3.7.16 (Build 81)  
+> **Version:** v3.7.17 (Build 82)  
 > **Target OS:** Android 8.0 – Android 16 (API 26 – 36, compileSdk 36, targetSdk 36)  
 > **Defense Philosophy:** Sovereign Zero-Data Direct-to-Telegram • Knox-Grade Device Owner • Dual-Channel C2 (Telegram + TOTP Air-Gapped SMS) • Hardware Escrow Tokens • Anti-EDL/BROM Defense • Cyber Defense Suite  
 > **Language:** English | [বাংলা সংস্করণ (Bengali Version)](FAQ.md)
