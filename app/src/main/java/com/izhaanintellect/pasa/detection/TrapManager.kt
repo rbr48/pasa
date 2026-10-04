@@ -242,7 +242,7 @@ class TrapManager @Inject constructor(
         val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
         val adminComponent = PasaDeviceAdmin.getComponentName(context)
 
-        // 1. Immediately Lock Screen
+        // 1. Immediately Lock Screen via Device Owner hardware policy
         try {
             if (dpm != null && dpm.isAdminActive(adminComponent)) {
                 dpm.lockNow()
@@ -252,32 +252,7 @@ class TrapManager @Inject constructor(
             Log.e(TAG, "Failed to lockNow on snatch", e)
         }
 
-        // ★ CRITICAL: Set Lost Mode state flag so /unlock can release this lockdown
-        preferencesManager.isLostModeActive = true
-        preferencesManager.lostModeMessage = "🚨 SNATCH ALERT: Device locked automatically."
-        Log.i(TAG, "✅ isLostModeActive set to TRUE (snatch trap)")
-
-        // 2. Launch Lost Mode Guard Screen via SecurityActivityLauncher
-        try {
-            val alertIntent = AlertMessageActivity.createIntent(
-                context = context,
-                message = "🚨 SNATCH ALERT: Device locked automatically.",
-                enforcePin = true
-            )
-            SecurityActivityLauncher.launch(
-                context = context,
-                intent = alertIntent,
-                notificationId = AlertMessageActivity.NOTIFICATION_ID,
-                notificationTitle = "🚨 SNATCH-AND-RUN DETECTED",
-                notificationText = "Device automatically locked into security kiosk",
-                wakeScreen = true,
-                ongoing = true
-            )
-        } catch (e: Exception) {
-            Log.w(TAG, "Could not launch AlertMessageActivity on snatch: ${e.message}")
-        }
-
-        // 3. Dispatch Forensics & Telegram Alert
+        // 2. Dispatch Forensics & Telegram Alert (Native lockscreen secures device without trapping owner in Kiosk)
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val loc = locationTracker.getCurrentLocation()
@@ -287,7 +262,8 @@ class TrapManager @Inject constructor(
 
                 val alertText = "🚨 <b>AUTONOMOUS SNATCH DEFENSE TRIGGERED!</b>\n━━━━━━━━━━━━━━━━━━━━\n" +
                         "⚠️ The device experienced violent acceleration (<b>${String.format("%.1f", magnitude)} m/s²</b>).\n" +
-                        "🔒 Device was locked automatically into Lost Mode.$locText"
+                        "🔒 Device secured immediately via hardware keyguard.$locText\n\n" +
+                        "<i>To escalate to full Knox Kiosk Lost Mode, send <code>/lock lost</code>.</i>"
 
                 telegramApi.sendMessage(
                     token = preferencesManager.botToken,

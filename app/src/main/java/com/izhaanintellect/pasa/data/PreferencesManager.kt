@@ -436,7 +436,7 @@ class PreferencesManager @Inject constructor(
         set(value) = prefs.edit().putBoolean(KEY_TRAP_ENABLED, value).apply()
 
     var isSnatchTrapEnabled: Boolean
-        get() = prefs.getBoolean(KEY_SNATCH_TRAP, true)
+        get() = prefs.getBoolean(KEY_SNATCH_TRAP, false)
         set(value) = prefs.edit().putBoolean(KEY_SNATCH_TRAP, value).apply()
 
     var isChargerTrapEnabled: Boolean

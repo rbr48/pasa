@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 82,
+    "versionName": "3.7.17",
+    "releaseDate": "2026-10-04",
+    "fileName": "pasa-v3.7.17-82.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.17-82.apk",
+    "sha256": "8cba4546d862b1c4387f68aac8580a603e8c667c67098f5d03e0249a8158bc02",
+    "size": 19333002,
+    "mandatory": false,
+    "releaseNotes": "v3.7.17: Restored canonical signing key for seamless OTA from v3.7.15, disabled snatch trap by default, decoupled snatch from fullscreen Kiosk mode to native lockscreen with Telegram evidence, added Decoy Airplane Mode tile, Faraday RF Blackout sentinel, and resolved all CodeQL/MobSF security alerts."
+  },
+  {
     "versionCode": 81,
     "versionName": "3.7.16",
     "releaseDate": "2026-10-03",

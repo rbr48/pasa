@@ -8,8 +8,8 @@ This directory hosts verified production release binaries of **PASA Sentinel (Pr
 
 | File | Release | Build | Size | Direct Link |
 |---|---|---|---|---|
-| **`pasa-v3.7.16-81.apk`** | `v3.7.16` (Latest Production) | Build 81 | 18.42 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.7.16-81.apk) |
-| **`pasa-latest.apk`** | Rolling Latest | Build 81 | 18.42 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
+| **`pasa-v3.7.17-82.apk`** | `v3.7.17` (Latest Production) | Build 82 | 18.44 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.7.17-82.apk) |
+| **`pasa-latest.apk`** | Rolling Latest | Build 82 | 18.44 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
 | **`PASA-Device-Owner-Setup-Kit.zip`** | Guided Setup Wizard | Windows ADB | 12.3 KB | [Download Kit](https://github.com/rbr48/pasa/raw/main/releases/PASA-Device-Owner-Setup-Kit.zip) |
 
 * **High-Speed Global CDN Mirror:** [https://pasa.izhaanintellect.fun/releases/pasa-latest.apk](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
@@ -18,15 +18,15 @@ This directory hosts verified production release binaries of **PASA Sentinel (Pr
 
 ---
 
-## 🔐 Cryptographic Integrity (v3.7.16 Build 81)
+## 🔐 Cryptographic Integrity (v3.7.17 Build 82)
 
 Always verify the SHA-256 checksum before sideloading onto your phone:
 
-* **File:** `pasa-v3.7.16-81.apk` / `pasa-latest.apk`
-* **File Size:** `19,331,786 bytes` (18.44 MB)
+* **File:** `pasa-v3.7.17-82.apk` / `pasa-latest.apk`
+* **File Size:** `19,333,002 bytes` (18.44 MB)
 * **SHA-256 Checksum:**
   ```text
-  2fbc6982df8ecddf89edc58eda37496dc85b43ec2fe48f3bdccf3257fb4f8cd2
+  8cba4546d862b1c4387f68aac8580a603e8c667c67098f5d03e0249a8158bc02
   ```
 * **Setup Kit SHA-256:**
   ```text
