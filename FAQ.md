@@ -1,6 +1,6 @@
 # 🛡️ PASA Sentinel (Private Android Security Agent) — পূর্ণাঙ্গ কারিগরি প্রশ্নোত্তর ও প্রতিরক্ষা সহায়িকা (Master FAQ)
 
-> **সংস্করণ:** v3.7.17 (Build 82)  
+> **সংস্করণ:** v3.7.18 (Build 83)  
 > **টার্গেট ওএস:** Android 8.0 – Android 16 (API 26 – 36, compileSdk 36, targetSdk 36)  
 > **প্রতিরক্ষা দর্শন:** Sovereign Zero-Data Direct-to-Telegram • Knox-Grade Device Owner • Dual-Channel C2 (Telegram + TOTP Air-Gapped SMS) • Hardware Escrow Tokens • Anti-EDL/BROM Defense • Cyber Defense Suite (A11y Shield, Clipper Guard, Canary Guard)  
 > **ভাষা / Language:** বাংলা (Bengali) | [English Version](FAQ_EN.md)

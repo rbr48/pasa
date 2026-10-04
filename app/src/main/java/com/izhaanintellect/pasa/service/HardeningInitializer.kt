@@ -88,8 +88,7 @@ class HardeningInitializer @Inject constructor(
             // NOTE: Actual boot lock happens via /harden_boot command
 
             // 7. Additional Security Features
-            Log.i(TAG, "✓ Enabling SIM lock...")
-            preferencesManager.isSimLockEnabled = true
+            // SIM lock state is preserved as configured by the owner via /sim_lock
 
             Log.i(TAG, "✓ Enabling pattern guard...")
             preferencesManager.isPatternGuardEnabled = true

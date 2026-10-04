@@ -102,18 +102,6 @@ object AppModule {
                 "sha256/K87oWBWMECbeeJn0gWSacZZhfNmMITGsquUsMxphyk4=",
                 "sha256/sGQ5UCWb+T8nZPejelA8MafJ5HOY7FoTUsZS7hP6DGg="
             )
-            .add(
-                "api.telegram.org",
-                "sha256/r/mIts6OE1MpXkeqEcNYx2ydJA2rs0+VP9EidmnZXBQ=",
-                "sha256/WoiWRyIOVNa9ihaBciRSC7XHjliYS9VwUGOIud4PB18=",
-                "sha256/K87oWBWMECbeeJn0gWSacZZhfNmMITGsquUsMxphyk4="
-            )
-            .add(
-                "*.telegram.org",
-                "sha256/r/mIts6OE1MpXkeqEcNYx2ydJA2rs0+VP9EidmnZXBQ=",
-                "sha256/WoiWRyIOVNa9ihaBciRSC7XHjliYS9VwUGOIud4PB18=",
-                "sha256/K87oWBWMECbeeJn0gWSacZZhfNmMITGsquUsMxphyk4="
-            )
             .build()
 
         val sovereignProxySelector = object : java.net.ProxySelector() {

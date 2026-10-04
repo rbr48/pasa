@@ -12,7 +12,7 @@ Security updates, patches, and hotfixes are actively provided exclusively for th
 
 | Version | Status | Android API Support | Cryptographic Token Support |
 | :--- | :--- | :--- | :--- |
-| **v3.7.x (Latest: v3.7.17 / Build 82)** | 🟢 **Actively Supported** | Android 8.0 – 16 (API 26 – 36) | StrongBox / Hardware Escrow Tokens |
+| **v3.7.x (Latest: v3.7.18 / Build 83)** | 🟢 **Actively Supported** | Android 8.0 – 16 (API 26 – 36) | StrongBox / Hardware Escrow Tokens |
 | v3.6.x | 🟡 Critical Patches Only | Android 8.0 – 16 (API 26 – 36) | StrongBox / Hardware Escrow Tokens |
 | < v3.6.0 | 🔴 End of Life (EOL) | Unsupported | Deprecated |
 

@@ -5,9 +5,9 @@
 
 [![Android](https://img.shields.io/badge/Android-8.0%20to%2016%20(API%2036)-green.svg)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple.svg)](https://kotlinlang.org)
-[![Version](https://img.shields.io/badge/Release-v3.7.17%20(Build%2082)-blue.svg)](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
+[![Version](https://img.shields.io/badge/Release-v3.7.18%20(Build%2083)-blue.svg)](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
 [![License](https://img.shields.io/badge/License-BSL%201.1-orange.svg)](LICENSE.md)
-[![VirusTotal](https://img.shields.io/badge/VirusTotal-70%2B%20AV%20Clean-brightgreen.svg)](https://www.virustotal.com/gui/file/8cba4546d862b1c4387f68aac8580a603e8c667c67098f5d03e0249a8158bc02)
+[![VirusTotal](https://img.shields.io/badge/VirusTotal-70%2B%20AV%20Clean-brightgreen.svg)](https://www.virustotal.com/gui/file/0f9b4465cf8201cd88e3224ab925c864d4682210be02e7b68b7d418e36d82582)
 [![CodeQL](https://img.shields.io/badge/CodeQL-Passed-brightgreen.svg)](https://github.com/rbr48/pasa/security/code-scanning)
 [![Zero Storage](https://img.shields.io/badge/Zero%20Storage-Direct--to--Telegram-brightgreen.svg)](PRIVACY.md)
 [![Zero Telemetry](https://img.shields.io/badge/Privacy-Zero%20Cloud%20Telemetry-brightgreen.svg)](PRIVACY.md)
@@ -364,16 +364,16 @@ The signed APK will be output to:
 
 Download the official signed release binary directly from GitHub or our high-speed CDN:
 
-* **Direct Release Binary:** [📦 pasa-v3.7.17-82.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.7.17-82.apk)
+* **Direct Release Binary:** [📦 pasa-v3.7.18-83.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.7.18-83.apk)
 * **Direct Rolling Latest:** [📦 pasa-latest.apk](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk)
 * **High-Speed CDN Mirror:** [https://pasa.izhaanintellect.fun/releases/pasa-latest.apk](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
 * **Windows Setup Kit:** [📦 PASA-Device-Owner-Setup-Kit.zip](https://pasa.izhaanintellect.fun/releases/PASA-Device-Owner-Setup-Kit.zip)
-* **Complete SARIF Audit Bundle:** [📦 PASA-Security-Audit-SARIF-v3.7.17.zip](https://pasa.izhaanintellect.fun/audit/PASA-Security-Audit-SARIF-v3.7.17.zip)
-* **Official Version:** `v3.7.17` (Build Code `82`)
-* **File Size:** `19,333,002 bytes` (18.44 MB)
+* **Complete SARIF Audit Bundle:** [📦 PASA-Security-Audit-SARIF-v3.7.18.zip](https://pasa.izhaanintellect.fun/audit/PASA-Security-Audit-SARIF-v3.7.18.zip)
+* **Official Version:** `v3.7.18` (Build Code `83`)
+* **File Size:** `19,333,003 bytes` (18.44 MB)
 * **APK SHA-256 Checksum:**
   ```text
-  8cba4546d862b1c4387f68aac8580a603e8c667c67098f5d03e0249a8158bc02
+  0f9b4465cf8201cd88e3224ab925c864d4682210be02e7b68b7d418e36d82582
   ```
 * **Setup Kit SHA-256 Checksum:**
   ```text

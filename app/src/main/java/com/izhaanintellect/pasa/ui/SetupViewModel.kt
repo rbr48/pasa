@@ -108,15 +108,17 @@ class SetupViewModel @Inject constructor(
         preferencesManager.isSetupComplete = true
 
         try {
-            if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_PHONE_STATE) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                val telephonyManager = context.getSystemService(android.content.Context.TELEPHONY_SERVICE) as android.telephony.TelephonyManager
-                val simId = telephonyManager.simSerialNumber ?: telephonyManager.subscriberId
-                if (simId != null) {
-                    preferencesManager.knownSimId = simId
-                }
+            val initialSims = com.izhaanintellect.pasa.detection.SIMChangeReceiver.collectCurrentSimIdentifiers(context)
+            if (initialSims.isNotEmpty()) {
+                preferencesManager.knownSimId = initialSims.first()
+                val currentWhitelist = (preferencesManager.simLockWhitelist + initialSims).distinct()
+                preferencesManager.simLockWhitelist = currentWhitelist
+                Log.i(TAG, "Enrolled initial SIM identities at setup: $initialSims")
+            } else {
+                Log.w(TAG, "No SIM identifiers resolved at setup; will auto-enroll on first stable detection.")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to read initial SIM state", e)
+            Log.e(TAG, "Failed to read initial SIM state at setup", e)
         }
 
         authManager.setMasterPassword(masterPassword)

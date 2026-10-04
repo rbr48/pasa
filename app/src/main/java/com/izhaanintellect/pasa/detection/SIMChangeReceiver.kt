@@ -50,6 +50,123 @@ class SIMChangeReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "PASA_SIM"
         private var lastSimState: String? = null
+
+        /**
+         * Collects all robust identifiers for active SIM cards across SubscriptionManager and TelephonyManager.
+         * Works across Android 8 through 16 (API 26–36).
+         * Gathers ICCIDs, MCC+MNC pairs, subscription IDs, carrier names, and composite keys.
+         */
+        fun collectCurrentSimIdentifiers(context: Context): Set<String> {
+            val identifiers = mutableSetOf<String>()
+
+            // 1. Query SubscriptionManager (Android 5.1+ / API 22+)
+            try {
+                val subManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? SubscriptionManager
+                val subList = try { subManager?.activeSubscriptionInfoList } catch (_: SecurityException) { null } catch (_: Exception) { null }
+                subList?.forEach { sub ->
+                    // ICCID
+                    val iccid = try { sub.iccId } catch (_: Exception) { null }
+                    if (!iccid.isNullOrBlank()) {
+                        identifiers.add(iccid.trim())
+                    }
+
+                    // Subscription ID
+                    if (sub.subscriptionId >= 0) {
+                        identifiers.add("subid_${sub.subscriptionId}")
+                    }
+
+                    // MCC + MNC
+                    val mcc = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        sub.mccString
+                    } else {
+                        sub.mcc.takeIf { it != 0 }?.toString()
+                    }
+                    val mnc = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        sub.mncString
+                    } else {
+                        sub.mnc.takeIf { it != 0 }?.toString()
+                    }
+                    if (!mcc.isNullOrBlank() && !mnc.isNullOrBlank()) {
+                        identifiers.add("mccmnc_${mcc}_${mnc}")
+                        identifiers.add("${mcc}${mnc}")
+                    }
+
+                    // Carrier / Display Name
+                    val carrier = sub.carrierName?.toString()?.trim()
+                    if (!carrier.isNullOrBlank()) {
+                        identifiers.add("carrier_${carrier.lowercase()}")
+                        identifiers.add(carrier.lowercase())
+                    }
+                    val dispName = sub.displayName?.toString()?.trim()
+                    if (!dispName.isNullOrBlank()) {
+                        identifiers.add("carrier_${dispName.lowercase()}")
+                        identifiers.add(dispName.lowercase())
+                    }
+
+                    // Composite carrier + country
+                    val country = sub.countryIso?.trim()?.lowercase()
+                    if (!country.isNullOrBlank() && !carrier.isNullOrBlank()) {
+                        identifiers.add("${carrier.lowercase()}_${country}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error querying SubscriptionManager identifiers: ${e.message}")
+            }
+
+            // 2. Query TelephonyManager (Fallback and enrichment)
+            try {
+                val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+                if (tm != null) {
+                    val simSerial = try { tm.simSerialNumber } catch (_: SecurityException) { null } catch (_: Exception) { null }
+                    if (!simSerial.isNullOrBlank()) {
+                        identifiers.add(simSerial.trim())
+                    }
+
+                    val subId = try { tm.subscriberId } catch (_: SecurityException) { null } catch (_: Exception) { null }
+                    if (!subId.isNullOrBlank()) {
+                        identifiers.add(subId.trim())
+                    }
+
+                    val simOp = tm.simOperator?.trim()
+                    if (!simOp.isNullOrBlank() && simOp.length >= 5) {
+                        identifiers.add("mccmnc_${simOp}")
+                        identifiers.add(simOp)
+                    }
+
+                    val simOpName = tm.simOperatorName?.trim()
+                    if (!simOpName.isNullOrBlank()) {
+                        identifiers.add("carrier_${simOpName.lowercase()}")
+                        identifiers.add(simOpName.lowercase())
+                    }
+
+                    val netOpName = tm.networkOperatorName?.trim()
+                    if (!netOpName.isNullOrBlank()) {
+                        identifiers.add("carrier_${netOpName.lowercase()}")
+                        identifiers.add(netOpName.lowercase())
+                    }
+
+                    val countryIso = tm.simCountryIso?.trim()?.lowercase()
+                    if (!simOpName.isNullOrBlank() && !countryIso.isNullOrBlank()) {
+                        identifiers.add("${simOpName.lowercase()}_${countryIso}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error querying TelephonyManager identifiers: ${e.message}")
+            }
+
+            return identifiers.filter { id ->
+                val trimmed = id.trim()
+                trimmed.isNotBlank() &&
+                trimmed != "_" &&
+                !trimmed.equals("unknown", ignoreCase = true) &&
+                !trimmed.equals("null", ignoreCase = true) &&
+                !trimmed.startsWith("carrier_null") &&
+                !trimmed.startsWith("carrier_unknown") &&
+                !trimmed.startsWith("mccmnc_null") &&
+                trimmed != "mccmnc_0_0" &&
+                trimmed != "unknown_unknown"
+            }.toSet()
+        }
     }
 
     /**
@@ -133,6 +250,31 @@ class SIMChangeReceiver : BroadcastReceiver() {
     }
 
     private suspend fun handleSimRemoved(context: Context) {
+        // Guard 1: Ignore transient SIM ABSENT states during early device boot
+        val uptime = android.os.SystemClock.elapsedRealtime()
+        if (uptime < 60_000L) {
+            Log.i(TAG, "Ignoring transient SIM ABSENT state during early boot (${uptime / 1000}s post-boot).")
+            return
+        }
+
+        // Guard 2: If owner disabled SIM lock protection, do not trigger kiosk lockdown
+        if (!preferencesManager.isSimLockEnabled) {
+            Log.i(TAG, "SIM removal detected but SIM lock protection is disabled by user preference.")
+            return
+        }
+
+        // Guard 3: Brief delay to verify SIM removal is persistent (not a momentary radio glitch)
+        delay(3500L)
+        val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+        val subManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? SubscriptionManager
+        val hasActiveSubs = !subManager?.activeSubscriptionInfoList.isNullOrEmpty()
+        val isSimAbsent = tm?.simState == TelephonyManager.SIM_STATE_ABSENT || (hasActiveSubs.not() && tm?.simState != TelephonyManager.SIM_STATE_READY)
+
+        if (!isSimAbsent || hasActiveSubs) {
+            Log.i(TAG, "Transient SIM event resolved; SIM is still detected. Aborting removal alert.")
+            return
+        }
+
         // 1. Instant Knox Kiosk Lock & Anti-Tamper Hardening
         val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
         val adminComponent = PasaDeviceAdmin.getComponentName(context)
@@ -254,46 +396,87 @@ class SIMChangeReceiver : BroadcastReceiver() {
     }
 
     private suspend fun handleSimLoaded(context: Context) {
-        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-
-        // Wrap in try-catch to prevent SecurityException crash on Android 10+
-        var currentSimId: String? = null
-        if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-            currentSimId = try {
-                telephonyManager.simSerialNumber ?: telephonyManager.subscriberId
-            } catch (e: SecurityException) {
-                Log.w(TAG, "Cannot read SIM serial (Android 10+ restriction): ${e.message}")
-                "${telephonyManager.simOperatorName ?: "unknown"}_${telephonyManager.simCountryIso ?: "unknown"}"
-            }
+        // Guard 1: Device boot settling delay
+        // During early boot, telephony services broadcast LOADED before baseband and carrier data are populated.
+        val uptime = android.os.SystemClock.elapsedRealtime()
+        if (uptime < 60_000L) {
+            Log.i(TAG, "Device booted ${uptime / 1000}s ago. Waiting 6s for telephony stack to stabilize...")
+            delay(6000L)
         }
 
-        val knownSimId = preferencesManager.knownSimId
-        val whitelist = preferencesManager.simLockWhitelist
+        // Collect all active SIM identifiers across SubscriptionManager and TelephonyManager
+        var currentIdentifiers = collectCurrentSimIdentifiers(context)
+        for (retry in 1..3) {
+            if (currentIdentifiers.any { it.isNotBlank() && !it.equals("unknown", ignoreCase = true) }) break
+            delay(2000L)
+            currentIdentifiers = collectCurrentSimIdentifiers(context)
+        }
 
-        // Check if SIM is already authorized or whitelisted
-        val isWhitelisted = currentSimId != null && (whitelist.contains(currentSimId) || (knownSimId != null && currentSimId == knownSimId))
-        if (isWhitelisted) {
-            Log.i(TAG, "SIM state is LOADED and matches authorized SIM. No alert needed.")
+        // Guard 2: If telephony still returned zero valid identifiers, abort to avoid false positive
+        if (currentIdentifiers.isEmpty() || currentIdentifiers.all { it.isBlank() || it.equals("unknown_unknown", ignoreCase = true) || it == "_" }) {
+            Log.i(TAG, "Telephony identifiers not yet resolved post-boot. Skipping evaluation to avoid false positive.")
             return
         }
 
-        // If this is the very first time SIM is detected and knownSimId was empty, enroll it
-        if (knownSimId == null && currentSimId != null) {
-            preferencesManager.knownSimId = currentSimId
-            Log.i(TAG, "Enrolled initial SIM identity: $currentSimId")
+        val rawKnownSimId = preferencesManager.knownSimId?.trim()
+        val knownSimId = rawKnownSimId?.takeIf {
+            it.isNotBlank() && it != "_" && !it.equals("unknown", ignoreCase = true) && !it.equals("null", ignoreCase = true)
+        }
+        val whitelist = preferencesManager.simLockWhitelist
+            .map { it.trim().lowercase() }
+            .filter { it.isNotBlank() && it != "_" && !it.equals("unknown", ignoreCase = true) && !it.equals("null", ignoreCase = true) }
+
+        // Check if ANY current identifier matches knownSimId or whitelist
+        val isAuthorized = currentIdentifiers.any { id ->
+            val idLower = id.lowercase()
+            (knownSimId != null && knownSimId.lowercase() == idLower) ||
+            whitelist.contains(idLower)
+        }
+
+        if (isAuthorized) {
+            Log.i(TAG, "SIM state is LOADED and matches authorized SIM identity. No action needed.")
+            // Auto-enrich whitelist with any newly resolved identifiers
+            val enriched = (preferencesManager.simLockWhitelist + currentIdentifiers).distinct()
+            preferencesManager.simLockWhitelist = enriched
+            if (preferencesManager.knownSimId.isNullOrBlank() || preferencesManager.knownSimId == "_") {
+                preferencesManager.knownSimId = currentIdentifiers.firstOrNull()
+            }
+            return
+        }
+
+        // Auto-enroll if knownSimId was never initialized and whitelist is empty
+        if (knownSimId.isNullOrBlank() && whitelist.isEmpty()) {
+            preferencesManager.knownSimId = currentIdentifiers.firstOrNull()
+            preferencesManager.simLockWhitelist = currentIdentifiers.toList()
+            Log.i(TAG, "Enrolled initial SIM identities: $currentIdentifiers")
+            return
+        }
+
+        // If SIM lock protection is disabled by user, do NOT treat this as hostile
+        if (!preferencesManager.isSimLockEnabled) {
+            Log.i(TAG, "New SIM detected but SIM lock is disabled by user preference. Updating enrolled SIM identity.")
+            val updated = (preferencesManager.simLockWhitelist + currentIdentifiers).distinct()
+            preferencesManager.simLockWhitelist = updated
+            preferencesManager.knownSimId = currentIdentifiers.firstOrNull()
             return
         }
 
         // --- UNAUTHORIZED / FOREIGN SIM INSERTED ---
         Log.w(TAG, "🚨 CRITICAL: Foreign / Unauthorized SIM card inserted into device!")
 
+        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+
         // 1. Capture IMEI and phone number
         val imei = getDeviceImei(context) ?: "Unknown"
         val phoneNumber = getPhoneNumber(context)
 
-        val operatorName = telephonyManager.networkOperatorName ?: "Unknown"
-        val simOperator = telephonyManager.simOperatorName ?: "Unknown"
-        val countryCode = telephonyManager.simCountryIso?.uppercase() ?: "Unknown"
+        val operatorName = telephonyManager?.networkOperatorName?.takeIf { it.isNotBlank() }
+            ?: telephonyManager?.simOperatorName?.takeIf { it.isNotBlank() }
+            ?: "Unknown Carrier"
+        val simOperator = telephonyManager?.simOperator?.takeIf { it.isNotBlank() }
+            ?: "Unknown Provider"
+        val countryCode = telephonyManager?.simCountryIso?.uppercase()?.takeIf { it.isNotBlank() }
+            ?: "Unknown"
 
         // 2. Fetch GNSS location
         val location = try { locationTracker.getCurrentLocation() } catch (_: Exception) { null }

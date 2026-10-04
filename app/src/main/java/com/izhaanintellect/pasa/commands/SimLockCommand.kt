@@ -106,44 +106,54 @@ class SimLockCommand @Inject constructor(
     }
 
     private fun whitelistSim(imsiOrArg: String?): CommandResult {
-        val subscriptionManager = context.getSystemService(SubscriptionManager::class.java)
-        val activeSubscriptions = subscriptionManager?.activeSubscriptionInfoList ?: emptyList()
-
-        if (activeSubscriptions.isEmpty()) {
-            return CommandResult(
-                success = false,
-                message = "❌ No active SIM found to whitelist."
-            )
-        }
-
-        val subInfo = activeSubscriptions.firstOrNull()
-        val iccid = subInfo?.iccId ?: ""
-
-        if (iccid.isBlank()) {
-            return CommandResult(
-                success = false,
-                message = "❌ Unable to read SIM ICCID. Check permissions."
-            )
-        }
-
-        // Add to whitelist
         val currentWhitelist = preferencesManager.simLockWhitelist.toMutableList()
-        if (!currentWhitelist.contains(iccid)) {
-            currentWhitelist.add(iccid)
-            preferencesManager.simLockWhitelist = currentWhitelist
+
+        if (!imsiOrArg.isNullOrBlank()) {
+            val token = imsiOrArg.trim()
+            if (!currentWhitelist.contains(token)) {
+                currentWhitelist.add(token)
+                preferencesManager.simLockWhitelist = currentWhitelist
+            }
+            return CommandResult(
+                success = true,
+                message = """
+                    ✅ <b>SIM Identifier Whitelisted</b>
+                    ━━━━━━━━━━━━━━━━━━━━
+                    📡 <b>Identifier:</b> <code>$token</code>
+
+                    ✓ This identifier is now trusted
+                    ✓ SIM swaps to unknown SIMs will still trigger alert
+
+                    <b>Whitelisted SIMs:</b> ${currentWhitelist.size}
+                """.trimIndent()
+            )
+        }
+
+        val identifiers = com.izhaanintellect.pasa.detection.SIMChangeReceiver.collectCurrentSimIdentifiers(context)
+        if (identifiers.isEmpty()) {
+            return CommandResult(
+                success = false,
+                message = "❌ Unable to resolve active SIM identifiers. Check SIM insertion and permissions."
+            )
+        }
+
+        val enriched = (currentWhitelist + identifiers).distinct()
+        preferencesManager.simLockWhitelist = enriched
+        if (preferencesManager.knownSimId.isNullOrBlank() || preferencesManager.knownSimId == "_") {
+            preferencesManager.knownSimId = identifiers.firstOrNull()
         }
 
         return CommandResult(
             success = true,
             message = """
-                ✅ <b>SIM Whitelisted</b>
+                ✅ <b>Active SIM Whitelisted</b>
                 ━━━━━━━━━━━━━━━━━━━━
-                📡 <b>ICCID:</b> <code>${iccid.take(10)}...***</code>
+                📡 <b>Enrolled Keys:</b> <code>${identifiers.take(5).joinToString(", ")}</code>
 
-                ✓ This SIM is now trusted
+                ✓ All identifiers for this SIM are now trusted
                 ✓ SIM swaps to unknown SIMs will still trigger alert
 
-                <b>Whitelisted SIMs:</b> ${currentWhitelist.size}
+                <b>Whitelisted SIMs:</b> ${enriched.size}
             """.trimIndent()
         )
     }

@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 83,
+    "versionName": "3.7.18",
+    "releaseDate": "2026-10-04",
+    "fileName": "pasa-v3.7.18-83.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.18-83.apk",
+    "sha256": "0f9b4465cf8201cd88e3224ab925c864d4682210be02e7b68b7d418e36d82582",
+    "size": 19333003,
+    "mandatory": false,
+    "releaseNotes": "v3.7.18: Removed static certificate pinning for Telegram API to prevent C2 failures across edge cert rotations; hardened SIM tamper detection to eliminate reboot false positives, added boot-gap settling delays, multi-identifier whitelist recognition (ICCID, MCC+MNC, Carrier name), and prevented unauthorized auto-lockdown."
+  },
+  {
     "versionCode": 82,
     "versionName": "3.7.17",
     "releaseDate": "2026-10-04",

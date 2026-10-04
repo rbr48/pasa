@@ -200,18 +200,28 @@ class SimTrayLockCommand @Inject constructor(
             val subManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? SubscriptionManager
             val subs = subManager?.activeSubscriptionInfoList
 
-            if (subs.isNullOrEmpty()) {
+            val currentIdentifiers = com.izhaanintellect.pasa.detection.SIMChangeReceiver.collectCurrentSimIdentifiers(context)
+
+            if (subs.isNullOrEmpty() && currentIdentifiers.isEmpty()) {
                 return CommandResult(false, "❌ No active SIM found to whitelist.")
             }
 
             val whitelist = preferencesManager.simLockWhitelist.toMutableList()
             val added = mutableListOf<String>()
 
-            subs.forEach { sub ->
-                val iccid = sub.iccId ?: return@forEach
-                if (!whitelist.contains(iccid)) {
+            subs?.forEach { sub ->
+                val iccid = sub.iccId
+                if (!iccid.isNullOrBlank() && !whitelist.contains(iccid)) {
                     whitelist.add(iccid)
                     added.add("SIM ${sub.simSlotIndex + 1}: ${sub.displayName} (${iccid.take(8)}...)")
+                } else if (!sub.displayName.isNullOrBlank()) {
+                    added.add("SIM ${sub.simSlotIndex + 1}: ${sub.displayName}")
+                }
+            }
+
+            currentIdentifiers.forEach { id ->
+                if (!whitelist.contains(id)) {
+                    whitelist.add(id)
                 }
             }
 
