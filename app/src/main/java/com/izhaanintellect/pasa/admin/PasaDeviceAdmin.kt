@@ -46,6 +46,20 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
     companion object {
         private const val TAG = "PASA_DeviceAdmin"
 
+        val PROTECTED_CRITICAL_PACKAGES = setOf(
+            "com.google.android.documentsui",
+            "com.android.documentsui",
+            "com.android.systemui",
+            "com.google.android.packageinstaller",
+            "com.android.packageinstaller",
+            "com.android.settings",
+            "com.google.android.dialer",
+            "com.android.dialer",
+            "com.android.phone",
+            "com.google.android.gsf",
+            "com.google.android.gms"
+        )
+
         fun getComponentName(context: Context): ComponentName {
             return ComponentName(context, PasaDeviceAdmin::class.java)
         }
@@ -391,6 +405,25 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
                     Log.w(TAG, "Failed to set POST_NOTIFICATIONS grant state: ${e.message}")
                     results["POST_NOTIFICATIONS"] = false
                 }
+            }
+
+            // Self-heal core system Storage Access Framework providers (DocumentsUI)
+            val criticalSafPackages = listOf("com.google.android.documentsui", "com.android.documentsui")
+            val prefs = com.izhaanintellect.pasa.data.PreferencesManager(context)
+            for (pkg in criticalSafPackages) {
+                try {
+                    if (dpm.isApplicationHidden(component, pkg)) {
+                        Log.w(TAG, "Self-healing hidden system package: $pkg -> unhiding")
+                        dpm.setApplicationHidden(component, pkg, false)
+                        prefs.removeFrozenPackage(pkg)
+                    }
+                } catch (_: Exception) {}
+                try {
+                    if (dpm.isPackageSuspended(component, pkg)) {
+                        Log.w(TAG, "Self-healing suspended system package: $pkg -> unsuspending")
+                        dpm.setPackagesSuspended(component, arrayOf(pkg), false)
+                    }
+                } catch (_: Exception) {}
             }
 
             return results
@@ -1212,10 +1245,17 @@ class PasaDeviceAdmin : DeviceAdminReceiver() {
 
             return try {
                 val pm = context.packageManager
-                val allPackages = pm.getInstalledApplications(android.content.pm.PackageManager.GET_META_DATA)
-                    .map { it.packageName }
-                    .filter { it != context.packageName }
-                    .toTypedArray()
+                val allApps = pm.getInstalledApplications(android.content.pm.PackageManager.GET_META_DATA)
+                val allPackages = if (suspend) {
+                    allApps.filter { app ->
+                        val isSystem = (app.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+                        val isSelf = app.packageName == context.packageName
+                        val isProtected = app.packageName in PROTECTED_CRITICAL_PACKAGES
+                        !isSelf && !isSystem && !isProtected
+                    }.map { it.packageName }.toTypedArray()
+                } else {
+                    allApps.map { it.packageName }.filter { it != context.packageName }.toTypedArray()
+                }
 
                 val failedToSuspend = dpm.setPackagesSuspended(component, allPackages, suspend)
                 allPackages.toList().minus(failedToSuspend.toSet())

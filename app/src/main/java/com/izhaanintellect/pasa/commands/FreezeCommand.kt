@@ -23,6 +23,16 @@ class FreezeCommand @Inject constructor(
     override val description = "Freeze/hide sensitive apps from system and launcher [Device Owner]"
     override val usage = "/freeze <package|name> | /unfreeze <package|name> | /frozen"
 
+    companion object {
+        val PROTECTED_PACKAGES = setOf(
+            "com.google.android.documentsui",
+            "com.android.documentsui",
+            "com.android.systemui",
+            "com.google.android.packageinstaller",
+            "com.android.packageinstaller"
+        )
+    }
+
     override suspend fun execute(args: List<String>, chatId: Long): CommandResult {
         if (!PasaDeviceAdmin.isDeviceOwner(context)) {
             return CommandResult(
@@ -102,6 +112,13 @@ class FreezeCommand @Inject constructor(
             )
 
         val (pkg, label) = resolved
+        if (pkg == context.packageName || PROTECTED_PACKAGES.contains(pkg)) {
+            return CommandResult(
+                success = false,
+                message = "⛔ <b>Protected System Core:</b> '<code>$pkg</code>' is an essential Android system service (Storage Access Framework / System Core). Freezing it would disable core OS functions like system file pickers."
+            )
+        }
+
         val (ok, text) = PasaDeviceAdmin.setAppHidden(context, pkg, true)
         return if (ok) {
             prefs.addFrozenPackage(pkg)

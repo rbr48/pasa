@@ -56,12 +56,24 @@ class AppLockCommand @Inject constructor(
         )
 
         private val KNOWN_FILE_MANAGERS = listOf(
+            "com.google.android.apps.nbu.files", // Files by Google
+            "com.sec.android.app.myfiles",        // Samsung My Files
+            "com.mi.android.globalFileexplorer",  // Xiaomi File Manager
+            "com.coloros.filemanager",            // OPPO / Realme File Manager
+            "com.huawei.hidisk",                  // Huawei File Manager
+            "com.oneplus.filemanager",            // OnePlus File Manager
+            "com.motorola.filemanager",           // Motorola File Manager
+            "pl.solidexplorer2",                  // Solid Explorer
+            "com.lonelycatgames.Xplore",          // X-plore
+            "com.alphainventor.filemanager"       // File Manager+
+        )
+
+        val PROTECTED_PACKAGES = setOf(
             "com.google.android.documentsui",
-            "com.sec.android.app.myfiles",
-            "com.mi.android.globalFileexplorer",
-            "com.coloros.filemanager",
-            "com.huawei.hidisk",
-            "com.android.documentsui"
+            "com.android.documentsui",
+            "com.android.systemui",
+            "com.google.android.packageinstaller",
+            "com.android.packageinstaller"
         )
     }
 
@@ -133,10 +145,22 @@ class AppLockCommand @Inject constructor(
             )
         }
 
+        // Filter out protected system core packages
+        val eligiblePackages = packagesToLock.filter {
+            it != context.packageName && !PROTECTED_PACKAGES.contains(it)
+        }
+
+        if (eligiblePackages.isEmpty()) {
+            return CommandResult(
+                success = false,
+                message = "⛔ <b>Protected System Core:</b> The target application (<code>$target</code>) is an essential Android system service (Storage Access Framework / System Core). Locking it would disable system file pickers or core OS features."
+            )
+        }
+
         val lockedList = mutableListOf<String>()
         val pm = context.packageManager
 
-        for (pkg in packagesToLock) {
+        for (pkg in eligiblePackages) {
             val (ok, _) = PasaDeviceAdmin.setAppHidden(context, pkg, true)
             if (ok) {
                 prefs.addFrozenPackage(pkg)

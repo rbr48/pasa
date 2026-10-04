@@ -8,8 +8,8 @@ This directory hosts verified production release binaries of **PASA Sentinel (Pr
 
 | File | Release | Build | Size | Direct Link |
 |---|---|---|---|---|
-| **`pasa-v3.7.18-83.apk`** | `v3.7.18` (Latest Production) | Build 83 | 18.44 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.7.18-83.apk) |
-| **`pasa-latest.apk`** | Rolling Latest | Build 83 | 18.44 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
+| **`pasa-v3.7.19-84.apk`** | `v3.7.19` (Latest Production) | Build 84 | 18.44 MB | [Download APK](https://github.com/rbr48/pasa/raw/main/releases/pasa-v3.7.19-84.apk) |
+| **`pasa-latest.apk`** | Rolling Latest | Build 84 | 18.44 MB | [Download Latest](https://github.com/rbr48/pasa/raw/main/releases/pasa-latest.apk) |
 | **`PASA-Device-Owner-Setup-Kit.zip`** | Guided Setup Wizard | Windows ADB | 12.3 KB | [Download Kit](https://github.com/rbr48/pasa/raw/main/releases/PASA-Device-Owner-Setup-Kit.zip) |
 
 * **High-Speed Global CDN Mirror:** [https://pasa.izhaanintellect.fun/releases/pasa-latest.apk](https://pasa.izhaanintellect.fun/releases/pasa-latest.apk)
@@ -18,21 +18,21 @@ This directory hosts verified production release binaries of **PASA Sentinel (Pr
 
 ---
 
-## 🔐 Cryptographic Integrity (v3.7.18 Build 83)
+## 🔐 Cryptographic Integrity (v3.7.19 Build 84)
 
 Always verify the SHA-256 checksum before sideloading onto your phone:
 
-* **File:** `pasa-v3.7.18-83.apk` / `pasa-latest.apk`
-* **File Size:** `19,333,003 bytes` (18.44 MB)
+* **File:** `pasa-v3.7.19-84.apk` / `pasa-latest.apk`
+* **File Size:** `19,332,992 bytes` (18.44 MB)
 * **SHA-256 Checksum:**
   ```text
-  0f9b4465cf8201cd88e3224ab925c864d4682210be02e7b68b7d418e36d82582
+  db0811cf5ecf0a5c9d98423330e03080f3e938a7fb2ee7def76e2edf2f46532c
   ```
 * **Setup Kit SHA-256:**
   ```text
   7d1f99b6bfaf9975e570414bd1907b30e036952d3601601ee4cebde668080766
   ```
-* **VirusTotal Multi-AV Consensus:** [Inspect Clean Report](https://www.virustotal.com/gui/file/0f9b4465cf8201cd88e3224ab925c864d4682210be02e7b68b7d418e36d82582)
+* **VirusTotal Multi-AV Consensus:** [Inspect Clean Report](https://www.virustotal.com/gui/file/db0811cf5ecf0a5c9d98423330e03080f3e938a7fb2ee7def76e2edf2f46532c)
 
 ### Verify Checksum:
 - **Windows (PowerShell):**

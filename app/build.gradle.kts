@@ -23,8 +23,8 @@ android {
         applicationId = "com.izhaanintellect.pasa"
         minSdk = 26
         targetSdk = 36
-        versionCode = 83
-        versionName = "3.7.18"
+        versionCode = 84
+        versionName = "3.7.19"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

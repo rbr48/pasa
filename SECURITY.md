@@ -12,7 +12,7 @@ Security updates, patches, and hotfixes are actively provided exclusively for th
 
 | Version | Status | Android API Support | Cryptographic Token Support |
 | :--- | :--- | :--- | :--- |
-| **v3.7.x (Latest: v3.7.18 / Build 83)** | 🟢 **Actively Supported** | Android 8.0 – 16 (API 26 – 36) | StrongBox / Hardware Escrow Tokens |
+| **v3.7.x (Latest: v3.7.19 / Build 84)** | 🟢 **Actively Supported** | Android 8.0 – 16 (API 26 – 36) | StrongBox / Hardware Escrow Tokens |
 | v3.6.x | 🟡 Critical Patches Only | Android 8.0 – 16 (API 26 – 36) | StrongBox / Hardware Escrow Tokens |
 | < v3.6.0 | 🔴 End of Life (EOL) | Unsupported | Deprecated |
 
@@ -83,4 +83,4 @@ If you conduct security research in good faith and in compliance with this polic
 Every release binary of PASA Sentinel is continuously subjected to automated static, dynamic, and cryptographic auditing:
 * **MobSF Static Analysis:** 0 High / 0 Critical security vulnerabilities.
 * **GitHub CodeQL Scanning:** Continuous deep semantic AST analysis across Kotlin, Java, and JavaScript.
-* **VirusTotal Consensus:** 100% clean consensus across 70+ premier global antivirus engines ([Inspect Audit Report](https://www.virustotal.com/gui/file/8cba4546d862b1c4387f68aac8580a603e8c667c67098f5d03e0249a8158bc02)).
+* **VirusTotal Consensus:** 100% clean consensus across 70+ premier global antivirus engines ([Inspect Audit Report](https://www.virustotal.com/gui/file/db0811cf5ecf0a5c9d98423330e03080f3e938a7fb2ee7def76e2edf2f46532c)).

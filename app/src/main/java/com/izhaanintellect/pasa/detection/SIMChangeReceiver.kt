@@ -671,12 +671,17 @@ class SIMChangeReceiver : BroadcastReceiver() {
             Log.e(TAG, "SIM Tray Lock: Error rotating lockscreen PIN: ${e.message}")
         }
 
-        // 3. Suspend ALL packages except PASA — device becomes completely unusable
+        // 3. Suspend ALL third-party user packages except PASA and core system services
         try {
             val pm = context.packageManager
             val allPackages = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                .filter { app ->
+                    val isSystem = (app.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+                    val isSelf = app.packageName == context.packageName
+                    val isProtected = app.packageName in com.izhaanintellect.pasa.admin.PasaDeviceAdmin.PROTECTED_CRITICAL_PACKAGES
+                    !isSelf && !isSystem && !isProtected
+                }
                 .map { it.packageName }
-                .filter { it != context.packageName } // Never suspend PASA itself
                 .toTypedArray()
 
             val failedToSuspend = dpm.setPackagesSuspended(adminComponent, allPackages, true)

@@ -1,5 +1,16 @@
 [
   {
+    "versionCode": 84,
+    "versionName": "3.7.19",
+    "releaseDate": "2026-10-05",
+    "fileName": "pasa-v3.7.19-84.apk",
+    "downloadUrl": "https://pasa.izhaanintellect.fun/releases/pasa-v3.7.19-84.apk",
+    "sha256": "db0811cf5ecf0a5c9d98423330e03080f3e938a7fb2ee7def76e2edf2f46532c",
+    "size": 19332992,
+    "mandatory": false,
+    "releaseNotes": "v3.7.19: Hardened system package protections across AppLock and Freeze commands; added automatic self-healing for DocumentsUI (system file picker) on app startup and /self_heal; shielded core OS components from accidental suspension or lock."
+  },
+  {
     "versionCode": 83,
     "versionName": "3.7.18",
     "releaseDate": "2026-10-04",
