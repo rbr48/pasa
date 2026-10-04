@@ -77,7 +77,7 @@ jobs:
 
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG already exists, updating notes and assets..."
-            gh release edit "$TAG" --title "PASA Sentinel $TAG (Build $VERSION_CODE)" --notes-file release_notes.md --latest
+            gh release edit "$TAG" --title "PASA Sentinel $TAG (Build $VERSION_CODE)" --notes-file release_notes.md --draft=false --prerelease=false --latest
             gh release upload "$TAG" "${ASSETS[@]}" --clobber
           else
             echo "Creating new release for $TAG..."
