@@ -27,6 +27,7 @@ pasa-commercial-web/
 # Internal AI Agent Memory & Directives
 AGENTS.md
 GEMINI.md
+RELEASE_GUIDELINE.md
 .agents/
 docs/archive/
 .deploy.local.ps1
